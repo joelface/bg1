@@ -4,6 +4,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { StoredToken, TokenStale } from '../token';
 import { ApiClient } from '../virtual-queue';
 import BGClient from './BGClient';
+import Disclaimer, { useDisclaimer } from './Disclaimer';
 import LoginForm from './LoginForm';
 
 interface Props {
@@ -16,8 +17,11 @@ export default function App({
   client,
 }: Props): h.JSX.Element | null {
   const [screenName, show] = useState<keyof typeof screens>('Blank');
+  const [disclaimerAccepted, acceptDisclaimer] = useDisclaimer();
 
   useEffect(() => {
+    if (!disclaimerAccepted) return show('Disclaimer');
+
     try {
       accessToken.get();
     } catch (e) {
@@ -25,7 +29,7 @@ export default function App({
       throw e;
     }
     show('BGClient');
-  }, [accessToken]);
+  }, [accessToken, disclaimerAccepted]);
 
   function onLogin(token: string, expires: Date) {
     accessToken.set(token, expires);
@@ -34,6 +38,7 @@ export default function App({
 
   const screens = {
     Blank: <div />,
+    Disclaimer: <Disclaimer onAccept={acceptDisclaimer} />,
     LoginForm: <LoginForm onLogin={onLogin} />,
     BGClient: <BGClient client={client} />,
   };
