@@ -10,22 +10,22 @@ export default function TimeBoard({
 }): h.JSX.Element {
   return (
     <table className="mt-4 mx-auto text-gray-500">
-      <tr>
-        <th className="pr-3 text-right text-xs font-semibold uppercase">
-          Next queue opening:
-        </th>
-        <td className="text-xl font-mono leading-tight">
-          <time>{queue.nextScheduledOpenTime || '07:00:00'}</time>
-        </td>
-      </tr>
-      <tr>
-        <th className="pr-3 text-right text-xs font-semibold uppercase">
-          Current time:
-        </th>
-        <td className="text-xl font-mono leading-tight">
-          <Clock />
-        </td>
-      </tr>
+      <Row
+        heading="Next queue opening"
+        time={<time>{queue.nextScheduledOpenTime || '07:00:00'}</time>}
+      />
+      <Row heading="Current time" time={<Clock />} />
     </table>
+  );
+}
+
+function Row({ heading, time }: { heading: string; time: h.JSX.Element }) {
+  return (
+    <tr>
+      <th className="pr-3 text-right text-xs font-semibold uppercase">
+        {heading}:
+      </th>
+      <td className="text-xl font-mono leading-tight">{time}</td>
+    </tr>
   );
 }
