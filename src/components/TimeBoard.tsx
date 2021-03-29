@@ -4,7 +4,7 @@ import Clock from './Clock';
 import { Queue } from '../virtual-queue';
 
 interface TimeBoardProps {
-  queue: Queue;
+  queue: Pick<Queue, 'nextScheduledOpenTime'>;
 }
 
 export default function TimeBoard({ queue }: TimeBoardProps): h.JSX.Element {

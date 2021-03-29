@@ -1,3 +1,4 @@
+import { rotr, queues, guests } from '../__fixtures__/vq';
 import { vqUrl, ApiClient, QueueNotFound } from '../virtual-queue';
 
 const fetchJson = jest.fn();
@@ -36,13 +37,6 @@ describe('Client', () => {
     fetchJson.mockReset();
   });
 
-  const rotr = {
-    queueId: '3720fcab-537c-4b2b-b3b2-37918ac7df8f',
-    name: 'Star Wars: Rise of the Resistance',
-    nextScheduledOpenTime: null,
-    isAcceptingJoins: false,
-  };
-  const queues = [rotr];
   const queueClosedRes = response({ queues });
 
   describe('getQueues()', () => {
@@ -73,22 +67,6 @@ describe('Client', () => {
     });
   });
 
-  const guests = [
-    {
-      guestId: 'virtualq-link-id:d0n4ld',
-      firstName: 'Donald',
-      lastName: 'Duck',
-      avatarImageUrl: 'https://example.com/donald.png',
-      isPreselected: true,
-    },
-    {
-      guestId: 'virtualq-link-id:d415y',
-      firstName: 'Daisy',
-      lastName: 'Duck',
-      avatarImageUrl: 'https://example.com/daisy.png',
-      isPreselected: false,
-    },
-  ];
   const guestsRes = response({ guests });
 
   describe('getLinkedGuests()', () => {
