@@ -2,17 +2,15 @@ import { h, Fragment } from 'preact';
 
 import { Queue } from '../virtual-queue';
 
-interface QueueSelectorProps {
+export default function QueueSelector({
+  queues,
+  selected,
+  onChange,
+}: {
   queues: Queue[];
   selected: Queue;
   onChange: (value: string) => void;
-}
-
-export default function QueueSelector({
-  selected,
-  queues,
-  onChange,
-}: QueueSelectorProps): h.JSX.Element {
+}): h.JSX.Element {
   return (
     <>
       {queues.length === 1 ? (

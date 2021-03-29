@@ -1,18 +1,16 @@
 import { h, ComponentChildren } from 'preact';
 
-interface Props {
-  onClick?: () => void;
-  disabled?: boolean;
-  href?: string;
-  children: ComponentChildren;
-}
-
 export default function FloatingButton({
   onClick,
   disabled,
   href,
   children,
-}: Props): h.JSX.Element {
+}: {
+  onClick?: () => void;
+  disabled?: boolean;
+  href?: string;
+  children: ComponentChildren;
+}): h.JSX.Element {
   return (
     <div className="mb-20">
       <div className="fixed bottom-0 left-0 w-full bg-white bg-opacity-75 text-center">

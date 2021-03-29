@@ -2,18 +2,16 @@ import { h } from 'preact';
 
 import { Guest } from '../virtual-queue';
 
-interface GuestListProps {
+export default function GuestList({
+  guests,
+  selectable,
+}: {
   guests: Guest[];
   selectable?: {
     isSelected: (guest: Guest) => boolean;
     onToggle: (guest: Guest) => void;
   };
-}
-
-export default function GuestList({
-  guests,
-  selectable,
-}: GuestListProps): h.JSX.Element {
+}): h.JSX.Element {
   return (
     <ul className="mt-3 ml-3">
       {guests.map(g => (

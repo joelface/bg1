@@ -3,11 +3,11 @@ import { h } from 'preact';
 import Clock from './Clock';
 import { Queue } from '../virtual-queue';
 
-interface TimeBoardProps {
+export default function TimeBoard({
+  queue,
+}: {
   queue: Pick<Queue, 'nextScheduledOpenTime'>;
-}
-
-export default function TimeBoard({ queue }: TimeBoardProps): h.JSX.Element {
+}): h.JSX.Element {
   return (
     <table className="mt-4 mx-auto text-gray-500">
       <tr>

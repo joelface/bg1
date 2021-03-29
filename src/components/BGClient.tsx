@@ -10,14 +10,14 @@ import TimeBoard from './TimeBoard';
 
 const JOIN_QUEUE_MIN_MS = 500;
 
-interface Props {
+export default function BGClient({
+  client,
+}: {
   client: Pick<
     ApiClient,
     'getQueues' | 'isQueueOpen' | 'joinQueue' | 'getLinkedGuests'
   >;
-}
-
-export default function BGClient({ client }: Props): h.JSX.Element | null {
+}): h.JSX.Element | null {
   const [queues, setQueues] = useState<Queue[]>([]);
   const [queue, setQueue] = useState<Queue | null>(null);
   const [guests, setGuests] = useState<Guest[]>([]);

@@ -3,11 +3,11 @@ import { useEffect, useRef } from 'preact/hooks';
 
 import { AuthClient } from '../auth-client';
 
-interface Props {
+export default function LoginForm({
+  onLogin,
+}: {
   onLogin: (token: string, expires: Date) => void;
-}
-
-export default function LoginForm({ onLogin }: Props): h.JSX.Element {
+}): h.JSX.Element {
   const iframe = useRef<HTMLIFrameElement | null>(null);
 
   useEffect(() => {

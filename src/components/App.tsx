@@ -8,15 +8,13 @@ import Disclaimer, { useDisclaimer } from './Disclaimer';
 import LoginForm from './LoginForm';
 import WrongPage from './WrongPage';
 
-interface Props {
-  accessToken: StoredToken;
-  client: ApiClient;
-}
-
 export default function App({
   accessToken,
   client,
-}: Props): h.JSX.Element | null {
+}: {
+  accessToken: StoredToken;
+  client: ApiClient;
+}): h.JSX.Element | null {
   const [screenName, show] = useState<keyof typeof screens>('Blank');
   const [disclaimerAccepted, acceptDisclaimer] = useDisclaimer();
 

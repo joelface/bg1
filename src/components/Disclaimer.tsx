@@ -3,11 +3,11 @@ import { useEffect, useState } from 'preact/hooks';
 
 import FloatingButton from './FloatingButton';
 
-interface Props {
+export default function Disclaimer({
+  onAccept,
+}: {
   onAccept: () => void;
-}
-
-export default function Disclaimer({ onAccept }: Props): h.JSX.Element {
+}): h.JSX.Element {
   return (
     <>
       <h1 className="text-xl font-semibold">Disclaimer</h1>

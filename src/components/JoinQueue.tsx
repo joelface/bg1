@@ -5,17 +5,15 @@ import { Guest } from '../virtual-queue';
 import FloatingButton from './FloatingButton';
 import GuestList from './GuestList';
 
-interface JoinQueueProps {
-  guests: Guest[];
-  onJoin: () => Promise<unknown>;
-  onEdit: () => void;
-}
-
 export default function JoinQueue({
   guests,
   onJoin,
   onEdit,
-}: JoinQueueProps): h.JSX.Element {
+}: {
+  guests: Guest[];
+  onJoin: () => Promise<unknown>;
+  onEdit: () => void;
+}): h.JSX.Element {
   const [joinDisabled, setJoinDisabled] = useState<boolean>(false);
 
   async function onJoinClick() {
