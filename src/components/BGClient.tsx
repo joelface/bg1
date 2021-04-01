@@ -90,7 +90,7 @@ export default function BGClient({
     ),
   };
 
-  return queue ? (
+  return queue && guests.length ? (
     <>
       <h1 className="border-b-2 border-gray-200">
         <QueueSelector
