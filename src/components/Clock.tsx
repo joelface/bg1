@@ -1,24 +1,22 @@
 import { h } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect } from 'preact/hooks';
 
 import { dateTimeStrings } from '../datetime';
+import * as timeIs from '../time-is';
 
-function now() {
-  return dateTimeStrings().time.slice(0, 8);
+function updateTime(id: string) {
+  const elem = document.getElementById(id);
+  if (!elem || elem.firstElementChild) return;
+  elem.textContent = dateTimeStrings().time.slice(0, 8);
+  setTimeout(() => updateTime(id), 100);
 }
 
 export default function Clock(): h.JSX.Element {
-  const [time, setTime] = useState(now());
-
+  const id = '_z161'; // US Eastern time
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      setTime(now());
-    }, 100);
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, []);
-
-  return <time>{time}</time>;
+    timeIs.add(id);
+    updateTime(id);
+    return () => timeIs.remove(id);
+  }, [id]);
+  return <time id={id} />;
 }

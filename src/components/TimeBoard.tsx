@@ -14,18 +14,36 @@ export default function TimeBoard({
         heading="Next queue opening"
         time={<time>{queue.nextScheduledOpenTime || '07:00:00'}</time>}
       />
-      <Row heading="Current time" time={<Clock />} />
+      <Row
+        heading={
+          <a
+            href="https://time.is/Orlando"
+            id="time_is_link"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Current time
+          </a>
+        }
+        time={<Clock />}
+      />
     </table>
   );
 }
 
-function Row({ heading, time }: { heading: string; time: h.JSX.Element }) {
+function Row({
+  heading,
+  time,
+}: {
+  heading: string | h.JSX.Element;
+  time: h.JSX.Element;
+}) {
   return (
     <tr>
       <th className="pr-3 text-right text-xs font-semibold uppercase">
         {heading}:
       </th>
-      <td className="text-xl font-mono leading-tight">{time}</td>
+      <td className="text-xl font-mono leading-tight">&#xfeff;{time}</td>
     </tr>
   );
 }
