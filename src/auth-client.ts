@@ -39,7 +39,7 @@ function isDeferrable(sendable: Sendable): sendable is DeferrableMessage {
 }
 
 export class AuthClient {
-  protected handlers: Record<string, SendableHandler | null> = {};
+  protected handlers: Record<string, SendableHandler> = {};
   protected handshakeAcked = false;
 
   constructor(
@@ -85,24 +85,18 @@ export class AuthClient {
     if (this.logging) console.log('Message:', message);
     const name = message.type === 'message' ? message.eventName : message.type;
     const handler = this.handlers[name];
-    if (handler) {
-      const result = handler('data' in message ? message.data : null);
-      if (isDeferrable(message) && result !== undefined) {
-        this.resolve(message, result);
-      }
-    } else if (handler === undefined) {
-      if (isDeferrable(message)) this.resolve(message, {});
+    const result = handler
+      ? handler('data' in message ? message.data : null)
+      : undefined;
+    if (isDeferrable(message)) {
+      this.send({
+        type: 'deferred',
+        action: 'resolve',
+        deferredUuid: message.deferredUuid,
+        data: result === undefined ? {} : result,
+      });
     }
   };
-
-  protected resolve(message: DeferrableMessage, result: unknown): void {
-    this.send({
-      type: 'deferred',
-      action: 'resolve',
-      deferredUuid: message.deferredUuid,
-      data: result,
-    });
-  }
 
   protected send(sendable: Sendable): void {
     this.iframe.contentWindow?.postMessage(
