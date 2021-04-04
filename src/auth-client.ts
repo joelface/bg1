@@ -43,13 +43,12 @@ export class AuthClient {
 
   constructor(
     protected iframe: HTMLIFrameElement,
-    onLogin: (token: string, expires: Date) => void
+    onLogin: (token: string, expires: Date) => void,
+    protected logging = false
   ) {
     this.on('handshake', () => {
       this.send({ type: 'handshakeAck' });
-      if ((import.meta as any).env.DEV) {
-        this.sendMessage('setLogLevel', { level: 'log' });
-      }
+      if (this.logging) this.sendMessage('setLogLevel', { level: 'log' });
       this.sendMessage('workflow.run', { name: 'login' });
     });
     this.on('lightbox.hide', () => this.open());
@@ -79,7 +78,7 @@ export class AuthClient {
     if (event.source !== this.iframe.contentWindow) return;
     if (event.data === 'inner.loaded') return;
     const message = JSON.parse(event.data) as Sendable;
-    if ((import.meta as any).env.DEV) console.log('Message:', message);
+    if (this.logging) console.log('Message:', message);
     const name = message.type === 'message' ? message.eventName : message.type;
     const handler = this.handlers[name];
     if (handler) {
