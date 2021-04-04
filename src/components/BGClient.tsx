@@ -13,10 +13,7 @@ const JOIN_QUEUE_MIN_MS = 500;
 export default function BGClient({
   client,
 }: {
-  client: Pick<
-    ApiClient,
-    'getQueues' | 'isQueueOpen' | 'joinQueue' | 'getLinkedGuests'
-  >;
+  client: Public<ApiClient>;
 }): h.JSX.Element | null {
   const [queues, setQueues] = useState<Queue[]>([]);
   const [queue, setQueue] = useState<Queue | null>(null);

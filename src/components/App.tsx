@@ -12,8 +12,8 @@ export default function App({
   accessToken,
   client,
 }: {
-  accessToken: StoredToken;
-  client: ApiClient;
+  accessToken: Public<StoredToken>;
+  client: Public<ApiClient>;
 }): h.JSX.Element | null {
   const [screenName, show] = useState<keyof typeof screens>('Blank');
   const [disclaimerAccepted, acceptDisclaimer] = useDisclaimer();
