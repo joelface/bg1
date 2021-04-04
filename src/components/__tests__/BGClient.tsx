@@ -10,12 +10,12 @@ window.scrollTo = jest.fn();
 
 const client = {
   getQueues: jest.fn(),
-  isQueueOpen: jest.fn(),
+  getQueue: jest.fn(),
   joinQueue: jest.fn(),
   getLinkedGuests: jest.fn(),
 };
 client.getQueues.mockResolvedValue(queues);
-client.isQueueOpen.mockResolvedValue(false);
+client.getQueue.mockResolvedValue(queues[0]);
 client.getLinkedGuests.mockResolvedValue(guests);
 
 describe('BGClient', () => {
@@ -28,7 +28,7 @@ describe('BGClient', () => {
     const joinBtn = await findByRole('button', { name: 'Join Boarding Group' });
     expect(joinBtn).toBeInTheDocument();
     fireEvent.click(joinBtn);
-    expect(client.isQueueOpen).toHaveBeenCalledWith(queues[0]);
+    expect(client.getQueue).toHaveBeenCalledWith(queues[0]);
     fireEvent.click(await findByRole('button', { name: 'Edit' }));
     expect(
       await findByRole('button', { name: 'Confirm Party' })

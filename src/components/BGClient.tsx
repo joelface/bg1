@@ -62,7 +62,7 @@ export default function BGClient({
   async function joinQueue() {
     if (!queue) return;
     const sleepDone = sleep(JOIN_QUEUE_MIN_MS);
-    if (await client.isQueueOpen(queue)) {
+    if ((await client.getQueue(queue)).isAcceptingJoins) {
       const { boardingGroup } = await client.joinQueue(queue, [...party]);
       alert(`Boarding Group: ${boardingGroup}`);
     }

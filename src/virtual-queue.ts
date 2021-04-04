@@ -137,10 +137,6 @@ export class ApiClient {
     throw new QueueNotFound();
   }
 
-  async isQueueOpen(queue: BaseQueue): Promise<boolean> {
-    return (await this.getQueue(queue)).isAcceptingJoins;
-  }
-
   async getLinkedGuests(queue: BaseQueue): Promise<Guest[]> {
     const data = await this.post<GetLinkedGuestsOKResponse>({
       resource: 'getLinkedGuests',
