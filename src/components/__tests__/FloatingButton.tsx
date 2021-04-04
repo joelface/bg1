@@ -16,9 +16,7 @@ describe('FloatingButton', () => {
 
   it('renders button with link', () => {
     const url = 'https://example.com/';
-    const { getByRole } = render(
-      <FloatingButton href={url}>{label}</FloatingButton>
-    );
+    render(<FloatingButton href={url}>{label}</FloatingButton>);
     const link = getByRole('link');
     expect(link).toHaveTextContent(label);
     expect(link).toHaveAttribute('href', url);

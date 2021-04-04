@@ -37,8 +37,10 @@ describe('GuestList', () => {
       />
     );
     expect(getAllChecked()).toEqual([true, false, false]);
+
     fireEvent.click(getByLabelText('Mickey Mouse'));
     expect(selected.has(mickey)).toBe(false);
+
     fireEvent.click(getByLabelText('Pluto'));
     expect(selected.has(pluto)).toBe(true);
     expect(getAllChecked()).toEqual([false, false, true]);

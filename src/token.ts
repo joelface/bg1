@@ -2,18 +2,19 @@ import { dateTimeStrings } from './datetime';
 
 export class TokenStale extends Error {
   name = 'TokenStale';
-}
 
-interface Storage {
-  getItem: (key: string) => string | null;
-  setItem: (key: string, value: string) => void;
-  removeItem: (key: string) => void;
+  constructor(tokenName: string) {
+    super(`Token "${tokenName}" missing or expired`);
+  }
 }
 
 export class StoredToken {
   constructor(
     protected name: string,
-    protected storage: Storage = localStorage
+    protected storage: Pick<
+      Storage,
+      'getItem' | 'setItem' | 'removeItem'
+    > = localStorage
   ) {}
 
   get(): string {
@@ -31,7 +32,7 @@ export class StoredToken {
         return token;
       }
     }
-    throw new TokenStale(`Token "${this.name}" missing or expired`);
+    throw new TokenStale(this.name);
   }
 
   set(token: string, expires: Date): void {

@@ -1,10 +1,10 @@
 import { h } from 'preact';
-import { fireEvent, render, screen } from '@testing-library/preact';
+import { fireEvent, render, screen, waitFor } from '@testing-library/preact';
 
 import { queues, guests } from '../../__fixtures__/vq';
 import BGClient from '../BGClient';
 
-const { findByRole } = screen;
+const { getByRole } = screen;
 
 window.scrollTo = jest.fn();
 
@@ -21,17 +21,20 @@ client.getLinkedGuests.mockResolvedValue(guests);
 describe('BGClient', () => {
   it('renders BGClient', async () => {
     render(<BGClient client={client} />);
-    expect(await findByRole('heading', { level: 1 })).toHaveTextContent(
-      queues[0].name
+    await waitFor(() =>
+      expect(getByRole('heading', { level: 1 })).toHaveTextContent(
+        queues[0].name
+      )
     );
-    fireEvent.click(await findByRole('button', { name: 'Confirm Party' }));
-    const joinBtn = await findByRole('button', { name: 'Join Boarding Group' });
+
+    fireEvent.click(getByRole('button', { name: 'Confirm Party' }));
+    const joinBtn = getByRole('button', { name: 'Join Boarding Group' });
     expect(joinBtn).toBeInTheDocument();
+
     fireEvent.click(joinBtn);
     expect(client.getQueue).toHaveBeenCalledWith(queues[0]);
-    fireEvent.click(await findByRole('button', { name: 'Edit' }));
-    expect(
-      await findByRole('button', { name: 'Confirm Party' })
-    ).toBeInTheDocument();
+
+    fireEvent.click(getByRole('button', { name: 'Edit' }));
+    expect(getByRole('button', { name: 'Confirm Party' })).toBeInTheDocument();
   });
 });
