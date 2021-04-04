@@ -52,7 +52,7 @@ export class AuthClient {
       this.handshakeAcked = true;
       this.send({ type: 'handshakeAck' });
       if (this.logging) this.sendMessage('setLogLevel', { level: 'log' });
-      this.sendMessage('workflow.run', { name: 'login' });
+      this.sendMessage('workflow.execute', { name: 'login' });
     });
     this.on('lightbox.hide', () => this.open());
     this.on('session.loggedin', ({ token }) => {
