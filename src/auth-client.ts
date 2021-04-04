@@ -40,6 +40,7 @@ function isDeferrable(sendable: Sendable): sendable is DeferrableMessage {
 
 export class AuthClient {
   protected handlers: Record<string, SendableHandler | null> = {};
+  protected handshakeAcked = false;
 
   constructor(
     protected iframe: HTMLIFrameElement,
@@ -47,6 +48,8 @@ export class AuthClient {
     protected logging = false
   ) {
     this.on('handshake', () => {
+      if (this.handshakeAcked) return;
+      this.handshakeAcked = true;
       this.send({ type: 'handshakeAck' });
       if (this.logging) this.sendMessage('setLogLevel', { level: 'log' });
       this.sendMessage('workflow.run', { name: 'login' });
@@ -60,6 +63,7 @@ export class AuthClient {
   open(): void {
     addEventListener('message', this.onMessage);
     this.iframe.src = AUTH_PAGE_URL.toString();
+    this.handshakeAcked = false;
   }
 
   close(): void {
