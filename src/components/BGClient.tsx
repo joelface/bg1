@@ -8,7 +8,7 @@ import JoinQueue from './JoinQueue';
 import QueueSelector from './QueueSelector';
 import TimeBoard from './TimeBoard';
 
-const JOIN_QUEUE_MIN_MS = 500;
+const JOIN_QUEUE_MIN_MS = 999;
 
 export default function BGClient({
   client,
