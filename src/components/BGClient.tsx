@@ -4,6 +4,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { sleep } from '../sleep';
 import { Guest, Queue, ApiClient } from '../virtual-queue';
 import ChooseParty from './ChooseParty';
+import Flash, { useFlash } from './Flash';
 import JoinQueue from './JoinQueue';
 import QueueSelector from './QueueSelector';
 import TimeBoard from './TimeBoard';
@@ -20,6 +21,7 @@ export default function BGClient({
   const [guests, setGuests] = useState<Guest[]>([]);
   const [party, setParty] = useState<Set<Guest>>(new Set());
   const [screenName, show] = useState<keyof typeof screens>('ChooseParty');
+  const [flashProps, flash] = useFlash();
 
   useEffect(() => {
     (async () => {
@@ -62,9 +64,12 @@ export default function BGClient({
   async function joinQueue() {
     if (!queue) return;
     const sleepDone = sleep(JOIN_QUEUE_MIN_MS);
+    flash('');
     if ((await client.getQueue(queue)).isAcceptingJoins) {
       const { boardingGroup } = await client.joinQueue(queue, [...party]);
       alert(`Boarding Group: ${boardingGroup}`);
+    } else {
+      flash('Queue not open yet');
     }
     await sleepDone;
   }
@@ -98,6 +103,7 @@ export default function BGClient({
       </h1>
       <TimeBoard queue={queue} />
       {screens[screenName]}
+      <Flash {...flashProps} />
     </>
   ) : null;
 }

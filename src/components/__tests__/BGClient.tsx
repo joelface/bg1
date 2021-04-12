@@ -33,6 +33,9 @@ describe('BGClient', () => {
 
     fireEvent.click(joinBtn);
     expect(client.getQueue).toHaveBeenCalledWith(queues[0]);
+    await waitFor(() => {
+      expect(getByRole('alert')).toHaveTextContent('Queue not open yet');
+    });
 
     fireEvent.click(getByRole('button', { name: 'Edit' }));
     expect(getByRole('button', { name: 'Confirm Party' })).toBeInTheDocument();
