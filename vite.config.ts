@@ -27,5 +27,5 @@ export default {
       host: 'localhost',
     },
   },
-  plugins: [prefresh()],
+  plugins: [prefresh({})],
 } as UserConfig;
