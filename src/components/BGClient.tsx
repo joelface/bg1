@@ -6,7 +6,7 @@ import { Guest, Queue, ApiClient } from '../virtual-queue';
 import ChooseParty from './ChooseParty';
 import Flash, { useFlash } from './Flash';
 import JoinQueue from './JoinQueue';
-import QueueSelector from './QueueSelector';
+import QueueHeading from './QueueHeading';
 import TimeBoard from './TimeBoard';
 
 const JOIN_QUEUE_MIN_MS = 999;
@@ -94,13 +94,7 @@ export default function BGClient({
 
   return queue && guests.length ? (
     <>
-      <h1 className="border-b-2 border-gray-200">
-        <QueueSelector
-          queues={queues}
-          selected={queue}
-          onChange={changeQueue}
-        />
-      </h1>
+      <QueueHeading queue={queue} queues={queues} onChange={changeQueue} />
       <TimeBoard queue={queue} />
       {screens[screenName]}
       <Flash {...flashProps} />

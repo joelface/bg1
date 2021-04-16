@@ -1,30 +1,29 @@
-import { h, Fragment } from 'preact';
+import { h } from 'preact';
 
 import { Queue } from '../virtual-queue';
 
-export default function QueueSelector({
+export default function QueueHeading({
+  queue,
   queues,
-  selected,
   onChange,
 }: {
-  queues: Queue[];
-  selected: Queue;
-  onChange: (value: string) => void;
+  queue: Queue;
+  queues?: Queue[];
+  onChange?: (value: string) => void;
 }): h.JSX.Element {
+  queues ||= [];
   return (
-    <>
-      {queues.length === 1 ? (
-        <span className="inline-block p-1 text-xl font-semibold">
-          {selected.name}
-        </span>
+    <h1 className="border-b-2 border-gray-200 text-xl font-semibold">
+      {queues.length <= 1 ? (
+        <span className="inline-block p-1">{queue.name}</span>
       ) : (
         <select
           className="w-full border-none p-1 bg-transparent text-xl font-semibold focus:ring-0"
-          onChange={e => onChange(e.currentTarget.value)}
+          onChange={e => (onChange ? onChange(e.currentTarget.value) : null)}
         >
           {queues.map(q => (
             <option
-              selected={q === selected}
+              selected={q === queue}
               key={q.queueId}
               value={q.queueId}
               className="text-base font-normal"
@@ -34,6 +33,6 @@ export default function QueueSelector({
           ))}
         </select>
       )}
-    </>
+    </h1>
   );
 }
