@@ -157,15 +157,21 @@ export class ApiClient {
     queue: BaseQueue,
     guests: T[]
   ): Promise<JoinQueueResult> {
+    const guestIds = guests.map(g => g.guestId);
     const data = await this.post<JoinQueueResponse>({
       resource: 'joinQueue',
       data: {
         queueId: queue.queueId,
-        guestIds: guests.map(g => g.guestId),
+        guestIds,
       },
     });
     if (data.responseStatus === 'OK') {
-      const pos = data.positions.find(p => p.queueId === queue.queueId);
+      const pos = data.positions.find(
+        p =>
+          p.queueId === queue.queueId &&
+          p.guestIds.length > 0 &&
+          guestIds.some(gid => p.guestIds.includes(gid))
+      );
       if (!pos) throw new RequestError(data, 'No positions entry');
       return {
         boardingGroup: pos.boardingGroup,

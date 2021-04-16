@@ -1,5 +1,5 @@
 import { rotr, queues, guests } from '../__fixtures__/vq';
-import { vqUrl, ApiClient, QueueNotFound } from '../virtual-queue';
+import { vqUrl, ApiClient, QueueNotFound, Guest } from '../virtual-queue';
 
 const fetchJson = jest.fn();
 
@@ -77,20 +77,33 @@ describe('Client', () => {
     });
   });
 
-  const jqSuccessRes = response({
-    positions: [{ queueId: rotr.queueId, boardingGroup: 1 }],
-  });
-  const jqInvalidRes = response(
-    {
-      conflicts: [
+  const jqSuccessRes = (guests: Guest[]) =>
+    response({
+      positions: [
         {
-          conflictType: 'NO_PARK_PASS',
-          guestIds: [guests[0].guestId],
+          queueId: rotr.queueId,
+          guestIds: ['friend_in_separate_bg'],
+          boardingGroup: 1,
+        },
+        {
+          queueId: rotr.queueId,
+          guestIds: guests.map(g => g.guestId),
+          boardingGroup: 77,
         },
       ],
-    },
-    'INVALID_GUEST'
-  );
+    });
+  const jqInvalidRes = (guests: Guest[]) =>
+    response(
+      {
+        conflicts: [
+          {
+            conflictType: 'NO_PARK_PASS',
+            guestIds: guests.map(g => g.guestId),
+          },
+        ],
+      },
+      'INVALID_GUEST'
+    );
   const jqClosedRes = response({ conflicts: [] }, 'CLOSED_QUEUE');
 
   describe('joinQueue()', () => {
@@ -102,18 +115,18 @@ describe('Client', () => {
     });
 
     it('returns success result', async () => {
-      respond(jqSuccessRes);
+      respond(jqSuccessRes(guests));
       expect(await client.joinQueue(rotr, guests)).toEqual({
-        boardingGroup: 1,
+        boardingGroup: 77,
         closed: false,
         conflicts: {},
       });
     });
 
     it('returns partial success result', async () => {
-      respond(jqInvalidRes, jqSuccessRes);
+      respond(jqInvalidRes([guests[0]]), jqSuccessRes(guests.slice(1)));
       expect(await client.joinQueue(rotr, guests)).toEqual({
-        boardingGroup: 1,
+        boardingGroup: 77,
         closed: false,
         conflicts: { [guests[0].guestId]: 'NO_PARK_PASS' },
       });
