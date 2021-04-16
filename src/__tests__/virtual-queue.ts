@@ -3,7 +3,7 @@ import { vqUrl, ApiClient, QueueNotFound } from '../virtual-queue';
 
 const fetchJson = jest.fn();
 
-function response(data: Record<string, unknown>, responseStatus = 'OK') {
+function response(data: { [key: string]: unknown }, responseStatus = 'OK') {
   return { status: 200, data: { ...data, responseStatus } };
 }
 

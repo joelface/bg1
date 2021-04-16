@@ -13,7 +13,7 @@ export function setDefaultTimeZone(timeZone: string): void {
  */
 export function dateTimeStrings(date?: Date): { date: string; time: string } {
   date = date || new Date();
-  const dt: Record<string, string> = {};
+  const dt: { [P in Intl.DateTimeFormatPartTypes]?: string } = {};
   const d2 = '2-digit';
   Intl.DateTimeFormat('en-US', {
     timeZone: defaultTimeZone,
@@ -29,7 +29,7 @@ export function dateTimeStrings(date?: Date): { date: string; time: string } {
     .forEach(p => (dt[p.type] = p.value));
   const ms = date.getMilliseconds().toString().padStart(3, '0');
   return {
-    date: `${dt['year']}-${dt['month']}-${dt['day']}`,
-    time: `${dt['hour']}:${dt['minute']}:${dt['second']}.${ms}`,
+    date: `${dt.year}-${dt.month}-${dt.day}`,
+    time: `${dt.hour}:${dt.minute}:${dt.second}.${ms}`,
   };
 }

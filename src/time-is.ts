@@ -16,7 +16,7 @@ function loadScript() {
   document.head.appendChild(script);
 }
 
-const initArg: Record<string, unknown> = {};
+const initArg: { [key: string]: unknown } = {};
 
 function reinit() {
   if ('time_is_widget' in self) {

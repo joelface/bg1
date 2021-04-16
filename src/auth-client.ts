@@ -39,7 +39,7 @@ function isDeferrable(sendable: Sendable): sendable is DeferrableMessage {
 }
 
 export class AuthClient {
-  protected handlers: Record<string, SendableHandler> = {};
+  protected handlers: { [typeOrEventName: string]: SendableHandler } = {};
   protected handshakeAcked = false;
 
   constructor(
