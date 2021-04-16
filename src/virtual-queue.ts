@@ -32,6 +32,10 @@ export interface Position {
   queuedAt: number;
 }
 
+interface Response {
+  responseStatus: string;
+}
+
 interface JoinQueueRequest {
   resource: 'joinQueue';
   data: {
@@ -99,24 +103,11 @@ export function sortGuests(guests: Guest[]): Guest[] {
   });
 }
 
-export class QueueNotFound extends Error {
-  name = 'QueueNotFound';
-  message = 'Queue not found';
-}
-
 export class RequestError extends Error {
   name = 'RequestError';
 
-  constructor(public responseData: unknown, message = 'Request failed') {
+  constructor(public responseData: Response, message = 'Request failed') {
     super(`${message}: ${JSON.stringify(responseData)}`);
-  }
-}
-
-export class JoinQueueError extends RequestError {
-  name = 'JoinQueueError';
-
-  constructor(responseData: JoinQueueConflictsResponse) {
-    super(responseData, 'Cannot join queue');
   }
 }
 
@@ -133,7 +124,7 @@ export class ApiClient {
   async getQueue(queue: BaseQueue): Promise<Queue> {
     const q = (await this.getQueues()).find(q => q.queueId === queue.queueId);
     if (q) return q;
-    throw new QueueNotFound();
+    throw new Error('Queue not Found');
   }
 
   async getLinkedGuests(queue: BaseQueue): Promise<Guest[]> {
@@ -172,7 +163,7 @@ export class ApiClient {
           p.guestIds.length > 0 &&
           guestIds.some(gid => p.guestIds.includes(gid))
       );
-      if (!pos) throw new RequestError(data, 'No positions entry');
+      if (!pos) throw new RequestError(data);
       return {
         boardingGroup: pos.boardingGroup,
         conflicts: {},
@@ -201,7 +192,7 @@ export class ApiClient {
       result.conflicts = { ...conflicts, ...result.conflicts };
       return result;
     } else {
-      throw new JoinQueueError(data);
+      throw new RequestError(data);
     }
   }
 

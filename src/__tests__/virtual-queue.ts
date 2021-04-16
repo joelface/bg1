@@ -1,5 +1,5 @@
 import { rotr, queues, guests } from '../__fixtures__/vq';
-import { vqUrl, ApiClient, QueueNotFound, Guest } from '../virtual-queue';
+import { vqUrl, ApiClient, Guest } from '../virtual-queue';
 
 const fetchJson = jest.fn();
 
@@ -60,10 +60,10 @@ describe('Client', () => {
       expect(await client.getQueue({ queueId: rotr.queueId })).toEqual(rotr);
     });
 
-    it('throws QueueNotFound', async () => {
+    it('throws Error when queue not found', async () => {
       await expect(
         client.getQueue({ queueId: 'not_a_real_id' })
-      ).rejects.toThrow(QueueNotFound);
+      ).rejects.toThrow();
     });
   });
 
