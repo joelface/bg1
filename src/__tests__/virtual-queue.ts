@@ -106,7 +106,7 @@ describe('Client', () => {
       expect(await client.joinQueue(rotr, guests)).toEqual({
         boardingGroup: 1,
         closed: false,
-        conflicts: [],
+        conflicts: {},
       });
     });
 
@@ -115,7 +115,7 @@ describe('Client', () => {
       expect(await client.joinQueue(rotr, guests)).toEqual({
         boardingGroup: 1,
         closed: false,
-        conflicts: [{ guest: guests[0], reason: 'NO_PARK_PASS' }],
+        conflicts: { [guests[0].guestId]: 'NO_PARK_PASS' },
       });
     });
 
@@ -124,7 +124,7 @@ describe('Client', () => {
       expect(await client.joinQueue(rotr, guests)).toEqual({
         boardingGroup: null,
         closed: true,
-        conflicts: [],
+        conflicts: {},
       });
     });
   });

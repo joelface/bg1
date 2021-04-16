@@ -62,12 +62,11 @@ interface JoinQueueConflictsResponse {
 
 type JoinQueueResponse = JoinQueueOKResponse | JoinQueueConflictsResponse;
 
-export interface JoinQueueResult<T extends BaseGuest> {
+export type JoinQueueConflicts = { [key: string]: JoinQueueConflictType };
+
+export interface JoinQueueResult {
   boardingGroup: number | null;
-  conflicts: {
-    guest: T;
-    reason: JoinQueueConflictType;
-  }[];
+  conflicts: JoinQueueConflicts;
   closed: boolean;
 }
 
@@ -157,7 +156,7 @@ export class ApiClient {
   async joinQueue<T extends BaseGuest>(
     queue: BaseQueue,
     guests: T[]
-  ): Promise<JoinQueueResult<T>> {
+  ): Promise<JoinQueueResult> {
     const data = await this.post<JoinQueueResponse>({
       resource: 'joinQueue',
       data: {
@@ -170,7 +169,7 @@ export class ApiClient {
       if (!pos) throw new RequestError(data, 'No positions entry');
       return {
         boardingGroup: pos.boardingGroup,
-        conflicts: [],
+        conflicts: {},
         closed: false,
       };
     } else if (
@@ -178,13 +177,13 @@ export class ApiClient {
       data.responseStatus === 'CLOSED_QUEUE'
     ) {
       const closed = data.responseStatus === 'CLOSED_QUEUE';
-      const conflicts = [];
       const invalidIds = new Set<string>();
+      const conflicts: JoinQueueResult['conflicts'] = {};
       for (const conflict of data.conflicts) {
         for (const guestId of conflict.guestIds) {
           const guest = guests.find(g => g.guestId === guestId);
           if (!guest) continue;
-          conflicts.push({ guest, reason: conflict.conflictType });
+          conflicts[guest.guestId] = conflict.conflictType;
           invalidIds.add(guestId);
         }
       }
@@ -193,7 +192,7 @@ export class ApiClient {
         return { boardingGroup: null, conflicts, closed };
       }
       const result = await this.joinQueue(queue, validGuests);
-      result.conflicts = [...conflicts, ...result.conflicts];
+      result.conflicts = { ...conflicts, ...result.conflicts };
       return result;
     } else {
       throw new JoinQueueError(data);
