@@ -15,6 +15,6 @@ describe('LoginForm', () => {
     const iframe = container.querySelector('iframe');
     expect(iframe).toBeInTheDocument();
     expect(AuthClientMock).toBeCalledWith(iframe, onLogin);
-    expect(AuthClientMock.mock.instances[0].open).toHaveBeenCalled();
+    expect(AuthClientMock.mock.instances[0].open).toBeCalledTimes(1);
   });
 });

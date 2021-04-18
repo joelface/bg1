@@ -94,7 +94,7 @@ describe('AuthClient', () => {
       deferredUuid: 'd0b1e8eb-946d-4d79-a08c-60e870ce35b5',
     });
     await waitFor(() =>
-      expect(onLogin).toHaveBeenCalledWith(
+      expect(onLogin).lastCalledWith(
         token.access_token,
         new Date(token.expires)
       )

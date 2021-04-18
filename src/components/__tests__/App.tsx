@@ -82,7 +82,7 @@ describe('App', () => {
     });
     renderApp();
     fireEvent.click(getByRole('button', { name: 'Log In' }));
-    expect(token.set).toHaveBeenCalledWith(
+    expect(token.set).lastCalledWith(
       'm1nn13',
       new Date(2121, 12, 21, 12, 21, 12)
     );

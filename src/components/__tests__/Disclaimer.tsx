@@ -10,7 +10,7 @@ describe('Disclaimer', () => {
     const onAccept = jest.fn();
     render(<Disclaimer onAccept={onAccept} />);
     fireEvent.click(getByRole('button'));
-    expect(onAccept).toHaveBeenCalled();
+    expect(onAccept).toBeCalledTimes(1);
   });
 });
 

@@ -17,6 +17,6 @@ describe('Clock', () => {
     expect(container).toHaveTextContent('12:59:47');
     const id = '_z161';
     expect(container.querySelector('time')?.id).toBe(id);
-    expect(self.time_is_widget.init).toHaveBeenCalledWith({ [id]: {} });
+    expect(self.time_is_widget.init).lastCalledWith({ [id]: {} });
   });
 });

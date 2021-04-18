@@ -19,7 +19,7 @@ describe('QueueHeading', () => {
     fireEvent.change(getByDisplayValue(mtwr.name), {
       target: { value: rotr.queueId },
     });
-    expect(onChange).toHaveBeenCalledWith(rotr.queueId);
+    expect(onChange).lastCalledWith(rotr.queueId);
     expect(getByDisplayValue(rotr.name)).toBeInTheDocument();
   });
 });
