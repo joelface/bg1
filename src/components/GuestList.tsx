@@ -8,20 +8,20 @@ export default function GuestList({
 }: {
   guests: Guest[];
   selectable?: {
-    isSelected: (guest: Guest) => boolean;
-    onToggle: (guest: Guest) => void;
+    isSelected: (i: number) => boolean;
+    onToggle: (i: number) => void;
   };
 }): h.JSX.Element {
   return (
     <ul className="mt-3 ml-3">
-      {guests.map(g => (
+      {guests.map((g, i) => (
         <li key={g.guestId} className="py-1.5">
           <label>
             {selectable ? (
               <input
                 type="checkbox"
-                checked={selectable.isSelected(g)}
-                onChange={() => selectable.onToggle(g)}
+                checked={selectable.isSelected(i)}
+                onChange={() => selectable.onToggle(i)}
                 className="rounded mr-4 p-2.5 text-green-500"
               />
             ) : (

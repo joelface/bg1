@@ -19,7 +19,7 @@ export default function BGClient({
   const [queues, setQueues] = useState<Queue[]>([]);
   const [queue, setQueue] = useState<Queue | null>(null);
   const [guests, setGuests] = useState<Guest[]>([]);
-  const [party, setParty] = useState<Set<Guest>>(new Set());
+  const [party, setParty] = useState<Guest[]>([]);
   const [screenName, show] = useState<keyof typeof screens>('ChooseParty');
   const [flashProps, flash] = useFlash();
 
@@ -38,7 +38,9 @@ export default function BGClient({
       const guests = await client.getLinkedGuests(queue);
       if (!canceled) {
         setGuests(guests);
-        setParty(new Set(guests.filter(g => g.isPreselected)));
+        const party = [];
+        for (let i = 0; guests[i]?.isPreselected; ++i) party[i] = guests[i];
+        setParty(party);
       }
     })();
     return () => {
@@ -50,9 +52,9 @@ export default function BGClient({
     scrollTo(0, 0);
   }, [screenName]);
 
-  function toggleGuest(guest: Guest) {
-    const newParty = new Set(party);
-    party.has(guest) ? newParty.delete(guest) : newParty.add(guest);
+  function toggleGuest(i: number) {
+    const newParty = party.slice();
+    newParty[i] ? delete newParty[i] : (newParty[i] = guests[i]);
     setParty(newParty);
   }
 
@@ -66,7 +68,10 @@ export default function BGClient({
     const sleepDone = sleep(JOIN_QUEUE_MIN_MS);
     flash('');
     if ((await client.getQueue(queue)).isAcceptingJoins) {
-      const { boardingGroup } = await client.joinQueue(queue, [...party]);
+      const { boardingGroup } = await client.joinQueue(
+        queue,
+        Object.values(party)
+      );
       alert(`Boarding Group: ${boardingGroup}`);
     } else {
       flash('Queue not open yet');
@@ -78,14 +83,14 @@ export default function BGClient({
     ChooseParty: (
       <ChooseParty
         guests={guests}
-        isSelected={g => party.has(g)}
+        party={party}
         onToggle={toggleGuest}
         onConfirm={() => show('JoinQueue')}
       />
     ),
     JoinQueue: (
       <JoinQueue
-        guests={[...party]}
+        guests={Object.values(party)}
         onEdit={() => show('ChooseParty')}
         onJoin={joinQueue}
       />

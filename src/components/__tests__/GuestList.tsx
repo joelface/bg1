@@ -24,14 +24,14 @@ describe('GuestList', () => {
   });
 
   it('renders selectable guest list', () => {
-    const selected = new Set([mickey]);
+    const selected = [mickey];
     render(
       <GuestList
         guests={guests}
         selectable={{
-          isSelected: g => selected.has(g),
-          onToggle: g => {
-            selected.has(g) ? selected.delete(g) : selected.add(g);
+          isSelected: i => !!selected[i],
+          onToggle: i => {
+            selected[i] ? delete selected[i] : (selected[i] = guests[i]);
           },
         }}
       />
@@ -39,10 +39,10 @@ describe('GuestList', () => {
     expect(getAllChecked()).toEqual([true, false, false]);
 
     fireEvent.click(getByLabelText('Mickey Mouse'));
-    expect(selected.has(mickey)).toBe(false);
+    expect(selected.includes(mickey)).toBe(false);
 
     fireEvent.click(getByLabelText('Pluto'));
-    expect(selected.has(pluto)).toBe(true);
+    expect(selected.includes(pluto)).toBe(true);
     expect(getAllChecked()).toEqual([false, false, true]);
   });
 });

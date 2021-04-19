@@ -6,21 +6,24 @@ import GuestList from './GuestList';
 
 export default function ChooseParty({
   guests,
-  isSelected,
+  party,
   onToggle,
   onConfirm,
 }: {
   guests: Guest[];
-  isSelected: (guest: Guest) => boolean;
-  onToggle: (guest: Guest) => void;
+  party: Guest[];
+  onToggle: (i: number) => void;
   onConfirm: () => void;
 }): h.JSX.Element {
   return (
     <>
       <h2 className="mt-5 text-xl">Choose Your Party</h2>
-      <GuestList guests={guests} selectable={{ isSelected, onToggle }} />
+      <GuestList
+        guests={guests}
+        selectable={{ isSelected: i => !!party[i], onToggle }}
+      />
       <FloatingButton
-        disabled={!guests.some(g => isSelected(g))}
+        disabled={Object.keys(party).length === 0}
         onClick={onConfirm}
       >
         Confirm Party
