@@ -4,7 +4,7 @@ import { fireEvent, render, screen } from '@testing-library/preact';
 import { guests, mickey, pluto } from '../../__fixtures__/vq';
 import GuestList from '../GuestList';
 
-const { getAllByRole, queryByRole, getByLabelText } = screen;
+const { getAllByRole, queryByRole, getByLabelText, getByText } = screen;
 
 function getAllChecked() {
   return getAllByRole('checkbox').map(cb => (cb as HTMLInputElement).checked);
@@ -44,5 +44,26 @@ describe('GuestList', () => {
     fireEvent.click(getByLabelText('Pluto'));
     expect(selected.includes(pluto)).toBe(true);
     expect(getAllChecked()).toEqual([false, false, true]);
+  });
+
+  it('renders guest list with conflicts', () => {
+    render(
+      <GuestList
+        guests={guests}
+        conflicts={{
+          mickey: 'NO_PARK_PASS',
+          pluto: 'REDEEM_LIMIT_REACHED',
+        }}
+      />
+    );
+    expect(getByText('Mickey Mouse').parentNode).toHaveTextContent(
+      'NO PARK PASS'
+    );
+    expect(getByText('Minnie Mouse').parentNode?.textContent).toBe(
+      'Minnie Mouse'
+    );
+    expect(getByText('Pluto').parentNode).toHaveTextContent(
+      'REDEEM LIMIT REACHED'
+    );
   });
 });

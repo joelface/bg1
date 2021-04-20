@@ -2,11 +2,12 @@ import { h, Fragment } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 
 import { sleep } from '../sleep';
-import { Guest, Queue, ApiClient } from '../virtual-queue';
+import { Guest, Queue, JoinQueueResult, ApiClient } from '../virtual-queue';
 import ChooseParty from './ChooseParty';
 import Flash, { useFlash } from './Flash';
 import JoinQueue from './JoinQueue';
 import QueueHeading from './QueueHeading';
+import BGResult from './BGResult';
 import TimeBoard from './TimeBoard';
 
 const JOIN_QUEUE_MIN_MS = 999;
@@ -20,6 +21,11 @@ export default function BGClient({
   const [queue, setQueue] = useState<Queue | null>(null);
   const [guests, setGuests] = useState<Guest[]>([]);
   const [party, setParty] = useState<Guest[]>([]);
+  const [joinResult, setJoinResult] = useState<JoinQueueResult>({
+    boardingGroup: null,
+    conflicts: {},
+    closed: true,
+  });
   const [screenName, show] = useState<keyof typeof screens>('ChooseParty');
   const [flashProps, flash] = useFlash();
 
@@ -68,41 +74,57 @@ export default function BGClient({
     const sleepDone = sleep(JOIN_QUEUE_MIN_MS);
     flash('');
     if ((await client.getQueue(queue)).isAcceptingJoins) {
-      const { boardingGroup } = await client.joinQueue(
-        queue,
-        Object.values(party)
-      );
-      alert(`Boarding Group: ${boardingGroup}`);
+      try {
+        setJoinResult(await client.joinQueue(queue, Object.values(party)));
+      } catch (e) {
+        flash('Error: try again', 'error');
+        throw e;
+      }
+      show('BGResult');
     } else {
       flash('Queue not open yet');
     }
     await sleepDone;
   }
 
+  if (!queue || guests.length === 0) return null;
+
   const screens = {
     ChooseParty: (
-      <ChooseParty
-        guests={guests}
-        party={party}
-        onToggle={toggleGuest}
-        onConfirm={() => show('JoinQueue')}
-      />
+      <>
+        <QueueHeading queue={queue} queues={queues} onChange={changeQueue} />
+        <TimeBoard queue={queue} />
+        <ChooseParty
+          guests={guests}
+          party={party}
+          onToggle={toggleGuest}
+          onConfirm={() => show('JoinQueue')}
+        />
+      </>
     ),
     JoinQueue: (
-      <JoinQueue
-        guests={Object.values(party)}
-        onEdit={() => show('ChooseParty')}
-        onJoin={joinQueue}
-      />
+      <>
+        <QueueHeading queue={queue} />
+        <TimeBoard queue={queue} />
+        <JoinQueue
+          guests={Object.values(party)}
+          onEdit={() => show('ChooseParty')}
+          onJoin={joinQueue}
+        />
+        <Flash {...flashProps} />
+      </>
+    ),
+    BGResult: (
+      <>
+        <QueueHeading queue={queue} />
+        <BGResult
+          guests={Object.values(party)}
+          result={joinResult}
+          onDone={() => show('ChooseParty')}
+        />
+      </>
     ),
   };
 
-  return queue && guests.length ? (
-    <>
-      <QueueHeading queue={queue} queues={queues} onChange={changeQueue} />
-      <TimeBoard queue={queue} />
-      {screens[screenName]}
-      <Flash {...flashProps} />
-    </>
-  ) : null;
+  return screens[screenName];
 }
