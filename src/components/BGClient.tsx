@@ -54,9 +54,7 @@ export default function BGClient({
     };
   }, [client, queue]);
 
-  useEffect(() => {
-    scrollTo(0, 0);
-  }, [screenName]);
+  useEffect(() => scrollTo(0, 0), [screenName]);
 
   function toggleGuest(i: number) {
     const newParty = party.slice();

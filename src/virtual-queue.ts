@@ -151,10 +151,7 @@ export class ApiClient {
     const guestIds = guests.map(g => g.guestId);
     const data = await this.post<JoinQueueResponse>({
       resource: 'joinQueue',
-      data: {
-        queueId: queue.queueId,
-        guestIds,
-      },
+      data: { queueId: queue.queueId, guestIds },
     });
     if (data.responseStatus === 'OK') {
       const pos = data.positions.find(
