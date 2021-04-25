@@ -15,7 +15,9 @@ export default function QueueHeading({
   return (
     <h1 className="border-b-2 border-gray-200 text-xl font-semibold">
       {queues.length <= 1 ? (
-        <span className="inline-block p-1">{queue.name}</span>
+        <span className="inline-block p-1 w-full whitespace-nowrap overflow-hidden overflow-ellipsis">
+          {queue.name}
+        </span>
       ) : (
         <select
           className="w-full border-none p-1 bg-transparent text-xl font-semibold focus:ring-0"
