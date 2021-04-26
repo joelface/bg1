@@ -12,7 +12,7 @@ export default function Disclaimer({
     <>
       <h1 className="text-xl font-semibold">Warning!</h1>
       <p>
-        Use at your own risk. BG1 is highly experimental, for educational
+        Use at your own risk. BG1 is highly experimental, for demonstration
         purposes only, and provided &quot;as is&quot; without warranty of any
         kind. It could stop working at any time for any reason. There is no
         guarantee that using BG1 will actually help you obtain a boarding group,
