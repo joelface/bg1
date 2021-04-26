@@ -13,6 +13,7 @@ export default {
         entryFileNames: '[name].js',
         chunkFileNames: '[name].js',
         assetFileNames: '[name][extname]',
+        manualChunks: {},
       },
     },
   },
