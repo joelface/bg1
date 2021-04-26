@@ -1,0 +1,199 @@
+:root {
+  --blue: #5271ff;
+  --light-blue: #d9e0ff;
+  --white: #f8f8f8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  font: 62.5%/1.5 -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif;
+  background: var(--white);
+  color: #000;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  max-width: 75rem;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 1.2rem;
+  font-size: 1.7rem;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2.2rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.7rem;
+}
+
+h4 {
+  font-size: 1.6rem;
+}
+
+p {
+  margin: 1em 0;
+}
+
+ol,
+ul {
+  padding-left: 1.5em;
+}
+
+li + li {
+  margin-top: .5em;
+}
+
+dt {
+  margin-top: 1em;
+  font-weight: 600;
+}
+
+dd {
+  margin-left: .8em;
+}
+
+a {
+  color: var(--blue);
+  font-weight: 600;
+}
+
+button,
+.button,
+.buttons a {
+  display: inline-block;
+  min-width: 25rem;
+  margin: 0;
+  border: 0;
+  border-radius: 8px;
+  padding: .7em 1em;
+  background: var(--blue);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+}
+
+label > * {
+  vertical-align: middle;
+}
+
+code {
+  padding: 1px 2px;
+  font-family: SFMono-Regular, Consolas, Liberation Mono, monospace;
+  background: #e8e8e8;
+}
+
+b,
+kbd {
+  font-family: inherit;
+  font-weight: 600;
+}
+
+header,
+footer {
+  margin: 0 -1.2rem;
+  background: var(--blue);
+  color: var(--white);
+}
+
+header {
+  padding: .5rem 1rem;
+}
+
+header,
+header h1 {
+  display: flex;
+  align-items: center;
+  column-gap: .4em;
+}
+
+header img {
+  height: 2em;
+}
+
+footer {
+  padding: 1em .5em;
+}
+
+footer ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .3em 1.5em;
+  margin: 0;
+  padding-left: 0;
+}
+
+footer li {
+  list-style: none;
+  margin-top: 0;
+  white-space: nowrap;
+}
+
+footer a {
+  color: white;
+}
+
+main {
+  flex: 1;
+  padding-bottom: 1em;
+}
+
+strong {
+  text-transform: uppercase;
+}
+
+.buttons {
+  list-style: none;
+  margin: 1.5em 0;
+  padding: 0;
+  text-align: center;
+}
+
+.buttons li {
+  margin-top: 1em;
+}
+
+.warning {
+  margin: .8em 0;
+  padding: .01em 1em;
+  background: #dc2626;
+  color: #f8f8f8;
+  font-weight: 600;
+}
+
+.warning a {
+  color: #f8f8f8;
+}
+
+.notice {
+  margin: .8em 0;
+  padding: .01em 1em;
+  background: var(--light-blue);
+}
