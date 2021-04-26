@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en-US">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BG1 Start</title>
+<link rel="icon" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="stylesheet" href="index.css">
+
+<style>
+  header {
+    display: flex;
+  }
+
+  header h1 {
+    flex: 1;
+  }
+
+  .donate .button {
+    min-width: auto;
+    padding: .3em .8em;
+    text-decoration: none;
+    background: var(--light-blue);
+    color: var(--blue);
+  }
+
+  .skip-reminder {
+    margin-top: 5rem;
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
+  .autoload .skip-reminder {
+    display: none;
+  }
+
+  .samsung {
+    display: none;
+  }
+</style>
+
+<header>
+  <h1><img src="icon.png" alt="BG1"> Start</h1>
+  <aside class="donate">
+    <a href="contact.html#donate" class="button">Donate</a>
+  </aside>
+</header>
+
+<aside class="warning">
+  <p>Limited support for LLMP at WDW is now live. You should be able to book and modify LLs for the current day. There are probably lots of bugs. As always, use at your own risk.</p>
+</aside>
+
+<aside class="warning samsung">
+  <p><strong>Samsung users:</strong> Bookmarklets are no longer supported by the Samsung Internet browser. To continue using BG1, you will need to set it up in Chrome instead. <a href="https://joelface.github.io/bg1/#chrome">Please follow these instructions</a>.</p>
+</aside>
+
+<script>
+  if (navigator.userAgent.includes('SamsungBrowser')) {
+    document.querySelector('.samsung')?.classList.remove('samsung');
+  }
+</script>
+
+<main>
+  <nav>
+    <h2>Walt Disney World</h2>
+    <ul class="buttons">
+      <li><a href="https://disneyworld.disney.go.com/vas/">Lightning Lane</a></li>
+      <li><a href="https://vqguest-svc-wdw.wdprapps.disney.com/application/v1/guest/getQueues">Virtual Queue</a></li>
+    </ul>
+
+    <h2>Disneyland</h2>
+    <ul class="buttons">
+      <li><a href="https://disneyland.disney.go.com/vas/">Lightning Lane</a></li>
+      <li><a href="https://vqguest-svc.wdprapps.disney.com/application/v1/guest/getQueues">Virtual Queue</a></li>
+    </ul>
+  </nav>
+
+  <div class="skip-reminder">
+    <label><input type="checkbox"> <span>Skip bookmarklet reminder</span></label>
+  </div>
+</main>
+
+<footer>
+  <ul>
+    <li><a href=".">Setup</a></li>
+    <li><a href="contact.html">About BG1</a></li>
+    <li><a href="https://github.com/joelface/bg1">GitHub</a></li>
+  </ul>
+</footer>
+
+<script>
+  const skipKey = 'bg1.skipReminder';
+  const skipChk = document.querySelector('.skip-reminder input');
+  skipChk.checked = localStorage.getItem(skipKey);
+  skipChk.addEventListener('change', () => {
+    localStorage.setItem(skipKey, skipChk.checked ? '1' : '');
+  })
+
+  function showReminder() {
+    if (skipChk.checked || document.body.classList.contains('autoload')) return;
+    alert('After the "code" page loads, you need to run the BG1 Bookmarklet again to load the BG1 interface.');
+  }
+
+  document.querySelectorAll('.buttons a').forEach(a => {
+    a.addEventListener('click', showReminder);
+  });
+</script>
