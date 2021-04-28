@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer base {
+  body {
+    touch-action: manipulation;
+  }
+
   p {
     @apply mt-4;
   }
