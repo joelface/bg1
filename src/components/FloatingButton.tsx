@@ -13,7 +13,7 @@ export default function FloatingButton({
 }): h.JSX.Element {
   return (
     <div className="mb-20">
-      <div className="fixed bottom-0 left-0 w-full bg-white bg-opacity-75 text-center">
+      <div className="fixed bottom-0 left-0 w-full bg-gray-50 bg-opacity-75 text-center">
         <a href={href} className="block max-w-2xl mx-auto px-3 pb-5">
           <button
             onClick={onClick}
