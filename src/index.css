@@ -7,6 +7,10 @@
     touch-action: manipulation;
   }
 
+  :disabled {
+    -webkit-tap-highlight-color: transparent;
+  }
+
   p {
     @apply mt-4;
   }
