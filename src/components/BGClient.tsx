@@ -1,16 +1,12 @@
 import { h, Fragment } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 
-import { sleep } from '../sleep';
 import { Guest, Queue, JoinQueueResult, ApiClient } from '../virtual-queue';
 import ChooseParty from './ChooseParty';
-import Flash, { useFlash } from './Flash';
 import JoinQueue from './JoinQueue';
 import QueueHeading from './QueueHeading';
 import BGResult from './BGResult';
 import TimeBoard from './TimeBoard';
-
-const JOIN_QUEUE_MIN_MS = 999;
 
 export default function BGClient({
   client,
@@ -27,7 +23,6 @@ export default function BGClient({
     closed: true,
   });
   const [screenName, show] = useState<keyof typeof screens>('ChooseParty');
-  const [flashProps, flash] = useFlash();
 
   useEffect(() => {
     (async () => {
@@ -68,21 +63,12 @@ export default function BGClient({
   }
 
   async function joinQueue() {
-    if (!queue) return;
-    const sleepDone = sleep(JOIN_QUEUE_MIN_MS);
-    flash('');
-    if ((await client.getQueue(queue)).isAcceptingJoins) {
-      try {
-        setJoinResult(await client.joinQueue(queue, Object.values(party)));
-      } catch (e) {
-        flash('Error: try again', 'error');
-        throw e;
-      }
-      show('BGResult');
-    } else {
-      flash('Queue not open yet');
+    if (!queue || !(await client.getQueue(queue)).isAcceptingJoins) {
+      return false;
     }
-    await sleepDone;
+    setJoinResult(await client.joinQueue(queue, Object.values(party)));
+    show('BGResult');
+    return true;
   }
 
   if (!queue || guests.length === 0) return null;
@@ -107,9 +93,8 @@ export default function BGClient({
         <JoinQueue
           guests={Object.values(party)}
           onEdit={() => show('ChooseParty')}
-          onJoin={joinQueue}
+          joinQueue={joinQueue}
         />
-        <Flash {...flashProps} />
       </>
     ),
     BGResult: (
