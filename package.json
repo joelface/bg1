@@ -1,7 +1,8 @@
 {
   "name": "bg1",
-  "description": "An experimental boarding group acquisition tool",
-  "license": "GPL-3.0",
+  "version": "0.1.0",
+  "description": "An unofficial, experimental boarding group client",
+  "license": "MIT",
   "repository": "github:joelface/bg1",
   "dependencies": {
     "preact": "^10.5.13"
