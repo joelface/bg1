@@ -52,8 +52,7 @@ function renderApp() {
 describe('App', () => {
   beforeEach(() => {
     jsdom.reconfigure({
-      url:
-        'https://vqguest-svc-wdw.wdprapps.disney.com/application/v1/guest/getQueues',
+      url: 'https://vqguest-svc-wdw.wdprapps.disney.com/application/v1/guest/getQueues',
     });
     token.get.mockReturnValue('m1ck3y');
     useDisclaimerMock.mockReturnValue([true, () => null]);
