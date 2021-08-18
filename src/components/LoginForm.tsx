@@ -8,7 +8,7 @@ export default function LoginForm({
 }: {
   onLogin: (token: string, expires: Date) => void;
 }): h.JSX.Element {
-  const iframe = useRef<HTMLIFrameElement | null>(null);
+  const iframe = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
     if (!iframe.current) return;
