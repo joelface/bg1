@@ -26,7 +26,7 @@ export default {
       key: './tls/dev.key',
     },
     hmr: {
-      host: 'localhost',
+      host: process.env.HOST || 'localhost',
     },
   },
   plugins: [prefresh({})],
