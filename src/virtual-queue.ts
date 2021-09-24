@@ -11,6 +11,7 @@ export interface Queue extends BaseQueue {
   name: string;
   isAcceptingJoins: boolean;
   nextScheduledOpenTime: string | null;
+  howToEnterMessage: string;
 }
 
 export interface BaseGuest {

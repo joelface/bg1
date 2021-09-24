@@ -5,12 +5,14 @@ export const rotr: Queue = {
   name: 'Star Wars: Rise of the Resistance',
   nextScheduledOpenTime: null,
   isAcceptingJoins: false,
+  howToEnterMessage: 'lol nm just stand in line',
 };
 export const mtwr: Queue = {
   queueId: 'mtwr',
   name: "Mr. Toad's Wild Ride",
   nextScheduledOpenTime: null,
   isAcceptingJoins: false,
+  howToEnterMessage: 'Go to Disneyland or reverse the flow of time.',
 };
 export const queues = [rotr, mtwr];
 

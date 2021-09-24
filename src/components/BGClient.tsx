@@ -7,6 +7,7 @@ import JoinQueue from './JoinQueue';
 import QueueHeading from './QueueHeading';
 import BGResult from './BGResult';
 import TimeBoard from './TimeBoard';
+import HowToEnter from './HowToEnter';
 
 export default function BGClient({
   client,
@@ -77,6 +78,7 @@ export default function BGClient({
     ChooseParty: (
       <>
         <QueueHeading queue={queue} queues={queues} onChange={changeQueue} />
+        <HowToEnter queue={queue} />
         <TimeBoard queue={queue} />
         <ChooseParty
           guests={guests}
