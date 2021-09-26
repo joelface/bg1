@@ -35,6 +35,7 @@
   "scripts": {
     "start": "vite",
     "build": "vite build",
+    "checkall": "npm test && npm run lint && npm run typecheck",
     "test": "jest",
     "lint": "eslint src",
     "lint:fix": "eslint --fix src",
