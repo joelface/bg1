@@ -72,7 +72,7 @@ export default function BGClient({
     return true;
   }
 
-  if (!queue || guests.length === 0) return null;
+  if (!queue) return null;
 
   const screens = {
     ChooseParty: (

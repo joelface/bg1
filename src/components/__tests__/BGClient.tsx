@@ -39,11 +39,7 @@ const joinBtn = () => getByRole('button', { name: 'Join Boarding Group' });
 describe('BGClient', () => {
   it('renders BGClient', async () => {
     render(<BGClient client={client} />);
-    await waitFor(() =>
-      expect(getByRole('heading', { level: 1 })).toHaveTextContent(
-        queues[0].name
-      )
-    );
+    await waitFor(() => expect(getByLabelText('Pluto')).toBeInTheDocument());
 
     click(confirmBtn());
     click(getByRole('button', { name: 'Edit' }));

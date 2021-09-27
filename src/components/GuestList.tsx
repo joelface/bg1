@@ -14,6 +14,7 @@ export default function GuestList({
   };
   conflicts?: JoinQueueConflicts;
 }): h.JSX.Element {
+  if (guests.length === 0) return <p>No guests available</p>;
   return (
     <ul className="mt-3 ml-3">
       {guests.map((g, i) => (

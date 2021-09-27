@@ -11,6 +11,11 @@ function getAllChecked() {
 }
 
 describe('GuestList', () => {
+  it('renders empty guest list', () => {
+    render(<GuestList guests={[]} />);
+    expect(queryByRole('list')).toBeNull();
+  });
+
   it('renders plain guest list', () => {
     render(<GuestList guests={guests} />);
     const lis = getAllByRole('listitem');
