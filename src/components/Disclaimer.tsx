@@ -26,7 +26,7 @@ export default function Disclaimer({
 
 export function useDisclaimer(
   storage: Pick<Storage, 'getItem' | 'setItem'> = localStorage,
-  acceptedKey = 'disclaimerAccepted'
+  acceptedKey = 'bg1:disclaimerAccepted'
 ): [boolean, () => void] {
   const [accepted, setAccepted] = useState(!!storage.getItem(acceptedKey));
 

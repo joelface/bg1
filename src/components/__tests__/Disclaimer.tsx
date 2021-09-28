@@ -34,11 +34,11 @@ describe('useDisclaimer()', () => {
     expect(container).toHaveTextContent('not-accepted');
     fireEvent.click(getByRole('button'));
     expect(container).toHaveTextContent('is-accepted');
-    expect(localStorage.getItem('disclaimerAccepted')).toBe('1');
+    expect(localStorage.getItem('bg1:disclaimerAccepted')).toBe('1');
   });
 
-  it('is accepted when disclaimerAccepted is set', () => {
-    localStorage.setItem('disclaimerAccepted', '1');
+  it('is accepted when bg1:disclaimerAccepted is set', () => {
+    localStorage.setItem('bg1:disclaimerAccepted', '1');
     const { container } = render(<UseDisclaimerExample />);
     expect(container).toHaveTextContent('is-accepted');
   });

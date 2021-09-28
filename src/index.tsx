@@ -13,6 +13,6 @@ const body = document.body;
 body.className = 'bg-gray-50 text-black';
 // Used with "touch-action: manipulation" to disable double-tap zoom
 body.addEventListener('click', () => null);
-const accessToken = new StoredToken('accessToken');
+const accessToken = new StoredToken('bg1:accessToken');
 const client = new ApiClient(fetchJson, () => accessToken.get());
 render(<App accessToken={accessToken} client={client} />, body);
