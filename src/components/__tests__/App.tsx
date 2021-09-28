@@ -1,13 +1,10 @@
 import { h } from 'preact';
 import { fireEvent, render, screen } from '@testing-library/preact';
-import { JSDOM } from 'jsdom';
 
-import { ApiClient } from '../../virtual-queue';
+import { ApiClient, VQ_ORIGINS } from '../../virtual-queue';
 import { TokenStale } from '../../token';
 import App from '../App';
 import { useDisclaimer } from '../Disclaimer';
-
-declare const jsdom: JSDOM;
 
 jest.mock('../BGClient', () => {
   const BGClient = () => <p>BGClient</p>;
@@ -38,7 +35,7 @@ const useDisclaimerMock = useDisclaimer as jest.MockedFunction<
 
 const { getByRole, getByText } = screen;
 
-const client = new ApiClient(jest.fn(), jest.fn());
+const client = new ApiClient(VQ_ORIGINS.WDW, jest.fn(), jest.fn());
 const token = {
   get: jest.fn(),
   set: jest.fn(),
@@ -51,17 +48,8 @@ function renderApp() {
 
 describe('App', () => {
   beforeEach(() => {
-    jsdom.reconfigure({
-      url: 'https://vqguest-svc-wdw.wdprapps.disney.com/application/v1/guest/getQueues',
-    });
     token.get.mockReturnValue('m1ck3y');
     useDisclaimerMock.mockReturnValue([true, () => null]);
-  });
-
-  it('shows WrongPage if not a vqguest URL', () => {
-    jsdom.reconfigure({ url: 'https://example.com/' });
-    renderApp();
-    expect(getByRole('heading')).toHaveTextContent('Unable to Load BG1');
   });
 
   it('shows Disclaimer if not yet accepted', () => {

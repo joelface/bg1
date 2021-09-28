@@ -11,8 +11,7 @@ function updateTime(id: string) {
   setTimeout(() => updateTime(id), 100);
 }
 
-export default function Clock(): h.JSX.Element {
-  const id = '_z161'; // US Eastern time
+export default function Clock({ id }: { id: string }): h.JSX.Element {
   useEffect(() => {
     timeIs.add(id);
     updateTime(id);

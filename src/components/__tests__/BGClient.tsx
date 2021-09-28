@@ -11,6 +11,8 @@ process.on('unhandledRejection', () => null);
 window.scrollTo = jest.fn();
 
 const client = {
+  resort: 'WDW' as const,
+  url: jest.fn(),
   getQueues: jest.fn(),
   getQueue: jest.fn(),
   joinQueue: jest.fn(),

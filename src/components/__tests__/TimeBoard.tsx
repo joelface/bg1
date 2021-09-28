@@ -11,7 +11,7 @@ jest.mock('../Clock', () => {
 describe('TimeBoard', () => {
   it('shows next queue open time and current time', () => {
     const { container } = render(
-      <TimeBoard queue={{ nextScheduledOpenTime: '13:00:00' }} />
+      <TimeBoard city="Orlando" queue={{ nextScheduledOpenTime: '13:00:00' }} />
     );
     expect(container).toHaveTextContent(/Next queue opening:\s*13:00:00/);
     expect(container).toHaveTextContent(/Current time:\s*12:59:55/);

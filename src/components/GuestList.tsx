@@ -18,7 +18,7 @@ export default function GuestList({
   return (
     <ul className="mt-3 ml-3">
       {guests.map((g, i) => (
-        <li key={g.guestId} className="py-1.5 leading-tight">
+        <li key={g.guestId} className="py-1.5">
           <label className="flex items-center">
             {selectable ? (
               <input
@@ -28,14 +28,23 @@ export default function GuestList({
                 className="rounded mr-4 p-2.5 text-green-500"
               />
             ) : null}
-            <img
-              src={g.avatarImageUrl}
-              alt=""
-              width="56"
-              height="56"
-              className="rounded-full mr-3"
-            />
-            <span>
+            {g.avatarImageUrl ? (
+              <img
+                src={g.avatarImageUrl}
+                alt=""
+                width="56"
+                height="56"
+                className="rounded-full"
+              />
+            ) : (
+              <span
+                className="rounded-full text-3xl font-bold text-center bg-purple-600 text-white"
+                style={{ width: '56px', lineHeight: '56px' }}
+              >
+                {(g.firstName + g.lastName)[0]}
+              </span>
+            )}
+            <span className="ml-3">
               {g.firstName} {g.lastName}
               <br />
               {conflicts && g.guestId in conflicts ? (

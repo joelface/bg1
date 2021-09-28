@@ -1,7 +1,21 @@
 import { fetchJson } from './fetch';
 
-const API_BASE_URL =
-  'https://vqguest-svc-wdw.wdprapps.disney.com/application/v1/guest/';
+export const VQ_ORIGINS = {
+  WDW: 'https://vqguest-svc-wdw.wdprapps.disney.com' as const,
+  DL: 'https://vqguest-svc.wdprapps.disney.com' as const,
+};
+
+type Resort = keyof typeof VQ_ORIGINS;
+type Origin = typeof VQ_ORIGINS[Resort];
+
+const originToResort = {
+  [VQ_ORIGINS.WDW]: 'WDW' as const,
+  [VQ_ORIGINS.DL]: 'DL' as const,
+};
+
+export function isVirtualQueueOrigin(origin: string): origin is Origin {
+  return origin in originToResort;
+}
 
 export interface BaseQueue {
   queueId: string;
@@ -21,7 +35,7 @@ export interface BaseGuest {
 export interface Guest extends BaseGuest {
   firstName: string;
   lastName: string;
-  avatarImageUrl: string;
+  avatarImageUrl?: string;
   isPrimaryGuest?: boolean;
   isPreselected?: boolean;
 }
@@ -90,10 +104,6 @@ interface GetLinkedGuestsOKResponse {
 type VQRequest = JoinQueueRequest | GetLinkedGuestsRequest;
 type VQResource = VQRequest['resource'] | 'getQueues';
 
-export function vqUrl(resource: VQResource): string {
-  return API_BASE_URL + resource;
-}
-
 export function sortGuests(guests: Guest[]): Guest[] {
   return guests.sort((a, b) => {
     if (a.isPrimaryGuest !== b.isPrimaryGuest) return a.isPrimaryGuest ? -1 : 1;
@@ -114,12 +124,21 @@ export class RequestError extends Error {
 
 export class ApiClient {
   constructor(
+    protected origin: Origin,
     protected fetch: typeof fetchJson,
     protected getAccessToken: () => string | Promise<string>
   ) {}
 
+  get resort(): Resort {
+    return originToResort[this.origin];
+  }
+
+  url(resource: VQResource): string {
+    return `${this.origin}/application/v1/guest/${resource}`;
+  }
+
   async getQueues(): Promise<Queue[]> {
-    return (await this.fetch(vqUrl('getQueues'))).data.queues;
+    return (await this.fetch(this.url('getQueues'))).data.queues;
   }
 
   async getQueue(queue: BaseQueue): Promise<Queue> {
@@ -195,7 +214,7 @@ export class ApiClient {
   }
 
   protected async post<T>(request: VQRequest): Promise<T> {
-    const { status, data } = await this.fetch(vqUrl(request.resource), {
+    const { status, data } = await this.fetch(this.url(request.resource), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

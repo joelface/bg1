@@ -6,7 +6,6 @@ import { ApiClient } from '../virtual-queue';
 import BGClient from './BGClient';
 import Disclaimer, { useDisclaimer } from './Disclaimer';
 import LoginForm from './LoginForm';
-import WrongPage from './WrongPage';
 
 export default function App({
   accessToken,
@@ -19,10 +18,6 @@ export default function App({
   const [disclaimerAccepted, acceptDisclaimer] = useDisclaimer();
 
   useEffect(() => {
-    if (location.origin !== 'https://vqguest-svc-wdw.wdprapps.disney.com') {
-      return show('WrongPage');
-    }
-
     if (!disclaimerAccepted) return show('Disclaimer');
 
     try {
@@ -41,7 +36,6 @@ export default function App({
 
   const screens = {
     Blank: <div />,
-    WrongPage: <WrongPage />,
     Disclaimer: <Disclaimer onAccept={acceptDisclaimer} />,
     LoginForm: <LoginForm onLogin={onLogin} />,
     BGClient: <BGClient client={client} />,

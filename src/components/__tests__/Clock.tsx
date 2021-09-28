@@ -13,9 +13,9 @@ self.time_is_widget = { init: jest.fn() };
 
 describe('Clock', () => {
   it('shows current time', () => {
-    const { container } = render(<Clock />);
+    const id = 'Orlando_z161';
+    const { container } = render(<Clock id={id} />);
     expect(container).toHaveTextContent('12:59:47');
-    const id = '_z161';
     expect(container.querySelector('time')?.id).toBe(id);
     expect(self.time_is_widget.init).lastCalledWith({ [id]: {} });
   });

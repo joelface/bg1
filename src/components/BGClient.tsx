@@ -9,6 +9,11 @@ import BGResult from './BGResult';
 import TimeBoard from './TimeBoard';
 import HowToEnter from './HowToEnter';
 
+const resortToCity = {
+  WDW: 'Orlando' as const,
+  DL: 'Anaheim' as const,
+};
+
 export default function BGClient({
   client,
 }: {
@@ -74,12 +79,13 @@ export default function BGClient({
 
   if (!queue) return null;
 
+  const city = resortToCity[client.resort];
   const screens = {
     ChooseParty: (
       <>
         <QueueHeading queue={queue} queues={queues} onChange={changeQueue} />
         <HowToEnter queue={queue} />
-        <TimeBoard queue={queue} />
+        <TimeBoard city={city} queue={queue} />
         <ChooseParty
           guests={guests}
           party={party}
@@ -91,7 +97,7 @@ export default function BGClient({
     JoinQueue: (
       <>
         <QueueHeading queue={queue} />
-        <TimeBoard queue={queue} />
+        <TimeBoard city={city} queue={queue} />
         <JoinQueue
           guests={Object.values(party)}
           onEdit={() => show('ChooseParty')}

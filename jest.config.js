@@ -5,6 +5,6 @@ module.exports = {
       isolatedModules: true,
     },
   },
-  testEnvironment: 'jest-environment-jsdom-global',
+  testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['./jest-setup.ts'],
 };

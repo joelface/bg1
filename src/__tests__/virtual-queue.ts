@@ -1,5 +1,10 @@
 import { rotr, queues, guests } from '../__fixtures__/vq';
-import { vqUrl, ApiClient, Guest } from '../virtual-queue';
+import {
+  ApiClient,
+  Guest,
+  isVirtualQueueOrigin,
+  VQ_ORIGINS,
+} from '../virtual-queue';
 
 const fetchJson = jest.fn();
 
@@ -26,15 +31,42 @@ function expectFetch(url: string, postData?: unknown) {
   expect(fetchJson.mock.calls[0]).toEqual(fetchArgs);
 }
 
-const getQueuesUrl = vqUrl('getQueues');
-const joinQueueUrl = vqUrl('joinQueue');
-const getLinkedGuestsUrl = vqUrl('getLinkedGuests');
+describe('isVirtualQueueOrigin()', () => {
+  it('returns true when VQ origin', () => {
+    expect(isVirtualQueueOrigin(VQ_ORIGINS.WDW)).toBe(true);
+    expect(isVirtualQueueOrigin(VQ_ORIGINS.DL)).toBe(true);
+  });
+  it('returns false when not VQ origin', () => {
+    expect(isVirtualQueueOrigin('https://example.com')).toBe(false);
+  });
+});
 
 describe('Client', () => {
-  const client = new ApiClient(fetchJson, async () => 'access_token_123');
+  const client = new ApiClient(
+    VQ_ORIGINS.WDW,
+    fetchJson,
+    async () => 'access_token_123'
+  );
+  const getQueuesUrl = client.url('getQueues');
+  const joinQueueUrl = client.url('joinQueue');
+  const getLinkedGuestsUrl = client.url('getLinkedGuests');
 
   beforeEach(() => {
     fetchJson.mockReset();
+  });
+
+  describe('resort', () => {
+    it('returns resort abbreviation', () => {
+      expect(client.resort).toBe('WDW');
+    });
+  });
+
+  describe('url()', () => {
+    it('returns joinQueue URL', () => {
+      expect(client.url('joinQueue')).toBe(
+        `${VQ_ORIGINS.WDW}/application/v1/guest/joinQueue`
+      );
+    });
   });
 
   const queueClosedRes = response({ queues });
