@@ -29,13 +29,3 @@ export function add(id: string): void {
   initArg[id] = {};
   reinit();
 }
-
-export function remove(id: string): void {
-  delete initArg[id];
-  reinit();
-}
-
-export function clear(): void {
-  for (const id of Object.keys(initArg)) delete initArg[id];
-  reinit();
-}

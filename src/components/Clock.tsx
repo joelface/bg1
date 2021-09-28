@@ -16,7 +16,6 @@ export default function Clock(): h.JSX.Element {
   useEffect(() => {
     timeIs.add(id);
     updateTime(id);
-    return () => timeIs.remove(id);
   }, [id]);
   return <time id={id} />;
 }
