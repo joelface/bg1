@@ -1,6 +1,7 @@
 import prefresh from '@prefresh/vite';
 import { UserConfig } from 'vite';
 
+const hmr = +(process.env.HMR ?? 1);
 export default {
   base: '/bg1/',
   root: 'src',
@@ -25,9 +26,7 @@ export default {
       cert: './tls/dev.cert',
       key: './tls/dev.key',
     },
-    hmr: {
-      host: process.env.HOST || 'localhost',
-    },
+    hmr: hmr ? { host: process.env.HOST || 'localhost' } : false,
   },
-  plugins: [prefresh({})],
+  plugins: hmr ? [prefresh({})] : [],
 } as UserConfig;
