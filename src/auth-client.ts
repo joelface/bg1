@@ -1,4 +1,4 @@
-const BUILD_ID = '1785bba1445';
+const BUILD_ID = '17b993bd1a4';
 const AUTH_PAGE_URL = `https://cdn.registerdisney.go.com/v2/TPR-WDW-LBSDK.IOS-PROD/en-US?include=l10n,config,html,js&buildId=${BUILD_ID}`;
 
 interface PartialMessage {
