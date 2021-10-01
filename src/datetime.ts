@@ -1,9 +1,5 @@
 let defaultTimeZone = 'America/New_York';
 
-export function getDefaultTimeZone(): string {
-  return defaultTimeZone;
-}
-
 export function setDefaultTimeZone(timeZone: string): void {
   defaultTimeZone = timeZone;
 }
