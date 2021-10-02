@@ -12,7 +12,7 @@ export default function TimeBoard({
     <table className="mt-4 mx-auto text-gray-500">
       <Row
         heading="Next queue opening"
-        time={<time>{queue.nextScheduledOpenTime || '07:00:00'}</time>}
+        time={<time>{queue.nextScheduledOpenTime || '--:--:--'}</time>}
       />
       <Row
         heading={
