@@ -1,12 +1,16 @@
+import FakeTimers from '@sinonjs/fake-timers';
+
 import { sleep } from '../sleep';
 
 describe('sleep()', () => {
+  const clock = FakeTimers.install();
+  jest.spyOn(self, 'setTimeout');
+
   it('sleeps for 3 seconds', async () => {
-    jest.useFakeTimers();
     const promise = sleep(3000);
     expect(setTimeout).toBeCalledTimes(1);
     expect(setTimeout).lastCalledWith(expect.any(Function), 3000);
-    jest.runAllTimers();
+    clock.runAll();
     expect(await promise).toBeUndefined();
   });
 });

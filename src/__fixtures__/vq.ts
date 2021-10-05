@@ -30,6 +30,13 @@ export const minnie: Guest = {
   lastName: 'Mouse',
   avatarImageUrl: 'https://example.com/minnie.png',
   isPrimaryGuest: false,
+  isPreselected: true,
+};
+export const fifi: Guest = {
+  guestId: 'fifi',
+  firstName: 'Fifi',
+  lastName: '',
+  isPrimaryGuest: false,
   isPreselected: false,
 };
 export const pluto: Guest = {
@@ -40,4 +47,4 @@ export const pluto: Guest = {
   isPrimaryGuest: false,
   isPreselected: false,
 };
-export const guests = [mickey, minnie, pluto];
+export const guests = [mickey, minnie, fifi, pluto];

@@ -1,28 +1,23 @@
 import { h } from 'preact';
+import FakeTimers from '@sinonjs/fake-timers';
 import { fireEvent, render, screen, waitFor } from '@testing-library/preact';
 
 import Flash, { useFlash } from '../Flash';
 
-const { getByRole, queryByRole } = screen;
-
 describe('Flash', () => {
   it('shows alert message', () => {
     render(<Flash message="hi" />);
-    const elem = getByRole('alert');
-    expect(elem).toHaveTextContent('hi');
-    expect(elem.className).toContain('yellow');
+    expect(screen.getByText('hi')).toHaveClass('bg-yellow-200');
   });
 
   it('shows error message', () => {
     render(<Flash message="oops" type="error" />);
-    const elem = getByRole('alert');
-    expect(elem).toHaveTextContent('oops');
-    expect(elem.className).toContain('red');
+    expect(screen.getByText('oops')).toHaveClass('bg-red-200');
   });
 
   it('renders null when no message', () => {
-    render(<Flash message="" />);
-    expect(queryByRole('alert')).toBeNull();
+    const { container } = render(<Flash message="" />);
+    expect(container).toBeEmptyDOMElement();
   });
 });
 
@@ -39,18 +34,19 @@ function UseFlashExample(): h.JSX.Element {
 
 describe('useFlash()', () => {
   it('flashes message when triggered', async () => {
-    jest.useFakeTimers();
+    const clock = FakeTimers.install();
     render(<UseFlashExample />);
-    expect(queryByRole('alert')).toBeNull();
+    expect(screen.queryByText('hi')).not.toBeInTheDocument();
+    expect(screen.queryByText('oops')).not.toBeInTheDocument();
 
-    fireEvent.click(getByRole('button', { name: 'Alert' }));
-    const elem = getByRole('alert');
-    expect(elem).toHaveTextContent('hi');
-    expect(elem.className).toContain('yellow');
+    fireEvent.click(screen.getByText('Alert'));
+    expect(screen.getByText('hi')).toHaveClass('bg-yellow-200');
 
-    fireEvent.click(getByRole('button', { name: 'Error' }));
-    expect(elem).toHaveTextContent('oops');
-    expect(elem.className).toContain('red');
-    await waitFor(() => expect(queryByRole('alert')).toBeNull());
+    fireEvent.click(screen.getByText('Error'));
+    expect(screen.getByText('oops')).toHaveClass('bg-red-200');
+    clock.runAll();
+    await waitFor(() =>
+      expect(screen.queryByText('oops')).not.toBeInTheDocument()
+    );
   });
 });

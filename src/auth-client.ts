@@ -93,7 +93,7 @@ export class AuthClient {
         type: 'deferred',
         action: 'resolve',
         deferredUuid: message.deferredUuid,
-        data: result === undefined ? {} : result,
+        data: result ?? {},
       });
     }
   };

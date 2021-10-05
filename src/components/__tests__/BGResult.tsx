@@ -8,8 +8,6 @@ import BGResult from '../BGResult';
 jest.mock('../GuestList');
 const GuestListMock = GuestList as jest.MockedFunction<typeof GuestList>;
 
-const { getByRole } = screen;
-
 const onDone = jest.fn();
 
 describe('BGResult', () => {
@@ -18,19 +16,23 @@ describe('BGResult', () => {
   });
 
   it('shows boarding group obtained', () => {
+    const conflicts = {
+      pluto: 'NOT_IN_PARK' as const,
+      fifi: 'NOT_IN_PARK' as const,
+    };
     const { container } = render(
       <BGResult
         guests={guests}
         result={{
           boardingGroup: 89,
-          conflicts: { pluto: 'NOT_IN_PARK' },
+          conflicts,
           closed: false,
         }}
         onDone={onDone}
       />
     );
     expect(container).toHaveTextContent('Boarding Group: 89');
-    fireEvent.click(getByRole('button'));
+    fireEvent.click(screen.getByText('Done'));
     expect(onDone).toBeCalledTimes(1);
     expect(GuestListMock).nthCalledWith(
       1,
@@ -43,7 +45,7 @@ describe('BGResult', () => {
       2,
       {
         guests: guests.slice(2),
-        conflicts: { pluto: 'NOT_IN_PARK' },
+        conflicts,
       },
       {}
     );
@@ -57,7 +59,7 @@ describe('BGResult', () => {
         onDone={onDone}
       />
     );
-    expect(getByRole('heading', { level: 2 })).toHaveTextContent('Sorry!');
+    expect(screen.getByText('Sorry!')).toBeInTheDocument();
     expect(GuestListMock).lastCalledWith({ guests: [], conflicts: {} }, {});
   });
 });

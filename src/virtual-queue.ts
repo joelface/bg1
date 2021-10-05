@@ -106,8 +106,12 @@ type VQResource = VQRequest['resource'] | 'getQueues';
 
 export function sortGuests(guests: Guest[]): Guest[] {
   return guests.sort((a, b) => {
-    if (a.isPrimaryGuest !== b.isPrimaryGuest) return a.isPrimaryGuest ? -1 : 1;
-    if (a.isPreselected !== b.isPreselected) return a.isPreselected ? -1 : 1;
+    if (a.isPrimaryGuest !== b.isPrimaryGuest) {
+      return Number(b.isPrimaryGuest) - Number(a.isPrimaryGuest);
+    }
+    if (a.isPreselected !== b.isPreselected) {
+      return Number(b.isPreselected) - Number(a.isPreselected);
+    }
     return `${a.firstName} ${a.lastName}`.localeCompare(
       `${b.firstName} ${b.lastName}`
     );
@@ -220,7 +224,7 @@ export class ApiClient {
         'Content-Type': 'application/json',
         Authorization: `BEARER ${await this.getAccessToken()}`,
       },
-      body: 'data' in request ? JSON.stringify(request.data) : '',
+      body: JSON.stringify(request.data),
     });
     if (status >= 500) {
       throw new RequestError(data);

@@ -19,6 +19,7 @@ export default function LoginForm({
 
   return (
     <iframe
+      title="Disney Login Form"
       ref={iframe}
       className="fixed top-0 left-0 w-full h-full border-0"
     />

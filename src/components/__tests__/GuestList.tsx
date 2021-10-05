@@ -1,31 +1,36 @@
 import { h } from 'preact';
-import { fireEvent, render, screen } from '@testing-library/preact';
+import { fireEvent, render, screen, within } from '@testing-library/preact';
 
 import { guests, mickey, pluto } from '../../__fixtures__/vq';
 import GuestList from '../GuestList';
 
-const { getAllByRole, queryByRole, getByLabelText, getByText } = screen;
-
 function getAllChecked() {
-  return getAllByRole('checkbox').map(cb => (cb as HTMLInputElement).checked);
+  return screen
+    .getAllByRole('checkbox')
+    .map(cb => (cb as HTMLInputElement).checked);
 }
 
 describe('GuestList', () => {
   it('renders empty guest list', () => {
-    render(<GuestList guests={[]} />);
-    expect(queryByRole('list')).toBeNull();
+    const { container } = render(<GuestList guests={[]} />);
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('renders plain guest list', () => {
     render(<GuestList guests={guests} />);
-    const lis = getAllByRole('listitem');
-    expect(lis.map(li => li.textContent)).toEqual(
-      guests.map(g => `${g.firstName} ${g.lastName}`)
-    );
-    expect(lis.map(li => li.querySelector('img')?.src)).toEqual(
-      guests.map(g => g.avatarImageUrl)
-    );
-    expect(queryByRole('checkbox')).toBeNull();
+    screen.getAllByRole('listitem').forEach((li, i) => {
+      const g = guests[i];
+      expect(li).toHaveTextContent(`${g.firstName} ${g.lastName}`.trimEnd());
+      if (g.avatarImageUrl) {
+        expect(within(li).getByRole('img')).toHaveAttribute(
+          'src',
+          g.avatarImageUrl
+        );
+      } else {
+        expect(within(li).getByText(g.firstName[0])).toBeInTheDocument();
+      }
+    });
+    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
   });
 
   it('renders selectable guest list', () => {
@@ -41,14 +46,15 @@ describe('GuestList', () => {
         }}
       />
     );
-    expect(getAllChecked()).toEqual([true, false, false]);
+    expect(getAllChecked()).toEqual([true, false, false, false]);
 
-    fireEvent.click(getByLabelText('Mickey Mouse'));
+    fireEvent.click(screen.getByLabelText('Mickey Mouse'));
     expect(selected.includes(mickey)).toBe(false);
 
-    fireEvent.click(getByLabelText('Pluto'));
+    fireEvent.click(screen.getByLabelText('Pluto'));
     expect(selected.includes(pluto)).toBe(true);
-    expect(getAllChecked()).toEqual([false, false, true]);
+
+    expect(getAllChecked()).toEqual([false, false, false, true]);
   });
 
   it('renders guest list with conflicts', () => {
@@ -61,14 +67,11 @@ describe('GuestList', () => {
         }}
       />
     );
-    expect(getByText('Mickey Mouse').parentNode).toHaveTextContent(
-      'NO PARK PASS'
+    expect(screen.getByText('Mickey Mouse')).toHaveTextContent('NO PARK PASS');
+    expect(screen.getByText('Minnie Mouse')).toHaveTextContent(
+      /^Minnie Mouse$/
     );
-    expect(getByText('Minnie Mouse').parentNode?.textContent).toBe(
-      'Minnie Mouse'
-    );
-    expect(getByText('Pluto').parentNode).toHaveTextContent(
-      'REDEEM LIMIT REACHED'
-    );
+    expect(screen.getByText('Pluto')).toHaveTextContent('REDEEM LIMIT REACHED');
+    expect(screen.getByText('Fifi')).toHaveTextContent(/^Fifi$/);
   });
 });

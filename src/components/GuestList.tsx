@@ -13,8 +13,8 @@ export default function GuestList({
     onToggle: (i: number) => void;
   };
   conflicts?: JoinQueueConflicts;
-}): h.JSX.Element {
-  if (guests.length === 0) return <p>No guests available</p>;
+}): h.JSX.Element | null {
+  if (guests.length === 0) return null;
   return (
     <ul className="mt-3 ml-3">
       {guests.map((g, i) => (

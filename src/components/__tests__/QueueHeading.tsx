@@ -4,22 +4,20 @@ import { fireEvent, render, screen } from '@testing-library/preact';
 import { rotr, mtwr, queues } from '../../__fixtures__/vq';
 import QueueHeading from '../QueueHeading';
 
-const { getByDisplayValue } = screen;
-
 describe('QueueHeading', () => {
   it('does not use <select> for a single queue', () => {
-    const { container } = render(<QueueHeading queue={rotr} />);
-    expect(container).toHaveTextContent(rotr.name);
-    expect(container.querySelector('select')).toBeNull();
+    render(<QueueHeading queue={rotr} />);
+    expect(screen.getByText(rotr.name)).toBeInTheDocument();
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
   });
 
   it('uses <select> for multiple queues', () => {
     const onChange = jest.fn();
     render(<QueueHeading queue={mtwr} queues={queues} onChange={onChange} />);
-    fireEvent.change(getByDisplayValue(mtwr.name), {
+    fireEvent.change(screen.getByDisplayValue(mtwr.name), {
       target: { value: rotr.queueId },
     });
     expect(onChange).lastCalledWith(rotr.queueId);
-    expect(getByDisplayValue(rotr.name)).toBeInTheDocument();
+    expect(screen.getByDisplayValue(rotr.name)).toBeInTheDocument();
   });
 });

@@ -1,9 +1,7 @@
 import { h } from 'preact';
-import { fireEvent, render, screen } from '@testing-library/preact';
+import { fireEvent, render, screen, within } from '@testing-library/preact';
 
 import FloatingButton from '../FloatingButton';
-
-const { getByRole } = screen;
 
 let clicked = false;
 const onClick = () => (clicked = true);
@@ -17,14 +15,14 @@ describe('FloatingButton', () => {
   it('renders button with link', () => {
     const url = 'https://example.com/';
     render(<FloatingButton href={url}>{label}</FloatingButton>);
-    const link = getByRole('link');
-    expect(link).toHaveTextContent(label);
+    const link = screen.getByRole('link');
     expect(link).toHaveAttribute('href', url);
+    expect(within(link).getByRole('button')).toBeInTheDocument();
   });
 
   it('performs onClick action', () => {
     render(<FloatingButton onClick={onClick}>{label}</FloatingButton>);
-    fireEvent.click(getByRole('button'));
+    fireEvent.click(screen.getByText(label));
     expect(clicked).toBe(true);
   });
 
@@ -34,6 +32,6 @@ describe('FloatingButton', () => {
         {label}
       </FloatingButton>
     );
-    expect(getByRole('button')).toBeDisabled();
+    expect(screen.getByText(label)).toBeDisabled();
   });
 });

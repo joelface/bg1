@@ -33,8 +33,6 @@ const useDisclaimerMock = useDisclaimer as jest.MockedFunction<
   typeof useDisclaimer
 >;
 
-const { getByRole, getByText } = screen;
-
 const client = new ApiClient(VQ_ORIGINS.WDW, jest.fn(), jest.fn());
 const token = {
   get: jest.fn(),
@@ -55,12 +53,12 @@ describe('App', () => {
   it('shows Disclaimer if not yet accepted', () => {
     useDisclaimerMock.mockReturnValue([false, () => null]);
     renderApp();
-    expect(getByText('Disclaimer')).toBeInTheDocument();
+    expect(screen.getByText('Disclaimer')).toBeInTheDocument();
   });
 
   it('shows BGClient if token valid', () => {
     renderApp();
-    expect(getByText('BGClient')).toBeInTheDocument();
+    expect(screen.getByText('BGClient')).toBeInTheDocument();
   });
 
   it('shows LoginForm if token expired', () => {
@@ -68,11 +66,11 @@ describe('App', () => {
       throw new TokenStale('accessToken');
     });
     renderApp();
-    fireEvent.click(getByRole('button', { name: 'Log In' }));
+    fireEvent.click(screen.getByText('Log In'));
     expect(token.set).lastCalledWith(
       'm1nn13',
       new Date(2121, 12, 21, 12, 21, 12)
     );
-    expect(getByText('BGClient')).toBeInTheDocument();
+    expect(screen.getByText('BGClient')).toBeInTheDocument();
   });
 });

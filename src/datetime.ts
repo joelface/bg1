@@ -8,7 +8,7 @@ export function setDefaultTimeZone(timeZone: string): void {
  * @returns Formatted date (YYYY-MM-DD) and time (HH:MM:SS.sss) strings in the default time zone
  */
 export function dateTimeStrings(date?: Date): { date: string; time: string } {
-  date = date || new Date();
+  date = date || new Date(Date.now());
   const dt: { [P in Intl.DateTimeFormatPartTypes]?: string } = {};
   const d2 = '2-digit';
   Intl.DateTimeFormat('en-US', {

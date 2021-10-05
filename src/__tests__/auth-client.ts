@@ -28,6 +28,9 @@ self.addEventListener = (
   }
 };
 
+const removeEventListener = jest.fn();
+self.removeEventListener = removeEventListener;
+
 const toJSON = JSON.stringify;
 
 function send(message: any) {
@@ -99,5 +102,9 @@ describe('AuthClient', () => {
         new Date(token.expires)
       )
     );
+
+    expect(removeEventListener).not.toBeCalled();
+    client.close();
+    expect(removeEventListener.mock.calls[0][0]).toBe('message');
   });
 });

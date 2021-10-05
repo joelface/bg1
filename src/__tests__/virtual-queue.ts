@@ -3,13 +3,19 @@ import {
   ApiClient,
   Guest,
   isVirtualQueueOrigin,
+  sortGuests,
+  RequestError,
   VQ_ORIGINS,
 } from '../virtual-queue';
 
 const fetchJson = jest.fn();
 
-function response(data: { [key: string]: unknown }, responseStatus = 'OK') {
-  return { status: 200, data: { ...data, responseStatus } };
+function response(
+  data: { [key: string]: unknown },
+  responseStatus = 'OK',
+  status = 200
+) {
+  return { status, data: { ...data, responseStatus } };
 }
 
 function respond(...responses: ReturnType<typeof response>[]) {
@@ -172,5 +178,36 @@ describe('Client', () => {
         conflicts: {},
       });
     });
+
+    it('throws RequestError if boarding group not found', async () => {
+      respond(response({ positions: [] }));
+      await expect(client.joinQueue(rotr, guests)).rejects.toThrow(
+        RequestError
+      );
+    });
+
+    it('throws RequestError on 5xx status code', async () => {
+      respond(response({}, 'OK', 500));
+      await expect(client.joinQueue(rotr, guests)).rejects.toThrow(
+        RequestError
+      );
+    });
+
+    it('throws RequestError on unrecognized responseStatus', async () => {
+      respond(response({}, 'UH_OH'));
+      await expect(client.joinQueue(rotr, guests)).rejects.toThrow(
+        RequestError
+      );
+    });
+  });
+});
+
+describe('sortGuests()', () => {
+  it('sorts in place', () => {
+    let g = guests;
+    g = [g[3], g[1], g[0], g[2]];
+    const sorted = sortGuests(g);
+    expect(sorted).toEqual(guests);
+    expect(sorted).toBe(g);
   });
 });

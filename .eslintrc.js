@@ -9,6 +9,8 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:react/recommended',
     'plugin:react-hooks/recommended',
+    'plugin:testing-library/react',
+    'plugin:jest-dom/recommended',
     'plugin:prettier/recommended',
     'prettier',
   ],
@@ -18,7 +20,14 @@ module.exports = {
     ecmaVersion: 12,
     sourceType: 'module',
   },
-  plugins: ['react', 'react-hooks', '@typescript-eslint', 'prettier'],
+  plugins: [
+    'react',
+    'react-hooks',
+    'testing-library',
+    'jest-dom',
+    '@typescript-eslint',
+    'prettier',
+  ],
   rules: {
     '@typescript-eslint/explicit-member-accessibility': [
       'error',
