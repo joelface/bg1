@@ -15,12 +15,12 @@ export default function QueueHeading({
   return (
     <h1 className="border-b-2 border-gray-200 text-xl font-semibold">
       {queues.length <= 1 ? (
-        <span className="inline-block p-1 w-full whitespace-nowrap overflow-hidden overflow-ellipsis">
+        <span className="block w-full p-1 whitespace-nowrap overflow-hidden overflow-ellipsis">
           {queue.name}
         </span>
       ) : (
         <select
-          className="w-full border-none p-1 bg-transparent text-xl font-semibold focus:ring-0"
+          className="block w-full border-none p-1 pr-7 bg-right bg-transparent text-xl font-semibold focus:ring-0"
           onChange={e => (onChange ? onChange(e.currentTarget.value) : null)}
         >
           {queues.map(q => (
