@@ -40,6 +40,7 @@ export default function GuestList({
               <span
                 className="rounded-full text-3xl font-bold text-center bg-purple-600 text-white"
                 style={{ width: '56px', lineHeight: '56px' }}
+                aria-hidden="true"
               >
                 {(g.firstName + g.lastName)[0]}
               </span>
