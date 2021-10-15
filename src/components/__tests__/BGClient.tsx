@@ -74,6 +74,20 @@ describe('BGClient', () => {
       click(screen.getByText('Confirm Party'));
       expect(screen.getByText('Your Party')).toBeInTheDocument();
     });
+
+    it('shows "Max party size" error when limit reached', async () => {
+      const { maxPartySize } = queues[0];
+      const errMsg = `Max party size: ${maxPartySize}`;
+      const initPartySize = screen.getAllByRole('checkbox', {
+        checked: true,
+      }).length;
+      const unchecked = screen.getAllByRole('checkbox', { checked: false });
+      const numToCheck = maxPartySize - initPartySize;
+      unchecked.slice(0, numToCheck).forEach(cb => click(cb));
+      expect(screen.queryByText(errMsg)).not.toBeInTheDocument();
+      click(unchecked[numToCheck]);
+      expect(await screen.findByText(errMsg)).toBeInTheDocument();
+    });
   });
 
   describe('JoinQueue screen', () => {

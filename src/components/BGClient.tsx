@@ -8,6 +8,7 @@ import QueueHeading from './QueueHeading';
 import BGResult from './BGResult';
 import TimeBoard from './TimeBoard';
 import HowToEnter from './HowToEnter';
+import Flash, { useFlash } from './Flash';
 
 const resortToCity = {
   WDW: 'Orlando' as const,
@@ -29,6 +30,7 @@ export default function BGClient({
     closed: true,
   });
   const [screenName, show] = useState<keyof typeof screens>('ChooseParty');
+  const [flashProps, flash] = useFlash();
 
   useEffect(() => {
     (async () => {
@@ -60,7 +62,13 @@ export default function BGClient({
   function toggleGuest(i: number) {
     const newParty = party.slice();
     newParty[i] ? delete newParty[i] : (newParty[i] = guests[i]);
-    setParty(newParty);
+    const maxPartySize = Number(queue?.maxPartySize);
+    if (maxPartySize > 0 && Object.values(newParty).length > maxPartySize) {
+      flash(`Max party size: ${maxPartySize}`, 'error');
+    } else {
+      setParty(newParty);
+      flash('');
+    }
   }
 
   function changeQueue(queueId: string) {
@@ -92,6 +100,7 @@ export default function BGClient({
           onToggle={toggleGuest}
           onConfirm={() => show('JoinQueue')}
         />
+        <Flash {...flashProps} />
       </>
     ),
     JoinQueue: (

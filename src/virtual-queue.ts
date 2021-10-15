@@ -25,6 +25,7 @@ export interface Queue extends BaseQueue {
   name: string;
   isAcceptingJoins: boolean;
   nextScheduledOpenTime: string | null;
+  maxPartySize: number;
   howToEnterMessage: string;
 }
 
