@@ -1,12 +1,15 @@
-import { h } from 'preact';
+import { h, Fragment } from 'preact';
+import { useCallback, useEffect, useState } from 'preact/hooks';
 
 import Clock from './Clock';
 import { Queue } from '../virtual-queue';
 
-const TIME_IS_IDS = {
+export const TIME_IS_IDS = {
   Orlando: 'Orlando_z161',
   Anaheim: 'Anaheim_z14e',
 };
+
+const SYNC_WAIT_MS = 5000;
 
 export default function TimeBoard({
   city,
@@ -15,6 +18,14 @@ export default function TimeBoard({
   city: keyof typeof TIME_IS_IDS;
   queue: Pick<Queue, 'nextScheduledOpenTime'>;
 }): h.JSX.Element {
+  const [synced, setSynced] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    setTimeout(() => setSynced(synced => synced || false), SYNC_WAIT_MS);
+  }, []);
+
+  const onSync = useCallback(() => setSynced(true), []);
+
   return (
     <table className="mt-4 mx-auto text-gray-500">
       <Row
@@ -32,7 +43,17 @@ export default function TimeBoard({
             Current time
           </a>
         }
-        time={<Clock id={TIME_IS_IDS[city]} />}
+        time={
+          <>
+            <Clock id={TIME_IS_IDS[city]} onSync={onSync} />
+            {synced === false ? (
+              <span className="text-sm font-sans font-semibold text-red-500">
+                {' '}
+                (unsynced)
+              </span>
+            ) : null}
+          </>
+        }
       />
     </table>
   );
@@ -47,7 +68,10 @@ function Row({
 }) {
   return (
     <tr>
-      <th className="pr-3 text-right text-xs font-semibold uppercase">
+      <th
+        scope="row"
+        className="pr-3 text-right text-xs font-semibold uppercase"
+      >
         {heading}:
       </th>
       <td className="text-xl font-mono leading-tight">&#xfeff;{time}</td>

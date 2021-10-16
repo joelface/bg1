@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { render, screen } from '@testing-library/preact';
+import { render, screen, waitFor } from '@testing-library/preact';
 
 import Clock from '../Clock';
 
@@ -10,12 +10,16 @@ jest.mock('../../datetime', () => {
 });
 
 self.time_is_widget = { init: jest.fn() };
+const onSync = jest.fn();
 
 describe('Clock', () => {
-  it('shows current time', () => {
+  it('shows current time', async () => {
     const id = 'Orlando_z161';
-    render(<Clock id={id} />);
+    render(<Clock id={id} onSync={onSync} />);
     expect(screen.getByText('12:59:47')).toHaveAttribute('id', id);
     expect(self.time_is_widget.init).lastCalledWith({ [id]: {} });
+    // Fake clock syncing
+    (document.getElementById(id) as HTMLElement).innerHTML = '<span>12:59:48</span>'; // eslint-disable-line
+    await waitFor(() => expect(onSync).toBeCalled());
   });
 });
