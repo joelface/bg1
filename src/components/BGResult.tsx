@@ -1,8 +1,11 @@
 import { h, Fragment } from 'preact';
+import { useEffect, useState } from 'preact/hooks';
 
 import { Guest, JoinQueueResult } from '../virtual-queue';
 import FloatingButton from './FloatingButton';
 import GuestList from './GuestList';
+
+const DONE_BTN_DISABLED_MS = 999;
 
 export default function BGResult({
   guests,
@@ -16,6 +19,12 @@ export default function BGResult({
   const { boardingGroup, conflicts } = result;
   const joinedGuests = guests.filter(g => !(g.guestId in conflicts));
   const failedGuests = guests.filter(g => g.guestId in conflicts);
+  const [doneDisabled, setDoneDisabled] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => setDoneDisabled(false), DONE_BTN_DISABLED_MS);
+  }, []);
+
   return (
     <>
       {boardingGroup ? (
@@ -42,7 +51,9 @@ export default function BGResult({
           <GuestList guests={failedGuests} conflicts={conflicts} />
         </>
       )}
-      <FloatingButton onClick={onDone}>Done</FloatingButton>
+      <FloatingButton disabled={doneDisabled} onClick={onDone}>
+        Done
+      </FloatingButton>
     </>
   );
 }

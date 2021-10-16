@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import FakeTimers from '@sinonjs/fake-timers';
 import { fireEvent, render, screen } from '@testing-library/preact';
 
 import { guests } from '../../__fixtures__/vq';
@@ -61,5 +62,20 @@ describe('BGResult', () => {
     );
     expect(screen.getByText('Sorry!')).toBeInTheDocument();
     expect(GuestListMock).lastCalledWith({ guests: [], conflicts: {} }, {});
+  });
+
+  it('has Done button initially disabled', async () => {
+    const clock = FakeTimers.install();
+    render(
+      <BGResult
+        guests={guests}
+        result={{ boardingGroup: 1, conflicts: {}, closed: false }}
+        onDone={onDone}
+      />
+    );
+    expect(screen.getByText('Done')).toBeDisabled();
+    await clock.tickAsync(1000);
+    expect(screen.getByText('Done')).toBeEnabled();
+    clock.uninstall();
   });
 });
