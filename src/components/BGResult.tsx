@@ -5,7 +5,10 @@ import { Guest, JoinQueueResult } from '../virtual-queue';
 import FloatingButton from './FloatingButton';
 import GuestList from './GuestList';
 
-const DONE_BTN_DISABLED_MS = 999;
+const DONE_BTN_HIDDEN_MS = {
+  success: 5000,
+  failure: 1000,
+};
 
 export default function BGResult({
   guests,
@@ -19,11 +22,14 @@ export default function BGResult({
   const { boardingGroup, conflicts } = result;
   const joinedGuests = guests.filter(g => !(g.guestId in conflicts));
   const failedGuests = guests.filter(g => g.guestId in conflicts);
-  const [doneDisabled, setDoneDisabled] = useState(true);
+  const [doneHidden, setDoneHidden] = useState(true);
 
   useEffect(() => {
-    setTimeout(() => setDoneDisabled(false), DONE_BTN_DISABLED_MS);
-  }, []);
+    setTimeout(
+      () => setDoneHidden(false),
+      DONE_BTN_HIDDEN_MS[boardingGroup ? 'success' : 'failure']
+    );
+  }, [boardingGroup]);
 
   return (
     <>
@@ -51,9 +57,9 @@ export default function BGResult({
           <GuestList guests={failedGuests} conflicts={conflicts} />
         </>
       )}
-      <FloatingButton disabled={doneDisabled} onClick={onDone}>
-        Done
-      </FloatingButton>
+      {doneHidden ? null : (
+        <FloatingButton onClick={onDone}>Done</FloatingButton>
+      )}
     </>
   );
 }

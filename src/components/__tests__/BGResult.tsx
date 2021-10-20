@@ -12,11 +12,14 @@ const GuestListMock = GuestList as jest.MockedFunction<typeof GuestList>;
 const onDone = jest.fn();
 
 describe('BGResult', () => {
-  beforeEach(() => {
+  const clock = FakeTimers.install();
+
+  beforeEach(async () => {
     GuestListMock.mockClear();
+    await clock.runToLastAsync();
   });
 
-  it('shows boarding group obtained', () => {
+  it('shows boarding group obtained', async () => {
     const conflicts = {
       pluto: 'NOT_IN_PARK' as const,
       fifi: 'NOT_IN_PARK' as const,
@@ -33,8 +36,12 @@ describe('BGResult', () => {
       />
     );
     expect(container).toHaveTextContent('Boarding Group: 89');
+
+    expect(screen.queryByText('Done')).not.toBeInTheDocument();
+    await clock.tickAsync(5000);
     fireEvent.click(screen.getByText('Done'));
     expect(onDone).toBeCalledTimes(1);
+
     expect(GuestListMock).nthCalledWith(
       1,
       {
@@ -52,7 +59,7 @@ describe('BGResult', () => {
     );
   });
 
-  it('show failure message', () => {
+  it('show failure message', async () => {
     render(
       <BGResult
         guests={guests}
@@ -62,20 +69,9 @@ describe('BGResult', () => {
     );
     expect(screen.getByText('Sorry!')).toBeInTheDocument();
     expect(GuestListMock).lastCalledWith({ guests: [], conflicts: {} }, {});
-  });
 
-  it('has Done button initially disabled', async () => {
-    const clock = FakeTimers.install();
-    render(
-      <BGResult
-        guests={guests}
-        result={{ boardingGroup: 1, conflicts: {}, closed: false }}
-        onDone={onDone}
-      />
-    );
-    expect(screen.getByText('Done')).toBeDisabled();
+    expect(screen.queryByText('Done')).not.toBeInTheDocument();
     await clock.tickAsync(1000);
     expect(screen.getByText('Done')).toBeEnabled();
-    clock.uninstall();
   });
 });

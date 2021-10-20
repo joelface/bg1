@@ -37,9 +37,17 @@ const confirmBtn = () => screen.getByText('Confirm Party');
 const joinBtn = () => screen.getByText('Join Boarding Group');
 
 describe('BGClient', () => {
+  let clock: FakeTimers.InstalledClock;
+
   beforeEach(async () => {
     render(<BGClient client={client} />);
     await screen.findByText('Pluto');
+    clock = FakeTimers.install();
+  });
+
+  afterEach(async () => {
+    await clock.runToLastAsync();
+    clock.uninstall();
   });
 
   it('scrolls to top on screen change', () => {
@@ -108,20 +116,19 @@ describe('BGClient', () => {
       click(joinBtn());
       expect(await screen.findByText('Boarding Group: 33')).toBeInTheDocument();
       expect(screen.getByText(queues[1].name)).toBeInTheDocument();
+      await clock.runAllAsync();
       click(screen.getByText('Done'));
       expect(screen.getByText('Choose Your Party')).toBeInTheDocument();
     });
 
     it('shows "Queue not open yet" alert when queue closed', async () => {
-      const clock = FakeTimers.install();
       click(joinBtn());
       expect(await screen.findByText('Queue not open yet')).toBeInTheDocument();
       expect(joinBtn()).toBeDisabled();
-      clock.runAll();
+      await clock.runAllAsync();
       await waitFor(() => {
         expect(joinBtn()).toBeEnabled();
       });
-      clock.uninstall();
     });
 
     it('shows "Error: try again" alert when request fails', async () => {
