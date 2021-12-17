@@ -1,4 +1,4 @@
-import { rotr, queues, guests } from '../__fixtures__/vq';
+import { rotr, mtwr, santa, queues, guests } from '../__fixtures__/vq';
 import {
   ApiClient,
   Guest,
@@ -75,12 +75,12 @@ describe('Client', () => {
     });
   });
 
-  const queueClosedRes = response({ queues });
+  const queueClosedRes = response({ queues: [...queues] });
 
   describe('getQueues()', () => {
     it('returns queues', async () => {
       respond(queueClosedRes);
-      expect(await client.getQueues()).toEqual(queues);
+      expect(await client.getQueues()).toEqual([mtwr, rotr, santa]);
       expectFetch(getQueuesUrl);
     });
   });

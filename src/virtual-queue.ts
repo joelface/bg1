@@ -27,6 +27,7 @@ export interface Queue extends BaseQueue {
   nextScheduledOpenTime: string | null;
   maxPartySize: number;
   howToEnterMessage: string;
+  categoryContentId: 'attraction' | 'character';
 }
 
 export interface BaseGuest {
@@ -143,7 +144,14 @@ export class ApiClient {
   }
 
   async getQueues(): Promise<Queue[]> {
-    return (await this.fetch(this.url('getQueues'))).data.queues;
+    return (
+      (await this.fetch(this.url('getQueues'))).data.queues as Queue[]
+    ).sort((a, b) => {
+      if (a.categoryContentId === b.categoryContentId) {
+        return a.name.localeCompare(b.name);
+      }
+      return a.categoryContentId === 'attraction' ? -1 : 1;
+    });
   }
 
   async getQueue(queue: BaseQueue): Promise<Queue> {

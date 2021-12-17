@@ -7,6 +7,7 @@ export const rotr: Queue = {
   isAcceptingJoins: false,
   maxPartySize: 3,
   howToEnterMessage: 'lol nm just stand in line',
+  categoryContentId: 'attraction',
 };
 export const mtwr: Queue = {
   queueId: 'mtwr',
@@ -15,8 +16,18 @@ export const mtwr: Queue = {
   isAcceptingJoins: false,
   maxPartySize: 3,
   howToEnterMessage: 'Go to Disneyland or reverse the flow of time.',
+  categoryContentId: 'attraction',
 };
-export const queues = [rotr, mtwr];
+export const santa: Queue = {
+  queueId: 'santa',
+  name: 'Meet Santa Claus',
+  nextScheduledOpenTime: null,
+  isAcceptingJoins: false,
+  maxPartySize: 10,
+  howToEnterMessage: '',
+  categoryContentId: 'character',
+};
+export const queues = [rotr, santa, mtwr];
 
 export const mickey: Guest = {
   guestId: 'mickey',
