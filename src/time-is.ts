@@ -26,6 +26,6 @@ function reinit() {
 
 export function add(id: string): void {
   loadScript();
-  initArg[id] = {};
+  initArg[id] ||= {};
   reinit();
 }
