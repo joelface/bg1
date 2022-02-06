@@ -2,7 +2,7 @@
   "name": "bg1",
   "version": "0.2.0",
   "description": "An unofficial, experimental boarding group client",
-  "license": "MIT",
+  "license": "GPL-3.0-only",
   "repository": "github:joelface/bg1",
   "dependencies": {
     "preact": "^10.5.14"
