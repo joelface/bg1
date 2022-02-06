@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useState } from 'preact/hooks';
+import { useCallback, useState } from 'preact/hooks';
 
 type FlashType = 'alert' | 'error';
 
@@ -26,24 +26,24 @@ export default function Flash({
 
 type Flash = (message: string, type?: FlashType) => void;
 
-export function useFlash(): [FlashProps, Flash] {
+export function useFlash(): [h.JSX.Element, Flash] {
   const [timeoutId, setTimeoutId] = useState(0);
-  const [flashProps, setFlashProps] = useState<FlashProps>({
-    message: '',
-    type: 'alert',
-  });
+  const [flashElem, setFlashElem] = useState(<Flash message="" type="alert" />);
 
-  function flash(message: string, type?: FlashType) {
-    clearTimeout(timeoutId);
-    setFlashProps({ message, type });
-    if (message) {
-      setTimeoutId(
-        self.setTimeout(() => {
-          setFlashProps({ message: '', type });
-        }, 2500)
-      );
-    }
-  }
+  const flash = useCallback(
+    (message: string, type?: FlashType) => {
+      clearTimeout(timeoutId);
+      setFlashElem(<Flash message={message} type={type} />);
+      if (message) {
+        setTimeoutId(
+          self.setTimeout(() => {
+            setFlashElem(<Flash message="" type={type} />);
+          }, 2500)
+        );
+      }
+    },
+    [timeoutId]
+  );
 
-  return [flashProps, flash];
+  return [flashElem, flash];
 }

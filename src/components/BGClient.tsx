@@ -8,7 +8,7 @@ import QueueHeading from './QueueHeading';
 import BGResult from './BGResult';
 import TimeBoard from './TimeBoard';
 import HowToEnter from './HowToEnter';
-import Flash, { useFlash } from './Flash';
+import { useFlash } from './Flash';
 
 const resortToCity = {
   WDW: 'Orlando' as const,
@@ -30,7 +30,7 @@ export default function BGClient({
     closed: true,
   });
   const [screenName, show] = useState<keyof typeof screens>('ChooseParty');
-  const [flashProps, flash] = useFlash();
+  const [flashElem, flash] = useFlash();
 
   useEffect(() => {
     (async () => {
@@ -100,7 +100,7 @@ export default function BGClient({
           onToggle={toggleGuest}
           onConfirm={() => show('JoinQueue')}
         />
-        <Flash {...flashProps} />
+        {flashElem}
       </>
     ),
     JoinQueue: (

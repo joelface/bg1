@@ -2,7 +2,7 @@ import { h, Fragment } from 'preact';
 import { useState } from 'preact/hooks';
 
 import { sleep } from '../sleep';
-import Flash, { useFlash } from './Flash';
+import { useFlash } from './Flash';
 import { Guest, RequestError } from '../virtual-queue';
 import FloatingButton from './FloatingButton';
 import GuestList from './GuestList';
@@ -19,7 +19,7 @@ export default function JoinQueue({
   onEdit: () => void;
 }): h.JSX.Element {
   const [joinDisabled, setJoinDisabled] = useState<boolean>(false);
-  const [flashProps, flash] = useFlash();
+  const [flashElem, flash] = useFlash();
 
   async function onJoinClick() {
     setJoinDisabled(true);
@@ -53,7 +53,7 @@ export default function JoinQueue({
       <FloatingButton disabled={joinDisabled} onClick={onJoinClick}>
         Join Boarding Group
       </FloatingButton>
-      <Flash {...flashProps} />
+      {flashElem}
     </>
   );
 }

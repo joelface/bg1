@@ -22,10 +22,10 @@ describe('Flash', () => {
 });
 
 function UseFlashExample(): h.JSX.Element {
-  const [flashProps, flash] = useFlash();
+  const [flashElem, flash] = useFlash();
   return (
     <div>
-      <Flash {...flashProps} />
+      {flashElem}
       <button onClick={() => flash('hi')}>Alert</button>
       <button onClick={() => flash('oops', 'error')}>Error</button>
     </div>
