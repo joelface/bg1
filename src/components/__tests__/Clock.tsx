@@ -1,11 +1,11 @@
 import { h } from 'preact';
-import { render, screen, waitFor } from '@testing-library/preact';
 
+import { render, screen, waitFor } from '@/testing';
 import Clock from '../Clock';
 
-jest.mock('../../datetime', () => {
+jest.mock('@/datetime', () => {
   return {
-    dateTimeStrings: () => ({ date: '2020-04-05', time: '12:59:47.328' }),
+    dateTimeStrings: () => ({ date: '2020-04-05', time: '12:59:47' }),
   };
 });
 
@@ -19,7 +19,8 @@ describe('Clock', () => {
     expect(screen.getByText('12:59:47')).toHaveAttribute('id', id);
     expect(self.time_is_widget.init).lastCalledWith({ [id]: {} });
     // Fake clock syncing
-    (document.getElementById(id) as HTMLElement).innerHTML = '<span>12:59:48</span>'; // eslint-disable-line
+    (document.getElementById(id) as HTMLElement).innerHTML =
+      '<span>12:59:48</span>';
     await waitFor(() => expect(onSync).toBeCalled());
   });
 });

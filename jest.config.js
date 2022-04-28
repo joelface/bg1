@@ -5,6 +5,8 @@ module.exports = {
       isolatedModules: true,
     },
   },
+  moduleNameMapper: {
+    '^@/(.*)': '<rootDir>/src/$1',
+  },
   testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['./jest-setup.ts'],
 };

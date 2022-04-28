@@ -1,21 +1,23 @@
 import { h } from 'preact';
 import { useEffect, useRef } from 'preact/hooks';
 
-import { AuthClient } from '../auth-client';
+import { AuthClient, AuthData } from '@/api/auth/client';
 
 export default function LoginForm({
+  resort,
   onLogin,
 }: {
-  onLogin: (token: string, expires: Date) => void;
+  resort: 'WDW' | 'DLR';
+  onLogin: (data: AuthData) => void;
 }): h.JSX.Element {
   const iframe = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
     if (!iframe.current) return;
-    const authClient = new AuthClient(iframe.current, onLogin);
+    const authClient = new AuthClient(iframe.current, onLogin, resort);
     authClient.open();
     return () => authClient.close();
-  }, [iframe, onLogin]);
+  }, [resort, onLogin, iframe]);
 
   return (
     <iframe

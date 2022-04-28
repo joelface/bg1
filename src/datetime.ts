@@ -5,10 +5,13 @@ export function setDefaultTimeZone(timeZone: string): void {
 }
 
 /**
- * @returns Formatted date (YYYY-MM-DD) and time (HH:MM:SS.sss) strings in the default time zone
+ * @returns Formatted date (YYYY-MM-DD) and time (HH:MM:SS) strings in the default time zone
  */
-export function dateTimeStrings(date?: Date): { date: string; time: string } {
-  date = date || new Date(Date.now());
+export function dateTimeStrings(date?: Date | number | string): {
+  date: string;
+  time: string;
+} {
+  date = new Date(date || Date.now());
   const dt: { [P in Intl.DateTimeFormatPartTypes]?: string } = {};
   const d2 = '2-digit';
   Intl.DateTimeFormat('en-US', {
@@ -23,9 +26,23 @@ export function dateTimeStrings(date?: Date): { date: string; time: string } {
   } as Intl.DateTimeFormatOptions)
     .formatToParts(date)
     .forEach(p => (dt[p.type] = p.value));
-  const ms = date.getMilliseconds().toString().padStart(3, '0');
   return {
     date: `${dt.year}-${dt.month}-${dt.day}`,
-    time: `${dt.hour}:${dt.minute}:${dt.second}.${ms}`,
+    time: `${dt.hour}:${dt.minute}:${dt.second}`,
   };
+}
+
+export function displayTime(time: string) {
+  const t = time.split(':').map(Number);
+  const ampm = t[0] >= 12 ? 'PM' : 'AM';
+  t[0] = t[0] % 12 || 12;
+  return (
+    t
+      .map(v => String(v).padStart(2, '0'))
+      .join(':')
+      .replace(/:00$/, '')
+      .replace(/^0/, '') +
+    ' ' +
+    ampm
+  );
 }

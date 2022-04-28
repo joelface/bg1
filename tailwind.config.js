@@ -1,9 +1,13 @@
 module.exports = {
-  mode: 'jit',
-  purge: ['./src/**/*.{css,tsx}'],
-  darkMode: false,
+  content: ['./src/**/*.{css,tsx,ts}'],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        white: '#f8f8f8',
+      },
+      screens: {
+        xs: '360px',
+      },
+    },
   },
-  plugins: [require('@tailwindcss/forms')],
 };

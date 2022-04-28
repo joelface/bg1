@@ -1,47 +1,54 @@
-import { h } from 'preact';
+import { h, Fragment, ComponentChildren } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 
-import { StoredToken, TokenStale } from '../token';
-import { ApiClient } from '../virtual-queue';
-import BGClient from './BGClient';
-import Disclaimer, { useDisclaimer } from './Disclaimer';
+import { AuthStore, ReauthNeeded } from '@/api/auth/store';
+import useDisclaimer from '@/hooks/useDisclaimer';
 import LoginForm from './LoginForm';
 
 export default function App({
-  accessToken,
-  client,
+  resort,
+  authStore,
+  children,
 }: {
-  accessToken: Public<StoredToken>;
-  client: Public<ApiClient>;
+  resort: 'WDW' | 'DLR';
+  authStore: Public<AuthStore>;
+  children: ComponentChildren;
 }): h.JSX.Element | null {
   const [screenName, show] = useState<keyof typeof screens>('Blank');
-  const [disclaimerAccepted, acceptDisclaimer] = useDisclaimer();
+  const disclaimer = useDisclaimer();
 
   useEffect(() => {
-    if (!disclaimerAccepted) return show('Disclaimer');
-
-    try {
-      accessToken.get();
-    } catch (e) {
-      if (e instanceof TokenStale) return show('LoginForm');
-      throw e;
+    function checkAuthData() {
+      try {
+        authStore.getData();
+        show('Client');
+      } catch (error) {
+        if (error instanceof ReauthNeeded) {
+          return show('LoginForm');
+        } else {
+          console.error(error);
+        }
+      }
     }
-    show('BGClient');
-  }, [accessToken, disclaimerAccepted]);
 
-  function onLogin(token: string, expires: Date) {
-    accessToken.set(token, expires);
-    show('BGClient');
-  }
+    checkAuthData();
+    const intervalId = setInterval(checkAuthData, 3600_000);
+    return () => clearInterval(intervalId);
+  }, [authStore]);
 
   const screens = {
     Blank: <div />,
-    Disclaimer: <Disclaimer onAccept={acceptDisclaimer} />,
-    LoginForm: <LoginForm onLogin={onLogin} />,
-    BGClient: <BGClient client={client} />,
+    LoginForm: (
+      <LoginForm
+        resort={resort}
+        onLogin={data => {
+          authStore.setData(data);
+          show('Client');
+        }}
+      />
+    ),
+    Client: children,
   };
 
-  return (
-    <div className="max-w-2xl mx-auto px-3 py-2">{screens[screenName]}</div>
-  );
+  return <>{disclaimer ? disclaimer : screens[screenName]}</>;
 }

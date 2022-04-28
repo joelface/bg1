@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply touch-manipulation overflow-hidden overscroll-none bg-white text-black;
+  }
+
+  body {
+    @apply fixed inset-0 overflow-auto;
+  }
+
+  p {
+    @apply mt-4;
+  }
+
+  h2 {
+    @apply mt-3 text-xl font-semibold;
+  }
+
+  h3 {
+    @apply mt-4 text-lg;
+  }
+
+  option {
+    @apply bg-white text-black;
+  }
+
+  input[type='checkbox'] {
+    @apply w-5 h-5;
+  }
+
+  button,
+  select {
+    @apply select-none;
+  }
+
+  button > svg {
+    @apply my-1;
+  }
+}
+
+@layer utilities {
+  .p-std {
+    @apply px-3 py-4;
+  }
+}

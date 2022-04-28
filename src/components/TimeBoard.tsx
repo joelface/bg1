@@ -2,21 +2,22 @@ import { h, Fragment } from 'preact';
 import { useCallback, useEffect, useState } from 'preact/hooks';
 
 import Clock from './Clock';
-import { Queue } from '../virtual-queue';
 
 export const TIME_IS_IDS = {
-  Orlando: 'Orlando_z161',
-  Anaheim: 'Anaheim_z14e',
+  WDW: 'Orlando_z161',
+  DLR: 'Anaheim_z14e',
 };
 
 const SYNC_WAIT_MS = 5000;
 
 export default function TimeBoard({
-  city,
-  queue,
+  resort,
+  time,
+  label,
 }: {
-  city: keyof typeof TIME_IS_IDS;
-  queue: Pick<Queue, 'nextScheduledOpenTime'>;
+  resort: keyof typeof TIME_IS_IDS;
+  label: string;
+  time?: string | null;
 }): h.JSX.Element {
   const [synced, setSynced] = useState<boolean | null>(null);
 
@@ -28,14 +29,11 @@ export default function TimeBoard({
 
   return (
     <table className="mt-4 mx-auto text-gray-500">
-      <Row
-        heading="Next queue opening"
-        time={<time>{queue.nextScheduledOpenTime || '--:--:--'}</time>}
-      />
+      <Row heading={label} time={<time>{time || '--:--:--'}</time>} />
       <Row
         heading={
           <a
-            href={`https://time.is/${city}`}
+            href={`https://time.is/${resort}`}
             id="time_is_link"
             target="_blank"
             rel="noreferrer"
@@ -45,9 +43,9 @@ export default function TimeBoard({
         }
         time={
           <>
-            <Clock id={TIME_IS_IDS[city]} onSync={onSync} />
+            <Clock id={TIME_IS_IDS[resort]} onSync={onSync} />
             {synced === false ? (
-              <span className="text-sm font-sans font-semibold text-red-500">
+              <span className="text-sm font-sans font-semibold text-red-600">
                 {' '}
                 (unsynced)
               </span>

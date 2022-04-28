@@ -10,7 +10,7 @@ describe('sleep()', () => {
     const promise = sleep(3000);
     expect(setTimeout).toBeCalledTimes(1);
     expect(setTimeout).lastCalledWith(expect.any(Function), 3000);
-    clock.runAll();
+    clock.runToLast();
     expect(await promise).toBeUndefined();
   });
 });

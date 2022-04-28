@@ -1,19 +1,19 @@
 import { h } from 'preact';
-import { render, screen } from '@testing-library/preact';
 
-import { AuthClient } from '../../auth-client';
+import { render, screen } from '@/testing';
+import { AuthClient } from '@/api/auth/client';
 import LoginForm from '../LoginForm';
 
-jest.mock('../../auth-client');
+jest.mock('@/api/auth/client');
 
 const AuthClientMock = AuthClient as jest.Mock<AuthClient>;
 
 describe('LoginForm', () => {
   it('starts AuthClient', () => {
     const onLogin = jest.fn();
-    render(<LoginForm onLogin={onLogin} />);
+    render(<LoginForm onLogin={onLogin} resort="WDW" />);
     const iframe = screen.getByTitle('Disney Login Form');
-    expect(AuthClientMock).toBeCalledWith(iframe, onLogin);
+    expect(AuthClientMock).toBeCalledWith(iframe, onLogin, 'WDW');
     expect(AuthClientMock.mock.instances[0].open).toBeCalledTimes(1);
   });
 });

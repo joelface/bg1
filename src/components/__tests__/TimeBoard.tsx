@@ -1,10 +1,10 @@
 import { h } from 'preact';
 import FakeTimers from '@sinonjs/fake-timers';
-import { render, screen } from '@testing-library/preact';
 
+import { render, screen } from '@/testing';
 import TimeBoard, { TIME_IS_IDS } from '../TimeBoard';
 
-jest.mock('../../datetime', () => {
+jest.mock('@/datetime', () => {
   return {
     dateTimeStrings: () => ({ date: '2020-04-05', time: '12:59:47.328' }),
   };
@@ -12,15 +12,17 @@ jest.mock('../../datetime', () => {
 
 self.time_is_widget = { init: jest.fn() };
 
+function setup() {
+  render(<TimeBoard resort="WDW" label="Next queue opening" time="13:00:00" />);
+}
+
 describe('TimeBoard', () => {
   const unsyncedMsg = '(unsynced)';
   const clock = FakeTimers.install();
 
   beforeEach(() => {
     clock.runToLast();
-    render(
-      <TimeBoard city="Orlando" queue={{ nextScheduledOpenTime: '13:00:00' }} />
-    );
+    setup();
   });
 
   it('shows next queue open time and current time', () => {
@@ -34,7 +36,8 @@ describe('TimeBoard', () => {
 
   it("doesn't show unsynced if syncing succeeds", async () => {
     // Fake clock syncing
-    (document.getElementById(TIME_IS_IDS.Orlando) as HTMLElement).innerHTML = '<span>12:59:48</span>'; // eslint-disable-line
+    (document.getElementById(TIME_IS_IDS.WDW) as HTMLElement).innerHTML =
+      '<span>12:59:48</span>';
     await clock.tickAsync(5000);
     expect(screen.queryByText(unsyncedMsg)).not.toBeInTheDocument();
   });

@@ -1,76 +1,68 @@
 import { h } from 'preact';
-import { fireEvent, render, screen } from '@testing-library/preact';
 
-import { ApiClient, VQ_ORIGINS } from '../../virtual-queue';
-import { TokenStale } from '../../token';
+import { click, render, screen } from '@/testing';
+import { AuthData } from '@/api/auth/client';
+import { ReauthNeeded } from '@/api/auth/store';
+import { DISCLAIMER_ACCEPTED_KEY } from '@/hooks/useDisclaimer';
 import App from '../App';
-import { useDisclaimer } from '../Disclaimer';
 
-jest.mock('../BGClient', () => {
-  const BGClient = () => <p>BGClient</p>;
-  return BGClient;
-});
 jest.mock('../LoginForm', () => {
-  function LoginForm({
-    onLogin,
-  }: {
-    onLogin: (token: string, expires: Date) => void;
-  }) {
-    const onClick = () => onLogin('m1nn13', new Date(2121, 12, 21, 12, 21, 12));
+  function LoginForm({ onLogin }: { onLogin: (data: AuthData) => void }) {
+    const onClick = () =>
+      onLogin({
+        swid: '{MINNIE}',
+        accessToken: 'm1nn13',
+        expires: new Date(2121, 12, 21, 12, 21, 12),
+      });
     return <button onClick={onClick}>Log In</button>;
   }
   return LoginForm;
 });
-jest.mock('../Disclaimer', () => {
-  const Disclaimer = () => <p>Disclaimer</p>;
-  return {
-    __esModule: true,
-    default: Disclaimer,
-    useDisclaimer: jest.fn(),
-  };
-});
-const useDisclaimerMock = useDisclaimer as jest.MockedFunction<
-  typeof useDisclaimer
->;
 
-const client = new ApiClient(VQ_ORIGINS.WDW, jest.fn(), jest.fn());
-const token = {
-  get: jest.fn(),
-  set: jest.fn(),
-  delete: jest.fn(),
+const authStore = {
+  getData: jest.fn(),
+  setData: jest.fn(),
+  deleteData: jest.fn(),
 };
 
-function renderApp() {
-  render(<App accessToken={token} client={client} />);
-}
+const renderComponent = () =>
+  render(
+    <App authStore={authStore} resort="WDW">
+      client loaded
+    </App>
+  );
 
 describe('App', () => {
   beforeEach(() => {
-    token.get.mockReturnValue('m1ck3y');
-    useDisclaimerMock.mockReturnValue([true, () => null]);
+    authStore.getData.mockReturnValue({
+      swid: '{MICKEY}',
+      accessToken: 'm1ck3y',
+    });
+    localStorage.setItem(DISCLAIMER_ACCEPTED_KEY, '1');
   });
 
   it('shows Disclaimer if not yet accepted', () => {
-    useDisclaimerMock.mockReturnValue([false, () => null]);
-    renderApp();
-    expect(screen.getByText('Disclaimer')).toBeInTheDocument();
+    localStorage.removeItem(DISCLAIMER_ACCEPTED_KEY);
+    renderComponent();
+    expect(screen.getByText('Warning!')).toBeInTheDocument();
   });
 
-  it('shows BGClient if token valid', () => {
-    renderApp();
-    expect(screen.getByText('BGClient')).toBeInTheDocument();
+  it('loads client if auth data valid', () => {
+    renderComponent();
+    expect(screen.getByText('client loaded')).toBeInTheDocument();
   });
 
-  it('shows LoginForm if token expired', () => {
-    token.get.mockImplementationOnce(() => {
-      throw new TokenStale('accessToken');
+  it('shows LoginForm if auth data expired', () => {
+    authStore.getData.mockImplementationOnce(() => {
+      throw new ReauthNeeded('auth');
     });
-    renderApp();
-    fireEvent.click(screen.getByText('Log In'));
-    expect(token.set).lastCalledWith(
-      'm1nn13',
-      new Date(2121, 12, 21, 12, 21, 12)
-    );
-    expect(screen.getByText('BGClient')).toBeInTheDocument();
+    renderComponent();
+    click('Log In');
+    expect(authStore.setData).lastCalledWith({
+      swid: '{MINNIE}',
+      accessToken: 'm1nn13',
+      expires: new Date(2121, 12, 21, 12, 21, 12),
+    });
+    expect(screen.getByText('client loaded')).toBeInTheDocument();
   });
 });

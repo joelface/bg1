@@ -1,6 +1,6 @@
 import { h } from 'preact';
-import { fireEvent, render, screen, within } from '@testing-library/preact';
 
+import { click, render, screen, within } from '@/testing';
 import FloatingButton from '../FloatingButton';
 
 let clicked = false;
@@ -22,7 +22,7 @@ describe('FloatingButton', () => {
 
   it('performs onClick action', () => {
     render(<FloatingButton onClick={onClick}>{label}</FloatingButton>);
-    fireEvent.click(screen.getByText(label));
+    click(label);
     expect(clicked).toBe(true);
   });
 

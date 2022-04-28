@@ -1,62 +1,72 @@
 import { h } from 'preact';
 
-import { Guest, JoinQueueConflicts } from '../virtual-queue';
+export interface Guest {
+  id: string;
+  name: string;
+  avatarImageUrl?: string;
+}
 
-export default function GuestList({
+export interface InfoById {
+  [id: string]: string | undefined;
+}
+
+export default function GuestList<T extends Guest>({
   guests,
   selectable,
   conflicts,
+  info,
 }: {
-  guests: Guest[];
+  guests: T[];
   selectable?: {
-    isSelected: (i: number) => boolean;
-    onToggle: (i: number) => void;
+    isSelected: (guest: T) => boolean;
+    onToggle: (guest: T) => void;
   };
-  conflicts?: JoinQueueConflicts;
+  conflicts?: InfoById;
+  info?: InfoById;
 }): h.JSX.Element | null {
   if (guests.length === 0) return null;
+
   return (
-    <ul className="mt-3 ml-3">
-      {guests.map((g, i) => (
-        <li key={g.guestId} className="py-1.5">
-          <label className="flex items-center">
-            {selectable ? (
-              <input
-                type="checkbox"
-                checked={selectable.isSelected(i)}
-                onChange={() => selectable.onToggle(i)}
-                className="rounded mr-4 p-2.5 text-green-500"
-              />
-            ) : null}
-            {g.avatarImageUrl ? (
-              <img
-                src={g.avatarImageUrl}
-                alt=""
-                width="56"
-                height="56"
-                className="rounded-full"
-              />
-            ) : (
-              <span
-                className="rounded-full text-3xl font-bold text-center bg-purple-600 text-white"
-                style={{ width: '56px', lineHeight: '56px' }}
-                aria-hidden="true"
-              >
-                {(g.firstName + g.lastName)[0]}
-              </span>
-            )}
-            <span className="ml-3">
-              {g.firstName} {g.lastName}
-              <br />
-              {conflicts && g.guestId in conflicts ? (
-                <span className="text-xs font-semibold text-red-700">
-                  {conflicts[g.guestId].replace(/_/g, ' ')}
-                </span>
+    <ul className="mt-2">
+      {guests.map(g => {
+        return (
+          <li key={g.id} className="px-3 py-1">
+            <label className="flex items-center">
+              {selectable ? (
+                <input
+                  type="checkbox"
+                  checked={selectable.isSelected(g)}
+                  onChange={() => selectable.onToggle(g)}
+                  className="mr-3"
+                />
               ) : null}
-            </span>
-          </label>
-        </li>
-      ))}
+              <span className="w-[48px] h-[48px] leading-[48px] mr-3 rounded-full text-3xl font-bold text-center bg-gray-400 text-white">
+                {g.avatarImageUrl ? (
+                  <img
+                    src={g.avatarImageUrl}
+                    alt=""
+                    width="48"
+                    height="48"
+                    className="rounded-full"
+                  />
+                ) : (
+                  <span aria-hidden="true">{g.name[0]}</span>
+                )}
+              </span>
+              <span className="leading-tight">
+                {g.name}
+                <br />
+                {conflicts?.[g.id] ? (
+                  <span className="text-xs font-semibold text-red-700">
+                    {conflicts[g.id]?.replace(/_/g, ' ')}
+                  </span>
+                ) : null}
+              </span>
+            </label>
+            {info?.[g.id] ? <p className="text-sm mt-2">{info[g.id]}</p> : null}
+          </li>
+        );
+      })}
     </ul>
   );
 }

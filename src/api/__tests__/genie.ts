@@ -1,0 +1,385 @@
+import {
+  hm,
+  bs,
+  mk,
+  mickey,
+  minnie,
+  donald,
+  bookings,
+  pluto,
+} from '@/__fixtures__/genie';
+import {
+  Booking,
+  BookingStack,
+  GenieClient,
+  Guest,
+  isGenieOrigin,
+  RequestError,
+} from '../genie';
+import { fetchJson } from '@/fetch';
+import wdw from '../data/wdw';
+
+jest.mock('@/fetch');
+const fetchJsonMock = fetchJson as jest.MockedFunction<typeof fetchJson>;
+
+const accessToken = 'access_token_123';
+const swid = '{abc}';
+const origin = 'https://disneyworld.disney.go.com';
+hm.priority = undefined;
+
+function response(data: any, status = 200) {
+  return { status, data: { ...data } };
+}
+
+function respond(...responses: ReturnType<typeof response>[]) {
+  for (const res of responses) fetchJsonMock.mockResolvedValueOnce(res);
+}
+
+function expectFetch(
+  path: string,
+  { method, params, data }: Parameters<typeof fetchJson>[1] = {},
+  appendUserId = true,
+  nthCall = 1
+) {
+  params ||= {};
+  if (appendUserId) params = { ...params, userId: swid };
+  expect(fetchJsonMock).nthCalledWith(
+    nthCall,
+    expect.stringContaining(origin + path),
+    {
+      method: method || 'GET',
+      params,
+      data,
+      headers: {
+        Authorization: `BEARER ${accessToken}`,
+        'User-Agent': 'Mozilla/5.0',
+      },
+      credentials: 'omit',
+    }
+  );
+}
+
+function splitName({ name, ...rest }: Guest) {
+  const [firstName, lastName = ''] = name.split(' ');
+  return { ...rest, firstName, lastName };
+}
+
+describe('isGenieOrigin()', () => {
+  it('returns true when Genie origin', () => {
+    expect(isGenieOrigin('https://disneyworld.disney.go.com')).toBe(true);
+    expect(isGenieOrigin('https://disneyland.disney.go.com')).toBe(true);
+  });
+  it('returns false when not Genie origin', () => {
+    expect(isGenieOrigin('https://example.com')).toBe(false);
+  });
+});
+
+describe('GenieClient', () => {
+  const client = new GenieClient({
+    origin: 'https://disneyworld.disney.go.com',
+    getAuthData: () => ({ accessToken, swid }),
+    data: wdw,
+  });
+  const guests = [mickey, minnie, pluto];
+  const ineligibleGuests = [donald];
+  const guestsRes = response({
+    guests: guests.map(splitName),
+    ineligibleGuests: ineligibleGuests.map(splitName),
+    primaryGuestId: mickey.id,
+  });
+
+  beforeEach(() => {
+    fetchJsonMock.mockReset();
+  });
+
+  describe('isMostRecent()', () => {
+    it('returns true if booking is most recent', () => {
+      expect(client.isMostRecent(bookings[1])).toBe(true);
+      expect(client.isMostRecent(bookings[0])).toBe(false);
+    });
+  });
+
+  describe('primaryGuestId()', () => {
+    it('returns primary guest ID', async () => {
+      respond(guestsRes);
+      const args = { experience: hm, park: mk };
+      expect(await client.primaryGuestId(args)).toBe(mickey.id);
+      expect(await client.primaryGuestId(args)).toBe(mickey.id);
+      expect(fetchJsonMock).toBeCalledTimes(1);
+    });
+  });
+
+  describe('load()', () => {
+    it('loads Genie client', async () => {
+      const client = await GenieClient.load({
+        origin: 'https://disneyland.disney.go.com',
+        getAuthData: () => ({ accessToken, swid }),
+      });
+      expect(client.parks.map(p => p.name)).toEqual([
+        'Disneyland',
+        'California Adventure',
+      ]);
+    });
+  });
+
+  describe('resort', () => {
+    it('returns resort abbreviation', () => {
+      expect(client.resort).toBe('WDW');
+    });
+  });
+
+  describe('plusExperiences()', () => {
+    it('returns Genie+ experiences', async () => {
+      respond(response({ availableExperiences: [hm] }));
+      expect(await client.plusExperiences(mk)).toEqual([
+        { ...hm, ...wdw.experiences['80010208'] },
+      ]);
+      expectFetch(
+        `/tipboard-vas/api/v1/parks/${encodeURIComponent(mk.id)}/experiences`
+      );
+    });
+  });
+
+  describe('guests()', () => {
+    const guestsUrl = '/ea-vas/api/v1/guests';
+
+    it('returns eligible guests for experience', async () => {
+      respond(guestsRes);
+      expect(await client.guests({ experience: hm, park: mk })).toEqual({
+        guests,
+        ineligibleGuests,
+      });
+      expectFetch(guestsUrl, {
+        params: {
+          productType: 'FLEX',
+          experienceId: hm.id,
+          parkId: mk.id,
+        },
+      });
+    });
+
+    it('treats any guests with ineligibleReason as ineligible', async () => {
+      respond(
+        response({
+          guests: [donald].map(splitName),
+          ineligibleGuests: [],
+          primaryGuestId: mickey.id,
+        })
+      );
+      expect(await client.guests({ experience: hm, park: mk })).toEqual({
+        guests: [],
+        ineligibleGuests: [donald],
+      });
+    });
+  });
+
+  describe('offer()', () => {
+    const offer = {
+      id: 'offer1',
+      date: '2022-07-17',
+      startTime: '14:30:00',
+      endTime: '15:30:00',
+      changeStatus: 'NONE',
+    };
+    const offerRes = response({ offer }, 201);
+
+    it('obtains Lightning Lane offer', async () => {
+      respond(offerRes);
+      expect(await client.offer({ experience: hm, park: mk, guests })).toEqual({
+        id: offer.id,
+        start: { date: offer.date, time: offer.startTime },
+        end: { date: offer.date, time: offer.endTime },
+        changeStatus: 'NONE',
+      });
+      expectFetch('/ea-vas/api/v1/products/flex/offers', {
+        method: 'POST',
+        data: {
+          productType: 'FLEX',
+          guestIds: guests.map(g => g.id),
+          primaryGuestId: mickey.id,
+          parkId: mk.id,
+          experienceId: hm.id,
+          selectedTime: '14:30:00',
+        },
+      });
+    });
+  });
+
+  describe('cancelOffer()', () => {
+    it('cancels offer', async () => {
+      respond(response({}, 204));
+      const offer = { id: 'offer1' };
+      await client.cancelOffer(offer);
+      expectFetch(
+        '/ea-vas/api/v1/offers/' + offer.id,
+        {
+          method: 'DELETE',
+          params: { productType: 'FLEX' },
+        },
+        false
+      );
+    });
+  });
+
+  describe('book()', () => {
+    it('books Lightning Lanes', async () => {
+      const guests = [mickey, minnie];
+      const offer = {
+        id: 'offer1',
+        start: { date: '2022-07-17', time: '18:00:00' },
+        end: { date: '2022-07-17', time: '19:00:00' },
+        changeStatus: 'NONE',
+      };
+      const entitlement = (guest: { id: string }) => ({
+        id: 'entitlement-' + guest.id,
+        guestId: guest.id,
+        usageDetails: {
+          status: 'BOOKED',
+          redeemable: true,
+          modifiable: true,
+        },
+      });
+      const newBooking = {
+        id: 'NEW_BOOKING',
+        entitlements: guests.map(g => entitlement(g)),
+        startDateTime: `${offer.start.date}T${offer.start.time}`,
+        endDateTime: `${offer.end.date}T${offer.end.time}`,
+        assignmentDetails: {
+          product: 'INDIVIDUAL',
+          reason: 'OTHER',
+        },
+        singleExperienceDetails: {
+          experienceId: hm.id,
+          parkId: mk.id,
+        },
+      };
+      respond(response({ booking: newBooking }, 201), guestsRes);
+      expect(await client.book(offer)).toEqual({
+        experience: { id: hm.id, name: hm.name },
+        park: mk,
+        start: offer.start,
+        end: offer.end,
+        guests: guests.map((g, i) => ({
+          ...g,
+          entitlementId: newBooking.entitlements[i].id,
+        })),
+        multipleExperiences: false,
+      });
+      expectFetch(
+        '/ea-vas/api/v1/products/flex/bookings',
+        {
+          method: 'POST',
+          data: { offerId: offer.id },
+        },
+        false
+      );
+    });
+
+    it('throws RequestError on failure', async () => {
+      respond(response({}, 410));
+      await expect(client.book({ id: 'offer1' })).rejects.toThrow(RequestError);
+    });
+  });
+
+  describe('cancelBooking()', () => {
+    const guests = [{ entitlementId: 'ent1' }, { entitlementId: 'ent2' }];
+
+    it('cancel booking', async () => {
+      respond(response({}));
+      await client.cancelBooking(guests);
+      expectFetch(
+        `/ea-vas/api/v1/entitlements/${guests
+          .map(g => g.entitlementId)
+          .join(',')}`,
+        { method: 'DELETE' },
+        false
+      );
+    });
+  });
+
+  describe('bookings()', () => {
+    it('returns current bookings', async () => {
+      const xid = (guest: { id: string }) => guest.id + ';type=xid';
+      const bookingItems = bookings.map(booking => ({
+        type: 'FASTPASS',
+        kind: 'FLEX',
+        displayStartDate: booking.start.date,
+        displayStartTime: booking.start.time,
+        displayEndDate: booking.end.date,
+        displayEndTime: booking.end.time,
+        facility: booking.experience.id + ';entityType=Attraction',
+        guests: booking.guests.map(g => ({
+          id: xid(g),
+          entitlementId: g.entitlementId,
+        })),
+        multipleExperiences: false,
+      }));
+      const officialName = (b: Booking) =>
+        b.experience.id === bs.id ? 'The Barnstormer' : b.experience.name;
+      respond(
+        response({
+          items: [
+            bookingItems[0],
+            {
+              // This item should be ignored
+              type: 'FASTPASS',
+              kind: 'PARK_PASS',
+            },
+            bookingItems[1],
+          ],
+          assets: {
+            ...Object.fromEntries(
+              bookings.map(b => [
+                b.experience.id + ';entityType=Attraction',
+                {
+                  id: b.experience.id + ';entityType=Attraction',
+                  name: officialName(b),
+                  location: b.park.id + ';entityType=theme-park',
+                },
+              ])
+            ),
+            ...Object.fromEntries(
+              guests.map(g => [
+                g.id,
+                {
+                  media: {
+                    small: {
+                      url: `https://example.com/${g.id}.jpg`,
+                    },
+                  },
+                },
+              ])
+            ),
+          },
+          profiles: Object.fromEntries(
+            guests.map(g => {
+              const [firstName, lastName = ''] = g.name.split(' ');
+              return [
+                xid(g),
+                {
+                  id: xid(g),
+                  name: { firstName, lastName },
+                  avatarId: g.id,
+                },
+              ];
+            })
+          ),
+        })
+      );
+      expect(await client.bookings()).toEqual(bookings);
+    });
+  });
+});
+
+describe('BookingStack', () => {
+  localStorage.clear();
+
+  it('updates most recent booking', () => {
+    const stack = new BookingStack();
+    stack.update([bookings[1]]);
+    expect(stack.isMostRecent(bookings[1])).toBe(true);
+    stack.update(bookings);
+    expect(stack.isMostRecent(bookings[1])).toBe(false);
+    expect(stack.isMostRecent(bookings[0])).toBe(true);
+  });
+});
