@@ -18,10 +18,14 @@ export default function ChooseParty({
   return (
     <>
       <h2 className="mt-5 text-xl">Choose Your Party</h2>
-      <GuestList
-        guests={guests}
-        selectable={{ isSelected: g => party.has(g), onToggle }}
-      />
+      {guests.length > 0 ? (
+        <GuestList
+          guests={guests}
+          selectable={{ isSelected: g => party.has(g), onToggle }}
+        />
+      ) : (
+        <p>No guests available</p>
+      )}
       <FloatingButton disabled={party.size === 0} onClick={onConfirm}>
         Confirm Party
       </FloatingButton>

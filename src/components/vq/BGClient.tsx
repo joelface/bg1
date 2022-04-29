@@ -12,9 +12,9 @@ import HowToEnter from './HowToEnter';
 import JoinQueue from './JoinQueue';
 import QueueHeading from './QueueHeading';
 
-export default function BGClient(): h.JSX.Element | null {
+export default function BGClient(): h.JSX.Element {
   const client = useVQClient();
-  const [queues, setQueues] = useState<Queue[]>([]);
+  const [queues, setQueues] = useState<Queue[]>();
   const [queue, setQueue] = useState<Queue | null>(null);
   const [guests, setGuests] = useState<Guest[]>([]);
   const [party, setParty] = useState<Set<Guest>>(new Set());
@@ -67,7 +67,7 @@ export default function BGClient(): h.JSX.Element | null {
   }
 
   function changeQueue(queueId: string) {
-    const q = queues.find(q => q.id === queueId);
+    const q = queues?.find(q => q.id === queueId);
     if (q) setQueue(q);
   }
 
@@ -80,7 +80,18 @@ export default function BGClient(): h.JSX.Element | null {
     return true;
   }
 
-  if (!queue) return null;
+  if (queues?.length === 0) {
+    return (
+      <Page heading="No Virtual Queues">
+        <p>
+          The virtual queue system is not currently in use for any attractions.
+        </p>
+      </Page>
+    );
+  }
+
+  if (!queue) return <div />; // This should never happen
+
   const partyGuests = guests.filter(g => party.has(g));
   const timeBoard = (
     <TimeBoard

@@ -31,30 +31,36 @@ const { change, click } = fireEvent;
 const confirmBtn = () => screen.getByText('Confirm Party');
 const joinBtn = () => screen.getByText('Join Boarding Group');
 
-async function setup() {
+const renderComponent = () =>
   render(
     <VQClientProvider value={client}>
       <BGClient />
     </VQClientProvider>
   );
-  await screen.findByText('Pluto');
+
+function setup() {
+  renderComponent();
 }
 
 describe('BGClient', () => {
   const clock = FakeTimers.install({ shouldAdvanceTime: true });
 
-  beforeEach(async () => {
-    await setup();
-  });
+  beforeEach(setup);
 
   it('scrolls to top on screen change', () => {
     click(confirmBtn());
     expect(elemScrollMock).toBeCalledWith(0, 0);
   });
 
+  it('shows message if no virtual queues', async () => {
+    client.getQueues.mockResolvedValueOnce([]);
+    renderComponent();
+    await screen.findByText('No Virtual Queues');
+  });
+
   describe('ChooseParty screen', () => {
-    it('toggles guest when clicked', () => {
-      const pluto = screen.getByLabelText('Pluto');
+    it('toggles guest when clicked', async () => {
+      const pluto = await screen.findByLabelText('Pluto');
       expect(pluto).not.toBeChecked();
       click(pluto);
       expect(pluto).toBeChecked();
@@ -63,7 +69,7 @@ describe('BGClient', () => {
     });
 
     it('updates queue and guest list when new queue selected', async () => {
-      const pluto = screen.getByLabelText('Pluto');
+      const pluto = await screen.findByLabelText('Pluto');
       click(pluto);
       change(screen.getByDisplayValue(queues[0].name), {
         target: { value: queues[1].id },
@@ -83,15 +89,22 @@ describe('BGClient', () => {
     it('shows "Max party size" error when limit reached', async () => {
       const { maxPartySize } = queues[0];
       const errMsg = `Max party size: ${maxPartySize}`;
-      const initPartySize = screen.getAllByRole('checkbox', {
+      const checked = await screen.findAllByRole('checkbox', {
         checked: true,
-      }).length;
+      });
+      const initPartySize = checked.length;
       const unchecked = screen.getAllByRole('checkbox', { checked: false });
       const numToCheck = maxPartySize - initPartySize;
       unchecked.slice(0, numToCheck).forEach(cb => click(cb));
       expect(screen.queryByText(errMsg)).not.toBeInTheDocument();
       click(unchecked[numToCheck]);
       expect(await screen.findByText(errMsg)).toBeInTheDocument();
+    });
+
+    it('shows message if no guests', async () => {
+      client.getLinkedGuests.mockResolvedValueOnce([]);
+      renderComponent();
+      await screen.findByText('No guests available');
     });
   });
 
