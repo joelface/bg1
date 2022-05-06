@@ -2,7 +2,7 @@ import path from 'path';
 import prefresh from '@prefresh/vite';
 import { UserConfig } from 'vite';
 
-const hmr = +(process.env.HMR ?? 1);
+const hmr = +(process.env.HMR ?? 0);
 
 const server = {
   host: '0.0.0.0',
