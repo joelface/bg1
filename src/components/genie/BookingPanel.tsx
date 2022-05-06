@@ -48,7 +48,7 @@ export default function BookingPanel({
       <BookingDetails
         booking={booking}
         onClose={closeDetails}
-        isMostRecent={client.isMostRecent(booking)}
+        isRebookable={client.isRebookable(booking)}
       />
     );
   }

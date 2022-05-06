@@ -39,6 +39,10 @@
   button > svg {
     @apply my-1;
   }
+
+  strong {
+    @apply font-semibold;
+  }
 }
 
 @layer utilities {

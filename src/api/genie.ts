@@ -339,6 +339,7 @@ export class GenieClient {
       data: { offerId: offer.id },
       key: 'booking',
     });
+    this.bookings(); // Load bookings to refresh booking stack
     return {
       experience: {
         id: experienceId,
@@ -426,8 +427,8 @@ export class GenieClient {
     return bookings;
   }
 
-  isMostRecent(booking: Booking): boolean {
-    return this.bookingStack.isMostRecent(booking);
+  isRebookable(booking: Booking): boolean {
+    return this.bookingStack.isRebookable(booking);
   }
 
   protected async request(request: {
@@ -460,43 +461,55 @@ export class GenieClient {
   }
 }
 
-const bookingString = ({ experience, start }: Booking) =>
-  `${experience.id}@${start.date}T${start.time}`;
-
 export const BOOKINGS_KEY = 'bg1.genie.bookings';
 
+interface BookingStackData {
+  entitlementIds: string[];
+  mostRecent: { [guestId: string]: string };
+}
+
 export class BookingStack {
-  protected bookings: string[] = [];
-  protected mostRecent = '';
+  protected entitlementIds: string[] = [];
+  protected mostRecent: Map<string, string> = new Map();
 
   constructor(loadFromStorage = true) {
     if (!loadFromStorage) return;
-    const { bookings = [], mostRecent = '' } = JSON.parse(
+    const { entitlementIds = [], mostRecent = {} } = JSON.parse(
       localStorage.getItem(BOOKINGS_KEY) || '{}'
-    ) as {
-      bookings?: string[];
-      mostRecent?: string;
-    };
-    this.bookings = bookings;
-    this.mostRecent = mostRecent;
+    ) as BookingStackData;
+    this.entitlementIds = entitlementIds;
+    this.mostRecent = new Map(Object.entries(mostRecent));
   }
 
-  isMostRecent(booking: Booking): boolean {
-    return bookingString(booking) === this.mostRecent;
+  isRebookable(booking: Booking): boolean {
+    return booking.guests.every(
+      g => this.mostRecent.get(g.id) === g.entitlementId
+    );
   }
 
   update(bookings: Booking[]): void {
-    const oldBookings = this.bookings;
-    this.bookings = bookings.map(bookingString);
-    const newBookings = this.bookings.filter(bs => !oldBookings.includes(bs));
-    if (newBookings.length > 0) {
-      this.mostRecent = newBookings.length === 1 ? newBookings[0] : '';
+    const mostRecent = new Map<string, string>();
+    const oldEntIds = new Set(this.entitlementIds);
+    this.entitlementIds = bookings
+      .filter(booking => !booking.multipleExperiences)
+      .map(booking =>
+        booking.guests.map(({ id, entitlementId }) => {
+          this.entitlementIds.push(entitlementId);
+          if (!oldEntIds.has(entitlementId)) {
+            mostRecent.set(id, mostRecent.has(id) ? '' : entitlementId);
+          }
+          return entitlementId;
+        })
+      )
+      .flat(1);
+    this.mostRecent = new Map([...this.mostRecent, ...mostRecent]);
+    if (mostRecent.size > 0) {
       localStorage.setItem(
         BOOKINGS_KEY,
         JSON.stringify({
-          bookings: this.bookings,
-          mostRecent: this.mostRecent,
-        })
+          entitlementIds: this.entitlementIds,
+          mostRecent: Object.fromEntries(this.mostRecent),
+        } as BookingStackData)
       );
     }
   }

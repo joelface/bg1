@@ -2,26 +2,26 @@ import { h } from 'preact';
 import { useState } from 'preact/hooks';
 
 import { Booking, BookingGuest } from '@/api/genie';
-import { useBookingSwap } from '@/contexts/BookingSwap';
 import Button from '../Button';
 import FloatingButton from '../FloatingButton';
 import GuestList from '../GuestList';
 import Page from '../Page';
 import ArrivalTimes from './ArrivalTimes';
 import CancelGuests from './CancelGuests';
+import { useRebooking } from '@/contexts/Rebooking';
 
 export default function BookingDetails({
   booking,
   onClose,
-  isMostRecent,
+  isRebookable,
   isNew,
 }: {
   booking: Booking;
   onClose: (newGuests: BookingGuest[]) => void;
-  isMostRecent?: boolean;
+  isRebookable?: boolean;
   isNew?: boolean;
 }): h.JSX.Element {
-  const swap = useBookingSwap();
+  const rebooking = useRebooking();
   const [guests, setGuests] = useState(booking.guests);
   const [canceling, setCanceling] = useState(false);
 
@@ -46,8 +46,8 @@ export default function BookingDetails({
       heading="Your Lightning Lane"
       theme={booking.park.theme}
       buttons={
-        isMostRecent && (
-          <Button onClick={() => swap.begin(booking)}>Modify</Button>
+        isRebookable && (
+          <Button onClick={() => rebooking.begin(booking)}>Rebook</Button>
         )
       }
     >

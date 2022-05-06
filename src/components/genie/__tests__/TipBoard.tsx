@@ -165,22 +165,23 @@ describe('TipBoard', () => {
     jc.flex.available = true;
   });
 
-  it('shows Modify Reservation pane when modifying reservation', async () => {
+  it('shows Rebooking pane when rebooking', async () => {
     renderComponent();
     expect(elemScrollMock).toBeCalledTimes(1);
     click('Your Lightning Lanes');
     click((await screen.findAllByText('More'))[1]);
     screen.getByText('Your Lightning Lane');
     screen.getByText('Barnstormer');
-    click('Modify');
+    click('Rebook');
+
     expect(elemScrollMock).toBeCalledTimes(2);
-    screen.getByText('Modify Reservation');
+    screen.getByText('Rebooking');
     click('Keep');
-    expect(screen.queryByText('Modify Reservation')).not.toBeInTheDocument();
+    expect(screen.queryByText('Rebooking')).not.toBeInTheDocument();
     expect(elemScrollMock).toBeCalledTimes(3);
   });
 
-  it('allows most recent reservation to be modified', async () => {
+  it('allows most recent reservation to be rebooked', async () => {
     client.guests.mockResolvedValueOnce({
       guests: [],
       ineligibleGuests: [
@@ -212,33 +213,34 @@ describe('TipBoard', () => {
         <TipBoard />
       </GenieClientProvider>
     );
-    expect(screen.queryByText('Modify Reservation')).not.toBeInTheDocument();
+    expect(screen.queryByText('Rebooking')).not.toBeInTheDocument();
     click('Your Lightning Lanes');
     await screen.findByText('Your Lightning Lanes');
     click('More');
     screen.getByRole('heading', { name: bookings[0].experience.name });
     expect(
-      screen.queryByRole('button', { name: 'Modify' })
+      screen.queryByRole('button', { name: 'Rebook' })
     ).not.toBeInTheDocument();
 
     click('Back');
-    click((await screen.findAllByText('More'))[1]);
+    click(screen.getAllByText('More')[1]);
     screen.getByRole('heading', { name: bookings[1].experience.name });
-    click('Modify');
-    screen.getByText('Modify Reservation');
+
+    click('Rebook');
+    screen.getByText('Rebooking');
+
     click('12:45 PM');
     await clock.runToLastAsync();
-
     click('Edit');
     click('Mickey Mouse');
     click('Confirm Party');
-    click('Replace Lightning Lane');
+    click('Rebook Lightning Lane');
     await clock.runToLastAsync();
 
     expect(client.cancelBooking).nthCalledWith(1, [bookings[1].guests[1]]);
     expect(client.cancelBooking).nthCalledWith(2, [newBooking.guests[0]]);
     screen.getByText('Your Lightning Lane');
     screen.getByRole('heading', { name: sm.name });
-    expect(screen.queryByText('Modify Reservation')).not.toBeInTheDocument();
+    expect(screen.queryByText('Rebooking')).not.toBeInTheDocument();
   });
 });

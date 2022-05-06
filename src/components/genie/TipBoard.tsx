@@ -2,8 +2,8 @@ import { h, Fragment } from 'preact';
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 
 import { Booking, Park, PlusExperience } from '@/api/genie';
-import { BookingSwap, BookingSwapProvider } from '@/contexts/BookingSwap';
 import { useGenieClient } from '@/contexts/GenieClient';
+import { Rebooking, RebookingProvider } from '@/contexts/Rebooking';
 import useDataLoader from '@/hooks/useDataLoader';
 import LightningIcon from '@/icons/LightningIcon';
 import RefreshIcon from '@/icons/RefreshIcon';
@@ -12,8 +12,8 @@ import Page from '../Page';
 import Select from '../Select';
 import BookExperience from './BookExperience';
 import BookingPanel from './BookingPanel';
-import BookingSwapPane from './BookingSwapPane';
 import GeniePlusButton from './GeniePlusButton';
+import RebookingHeader from './RebookingHeader';
 import StandbyTime from './StandbyTime';
 
 const AUTO_REFRESH_MIN_MS = 60_000;
@@ -52,15 +52,18 @@ export default function TipBoard(): h.JSX.Element {
   const [sortType, sort] = useState<keyof typeof sorters>('priority');
   const { loadData, loaderElem, isLoading } = useDataLoader();
   const [, setLastRefresh] = useState(0);
-  const [swap, setSwap] = useState<BookingSwap>(() => ({
-    booking: null,
+  const [rebooking, setRebooking] = useState<Rebooking>(() => ({
+    current: null,
     begin: (booking: Booking) => {
-      setSwap({ ...swap, booking });
+      setRebooking({ ...rebooking, current: booking });
       setPark(booking.park);
       setBookingPanelOpen(false);
     },
-    end: () => {
-      setSwap(swap => (swap.booking ? { ...swap, booking: null } : swap));
+    end: (canceled = false) => {
+      setRebooking(rebooking =>
+        rebooking.current ? { ...rebooking, current: null } : rebooking
+      );
+      if (canceled) setExperience(undefined);
     },
   }));
   const pageElem = useRef<HTMLDivElement>(null);
@@ -98,10 +101,10 @@ export default function TipBoard(): h.JSX.Element {
 
   useEffect(() => {
     pageElem.current?.scroll(0, 0);
-  }, [park, sortType, swap]);
+  }, [park, sortType, rebooking]);
 
   return (
-    <BookingSwapProvider value={swap}>
+    <RebookingProvider value={rebooking}>
       <Page
         heading={
           <>
@@ -153,7 +156,7 @@ export default function TipBoard(): h.JSX.Element {
         containerRef={pageElem}
       >
         <div aria-hidden={!!(experience || bookingPanelOpen)}>
-          <BookingSwapPane />
+          <RebookingHeader />
           <ul>
             {experiences
               .sort(
@@ -196,6 +199,6 @@ export default function TipBoard(): h.JSX.Element {
           }}
         />
       )}
-    </BookingSwapProvider>
+    </RebookingProvider>
   );
 }

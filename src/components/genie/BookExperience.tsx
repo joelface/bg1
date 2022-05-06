@@ -2,17 +2,17 @@ import { h, Fragment } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 
 import { Booking, Guest, Offer, Park, PlusExperience } from '@/api/genie';
-import { useBookingSwap } from '@/contexts/BookingSwap';
 import { useGenieClient } from '@/contexts/GenieClient';
+import { useRebooking } from '@/contexts/Rebooking';
 import useDataLoader from '@/hooks/useDataLoader';
 import RefreshIcon from '@/icons/RefreshIcon';
 import Button from '../Button';
 import FloatingButton from '../FloatingButton';
 import Page from '../Page';
 import BookingDetails from './BookingDetails';
-import BookingSwapPane from './BookingSwapPane';
 import OfferDetails from './OfferDetails';
 import Prebooking from './Prebooking';
+import RebookingHeader from './RebookingHeader';
 
 export default function BookExperience({
   experience,
@@ -24,7 +24,7 @@ export default function BookExperience({
   onClose: () => void;
 }): h.JSX.Element | null {
   const client = useGenieClient();
-  const swap = useBookingSwap();
+  const rebooking = useRebooking();
   const [guests, setGuests] = useState<Guest[]>();
   const [ineligibleGuests, setIneligibleGuests] = useState<Guest[]>([]);
   const [available, setAvailable] = useState(experience.flex.available);
@@ -42,16 +42,16 @@ export default function BookExperience({
       async () => {
         const partyIds = new Set(party.map(g => g.id));
 
-        if (swap.booking) {
+        if (rebooking.current) {
           await client.cancelBooking(
-            swap.booking.guests.filter(g => partyIds.has(g.id))
+            rebooking.current.guests.filter(g => partyIds.has(g.id))
           );
         }
 
         try {
           booking = await client.book(offer);
         } finally {
-          swap.end();
+          rebooking.end();
         }
 
         const guestsToCancel = booking.guests.filter(g => !partyIds.has(g.id));
@@ -105,9 +105,9 @@ export default function BookExperience({
         experience,
         park,
       });
-      const oldBooking = swap.booking;
+      const oldBooking = rebooking.current;
       if (oldBooking) {
-        const eligibleIds = new Set(
+        const rebookableGuestIds = new Set(
           ineligibleGuests
             .filter(
               g =>
@@ -117,13 +117,16 @@ export default function BookExperience({
             )
             .map(g => g.id)
         );
-        setGuests(oldBooking.guests.filter(g => eligibleIds.has(g.id)));
+        const rebookingAllowed = oldBooking.guests.every(g =>
+          rebookableGuestIds.has(g.id)
+        );
+        setGuests(rebookingAllowed ? oldBooking.guests : []);
       } else {
         setGuests(guests);
         setIneligibleGuests(ineligibleGuests);
       }
     });
-  }, [client, experience, park, guests, swap, loadData]);
+  }, [client, experience, park, guests, rebooking, loadData]);
 
   useEffect(() => {
     if (offer !== undefined || !guests || guests.length === 0) return;
@@ -167,7 +170,7 @@ export default function BookExperience({
         </>
       }
     >
-      <BookingSwapPane />
+      <RebookingHeader />
       <h2>{experience.name}</h2>
       <div>{park.name}</div>
       {guests?.length === 0 ? (

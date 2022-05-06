@@ -92,10 +92,10 @@ describe('GenieClient', () => {
     fetchJsonMock.mockReset();
   });
 
-  describe('isMostRecent()', () => {
-    it('returns true if booking is most recent', () => {
-      expect(client.isMostRecent(bookings[1])).toBe(true);
-      expect(client.isMostRecent(bookings[0])).toBe(false);
+  describe('isRebookable()', () => {
+    it('returns true if booking is rebookable', () => {
+      expect(client.isRebookable(bookings[1])).toBe(true);
+      expect(client.isRebookable(bookings[0])).toBe(false);
     });
   });
 
@@ -282,13 +282,13 @@ describe('GenieClient', () => {
   });
 
   describe('cancelBooking()', () => {
-    const guests = [{ entitlementId: 'ent1' }, { entitlementId: 'ent2' }];
+    const booking = bookings[0];
 
     it('cancel booking', async () => {
       respond(response({}));
-      await client.cancelBooking(guests);
+      await client.cancelBooking(booking.guests);
       expectFetch(
-        `/ea-vas/api/v1/entitlements/${guests
+        `/ea-vas/api/v1/entitlements/${booking.guests
           .map(g => g.entitlementId)
           .join(',')}`,
         { method: 'DELETE' },
@@ -373,13 +373,15 @@ describe('GenieClient', () => {
 
 describe('BookingStack', () => {
   localStorage.clear();
+  const stack = new BookingStack();
 
-  it('updates most recent booking', () => {
-    const stack = new BookingStack();
-    stack.update([bookings[1]]);
-    expect(stack.isMostRecent(bookings[1])).toBe(true);
-    stack.update(bookings);
-    expect(stack.isMostRecent(bookings[1])).toBe(false);
-    expect(stack.isMostRecent(bookings[0])).toBe(true);
+  describe('update()', () => {
+    it('updates most recent booking', () => {
+      stack.update([bookings[1]]);
+      expect(stack.isRebookable(bookings[1])).toBe(true);
+      stack.update(bookings);
+      expect(stack.isRebookable(bookings[1])).toBe(false);
+      expect(stack.isRebookable(bookings[0])).toBe(true);
+    });
   });
 });

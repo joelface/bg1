@@ -2,7 +2,7 @@ import { h, Fragment } from 'preact';
 import { useState } from 'preact/hooks';
 
 import { Guest, Offer } from '@/api/genie';
-import { useBookingSwap } from '@/contexts/BookingSwap';
+import { useRebooking } from '@/contexts/Rebooking';
 import Button from '../Button';
 import FloatingButton from '../FloatingButton';
 import GuestList from '../GuestList';
@@ -19,17 +19,21 @@ export default function OfferDetails({
   ineligibleGuests: Guest[];
   onConfirm: (guests: Guest[]) => void;
 }): h.JSX.Element | null {
-  const swap = useBookingSwap();
+  const rebooking = useRebooking();
   const [party, setParty] = useState(new Set(guests));
   const [editingParty, editParty] = useState(false);
 
   return (
     <>
+      {rebooking.current && (
+        <p className="border-2 rounded border-red-600 p-1 font-semibold text-center text-red-600 bg-red-100">
+          Rebooking resets the two hour timer
+        </p>
+      )}
       <ArrivalTimes times={offer} />
       {offer.changeStatus === 'PARK_HOPPING' && (
         <div className="text-sm">
-          <span className="font-semibold">Note:</span> Time changed due to park
-          hopping
+          <strong>Note:</strong> Time changed due to park hopping
         </div>
       )}
       {editingParty ? (
@@ -85,7 +89,7 @@ export default function OfferDetails({
           </div>
           <GuestList guests={guests.filter(g => party.has(g))} />
           <FloatingButton onClick={() => onConfirm([...party])}>
-            {swap.booking ? 'Replace' : 'Book'} Lightning Lane
+            {rebooking.current ? 'Rebook' : 'Book'} Lightning Lane
           </FloatingButton>
         </>
       )}
