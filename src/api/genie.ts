@@ -386,16 +386,26 @@ export class GenieClient {
         'guest-locators': swid + ';type=swid',
         'guest-locator-groups': 'MY_FAMILY',
         'start-date': dateTimeStrings(now).date,
-        'end-date': dateTimeStrings(now.setDate(now.getDate() + 1)).date,
+        'end-date': dateTimeStrings(
+          new Date(now.getTime()).setDate(now.getDate() + 1)
+        ).date,
         'show-friends': 'false',
       },
       userId: false,
     })) as Itinerary;
     const parkMap = Object.fromEntries(this.parks.map(p => [p.id, p]));
+    const earliest = dateTimeStrings(
+      new Date(now.getTime()).setMinutes(now.getMinutes() - 15)
+    );
     const bookings = items
       .filter(
         (item): item is FlexItem =>
           item.type === 'FASTPASS' && item.kind === 'FLEX'
+      )
+      .filter(
+        item =>
+          item.displayEndDate >= earliest.date &&
+          item.displayEndTime >= earliest.time
       )
       .map(item => {
         const expId = item.facility.split(';')[0];

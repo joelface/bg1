@@ -298,75 +298,83 @@ describe('GenieClient', () => {
   });
 
   describe('bookings()', () => {
-    it('returns current bookings', async () => {
-      const xid = (guest: { id: string }) => guest.id + ';type=xid';
-      const bookingItems = bookings.map(booking => ({
-        type: 'FASTPASS',
-        kind: 'FLEX',
-        displayStartDate: booking.start.date,
-        displayStartTime: booking.start.time,
-        displayEndDate: booking.end.date,
-        displayEndTime: booking.end.time,
-        facility: booking.experience.id + ';entityType=Attraction',
-        guests: booking.guests.map(g => ({
-          id: xid(g),
-          entitlementId: g.entitlementId,
-        })),
-        multipleExperiences: false,
-      }));
-      const officialName = (b: Booking) =>
-        b.experience.id === bs.id ? 'The Barnstormer' : b.experience.name;
-      respond(
-        response({
-          items: [
-            bookingItems[0],
+    const xid = (guest: { id: string }) => guest.id + ';type=xid';
+    const bookingItems = bookings.map(booking => ({
+      type: 'FASTPASS',
+      kind: 'FLEX',
+      displayStartDate: booking.start.date,
+      displayStartTime: booking.start.time,
+      displayEndDate: booking.end.date,
+      displayEndTime: booking.end.time,
+      facility: booking.experience.id + ';entityType=Attraction',
+      guests: booking.guests.map(g => ({
+        id: xid(g),
+        entitlementId: g.entitlementId,
+      })),
+      multipleExperiences: false,
+    }));
+    const officialName = (b: Booking) =>
+      b.experience.id === bs.id ? 'The Barnstormer' : b.experience.name;
+    const bookingsRes = response({
+      items: [
+        bookingItems[0],
+        {
+          // This item should be ignored
+          type: 'FASTPASS',
+          kind: 'PARK_PASS',
+        },
+        bookingItems[1],
+      ],
+      assets: {
+        ...Object.fromEntries(
+          bookings.map(b => [
+            b.experience.id + ';entityType=Attraction',
             {
-              // This item should be ignored
-              type: 'FASTPASS',
-              kind: 'PARK_PASS',
+              id: b.experience.id + ';entityType=Attraction',
+              name: officialName(b),
+              location: b.park.id + ';entityType=theme-park',
             },
-            bookingItems[1],
-          ],
-          assets: {
-            ...Object.fromEntries(
-              bookings.map(b => [
-                b.experience.id + ';entityType=Attraction',
-                {
-                  id: b.experience.id + ';entityType=Attraction',
-                  name: officialName(b),
-                  location: b.park.id + ';entityType=theme-park',
+          ])
+        ),
+        ...Object.fromEntries(
+          guests.map(g => [
+            g.id,
+            {
+              media: {
+                small: {
+                  url: `https://example.com/${g.id}.jpg`,
                 },
-              ])
-            ),
-            ...Object.fromEntries(
-              guests.map(g => [
-                g.id,
-                {
-                  media: {
-                    small: {
-                      url: `https://example.com/${g.id}.jpg`,
-                    },
-                  },
-                },
-              ])
-            ),
-          },
-          profiles: Object.fromEntries(
-            guests.map(g => {
-              const [firstName, lastName = ''] = g.name.split(' ');
-              return [
-                xid(g),
-                {
-                  id: xid(g),
-                  name: { firstName, lastName },
-                  avatarId: g.id,
-                },
-              ];
-            })
-          ),
+              },
+            },
+          ])
+        ),
+      },
+      profiles: Object.fromEntries(
+        guests.map(g => {
+          const [firstName, lastName = ''] = g.name.split(' ');
+          return [
+            xid(g),
+            {
+              id: xid(g),
+              name: { firstName, lastName },
+              avatarId: g.id,
+            },
+          ];
         })
-      );
+      ),
+    });
+    const nowMock = jest.spyOn(Date, 'now');
+
+    it('returns current bookings', async () => {
+      nowMock.mockReturnValueOnce(new Date('2022-07-17 12:40:00').getTime());
+      respond(bookingsRes);
       expect(await client.bookings()).toEqual(bookings);
+    });
+
+    it('returns only unexpired` bookings', async () => {
+      nowMock.mockReturnValueOnce(new Date('2022-07-17 12:41:00').getTime());
+      respond(bookingsRes);
+      expect(await client.bookings()).toEqual(bookings.slice(1));
     });
   });
 });
