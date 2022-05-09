@@ -14,7 +14,6 @@ export default function GuestList<T extends Guest>({
   guests,
   selectable,
   conflicts,
-  info,
 }: {
   guests: T[];
   selectable?: {
@@ -22,7 +21,6 @@ export default function GuestList<T extends Guest>({
     onToggle: (guest: T) => void;
   };
   conflicts?: InfoById;
-  info?: InfoById;
 }): h.JSX.Element | null {
   if (guests.length === 0) return null;
 
@@ -63,7 +61,6 @@ export default function GuestList<T extends Guest>({
                 ) : null}
               </span>
             </label>
-            {info?.[g.id] ? <p className="text-sm mt-2">{info[g.id]}</p> : null}
           </li>
         );
       })}

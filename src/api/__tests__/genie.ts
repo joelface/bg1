@@ -80,7 +80,7 @@ describe('GenieClient', () => {
     getAuthData: () => ({ accessToken, swid }),
     data: wdw,
   });
-  const guests = [mickey, minnie, pluto];
+  const guests = [minnie, pluto, mickey];
   const ineligibleGuests = [donald];
   const guestsRes = response({
     guests: guests.map(splitName),
@@ -146,7 +146,7 @@ describe('GenieClient', () => {
     it('returns eligible guests for experience', async () => {
       respond(guestsRes);
       expect(await client.guests({ experience: hm, park: mk })).toEqual({
-        guests,
+        guests: [mickey, minnie, pluto],
         ineligibleGuests,
       });
       expectFetch(guestsUrl, {
@@ -170,6 +170,50 @@ describe('GenieClient', () => {
         guests: [],
         ineligibleGuests: [donald],
       });
+    });
+
+    it('sorts ineligibleGuests', async () => {
+      const fifi = {
+        id: 'fifi',
+        firstName: 'Fifi',
+        lastName: '',
+        ineligibleReason: 'TOO_EARLY',
+        eligibleAfter: '10:30:00',
+        displayEligibleAfter: '10:30 AM',
+      };
+      respond(
+        response({
+          guests: [],
+          ineligibleGuests: [
+            {
+              ...mickey,
+              ineligibleReason: 'EXPERIENCE_LIMIT_REACHED',
+            },
+            {
+              ...minnie,
+              ineligibleReason: 'TOO_EARLY',
+              eligibleAfter: '10:30:00',
+              displayEligibleAfter: '10:30 AM',
+            },
+            {
+              ...pluto,
+              ineligibleReason: 'TOO_EARLY',
+              eligibleAfter: '10:00:00',
+              displayEligibleAfter: '10:00 AM',
+            },
+            donald,
+            fifi,
+          ],
+          primaryGuestId: mickey.id,
+        })
+      );
+      const { ineligibleGuests } = await client.guests({
+        experience: hm,
+        park: mk,
+      });
+      expect(ineligibleGuests.map(g => g.id)).toEqual(
+        [pluto, fifi, minnie, mickey, donald].map(g => g.id)
+      );
     });
   });
 

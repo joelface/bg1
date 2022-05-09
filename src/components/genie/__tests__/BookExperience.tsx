@@ -98,8 +98,11 @@ describe('BookExperience', () => {
       guests: [],
       ineligibleGuests: [donald],
     });
-    renderComponent();
+    const { container } = renderComponent();
     await screen.findByText('No Eligible Guests');
+    expect(container).toHaveTextContent(
+      `${donald.name}${donald.ineligibleReason.replace(/_/g, ' ')}`
+    );
   });
 
   it('shows "No Reservations Available" when no offer', async () => {

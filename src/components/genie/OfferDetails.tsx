@@ -7,6 +7,7 @@ import Button from '../Button';
 import FloatingButton from '../FloatingButton';
 import GuestList from '../GuestList';
 import ArrivalTimes from './ArrivalTimes';
+import IneligibleGuestList from './IneligibleGuestList';
 
 export default function OfferDetails({
   offer,
@@ -53,20 +54,7 @@ export default function OfferDetails({
           {ineligibleGuests.length > 0 && (
             <>
               <h3>Ineligible Guests</h3>
-              <GuestList
-                guests={ineligibleGuests}
-                conflicts={Object.fromEntries(
-                  ineligibleGuests.map(g => [g.id, g.ineligibleReason])
-                )}
-                info={Object.fromEntries(
-                  ineligibleGuests
-                    .filter(g => !!g.displayEligibleAfter)
-                    .map(g => [
-                      g.id,
-                      `Next eligible at ${g.displayEligibleAfter}`,
-                    ])
-                )}
-              />
+              <IneligibleGuestList guests={ineligibleGuests} />
             </>
           )}
           <FloatingButton onClick={() => editParty(false)}>

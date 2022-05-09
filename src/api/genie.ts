@@ -50,6 +50,7 @@ interface GuestEligibility {
     | 'GENIE_PLUS_NEEDED'
     | 'EXPERIENCE_LIMIT_REACHED'
     | 'TOO_EARLY';
+  eligibleAfter?: string;
   displayEligibleAfter?: string;
 }
 
@@ -275,6 +276,20 @@ export class GenieClient {
     });
     [...guests, ...ineligibleGuests].forEach(g => {
       if (!this.guestNames.has(g.id)) this.guestNames.set(g.id, g.name);
+    });
+    guests.sort((a, b) => a.name.localeCompare(b.name));
+    ineligibleGuests.sort((a, b) => {
+      const nameCmp = a.name.localeCompare(b.name);
+      if (a.eligibleAfter || b.eligibleAfter) {
+        return (
+          (a.eligibleAfter || '99').localeCompare(b.eligibleAfter || '99') ||
+          nameCmp
+        );
+      }
+      if (a.ineligibleReason === b.ineligibleReason) return nameCmp;
+      if (a.ineligibleReason === 'EXPERIENCE_LIMIT_REACHED') return -1;
+      if (b.ineligibleReason === 'EXPERIENCE_LIMIT_REACHED') return 1;
+      return nameCmp;
     });
     return { guests, ineligibleGuests };
   }

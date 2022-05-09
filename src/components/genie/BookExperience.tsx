@@ -7,11 +7,12 @@ import { useRebooking } from '@/contexts/Rebooking';
 import useDataLoader from '@/hooks/useDataLoader';
 import RefreshIcon from '@/icons/RefreshIcon';
 import Button from '../Button';
-import FloatingButton from '../FloatingButton';
 import Page from '../Page';
 import BookingDetails from './BookingDetails';
 import OfferDetails from './OfferDetails';
 import Prebooking from './Prebooking';
+import NoEligibleGuests from './NoEligibleGuests';
+import NoReservationsAvailable from './NoReservationsAvailable';
 import RebookingHeader from './RebookingHeader';
 
 export default function BookExperience({
@@ -121,6 +122,12 @@ export default function BookExperience({
           rebookableGuestIds.has(g.id)
         );
         setGuests(rebookingAllowed ? oldBooking.guests : []);
+        const oldGuestIds = new Set(oldBooking.guests.map(g => g.id));
+        setIneligibleGuests(
+          rebookingAllowed
+            ? []
+            : ineligibleGuests.filter(g => oldGuestIds.has(g.id))
+        );
       } else {
         setGuests(guests);
         setIneligibleGuests(ineligibleGuests);
@@ -147,14 +154,6 @@ export default function BookExperience({
     return <BookingDetails booking={booking} onClose={onClose} isNew={true} />;
   }
 
-  const failScreen = (heading: string, message: string) => (
-    <>
-      <h3>{heading}</h3>
-      <p>{message}</p>
-      <FloatingButton onClick={onClose}>Back</FloatingButton>
-    </>
-  );
-
   return (
     <Page
       heading="Lightning Lane"
@@ -174,10 +173,7 @@ export default function BookExperience({
       <h2>{experience.name}</h2>
       <div>{park.name}</div>
       {guests?.length === 0 ? (
-        failScreen(
-          'No Eligible Guests',
-          'No one in your party is eligible for this Lightning Lane.'
-        )
+        <NoEligibleGuests guests={ineligibleGuests} onClose={onClose} />
       ) : !guests || offer === undefined ? (
         <div />
       ) : !available ? (
@@ -186,10 +182,7 @@ export default function BookExperience({
           onRefresh={checkAvailability}
         />
       ) : offer === null ? (
-        failScreen(
-          'No Reservations Available',
-          'Tap the refresh button above to try again or go back to the tip board and select another attraction.'
-        )
+        <NoReservationsAvailable onClose={onClose} />
       ) : (
         <OfferDetails
           offer={offer}
