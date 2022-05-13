@@ -19,6 +19,7 @@ export default function App({
 
   useEffect(() => {
     function checkAuthData() {
+      if (document.hidden) return;
       try {
         authStore.getData();
         show('Client');
@@ -32,8 +33,10 @@ export default function App({
     }
 
     checkAuthData();
-    const intervalId = setInterval(checkAuthData, 3600_000);
-    return () => clearInterval(intervalId);
+    document.addEventListener('visibilitychange', checkAuthData);
+    return () => {
+      document.removeEventListener('visibilitychange', checkAuthData);
+    };
   }, [authStore]);
 
   const screens = {
