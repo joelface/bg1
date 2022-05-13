@@ -204,7 +204,6 @@ describe('TipBoard', () => {
         { ...mickey, entitlementId: 'sm1125_01' },
         { ...minnie, entitlementId: 'sm1125_02' },
       ],
-      multipleExperiences: false,
     };
     client.book.mockResolvedValueOnce({ ...newBooking });
 

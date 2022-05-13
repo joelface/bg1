@@ -307,7 +307,6 @@ describe('GenieClient', () => {
           ...g,
           entitlementId: newBooking.entitlements[i].id,
         })),
-        multipleExperiences: false,
       });
       expectFetch(
         '/ea-vas/api/v1/products/flex/bookings',
@@ -343,31 +342,39 @@ describe('GenieClient', () => {
 
   describe('bookings()', () => {
     const xid = (guest: { id: string }) => guest.id + ';type=xid';
-    const bookingItems = bookings.map(booking => ({
+    const bookingItems = bookings.map(b => ({
       type: 'FASTPASS',
-      kind: 'FLEX',
-      displayStartDate: booking.start.date,
-      displayStartTime: booking.start.time,
-      displayEndDate: booking.end.date,
-      displayEndTime: booking.end.time,
-      facility: booking.experience.id + ';entityType=Attraction',
-      guests: booking.guests.map(g => ({
+      kind: b.choices ? 'FLEX' : 'OTHER',
+      displayStartDate: b.start.date,
+      displayStartTime: b.start.time,
+      displayEndDate: b.end.date,
+      displayEndTime: b.end.time,
+      facility: (b.choices ? hm : b.experience).id + ';entityType=Attraction',
+      guests: b.guests.map(g => ({
         id: xid(g),
         entitlementId: g.entitlementId,
+        redemptionsRemaining: g.redemptions,
       })),
-      multipleExperiences: false,
+      multipleExperiences: !!b.choices,
+      assets: b.choices
+        ? [
+            { content: 'original-id', excluded: false, original: true },
+            { content: hm.id, excluded: false, original: false },
+            { content: bs.id, excluded: false, original: false },
+            { content: 'excluded-id', excluded: true, original: false },
+          ]
+        : undefined,
     }));
     const officialName = (b: Booking) =>
       b.experience.id === bs.id ? 'The Barnstormer' : b.experience.name;
     const bookingsRes = response({
       items: [
-        bookingItems[0],
         {
           // This item should be ignored
           type: 'FASTPASS',
           kind: 'PARK_PASS',
         },
-        bookingItems[1],
+        ...bookingItems,
       ],
       assets: {
         ...Object.fromEntries(

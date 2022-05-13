@@ -13,9 +13,13 @@ export default function BookingListing({
   return (
     <div className="flex items-center gap-x-2">
       <div className="flex-1 min-w-0">
-        <div className="text-gray-500 text-sm font-semibold">
+        <div className="text-gray-500 text-sm font-semibold uppercase">
           <time>{displayTime(booking.start.time)}</time> -{' '}
-          <time>{displayTime(booking.end.time)}</time>
+          {booking.end.time ? (
+            <time>{displayTime(booking.end.time)}</time>
+          ) : (
+            'close'
+          )}
         </div>
         <div className="text-lg font-semibold leading-tight truncate">
           {booking.experience.name}

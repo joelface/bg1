@@ -70,33 +70,45 @@ export const offer: Offer = {
   changeStatus: 'NONE' as const,
 };
 
+export const booking = {
+  experience: { id: hm.id, name: hm.name },
+  park: mk,
+  start: { date: '2022-07-17', time: '11:25:00' },
+  end: { date: '2022-07-17', time: '12:25:00' },
+  guests: [
+    { ...mickey, entitlementId: 'hm1125_01' },
+    { ...minnie, entitlementId: 'hm1125_02' },
+    { ...pluto, entitlementId: 'hm1125_03' },
+  ],
+};
+
+export const multiExp = {
+  experience: { id: '', name: 'Multiple Experiences' },
+  park: mk,
+  start: { date: '2022-07-17', time: '15:15:00' },
+  end: { date: '2022-07-17' },
+  guests: [
+    { ...mickey, entitlementId: 're1515_01', redemptions: 1 },
+    { ...minnie, entitlementId: 're1515_02', redemptions: 1 },
+    { ...pluto, entitlementId: 're1515_03', redemptions: 1 },
+  ],
+  choices: [bs, hm].map(({ id, name }) => ({ id, name })),
+};
+
 export const bookings: Booking[] = [
-  {
-    experience: { id: hm.id, name: hm.name },
-    park: mk,
-    start: { date: '2022-07-17', time: '11:25:00' },
-    end: { date: '2022-07-17', time: '12:25:00' },
-    guests: [
-      { ...mickey, entitlementId: 'hm1125_01' },
-      { ...minnie, entitlementId: 'hm1125_02' },
-      { ...pluto, entitlementId: 'hm1125_03' },
-    ],
-    multipleExperiences: false,
-  },
+  booking,
   {
     experience: bs,
     park: mk,
-    start: { date: '2022-07-17', time: '17:00:00' },
-    end: { date: '2022-07-17', time: '18:00:00' },
+    start: { date: '2022-07-17', time: '14:00:00' },
+    end: { date: '2022-07-17', time: '15:00:00' },
     guests: [
       { ...mickey, entitlementId: 'bs1400_01' },
       { ...minnie, entitlementId: 'bs1400_02' },
     ],
-    multipleExperiences: false,
   },
+  multiExp,
 ];
-
-export const booking = bookings[0];
 
 const stack = new BookingStack(false);
 stack.update([bookings[0]]);

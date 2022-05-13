@@ -1,4 +1,4 @@
-import { h } from 'preact';
+import { h, Fragment } from 'preact';
 import { useState } from 'preact/hooks';
 
 import { Booking, BookingGuest } from '@/api/genie';
@@ -54,17 +54,43 @@ export default function BookingDetails({
       <h2>{booking.experience.name}</h2>
       <div>{booking.park.name}</div>
       <ArrivalTimes times={booking} />
+      {booking.choices && (
+        <>
+          <p>
+            An experience you booked was temporarily unavailable during your
+            return time. You may redeem this Lightning Lane at one of these
+            replacement experiences:
+          </p>
+          <ul className="list-disc mt-2 pl-8">
+            {booking.choices.map(exp => (
+              <li key={exp.id}>{exp.name}</li>
+            ))}
+          </ul>
+        </>
+      )}
       <div className="flex mt-4">
         <h3 className="inline mt-0">Your Party</h3>
-        <Button
-          type="small"
-          onClick={() => setCanceling(true)}
-          className="ml-3"
-        >
-          Cancel
-        </Button>
+        {!booking.choices && (
+          <Button
+            type="small"
+            onClick={() => setCanceling(true)}
+            className="ml-3"
+          >
+            Cancel
+          </Button>
+        )}
       </div>
-      <GuestList guests={guests} />
+      <GuestList
+        guests={guests}
+        conflicts={
+          booking.choices &&
+          Object.fromEntries(
+            guests
+              .filter(g => g.redemptions)
+              .map(g => [g.id, `Redemptions left: ${g.redemptions}`])
+          )
+        }
+      />
       <FloatingButton onClick={() => onClose(guests)}>
         {isNew ? 'Done' : 'Back'}
       </FloatingButton>

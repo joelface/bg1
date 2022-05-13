@@ -4,7 +4,7 @@ import { displayTime } from '@/datetime';
 
 interface ArrivalTimes {
   start: { time: string };
-  end: { time: string };
+  end: { time?: string };
 }
 
 export default function ArrivalTimes({ times }: { times: ArrivalTimes }) {
@@ -13,7 +13,11 @@ export default function ArrivalTimes({ times }: { times: ArrivalTimes }) {
       Arrive by:{' '}
       <span className="ml-0.5 font-semibold">
         <time>{displayTime(times.start.time)}</time> -{' '}
-        <time>{displayTime(times.end.time)}</time>
+        {times.end.time ? (
+          <time>{displayTime(times.end.time)}</time>
+        ) : (
+          'Park Close'
+        )}
       </span>
     </div>
   );

@@ -1,16 +1,17 @@
 import { h } from 'preact';
 
+import { Booking } from '@/api/genie';
 import { GenieClientProvider } from '@/contexts/GenieClient';
 import { click, render, screen, waitFor } from '@/testing';
-import { client, booking } from '@/__fixtures__/genie';
+import { client, booking, multiExp } from '@/__fixtures__/genie';
 import BookingDetails from '../BookingDetails';
+import { displayTime } from '@/datetime';
 
-const { guests } = booking;
 const onClose = jest.fn();
-const renderComponent = () =>
+const renderComponent = (b: Booking = booking) =>
   render(
     <GenieClientProvider value={client}>
-      <BookingDetails booking={booking} onClose={onClose} />
+      <BookingDetails booking={b} onClose={onClose} />
     </GenieClientProvider>
   );
 
@@ -29,7 +30,7 @@ describe('BookingDetails', () => {
     screen.getByText('Select Guests to Cancel');
     click('Back');
     click('Back');
-    expect(onClose).lastCalledWith(guests);
+    expect(onClose).lastCalledWith(booking.guests);
   });
 
   it('calls onClose if reservation canceled', async () => {
@@ -38,5 +39,22 @@ describe('BookingDetails', () => {
     click('Select All');
     click('Cancel Reservation');
     await waitFor(() => expect(onClose).lastCalledWith([]));
+  });
+
+  it('shows Multiple Experiences LL details', async () => {
+    const { container } = renderComponent(multiExp);
+    screen.getByText('Multiple Experiences');
+    expect(container).toHaveTextContent(
+      `${displayTime(multiExp.start.time)} - Park Close`
+    );
+    multiExp.choices.forEach(({ name }) => {
+      screen.getByText(name);
+    });
+    expect(screen.getAllByText('Redemptions left: 1')).toHaveLength(
+      multiExp.guests.length
+    );
+    expect(
+      screen.queryByRole('button', { name: 'Cancel' })
+    ).not.toBeInTheDocument();
   });
 });

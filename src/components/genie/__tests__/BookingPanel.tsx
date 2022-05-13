@@ -25,7 +25,7 @@ describe('BookingPanel', () => {
       const { experience, start, end } = bookings[i];
       expect(li).toHaveTextContent(experience.name);
       expect(li).toHaveTextContent(displayTime(start.time));
-      expect(li).toHaveTextContent(displayTime(end.time));
+      expect(li).toHaveTextContent(end.time ? displayTime(end.time) : 'close');
     });
 
     click('More');

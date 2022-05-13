@@ -129,6 +129,7 @@ interface DateTime {
 
 export interface BookingGuest extends Guest {
   entitlementId: string;
+  redemptions?: number;
 }
 
 export interface Booking {
@@ -138,9 +139,9 @@ export interface Booking {
   };
   park: Park;
   start: DateTime;
-  end: DateTime;
+  end: { date: string; time?: string };
   guests: BookingGuest[];
-  multipleExperiences: boolean;
+  choices?: Pick<Experience, 'id' | 'name'>[];
 }
 
 interface Asset {
@@ -164,17 +165,22 @@ interface Item {
   kind: string;
 }
 
-interface FlexItem {
+interface FastPass {
   id: string;
   type: 'FASTPASS';
-  kind: 'FLEX';
+  kind: 'FLEX' | 'OTHER';
   facility: string;
+  assets: { content: string; excluded: boolean; original: boolean }[];
   displayStartDate: string;
   displayStartTime: string;
   displayEndDate: string;
-  displayEndTime: string;
+  displayEndTime?: string;
   multipleExperiences: boolean;
-  guests: { id: string; entitlementId: string }[];
+  guests: {
+    id: string;
+    entitlementId: string;
+    redemptionsRemaining?: number;
+  }[];
 }
 
 interface Profile {
@@ -185,7 +191,7 @@ interface Profile {
 
 interface Itinerary {
   assets: { [id: string]: Asset | LocationAsset };
-  items: (Item | FlexItem)[];
+  items: (Item | FastPass)[];
   profiles: { [id: string]: Profile };
 }
 
@@ -199,6 +205,8 @@ export class RequestError extends Error {
     super(`${message}: ${JSON.stringify(response)}`);
   }
 }
+
+const idNum = (id: string) => id.split(';')[0];
 
 export class GenieClient {
   protected origin: Origin;
@@ -368,7 +376,6 @@ export class GenieClient {
         name: this.guestNames.get(e.guestId) || '',
         entitlementId: e.id,
       })),
-      multipleExperiences: false,
     };
   }
 
@@ -412,38 +419,55 @@ export class GenieClient {
     const earliest = dateTimeStrings(
       new Date(now.getTime()).setMinutes(now.getMinutes() - 15)
     );
+    const types = new Set(['FLEX', 'OTHER']);
     const bookings = items
       .filter(
-        (item): item is FlexItem =>
-          item.type === 'FASTPASS' && item.kind === 'FLEX'
+        (item): item is FastPass =>
+          item.type === 'FASTPASS' && types.has(item.kind)
       )
       .filter(
-        item =>
-          item.displayEndDate >= earliest.date &&
-          item.displayEndTime >= earliest.time
+        fp =>
+          fp.displayEndDate >= earliest.date &&
+          (!fp.displayEndTime || fp.displayEndTime >= earliest.time)
       )
-      .map(item => {
-        const expId = item.facility.split(';')[0];
-        const expAsset = assets[item.facility] as LocationAsset;
-        const parkId = expAsset.location.split(';')[0];
-        return {
-          experience: {
-            id: expId,
-            name: this.data.experiences[expId].name || expAsset.name,
-          },
+      .map(fp => {
+        const id = idNum(fp.facility);
+        const expAsset = assets[fp.facility] as LocationAsset;
+        const { name } = this.data.experiences[id] || expAsset;
+        const parkId = idNum(expAsset.location);
+        const booking: Booking = {
+          experience: { id, name },
           park: parkMap[parkId],
-          start: { date: item.displayStartDate, time: item.displayStartTime },
-          end: { date: item.displayEndDate, time: item.displayEndTime },
-          multipleExperiences: item.multipleExperiences,
-          guests: item.guests.map(guest => {
-            const { name } = profiles[guest.id];
-            return {
-              id: guest.id.split(';')[0],
-              entitlementId: guest.entitlementId,
+          start: { date: fp.displayStartDate, time: fp.displayStartTime },
+          end: {
+            date: fp.displayEndDate,
+            ...(fp.displayEndTime && { time: fp.displayEndTime }),
+          },
+          guests: fp.guests.map(g => {
+            const { name } = profiles[g.id];
+            const guest: BookingGuest = {
+              id: idNum(g.id),
+              entitlementId: g.entitlementId,
               name: `${name.firstName} ${name.lastName}`.trim(),
+              ...(g.redemptionsRemaining !== undefined && {
+                redemptions: g.redemptionsRemaining,
+              }),
             };
+            return guest;
           }),
         };
+        if (fp.multipleExperiences) {
+          booking.experience = { id: '', name: 'Multiple Experiences' };
+          booking.choices = fp.assets
+            .filter(a => !a.excluded && !a.original)
+            .map(({ content }) => {
+              const id = idNum(content);
+              const { name } = this.data.experiences[id] || assets[content];
+              return { id, name };
+            })
+            .sort((a, b) => a.name.localeCompare(b.name));
+        }
+        return booking;
       })
       .sort((a, b) =>
         (a.start.date + a.start.time).localeCompare(b.start.date + b.start.time)
@@ -516,7 +540,7 @@ export class BookingStack {
     const mostRecent = new Map<string, string>();
     const oldEntIds = new Set(this.entitlementIds);
     this.entitlementIds = bookings
-      .filter(booking => !booking.multipleExperiences)
+      .filter(({ choices }) => !choices)
       .map(booking =>
         booking.guests.map(({ id, entitlementId }) => {
           this.entitlementIds.push(entitlementId);
