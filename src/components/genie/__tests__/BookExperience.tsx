@@ -72,18 +72,33 @@ describe('BookExperience', () => {
     expect(onClose).toBeCalledTimes(1);
   });
 
+  const newOffer = {
+    id: 'new_offer',
+    start: { date: '2022-07-17', time: '10:05:00' },
+    end: { date: '2022-07-17', time: '11:05:00' },
+    changeStatus: 'NONE' as const,
+  };
+
   it('refreshes offer when Refresh Offer button clicked', async () => {
     renderComponent();
     await screen.findByText('11:25 AM');
-    client.offer.mockResolvedValueOnce({
-      id: 'new_offer',
-      start: { date: '2022-07-17', time: '10:05:00' },
-      end: { date: '2022-07-17', time: '11:05:00' },
-      changeStatus: 'NONE',
-    });
+    client.offer.mockResolvedValueOnce(newOffer);
     click('Refresh Offer');
     await screen.findByText('10:05 AM');
     screen.getByText('11:05 AM');
+  });
+
+  it('refreshes offer when someone added to party', async () => {
+    renderComponent();
+    await screen.findByText('11:25 AM');
+    client.offer.mockResolvedValueOnce(newOffer);
+    click('Edit');
+    click(mickey.name);
+    click('Confirm Party');
+    click('Edit');
+    click(mickey.name);
+    click('Confirm Party');
+    await screen.findByText('10:05 AM');
   });
 
   it('cancels offer and calls onClose when Cancel button clicked', async () => {
@@ -95,8 +110,8 @@ describe('BookExperience', () => {
 
   it('shows "No Eligible Guests" when no guests', async () => {
     client.guests.mockResolvedValueOnce({
-      guests: [],
-      ineligibleGuests: [donald],
+      eligible: [],
+      ineligible: [donald],
     });
     const { container } = renderComponent();
     await screen.findByText('No Eligible Guests');

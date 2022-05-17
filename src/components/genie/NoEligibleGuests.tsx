@@ -1,18 +1,17 @@
 import { h, Fragment } from 'preact';
 
-import { Guest } from '@/api/genie';
+import { useParty } from '@/contexts/Party';
 import { displayTime } from '@/datetime';
 import FloatingButton from '../FloatingButton';
 import IneligibleGuestList from './IneligibleGuestList';
 
 export default function NoEligibleGuests({
-  guests,
   onClose,
 }: {
-  guests: Guest[];
   onClose: () => void;
 }): h.JSX.Element {
-  const { eligibleAfter } = guests[0] || {};
+  const { ineligible } = useParty();
+  const { eligibleAfter } = ineligible[0] || {};
   return (
     <>
       {eligibleAfter && (
@@ -22,7 +21,7 @@ export default function NoEligibleGuests({
       )}
       <h3 className="mt-4">No Eligible Guests</h3>
       <p>No one in your party is currently eligible for this Lightning Lane.</p>
-      <IneligibleGuestList guests={guests} />
+      <IneligibleGuestList />
       <FloatingButton onClick={onClose}>Back</FloatingButton>
     </>
   );

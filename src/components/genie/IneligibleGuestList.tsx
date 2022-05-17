@@ -1,23 +1,20 @@
 import { h } from 'preact';
 
-import { Guest } from '@/api/genie';
+import { useParty } from '@/contexts/Party';
 import { displayTime } from '@/datetime';
 import GuestList from '../GuestList';
 
-export default function IneligibleGuestList({
-  guests,
-}: {
-  guests: Guest[];
-}): h.JSX.Element {
+export default function IneligibleGuestList(): h.JSX.Element {
+  const { ineligible } = useParty();
   return (
     <GuestList
-      guests={guests}
+      guests={ineligible}
       conflicts={Object.fromEntries(
-        guests.map(g => [
+        ineligible.map(g => [
           g.id,
           g.eligibleAfter
             ? `TOO EARLY (${displayTime(g.eligibleAfter)})`
-            : g.ineligibleReason,
+            : g.ineligibleReason || 'ELIGIBLE FOR NEW BOOKING',
         ])
       )}
     />

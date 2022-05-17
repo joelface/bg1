@@ -6,6 +6,7 @@ import {
   PlusExperience,
 } from '@/api/genie';
 import data from '@/api/data/wdw';
+import { Party } from '@/contexts/Party';
 
 export const [mk, ep, hs, ak] = data.parks;
 
@@ -26,6 +27,17 @@ export const donald = {
   name: 'Donald Duck',
   ineligibleReason: 'INVALID_PARK_ADMISSION' as const,
 };
+
+export function createParty(overrides?: Partial<Party>) {
+  const party: Party = {
+    eligible: [mickey, minnie, pluto],
+    ineligible: [donald],
+    selected: [mickey, minnie],
+    setSelected: selected => (party.selected = selected),
+    ...overrides,
+  };
+  return party;
+}
 
 export const hm: PlusExperience = {
   id: '80010208',
@@ -121,8 +133,8 @@ export const client = new GenieClient({
 }) as jest.Mocked<GenieClient>;
 
 jest.spyOn(client, 'guests').mockResolvedValue({
-  guests: [mickey, minnie, pluto],
-  ineligibleGuests: [donald],
+  eligible: [mickey, minnie, pluto],
+  ineligible: [donald],
 });
 jest.spyOn(client, 'offer').mockResolvedValue(offer);
 jest.spyOn(client, 'cancelOffer').mockResolvedValue(undefined);

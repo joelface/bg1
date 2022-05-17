@@ -146,8 +146,8 @@ describe('GenieClient', () => {
     it('returns eligible guests for experience', async () => {
       respond(guestsRes);
       expect(await client.guests({ experience: hm, park: mk })).toEqual({
-        guests: [mickey, minnie, pluto],
-        ineligibleGuests,
+        eligible: [mickey, minnie, pluto],
+        ineligible: ineligibleGuests,
       });
       expectFetch(guestsUrl, {
         params: {
@@ -167,12 +167,12 @@ describe('GenieClient', () => {
         })
       );
       expect(await client.guests({ experience: hm, park: mk })).toEqual({
-        guests: [],
-        ineligibleGuests: [donald],
+        eligible: [],
+        ineligible: [donald],
       });
     });
 
-    it('sorts ineligibleGuests', async () => {
+    it('sorts ineligible guests', async () => {
       const fifi = {
         id: 'fifi',
         firstName: 'Fifi',
@@ -204,11 +204,11 @@ describe('GenieClient', () => {
           primaryGuestId: mickey.id,
         })
       );
-      const { ineligibleGuests } = await client.guests({
+      const { ineligible } = await client.guests({
         experience: hm,
         park: mk,
       });
-      expect(ineligibleGuests.map(g => g.id)).toEqual(
+      expect(ineligible.map(g => g.id)).toEqual(
         [pluto, fifi, minnie, mickey, donald].map(g => g.id)
       );
     });

@@ -183,8 +183,8 @@ describe('TipBoard', () => {
 
   it('allows most recent reservation to be rebooked', async () => {
     client.guests.mockResolvedValueOnce({
-      guests: [],
-      ineligibleGuests: [
+      eligible: [],
+      ineligible: [
         { ...mickey, ineligibleReason: 'TOO_EARLY' },
         { ...minnie, ineligibleReason: 'TOO_EARLY' },
       ],

@@ -1,8 +1,8 @@
 import { h, Fragment } from 'preact';
 
 import { displayTime } from '@/datetime';
-import FloatingButton from '../FloatingButton';
 import TimeBoard from '../TimeBoard';
+import YourParty from './YourParty';
 
 export default function Prebooking({
   startTime,
@@ -32,7 +32,7 @@ export default function Prebooking({
           attraction yet.
         </p>
       )}
-      <FloatingButton onClick={onRefresh}>Check Availability</FloatingButton>
+      <YourParty buttonText="Check Availability" onSubmit={onRefresh} />
     </>
   );
 }

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'preact/hooks';
 
 import { Booking, Guest, Offer, Park, PlusExperience } from '@/api/genie';
 import { useGenieClient } from '@/contexts/GenieClient';
+import { Party, PartyProvider } from '@/contexts/Party';
 import { useRebooking } from '@/contexts/Rebooking';
 import useDataLoader from '@/hooks/useDataLoader';
 import RefreshIcon from '@/icons/RefreshIcon';
@@ -26,8 +27,7 @@ export default function BookExperience({
 }): h.JSX.Element | null {
   const client = useGenieClient();
   const rebooking = useRebooking();
-  const [guests, setGuests] = useState<Guest[]>();
-  const [ineligibleGuests, setIneligibleGuests] = useState<Guest[]>([]);
+  const [party, setParty] = useState<Party>();
   const [available, setAvailable] = useState(experience.flex.available);
   const [offer, setOffer] = useState<Offer | null | undefined>(
     available ? undefined : null
@@ -35,17 +35,17 @@ export default function BookExperience({
   const [booking, setBooking] = useState<Booking>();
   const { loadData, loaderElem } = useDataLoader();
 
-  async function book(party: Guest[]) {
-    if (!offer) return;
+  async function book() {
+    if (!offer || !party) return;
     let booking: Booking | null = null;
 
     await loadData(
       async () => {
-        const partyIds = new Set(party.map(g => g.id));
+        const selectedIds = new Set(party.selected.map(g => g.id));
 
         if (rebooking.current) {
           await client.cancelBooking(
-            rebooking.current.guests.filter(g => partyIds.has(g.id))
+            rebooking.current.guests.filter(g => selectedIds.has(g.id))
           );
         }
 
@@ -55,10 +55,12 @@ export default function BookExperience({
           rebooking.end();
         }
 
-        const guestsToCancel = booking.guests.filter(g => !partyIds.has(g.id));
+        const guestsToCancel = booking.guests.filter(
+          g => !selectedIds.has(g.id)
+        );
         if (guestsToCancel.length > 0) {
           await client.cancelBooking(guestsToCancel);
-          booking.guests = booking.guests.filter(g => partyIds.has(g.id));
+          booking.guests = booking.guests.filter(g => selectedIds.has(g.id));
         }
       },
       { 410: 'Offer expired' }
@@ -86,10 +88,14 @@ export default function BookExperience({
   }
 
   function refreshOffer() {
-    if (!guests || guests.length === 0) return;
+    if (!party || party.eligible.length === 0) return;
     loadData(
       async () => {
-        const newOffer = await client.offer({ experience, park, guests });
+        const newOffer = await client.offer({
+          experience,
+          park,
+          guests: party.eligible,
+        });
         setOffer(offer => {
           if (offer) client.cancelOffer(offer);
           return newOffer;
@@ -100,47 +106,61 @@ export default function BookExperience({
   }
 
   useEffect(() => {
-    if (guests) return;
+    if (party) return;
     loadData(async () => {
-      const { guests, ineligibleGuests } = await client.guests({
+      let guests = await client.guests({
         experience,
         park,
       });
       const oldBooking = rebooking.current;
       if (oldBooking) {
-        const rebookableGuestIds = new Set(
-          ineligibleGuests
-            .filter(
-              g =>
-                g.ineligibleReason === 'TOO_EARLY' ||
-                (g.ineligibleReason === 'EXPERIENCE_LIMIT_REACHED' &&
-                  experience.id === oldBooking.experience.id)
-            )
-            .map(g => g.id)
-        );
-        const rebookingAllowed = oldBooking.guests.every(g =>
-          rebookableGuestIds.has(g.id)
-        );
-        setGuests(rebookingAllowed ? oldBooking.guests : []);
         const oldGuestIds = new Set(oldBooking.guests.map(g => g.id));
-        setIneligibleGuests(
-          rebookingAllowed
-            ? []
-            : ineligibleGuests.filter(g => oldGuestIds.has(g.id))
+        const ineligible = [...guests.eligible, ...guests.ineligible].filter(
+          g =>
+            oldGuestIds.has(g.id) &&
+            !(
+              g.ineligibleReason === 'TOO_EARLY' ||
+              (g.ineligibleReason === 'EXPERIENCE_LIMIT_REACHED' &&
+                experience.id === oldBooking.experience.id)
+            )
         );
-      } else {
-        setGuests(guests);
-        setIneligibleGuests(ineligibleGuests);
+        guests =
+          ineligible.length > 0
+            ? { eligible: [], ineligible }
+            : { eligible: oldBooking.guests, ineligible: [] };
       }
+      setParty({
+        ...guests,
+        selected: guests.eligible,
+        setSelected: (selected: Guest[]) =>
+          setParty(party => {
+            if (!party) return party;
+            const oldSelected = new Set(party.selected);
+            if (selected.some(g => !oldSelected.has(g))) {
+              setOffer(offer => {
+                if (!offer) return offer;
+                client.cancelOffer(offer);
+                return undefined;
+              });
+            }
+            return { ...party, selected };
+          }),
+      });
     });
-  }, [client, experience, park, guests, rebooking, loadData]);
+  }, [client, experience, park, party, rebooking, loadData]);
 
   useEffect(() => {
-    if (offer !== undefined || !guests || guests.length === 0) return;
+    if (offer !== undefined || !party || party.eligible.length === 0) return;
     loadData(
       async () => {
         try {
-          setOffer(await client.offer({ experience, park, guests }));
+          setOffer(
+            await client.offer({
+              experience,
+              park,
+              guests: [...party.selected],
+            })
+          );
         } catch (error) {
           setOffer(null);
           throw error;
@@ -148,7 +168,7 @@ export default function BookExperience({
       },
       { 410: '' }
     );
-  }, [client, experience, park, guests, offer, loadData]);
+  }, [client, experience, park, party, offer, loadData]);
 
   if (booking) {
     return <BookingDetails booking={booking} onClose={onClose} isNew={true} />;
@@ -161,7 +181,7 @@ export default function BookExperience({
       buttons={
         <>
           {(!available || offer) && <Button onClick={cancel}>Cancel</Button>}
-          {available && guests && guests.length > 0 && (
+          {available && party && party.eligible.length > 0 && (
             <Button onClick={refreshOffer} title="Refresh Offer">
               <RefreshIcon />
             </Button>
@@ -172,25 +192,31 @@ export default function BookExperience({
       <RebookingHeader />
       <h2>{experience.name}</h2>
       <div>{park.name}</div>
-      {guests?.length === 0 ? (
-        <NoEligibleGuests guests={ineligibleGuests} onClose={onClose} />
-      ) : !guests || offer === undefined ? (
-        <div />
-      ) : !available ? (
-        <Prebooking
-          startTime={experience.flex.enrollmentStartTime}
-          onRefresh={checkAvailability}
-        />
-      ) : offer === null ? (
-        <NoReservationsAvailable onClose={onClose} />
-      ) : (
-        <OfferDetails
-          offer={offer}
-          guests={guests}
-          ineligibleGuests={ineligibleGuests}
-          onConfirm={book}
-        />
-      )}
+      <PartyProvider
+        value={
+          party || {
+            eligible: [],
+            ineligible: [],
+            selected: [],
+            setSelected: () => null,
+          }
+        }
+      >
+        {party?.eligible?.length === 0 ? (
+          <NoEligibleGuests onClose={onClose} />
+        ) : !party || offer === undefined ? (
+          <div />
+        ) : !available ? (
+          <Prebooking
+            startTime={experience.flex.enrollmentStartTime}
+            onRefresh={checkAvailability}
+          />
+        ) : offer === null ? (
+          <NoReservationsAvailable onClose={onClose} />
+        ) : (
+          <OfferDetails offer={offer} onBook={book} />
+        )}
+      </PartyProvider>
       {loaderElem}
     </Page>
   );

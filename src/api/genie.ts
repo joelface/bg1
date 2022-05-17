@@ -59,6 +59,11 @@ export interface Guest extends GuestEligibility {
   avatarImageUrl?: string;
 }
 
+export interface Guests {
+  eligible: Guest[];
+  ineligible: Guest[];
+}
+
 interface ApiGuest extends GuestEligibility {
   id: string;
   firstName: string;
@@ -261,7 +266,7 @@ export class GenieClient {
   async guests(args: {
     experience: Pick<Experience, 'id'>;
     park: Pick<Park, 'id'>;
-  }): Promise<{ guests: Guest[]; ineligibleGuests: Guest[] }> {
+  }): Promise<Guests> {
     const res: GuestsResponse = await this.request({
       path: '/ea-vas/api/v1/guests',
       params: {
@@ -275,17 +280,17 @@ export class GenieClient {
       ...rest,
       name: `${firstName} ${lastName}`.trim(),
     });
-    const ineligibleGuests = res.ineligibleGuests.map(convertGuest);
-    const guests = res.guests.map(convertGuest).filter(g => {
+    const ineligible = res.ineligibleGuests.map(convertGuest);
+    const eligible = res.guests.map(convertGuest).filter(g => {
       if (!('ineligibleReason' in g)) return true;
-      ineligibleGuests.push(g);
+      ineligible.push(g);
       return false;
     });
-    [...guests, ...ineligibleGuests].forEach(g => {
+    [...eligible, ...ineligible].forEach(g => {
       if (!this.guestNames.has(g.id)) this.guestNames.set(g.id, g.name);
     });
-    guests.sort((a, b) => a.name.localeCompare(b.name));
-    ineligibleGuests.sort((a, b) => {
+    eligible.sort((a, b) => a.name.localeCompare(b.name));
+    ineligible.sort((a, b) => {
       const nameCmp = a.name.localeCompare(b.name);
       if (a.eligibleAfter || b.eligibleAfter) {
         return (
@@ -298,7 +303,7 @@ export class GenieClient {
       if (b.ineligibleReason === 'EXPERIENCE_LIMIT_REACHED') return 1;
       return nameCmp;
     });
-    return { guests, ineligibleGuests };
+    return { eligible, ineligible };
   }
 
   async primaryGuestId(args: Parameters<GenieClient['guests']>[0]) {

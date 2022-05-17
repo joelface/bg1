@@ -1,28 +1,18 @@
 import { h, Fragment } from 'preact';
-import { useState } from 'preact/hooks';
 
-import { Guest, Offer } from '@/api/genie';
+import { Offer } from '@/api/genie';
 import { useRebooking } from '@/contexts/Rebooking';
-import Button from '../Button';
-import FloatingButton from '../FloatingButton';
-import GuestList from '../GuestList';
 import ArrivalTimes from './ArrivalTimes';
-import IneligibleGuestList from './IneligibleGuestList';
+import YourParty from './YourParty';
 
 export default function OfferDetails({
   offer,
-  guests,
-  ineligibleGuests,
-  onConfirm,
+  onBook: onBook,
 }: {
   offer: Offer;
-  guests: Guest[];
-  ineligibleGuests: Guest[];
-  onConfirm: (guests: Guest[]) => void;
-}): h.JSX.Element | null {
+  onBook: () => void;
+}): h.JSX.Element {
   const rebooking = useRebooking();
-  const [party, setParty] = useState(new Set(guests));
-  const [editingParty, editParty] = useState(false);
 
   return (
     <>
@@ -37,50 +27,10 @@ export default function OfferDetails({
           <strong>Note:</strong> Time changed due to park hopping
         </div>
       )}
-      {editingParty ? (
-        <>
-          <h3>Choose Your Party</h3>
-          <GuestList
-            guests={guests}
-            selectable={{
-              isSelected: g => party.has(g),
-              onToggle: g => {
-                const newParty = new Set(party);
-                newParty[party.has(g) ? 'delete' : 'add'](g);
-                setParty(newParty);
-              },
-            }}
-          />
-          {ineligibleGuests.length > 0 && (
-            <>
-              <h3>Ineligible Guests</h3>
-              <IneligibleGuestList guests={ineligibleGuests} />
-            </>
-          )}
-          <FloatingButton onClick={() => editParty(false)}>
-            Confirm Party
-          </FloatingButton>
-        </>
-      ) : (
-        <>
-          <div className="mt-4">
-            <h3 className="inline mt-0">Your Party</h3>
-            <span>
-              <Button
-                type="small"
-                onClick={() => editParty(true)}
-                className="ml-3"
-              >
-                Edit
-              </Button>
-            </span>
-          </div>
-          <GuestList guests={guests.filter(g => party.has(g))} />
-          <FloatingButton onClick={() => onConfirm([...party])}>
-            {rebooking.current ? 'Rebook' : 'Book'} Lightning Lane
-          </FloatingButton>
-        </>
-      )}
+      <YourParty
+        buttonText={`${rebooking.current ? 'Rebook' : 'Book'} Lightning Lane`}
+        onSubmit={onBook}
+      />
     </>
   );
 }
