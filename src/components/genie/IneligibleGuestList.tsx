@@ -1,6 +1,7 @@
 import { h } from 'preact';
 
 import { Guest } from '@/api/genie';
+import { displayTime } from '@/datetime';
 import GuestList from '../GuestList';
 
 export default function IneligibleGuestList({
@@ -14,8 +15,8 @@ export default function IneligibleGuestList({
       conflicts={Object.fromEntries(
         guests.map(g => [
           g.id,
-          g.displayEligibleAfter
-            ? `TOO EARLY (${g.displayEligibleAfter})`
+          g.eligibleAfter
+            ? `TOO EARLY (${displayTime(g.eligibleAfter)})`
             : g.ineligibleReason,
         ])
       )}

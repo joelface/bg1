@@ -179,7 +179,6 @@ describe('GenieClient', () => {
         lastName: '',
         ineligibleReason: 'TOO_EARLY',
         eligibleAfter: '10:30:00',
-        displayEligibleAfter: '10:30 AM',
       };
       respond(
         response({
@@ -193,13 +192,11 @@ describe('GenieClient', () => {
               ...minnie,
               ineligibleReason: 'TOO_EARLY',
               eligibleAfter: '10:30:00',
-              displayEligibleAfter: '10:30 AM',
             },
             {
               ...pluto,
               ineligibleReason: 'TOO_EARLY',
               eligibleAfter: '10:00:00',
-              displayEligibleAfter: '10:00 AM',
             },
             donald,
             fifi,

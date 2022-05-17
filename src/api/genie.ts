@@ -51,7 +51,6 @@ interface GuestEligibility {
     | 'EXPERIENCE_LIMIT_REACHED'
     | 'TOO_EARLY';
   eligibleAfter?: string;
-  displayEligibleAfter?: string;
 }
 
 export interface Guest extends GuestEligibility {
