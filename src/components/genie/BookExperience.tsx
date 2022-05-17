@@ -1,5 +1,5 @@
 import { h, Fragment } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import { useCallback, useEffect, useState } from 'preact/hooks';
 
 import { Booking, Guest, Offer, Park, PlusExperience } from '@/api/genie';
 import { useGenieClient } from '@/contexts/GenieClient';
@@ -13,6 +13,7 @@ import BookingDetails from './BookingDetails';
 import OfferDetails from './OfferDetails';
 import Prebooking from './Prebooking';
 import NoEligibleGuests from './NoEligibleGuests';
+import NoGuestsFound from './NoGuestsFound';
 import NoReservationsAvailable from './NoReservationsAvailable';
 import RebookingHeader from './RebookingHeader';
 
@@ -33,7 +34,7 @@ export default function BookExperience({
     available ? undefined : null
   );
   const [booking, setBooking] = useState<Booking>();
-  const { loadData, loaderElem } = useDataLoader();
+  const { loadData, loaderElem, isLoading } = useDataLoader();
 
   async function book() {
     if (!offer || !party) return;
@@ -105,49 +106,60 @@ export default function BookExperience({
     );
   }
 
-  useEffect(() => {
-    if (party) return;
+  const loadParty = useCallback(() => {
     loadData(async () => {
-      let guests = await client.guests({
-        experience,
-        park,
-      });
-      const oldBooking = rebooking.current;
-      if (oldBooking) {
-        const oldGuestIds = new Set(oldBooking.guests.map(g => g.id));
-        const ineligible = [...guests.eligible, ...guests.ineligible].filter(
-          g =>
-            oldGuestIds.has(g.id) &&
-            !(
-              g.ineligibleReason === 'TOO_EARLY' ||
-              (g.ineligibleReason === 'EXPERIENCE_LIMIT_REACHED' &&
-                experience.id === oldBooking.experience.id)
-            )
-        );
-        guests =
-          ineligible.length > 0
-            ? { eligible: [], ineligible }
-            : { eligible: oldBooking.guests, ineligible: [] };
+      try {
+        let guests = await client.guests({
+          experience,
+          park,
+        });
+        const oldBooking = rebooking.current;
+        if (oldBooking) {
+          const oldGuestIds = new Set(oldBooking.guests.map(g => g.id));
+          const ineligible = [...guests.eligible, ...guests.ineligible].filter(
+            g =>
+              oldGuestIds.has(g.id) &&
+              !(
+                g.ineligibleReason === 'TOO_EARLY' ||
+                (g.ineligibleReason === 'EXPERIENCE_LIMIT_REACHED' &&
+                  experience.id === oldBooking.experience.id)
+              )
+          );
+          guests =
+            ineligible.length > 0
+              ? { eligible: [], ineligible }
+              : { eligible: oldBooking.guests, ineligible: [] };
+        }
+        setParty({
+          ...guests,
+          selected: guests.eligible,
+          setSelected: (selected: Guest[]) =>
+            setParty(party => {
+              if (!party) return party;
+              const oldSelected = new Set(party.selected);
+              if (selected.some(g => !oldSelected.has(g))) {
+                setOffer(offer => {
+                  if (!offer) return offer;
+                  client.cancelOffer(offer);
+                  return undefined;
+                });
+              }
+              return { ...party, selected };
+            }),
+        });
+      } catch (error) {
+        setParty({
+          eligible: [],
+          ineligible: [],
+          selected: [],
+          setSelected: () => null,
+        });
+        throw error;
       }
-      setParty({
-        ...guests,
-        selected: guests.eligible,
-        setSelected: (selected: Guest[]) =>
-          setParty(party => {
-            if (!party) return party;
-            const oldSelected = new Set(party.selected);
-            if (selected.some(g => !oldSelected.has(g))) {
-              setOffer(offer => {
-                if (!offer) return offer;
-                client.cancelOffer(offer);
-                return undefined;
-              });
-            }
-            return { ...party, selected };
-          }),
-      });
     });
-  }, [client, experience, park, party, rebooking, loadData]);
+  }, [client, experience, park, rebooking, loadData]);
+
+  useEffect(loadParty, [loadParty]);
 
   useEffect(() => {
     if (offer !== undefined || !party || party.eligible.length === 0) return;
@@ -205,7 +217,13 @@ export default function BookExperience({
         }
       >
         {party?.eligible?.length === 0 ? (
-          <NoEligibleGuests onClose={onClose} />
+          isLoading ? (
+            <div />
+          ) : party.ineligible.length === 0 ? (
+            <NoGuestsFound onRefresh={loadParty} />
+          ) : (
+            <NoEligibleGuests onClose={onClose} />
+          )
         ) : !party || offer === undefined ? (
           <div />
         ) : !available ? (

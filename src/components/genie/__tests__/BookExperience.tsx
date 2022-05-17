@@ -118,7 +118,13 @@ describe('BookExperience', () => {
     expect(client.cancelOffer).toBeCalledTimes(1);
   });
 
-  it('shows "No Eligible Guests" when no guests', async () => {
+  it('shows "No Guests Found" when no guests loaded', async () => {
+    client.guests.mockResolvedValueOnce({ eligible: [], ineligible: [] });
+    renderComponent();
+    await screen.findByText('No Guests Found');
+  });
+
+  it('shows "No Eligible Guests" when no eligible guests loaded', async () => {
     client.guests.mockResolvedValueOnce({
       eligible: [],
       ineligible: [donald],
