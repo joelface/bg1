@@ -180,8 +180,10 @@ export default function BookExperience({
       theme={park.theme}
       buttons={
         <>
-          {(!available || offer) && <Button onClick={cancel}>Cancel</Button>}
-          {available && party && party.eligible.length > 0 && (
+          {(!available || offer !== null) && (
+            <Button onClick={cancel}>Cancel</Button>
+          )}
+          {available && offer !== undefined && (
             <Button onClick={refreshOffer} title="Refresh Offer">
               <RefreshIcon />
             </Button>

@@ -112,6 +112,7 @@ describe('BookExperience', () => {
 
   it('cancels offer and calls onClose when Cancel button clicked', async () => {
     renderComponent();
+    await screen.findByText('Arrive by:');
     await waitFor(() => click('Cancel'));
     expect(onClose).toBeCalledTimes(1);
     expect(client.cancelOffer).toBeCalledTimes(1);
