@@ -1,6 +1,7 @@
 import { h, Fragment } from 'preact';
 
 import { useParty } from '@/contexts/Party';
+import { useRebooking } from '@/contexts/Rebooking';
 import { displayTime } from '@/datetime';
 import FloatingButton from '../FloatingButton';
 import IneligibleGuestList from './IneligibleGuestList';
@@ -12,6 +13,7 @@ export default function NoEligibleGuests({
 }): h.JSX.Element {
   const { ineligible } = useParty();
   const { eligibleAfter } = ineligible[0] || {};
+  const rebooking = useRebooking();
   return (
     <>
       {eligibleAfter && (
@@ -19,8 +21,22 @@ export default function NoEligibleGuests({
           Eligible at {displayTime(eligibleAfter)}
         </div>
       )}
-      <h3 className="mt-4">No Eligible Guests</h3>
-      <p>No one in your party is currently eligible for this Lightning Lane.</p>
+      {rebooking.current ? (
+        <>
+          <h3>Unable to Rebook</h3>
+          <p>
+            Your current reservation cannot be rebooked to this experience due
+            to the following conflicts:
+          </p>
+        </>
+      ) : (
+        <>
+          <h3>No Eligible Guests</h3>
+          <p>
+            No one in your party is currently eligible for this Lightning Lane.
+          </p>
+        </>
+      )}
       <IneligibleGuestList />
       <FloatingButton onClick={onClose}>Back</FloatingButton>
     </>

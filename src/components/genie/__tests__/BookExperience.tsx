@@ -3,8 +3,17 @@ import FakeTimers from '@sinonjs/fake-timers';
 
 import { RequestError } from '@/api/genie';
 import { GenieClientProvider } from '@/contexts/GenieClient';
+import { RebookingProvider } from '@/contexts/Rebooking';
 import { click, render, screen, waitFor } from '@/testing';
-import { client, hm, mk, bookings, mickey, donald } from '@/__fixtures__/genie';
+import {
+  client,
+  hm,
+  jc,
+  mk,
+  booking,
+  mickey,
+  donald,
+} from '@/__fixtures__/genie';
 import BookExperience from '../BookExperience';
 
 const onClose = jest.fn();
@@ -67,7 +76,7 @@ describe('BookExperience', () => {
     screen.getByText(hm.name);
     click('Done');
     expect(client.cancelBooking).lastCalledWith(
-      bookings[0].guests.filter(g => g.id === mickey.id)
+      booking.guests.filter(g => g.id === mickey.id)
     );
     expect(onClose).toBeCalledTimes(1);
   });
@@ -127,6 +136,48 @@ describe('BookExperience', () => {
     renderComponent();
     await waitFor(() => expect(client.offer).toBeCalledTimes(1));
     await screen.findByText('No Reservations Available');
+  });
+
+  it('shows "Unable to Rebook" if any guest has conflict while rebooking', async () => {
+    const { guests } = booking;
+    client.guests.mockResolvedValueOnce({
+      eligible: [booking.guests[0]],
+      ineligible: [
+        {
+          ...guests[1],
+          ineligibleReason: 'TOO_EARLY',
+          eligibleAfter: '13:00:00',
+        },
+        {
+          ...guests[2],
+          ineligibleReason: 'EXPERIENCE_LIMIT_REACHED',
+        },
+      ],
+    });
+    const { container } = render(
+      <GenieClientProvider value={client}>
+        <RebookingProvider
+          value={{ current: booking, begin: () => null, end: () => null }}
+        >
+          <BookExperience
+            experience={{
+              ...jc,
+              flex: { available: true, enrollmentStartTime: '07:00:00' },
+            }}
+            park={mk}
+            onClose={onClose}
+          />
+        </RebookingProvider>
+      </GenieClientProvider>
+    );
+    await screen.findByText('Unable to Rebook');
+    expect(container).toHaveTextContent(
+      `${guests[0].name}ELIGIBLE FOR NEW BOOKING`
+    );
+    expect(container).toHaveTextContent(
+      `${guests[2].name}EXPERIENCE LIMIT REACHED`
+    );
+    expect(screen.queryByText(guests[1].name)).not.toBeInTheDocument();
   });
 
   it('flashes error message when booking fails', async () => {
