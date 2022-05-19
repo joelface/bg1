@@ -2,11 +2,10 @@ import { h } from 'preact';
 
 import { GenieClientProvider } from '@/contexts/GenieClient';
 import { click, render, screen, waitFor } from '@/testing';
-import { client, bookings } from '@/__fixtures__/genie';
+import { client, booking } from '@/__fixtures__/genie';
 import CancelGuests from '../CancelGuests';
 import { RequestError } from '@/api/genie';
 
-const booking = bookings[0];
 const { guests } = booking;
 const onClose = jest.fn();
 const renderComponent = () =>

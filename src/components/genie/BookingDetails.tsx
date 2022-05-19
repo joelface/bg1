@@ -70,7 +70,7 @@ export default function BookingDetails({
       )}
       <div className="flex mt-4">
         <h3 className="inline mt-0">Your Party</h3>
-        {!booking.choices && (
+        {booking.cancellable && (
           <Button
             type="small"
             onClick={() => setCanceling(true)}
@@ -82,14 +82,11 @@ export default function BookingDetails({
       </div>
       <GuestList
         guests={guests}
-        conflicts={
-          booking.choices &&
-          Object.fromEntries(
-            guests
-              .filter(g => g.redemptions)
-              .map(g => [g.id, `Redemptions left: ${g.redemptions}`])
-          )
-        }
+        conflicts={Object.fromEntries(
+          guests
+            .filter(g => g.redemptions !== undefined)
+            .map(g => [g.id, `Redemptions left: ${g.redemptions}`])
+        )}
       />
       <FloatingButton onClick={() => onClose(guests)}>
         {isNew ? 'Done' : 'Back'}

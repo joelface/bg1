@@ -3,7 +3,7 @@ import { h } from 'preact';
 import { Booking } from '@/api/genie';
 import { GenieClientProvider } from '@/contexts/GenieClient';
 import { click, render, screen, waitFor } from '@/testing';
-import { client, booking, multiExp } from '@/__fixtures__/genie';
+import { client, booking, multiExp, allDayExp } from '@/__fixtures__/genie';
 import BookingDetails from '../BookingDetails';
 import { displayTime } from '@/datetime';
 
@@ -53,6 +53,16 @@ describe('BookingDetails', () => {
     expect(screen.getAllByText('Redemptions left: 1')).toHaveLength(
       multiExp.guests.length
     );
+    expect(
+      screen.queryByRole('button', { name: 'Cancel' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows all-day experience redemption details', async () => {
+    renderComponent(allDayExp);
+    screen.getByText(allDayExp.experience.name);
+    screen.getByText('Park Open - Park Close');
+    screen.getByText('Redemptions left: 1');
     expect(
       screen.queryByRole('button', { name: 'Cancel' })
     ).not.toBeInTheDocument();

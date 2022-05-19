@@ -142,8 +142,9 @@ export interface Booking {
     name: string;
   };
   park: Park;
-  start: DateTime;
-  end: { date: string; time?: string };
+  start: Partial<DateTime>;
+  end: Partial<DateTime>;
+  cancellable: boolean;
   guests: BookingGuest[];
   choices?: Pick<Experience, 'id' | 'name'>[];
 }
@@ -175,10 +176,11 @@ interface FastPass {
   kind: 'FLEX' | 'OTHER';
   facility: string;
   assets: { content: string; excluded: boolean; original: boolean }[];
-  displayStartDate: string;
-  displayStartTime: string;
-  displayEndDate: string;
+  displayStartDate?: string;
+  displayStartTime?: string;
+  displayEndDate?: string;
   displayEndTime?: string;
+  cancellable: boolean;
   multipleExperiences: boolean;
   guests: {
     id: string;
@@ -375,6 +377,7 @@ export class GenieClient {
       park: this.data.parks.find(p => p.id === parkId) as Park,
       start: dateTimeStrings(startDateTime),
       end: dateTimeStrings(endDateTime),
+      cancellable: true,
       guests: entitlements.map(e => ({
         id: e.guestId,
         name: this.guestNames.get(e.guestId) || '',
@@ -431,7 +434,7 @@ export class GenieClient {
       )
       .filter(
         fp =>
-          fp.displayEndDate >= earliest.date &&
+          (!fp.displayEndDate || fp.displayEndDate >= earliest.date) &&
           (!fp.displayEndTime || fp.displayEndTime >= earliest.time)
       )
       .map(fp => {
@@ -442,11 +445,15 @@ export class GenieClient {
         const booking: Booking = {
           experience: { id, name },
           park: parkMap[parkId],
-          start: { date: fp.displayStartDate, time: fp.displayStartTime },
+          start: {
+            date: fp.displayStartDate,
+            time: fp.displayStartTime,
+          },
           end: {
             date: fp.displayEndDate,
-            ...(fp.displayEndTime && { time: fp.displayEndTime }),
+            time: fp.displayEndTime,
           },
+          cancellable: fp.cancellable,
           guests: fp.guests.map(g => {
             const { name } = profiles[g.id];
             const guest: BookingGuest = {
@@ -474,7 +481,9 @@ export class GenieClient {
         return booking;
       })
       .sort((a, b) =>
-        (a.start.date + a.start.time).localeCompare(b.start.date + b.start.time)
+        ((a.start.date || '0000-00-00') + (a.start.time || '')).localeCompare(
+          (b.start.date || '0000-00-00') + (b.start.time || '')
+        )
       );
     this.bookingStack.update(bookings);
     return bookings;
@@ -544,7 +553,7 @@ export class BookingStack {
     const mostRecent = new Map<string, string>();
     const oldEntIds = new Set(this.entitlementIds);
     this.entitlementIds = bookings
-      .filter(({ choices }) => !choices)
+      .filter(({ cancellable }) => cancellable)
       .map(booking =>
         booking.guests.map(({ id, entitlementId }) => {
           this.entitlementIds.push(entitlementId);

@@ -169,9 +169,9 @@ describe('TipBoard', () => {
     renderComponent();
     expect(elemScrollMock).toBeCalledTimes(1);
     click('Your Lightning Lanes');
-    click((await screen.findAllByText('More'))[1]);
+    click((await screen.findAllByText('More'))[2]);
     screen.getByText('Your Lightning Lane');
-    screen.getByText('Barnstormer');
+    screen.getByText(bookings[2].experience.name);
     click('Rebook');
 
     expect(elemScrollMock).toBeCalledTimes(2);
@@ -200,6 +200,7 @@ describe('TipBoard', () => {
       park: mk,
       start: { date: '2022-07-17', time: '12:45:00' },
       end: { date: '2022-07-17', time: '13:45:00' },
+      cancellable: true,
       guests: [
         { ...mickey, entitlementId: 'sm1125_01' },
         { ...minnie, entitlementId: 'sm1125_02' },
@@ -222,8 +223,8 @@ describe('TipBoard', () => {
     ).not.toBeInTheDocument();
 
     click('Back');
-    click(screen.getAllByText('More')[1]);
-    screen.getByRole('heading', { name: bookings[1].experience.name });
+    click(screen.getAllByText('More')[2]);
+    screen.getByRole('heading', { name: bookings[2].experience.name });
 
     click('Rebook');
     screen.getByText('Rebooking');
@@ -236,7 +237,7 @@ describe('TipBoard', () => {
     click('Rebook Lightning Lane');
     await clock.runToLastAsync();
 
-    expect(client.cancelBooking).nthCalledWith(1, [bookings[1].guests[1]]);
+    expect(client.cancelBooking).nthCalledWith(1, [bookings[2].guests[1]]);
     expect(client.cancelBooking).nthCalledWith(2, [newBooking.guests[0]]);
     screen.getByText('Your Lightning Lane');
     screen.getByRole('heading', { name: sm.name });

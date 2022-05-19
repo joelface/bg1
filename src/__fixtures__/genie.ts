@@ -87,6 +87,7 @@ export const booking = {
   park: mk,
   start: { date: '2022-07-17', time: '11:25:00' },
   end: { date: '2022-07-17', time: '12:25:00' },
+  cancellable: true,
   guests: [
     { ...mickey, entitlementId: 'hm1125_01' },
     { ...minnie, entitlementId: 'hm1125_02' },
@@ -99,6 +100,7 @@ export const multiExp = {
   park: mk,
   start: { date: '2022-07-17', time: '15:15:00' },
   end: { date: '2022-07-17' },
+  cancellable: false,
   guests: [
     { ...mickey, entitlementId: 're1515_01', redemptions: 1 },
     { ...minnie, entitlementId: 're1515_02', redemptions: 1 },
@@ -107,13 +109,24 @@ export const multiExp = {
   choices: [bs, hm].map(({ id, name }) => ({ id, name })),
 };
 
+export const allDayExp = {
+  experience: { id: sm.id, name: sm.name },
+  park: mk,
+  start: {},
+  end: {},
+  cancellable: false,
+  guests: [{ ...pluto, entitlementId: 'sm_01', redemptions: 1 }],
+};
+
 export const bookings: Booking[] = [
+  allDayExp,
   booking,
   {
     experience: bs,
     park: mk,
     start: { date: '2022-07-17', time: '14:00:00' },
     end: { date: '2022-07-17', time: '15:00:00' },
+    cancellable: true,
     guests: [
       { ...mickey, entitlementId: 'bs1400_01' },
       { ...minnie, entitlementId: 'bs1400_02' },
@@ -123,7 +136,7 @@ export const bookings: Booking[] = [
 ];
 
 const stack = new BookingStack(false);
-stack.update([bookings[0]]);
+stack.update([bookings[1]]);
 stack.update(bookings);
 
 export const client = new GenieClient({
@@ -138,7 +151,7 @@ jest.spyOn(client, 'guests').mockResolvedValue({
 });
 jest.spyOn(client, 'offer').mockResolvedValue(offer);
 jest.spyOn(client, 'cancelOffer').mockResolvedValue(undefined);
-jest.spyOn(client, 'book').mockResolvedValue({ ...bookings[0] });
+jest.spyOn(client, 'book').mockResolvedValue({ ...booking });
 jest.spyOn(client, 'cancelBooking').mockResolvedValue(undefined);
 jest.spyOn(client, 'bookings').mockResolvedValue([...bookings]);
 jest.spyOn(client, 'plusExperiences').mockResolvedValue([hm, sm, jc]);

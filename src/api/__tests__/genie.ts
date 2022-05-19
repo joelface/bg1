@@ -94,8 +94,8 @@ describe('GenieClient', () => {
 
   describe('isRebookable()', () => {
     it('returns true if booking is rebookable', () => {
-      expect(client.isRebookable(bookings[1])).toBe(true);
-      expect(client.isRebookable(bookings[0])).toBe(false);
+      expect(client.isRebookable(bookings[2])).toBe(true);
+      expect(client.isRebookable(bookings[1])).toBe(false);
     });
   });
 
@@ -300,6 +300,7 @@ describe('GenieClient', () => {
         park: mk,
         start: offer.start,
         end: offer.end,
+        cancellable: true,
         guests: guests.map((g, i) => ({
           ...g,
           entitlementId: newBooking.entitlements[i].id,
@@ -352,6 +353,7 @@ describe('GenieClient', () => {
         entitlementId: g.entitlementId,
         redemptionsRemaining: g.redemptions,
       })),
+      cancellable: b.cancellable,
       multipleExperiences: !!b.choices,
       assets: b.choices
         ? [
@@ -419,10 +421,14 @@ describe('GenieClient', () => {
       expect(await client.bookings()).toEqual(bookings);
     });
 
-    it('returns only unexpired` bookings', async () => {
+    it('returns only unexpired bookings', async () => {
       nowMock.mockReturnValueOnce(new Date('2022-07-17 12:41:00').getTime());
       respond(bookingsRes);
-      expect(await client.bookings()).toEqual(bookings.slice(1));
+      expect(await client.bookings()).toEqual([
+        bookings[0],
+        bookings[2],
+        bookings[3],
+      ]);
     });
   });
 });
@@ -433,11 +439,13 @@ describe('BookingStack', () => {
 
   describe('update()', () => {
     it('updates most recent booking', () => {
-      stack.update([bookings[1]]);
-      expect(stack.isRebookable(bookings[1])).toBe(true);
+      stack.update([bookings[2]]);
+      expect(stack.isRebookable(bookings[2])).toBe(true);
       stack.update(bookings);
-      expect(stack.isRebookable(bookings[1])).toBe(false);
-      expect(stack.isRebookable(bookings[0])).toBe(true);
+      expect(stack.isRebookable(bookings[1])).toBe(true);
+      expect(stack.isRebookable(bookings[0])).toBe(false);
+      expect(stack.isRebookable(bookings[2])).toBe(false);
+      expect(stack.isRebookable(bookings[3])).toBe(false);
     });
   });
 });

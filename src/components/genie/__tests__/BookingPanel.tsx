@@ -24,20 +24,22 @@ describe('BookingPanel', () => {
     lis.forEach((li, i) => {
       const { experience, start, end } = bookings[i];
       expect(li).toHaveTextContent(experience.name);
-      expect(li).toHaveTextContent(displayTime(start.time));
+      expect(li).toHaveTextContent(
+        start.time ? displayTime(start.time) : 'open'
+      );
       expect(li).toHaveTextContent(end.time ? displayTime(end.time) : 'close');
     });
 
     click('More');
     click('Back');
 
-    click('More');
+    click(screen.getAllByText('More')[1]);
     click('Cancel');
     click('Select All');
     click('Cancel Reservation');
     await screen.findByText(bookings[1].experience.name);
     expect(
-      screen.queryByText(bookings[0].experience.name)
+      screen.queryByText(bookings[1].experience.name)
     ).not.toBeInTheDocument();
 
     click('Close');

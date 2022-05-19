@@ -14,7 +14,12 @@ export default function BookingListing({
     <div className="flex items-center gap-x-2">
       <div className="flex-1 min-w-0">
         <div className="text-gray-500 text-sm font-semibold uppercase">
-          <time>{displayTime(booking.start.time)}</time> -{' '}
+          {booking.start.time ? (
+            <time>{displayTime(booking.start.time)}</time>
+          ) : (
+            'open'
+          )}
+          {' - '}
           {booking.end.time ? (
             <time>{displayTime(booking.end.time)}</time>
           ) : (
