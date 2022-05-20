@@ -3,7 +3,15 @@ import { h } from 'preact';
 import { Booking } from '@/api/genie';
 import { GenieClientProvider } from '@/contexts/GenieClient';
 import { click, render, screen, waitFor } from '@/testing';
-import { client, booking, multiExp, allDayExp } from '@/__fixtures__/genie';
+import {
+  client,
+  booking,
+  multiExp,
+  allDayExp,
+  mickey,
+  minnie,
+  pluto,
+} from '@/__fixtures__/genie';
 import BookingDetails from '../BookingDetails';
 import { displayTime } from '@/datetime';
 
@@ -23,9 +31,9 @@ describe('BookingDetails', () => {
   it('renders booking details', () => {
     const { container } = renderComponent();
     expect(container).toHaveTextContent('11:25 AM - 12:25 PM');
-    screen.getByText('Mickey Mouse');
-    screen.getByText('Minnie Mouse');
-    screen.getByText('Pluto');
+    screen.getByText(mickey.name);
+    screen.getByText(minnie.name);
+    screen.getByText(pluto.name);
     click('Cancel');
     screen.getByText('Select Guests to Cancel');
     click('Back');

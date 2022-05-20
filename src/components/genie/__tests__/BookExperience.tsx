@@ -12,6 +12,7 @@ import {
   mk,
   booking,
   mickey,
+  minnie,
   donald,
 } from '@/__fixtures__/genie';
 import BookExperience from '../BookExperience';
@@ -67,10 +68,10 @@ describe('BookExperience', () => {
     await screen.findByText('11:25 AM');
     screen.getByText('12:25 PM');
     click('Edit');
-    click('Mickey Mouse');
+    click(mickey.name);
     click('Confirm Party');
-    expect(screen.queryByText('Mickey Mouse')).not.toBeInTheDocument();
-    screen.getByText('Minnie Mouse');
+    expect(screen.queryByText(mickey.name)).not.toBeInTheDocument();
+    screen.getByText(minnie.name);
     click('Book Lightning Lane');
     await screen.findByText('Your Lightning Lane');
     screen.getByText(hm.name);
@@ -129,10 +130,10 @@ describe('BookExperience', () => {
       eligible: [],
       ineligible: [donald],
     });
-    const { container } = renderComponent();
+    renderComponent();
     await screen.findByText('No Eligible Guests');
-    expect(container).toHaveTextContent(
-      `${donald.name}${donald.ineligibleReason.replace(/_/g, ' ')}`
+    expect(screen.getByText(donald.name)).toHaveTextContent(
+      donald.ineligibleReason.replace(/_/g, ' ')
     );
   });
 
@@ -161,7 +162,7 @@ describe('BookExperience', () => {
         },
       ],
     });
-    const { container } = render(
+    render(
       <GenieClientProvider value={client}>
         <RebookingProvider
           value={{ current: booking, begin: () => null, end: () => null }}
@@ -178,12 +179,13 @@ describe('BookExperience', () => {
       </GenieClientProvider>
     );
     await screen.findByText('Unable to Rebook');
-    expect(container).toHaveTextContent(
-      `${guests[0].name}ELIGIBLE FOR NEW BOOKING`
+    expect(screen.getByText(guests[0].name)).toHaveTextContent(
+      'ELIGIBLE FOR NEW BOOKING'
     );
-    expect(container).toHaveTextContent(
-      `${guests[2].name}EXPERIENCE LIMIT REACHED`
+    expect(screen.getByText(guests[2].name)).toHaveTextContent(
+      'EXPERIENCE LIMIT REACHED'
     );
+    screen.getByText(guests[2].name);
     expect(screen.queryByText(guests[1].name)).not.toBeInTheDocument();
   });
 

@@ -60,6 +60,8 @@ const waitForRefresh = async () => {
   );
 };
 
+const names = (exps: { name: string }[]) => exps.map(({ name }) => name);
+
 const renderComponent = () =>
   render(
     <GenieClientProvider value={client}>
@@ -91,16 +93,10 @@ describe('TipBoard', () => {
       expect(screen.queryByText('Your Lightning Lanes')).not.toBeInTheDocument()
     );
 
-    expect(getExperiences()).toEqual([jc.name, sm.name, hm.name]);
-    await waitFor(() =>
-      expect(sortBy('soonest')).toEqual([sm.name, hm.name, jc.name])
-    );
-    await waitFor(() =>
-      expect(sortBy('standby')).toEqual([sm.name, jc.name, hm.name])
-    );
-    await waitFor(() =>
-      expect(sortBy('aToZ')).toEqual([hm.name, jc.name, sm.name])
-    );
+    expect(getExperiences()).toEqual(names([jc, sm, hm]));
+    expect(sortBy('soonest')).toEqual(names([sm, hm, jc]));
+    await waitFor(() => expect(sortBy('standby')).toEqual(names([sm, jc, hm])));
+    await waitFor(() => expect(sortBy('aToZ')).toEqual(names([hm, jc, sm])));
     expect(elemScrollMock).toBeCalledTimes(4);
 
     const sdd = {
@@ -171,7 +167,7 @@ describe('TipBoard', () => {
     click('Your Lightning Lanes');
     click((await screen.findAllByText('More'))[2]);
     screen.getByText('Your Lightning Lane');
-    screen.getByText(bookings[2].experience.name);
+    screen.getByRole('heading', { name: bookings[2].experience.name });
     click('Rebook');
 
     expect(elemScrollMock).toBeCalledTimes(2);
@@ -232,7 +228,7 @@ describe('TipBoard', () => {
     click('12:45 PM');
     await clock.runToLastAsync();
     click('Edit');
-    click('Mickey Mouse');
+    click(mickey.name);
     click('Confirm Party');
     click('Rebook Lightning Lane');
     await clock.runToLastAsync();

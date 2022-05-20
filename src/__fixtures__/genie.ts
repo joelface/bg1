@@ -70,11 +70,6 @@ export const sm: PlusExperience = {
   priority: 6,
 };
 
-export const bs = {
-  id: '16491297',
-  name: 'Barnstormer',
-};
-
 export const offer: Offer = {
   id: '123',
   start: { date: '2022-07-17', time: '11:25:00' },
@@ -106,7 +101,7 @@ export const multiExp = {
     { ...minnie, entitlementId: 're1515_02', redemptions: 1 },
     { ...pluto, entitlementId: 're1515_03', redemptions: 1 },
   ],
-  choices: [bs, hm].map(({ id, name }) => ({ id, name })),
+  choices: [hm, jc, sm].map(({ id, name }) => ({ id, name })),
 };
 
 export const allDayExp = {
@@ -122,14 +117,14 @@ export const bookings: Booking[] = [
   allDayExp,
   booking,
   {
-    experience: bs,
+    experience: { id: jc.id, name: jc.name },
     park: mk,
     start: { date: '2022-07-17', time: '14:00:00' },
     end: { date: '2022-07-17', time: '15:00:00' },
     cancellable: true,
     guests: [
-      { ...mickey, entitlementId: 'bs1400_01' },
-      { ...minnie, entitlementId: 'bs1400_02' },
+      { ...mickey, entitlementId: 'jc1400_01' },
+      { ...minnie, entitlementId: 'jc1400_02' },
     ],
   },
   multiExp,

@@ -6,6 +6,7 @@ import { VQClientProvider } from '@/contexts/VQClient';
 import { elemScrollMock, fireEvent, render, screen, waitFor } from '@/testing';
 import { queues, guests } from '@/__fixtures__/vq';
 import BGClient from '../BGClient';
+import { pluto } from '@/__fixtures__/vq';
 
 const client = new VQClient({
   origin: 'https://vqguest-svc-wdw.wdprapps.disney.com',
@@ -60,24 +61,24 @@ describe('BGClient', () => {
 
   describe('ChooseParty screen', () => {
     it('toggles guest when clicked', async () => {
-      const pluto = await screen.findByLabelText('Pluto');
-      expect(pluto).not.toBeChecked();
-      click(pluto);
-      expect(pluto).toBeChecked();
-      click(pluto);
-      expect(pluto).not.toBeChecked();
+      const lbl = await screen.findByLabelText(pluto.name);
+      expect(lbl).not.toBeChecked();
+      click(lbl);
+      expect(lbl).toBeChecked();
+      click(lbl);
+      expect(lbl).not.toBeChecked();
     });
 
     it('updates queue and guest list when new queue selected', async () => {
-      const pluto = await screen.findByLabelText('Pluto');
-      click(pluto);
+      const lbl = await screen.findByLabelText(pluto.name);
+      click(lbl);
       change(screen.getByDisplayValue(queues[0].name), {
         target: { value: queues[1].id },
       });
       expect(
         await screen.findByDisplayValue(queues[1].name)
       ).toBeInTheDocument();
-      expect(pluto).not.toBeChecked();
+      expect(lbl).not.toBeChecked();
     });
 
     it('goes to JoinQueue when Confirm Party button clicked', () => {

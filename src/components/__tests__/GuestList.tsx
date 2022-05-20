@@ -1,7 +1,7 @@
 import { h } from 'preact';
 
 import { click, render, screen, within } from '@/testing';
-import { guests, mickey, pluto } from '@/__fixtures__/vq';
+import { guests, mickey, minnie, pluto, fifi } from '@/__fixtures__/vq';
 import GuestList from '../GuestList';
 
 function getAllChecked() {
@@ -48,10 +48,10 @@ describe('GuestList', () => {
     );
     expect(getAllChecked()).toEqual([true, false, false, false]);
 
-    click('Mickey Mouse');
+    click(mickey.name);
     expect(selected.has(mickey)).toBe(false);
 
-    click('Pluto');
+    click(pluto.name);
     expect(selected.has(pluto)).toBe(true);
 
     expect(getAllChecked()).toEqual([false, false, false, true]);
@@ -67,11 +67,11 @@ describe('GuestList', () => {
         }}
       />
     );
-    expect(screen.getByText('Mickey Mouse')).toHaveTextContent('NO PARK PASS');
-    expect(screen.getByText('Minnie Mouse')).toHaveTextContent(
-      /^Minnie Mouse$/
+    expect(screen.getByText(mickey.name)).toHaveTextContent('NO PARK PASS');
+    expect(screen.getByText(minnie.name)).toHaveTextContent(/^Minnie Mouse$/);
+    expect(screen.getByText(pluto.name)).toHaveTextContent(
+      'REDEEM LIMIT REACHED'
     );
-    expect(screen.getByText('Pluto')).toHaveTextContent('REDEEM LIMIT REACHED');
-    expect(screen.getByText('Fifi')).toHaveTextContent(/^Fifi$/);
+    expect(screen.getByText(fifi.name)).toHaveTextContent(/^Fifi$/);
   });
 });

@@ -24,7 +24,7 @@ describe('BGResult', () => {
       pluto: 'NOT_IN_PARK' as const,
       fifi: 'NOT_IN_PARK' as const,
     };
-    const { container } = render(
+    render(
       <BGResult
         guests={guests}
         result={{
@@ -35,7 +35,7 @@ describe('BGResult', () => {
         onDone={onDone}
       />
     );
-    expect(container).toHaveTextContent('Boarding Group: 89');
+    screen.getByText('Boarding Group: 89');
 
     expect(screen.queryByText('Done')).not.toBeInTheDocument();
     await clock.tickAsync(5000);

@@ -2,7 +2,7 @@ import { h } from 'preact';
 
 import { GenieClientProvider } from '@/contexts/GenieClient';
 import { click, render, screen, waitFor } from '@/testing';
-import { client, booking } from '@/__fixtures__/genie';
+import { client, booking, mickey, minnie, pluto } from '@/__fixtures__/genie';
 import CancelGuests from '../CancelGuests';
 import { RequestError } from '@/api/genie';
 
@@ -30,8 +30,8 @@ describe('CancelGuests', () => {
 
   it('cancels selected guests', async () => {
     renderComponent();
-    click('Mickey Mouse');
-    click('Pluto');
+    click(mickey.name);
+    click(pluto.name);
     click('Cancel Guests');
     expect(client.cancelBooking).lastCalledWith([guests[0], guests[2]]);
     await waitFor(() => expect(onClose).lastCalledWith([guests[1]]));
@@ -40,9 +40,9 @@ describe('CancelGuests', () => {
   it('cancels nothing', async () => {
     renderComponent();
     click('Select All');
-    click('Mickey Mouse');
-    click('Minnie Mouse');
-    click('Pluto');
+    click(mickey.name);
+    click(minnie.name);
+    click(pluto.name);
     click('Back');
     await waitFor(() => expect(onClose).lastCalledWith(guests));
 

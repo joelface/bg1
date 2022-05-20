@@ -22,11 +22,13 @@ const renderComponent = (party = createParty()) =>
 
 describe('YourParty', () => {
   it('shows and updates your party', async () => {
-    const { container } = renderComponent();
+    renderComponent();
     click('Edit');
     screen.getByText('Choose Your Party');
     screen.getByText('Ineligible Guests');
-    expect(container).toHaveTextContent(`${donald.name}INVALID PARK ADMISSION`);
+    expect(screen.getByText(donald.name)).toHaveTextContent(
+      'INVALID PARK ADMISSION'
+    );
 
     click(mickey.name);
     click(minnie.name);

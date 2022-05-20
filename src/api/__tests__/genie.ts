@@ -1,12 +1,13 @@
 import {
   hm,
-  bs,
+  jc,
+  sm,
   mk,
   mickey,
   minnie,
   donald,
-  bookings,
   pluto,
+  bookings,
 } from '@/__fixtures__/genie';
 import {
   Booking,
@@ -339,80 +340,84 @@ describe('GenieClient', () => {
   });
 
   describe('bookings()', () => {
-    const xid = (guest: { id: string }) => guest.id + ';type=xid';
-    const bookingItems = bookings.map(b => ({
-      type: 'FASTPASS',
-      kind: b.choices ? 'FLEX' : 'OTHER',
-      displayStartDate: b.start.date,
-      displayStartTime: b.start.time,
-      displayEndDate: b.end.date,
-      displayEndTime: b.end.time,
-      facility: (b.choices ? hm : b.experience).id + ';entityType=Attraction',
-      guests: b.guests.map(g => ({
-        id: xid(g),
-        entitlementId: g.entitlementId,
-        redemptionsRemaining: g.redemptions,
-      })),
-      cancellable: b.cancellable,
-      multipleExperiences: !!b.choices,
-      assets: b.choices
-        ? [
-            { content: 'original-id', excluded: false, original: true },
-            { content: hm.id, excluded: false, original: false },
-            { content: bs.id, excluded: false, original: false },
-            { content: 'excluded-id', excluded: true, original: false },
-          ]
-        : undefined,
-    }));
-    const officialName = (b: Booking) =>
-      b.experience.id === bs.id ? 'The Barnstormer' : b.experience.name;
-    const bookingsRes = response({
-      items: [
-        {
-          // This item should be ignored
-          type: 'FASTPASS',
-          kind: 'PARK_PASS',
-        },
-        ...bookingItems,
-      ],
-      assets: {
-        ...Object.fromEntries(
-          bookings.map(b => [
-            b.experience.id + ';entityType=Attraction',
-            {
-              id: b.experience.id + ';entityType=Attraction',
-              name: officialName(b),
-              location: b.park.id + ';entityType=theme-park',
-            },
-          ])
-        ),
-        ...Object.fromEntries(
-          guests.map(g => [
-            g.id,
-            {
-              media: {
-                small: {
-                  url: `https://example.com/${g.id}.jpg`,
+    function createBookingsResponse(bookings: Booking[]) {
+      const xid = (guest: { id: string }) => guest.id + ';type=xid';
+      return response({
+        items: [
+          {
+            // This item should be ignored
+            type: 'FASTPASS',
+            kind: 'PARK_PASS',
+          },
+          ...bookings.map(b => ({
+            type: 'FASTPASS',
+            kind: b.choices ? 'FLEX' : 'OTHER',
+            displayStartDate: b.start.date,
+            displayStartTime: b.start.time,
+            displayEndDate: b.end.date,
+            displayEndTime: b.end.time,
+            facility:
+              (b.choices ? hm : b.experience).id + ';entityType=Attraction',
+            guests: b.guests.map(g => ({
+              id: xid(g),
+              entitlementId: g.entitlementId,
+              redemptionsRemaining: g.redemptions,
+            })),
+            cancellable: b.cancellable,
+            multipleExperiences: !!b.choices,
+            assets: b.choices
+              ? [
+                  { content: 'original-id', excluded: false, original: true },
+                  ...[hm, jc, sm].map(exp => ({
+                    content: exp.id,
+                    excluded: false,
+                    original: false,
+                  })),
+                  { content: 'excluded-id', excluded: true, original: false },
+                ]
+              : undefined,
+          })),
+        ],
+        assets: {
+          ...Object.fromEntries(
+            bookings.map(b => [
+              b.experience.id + ';entityType=Attraction',
+              {
+                id: b.experience.id + ';entityType=Attraction',
+                name: b.experience.name,
+                location: b.park.id + ';entityType=theme-park',
+              },
+            ])
+          ),
+          ...Object.fromEntries(
+            guests.map(g => [
+              g.id,
+              {
+                media: {
+                  small: {
+                    url: `https://example.com/${g.id}.jpg`,
+                  },
                 },
               },
-            },
-          ])
+            ])
+          ),
+        },
+        profiles: Object.fromEntries(
+          guests.map(g => {
+            const [firstName, lastName = ''] = g.name.split(' ');
+            return [
+              xid(g),
+              {
+                id: xid(g),
+                name: { firstName, lastName },
+                avatarId: g.id,
+              },
+            ];
+          })
         ),
-      },
-      profiles: Object.fromEntries(
-        guests.map(g => {
-          const [firstName, lastName = ''] = g.name.split(' ');
-          return [
-            xid(g),
-            {
-              id: xid(g),
-              name: { firstName, lastName },
-              avatarId: g.id,
-            },
-          ];
-        })
-      ),
-    });
+      });
+    }
+    const bookingsRes = createBookingsResponse(bookings);
     const nowMock = jest.spyOn(Date, 'now');
 
     it('returns current bookings', async () => {
@@ -428,6 +433,25 @@ describe('GenieClient', () => {
         bookings[0],
         bookings[2],
         bookings[3],
+      ]);
+    });
+
+    it('uses names defined in park data files', async () => {
+      const bs = {
+        experience: {
+          id: '16491297',
+          name: 'The Barnstormer',
+        },
+        park: mk,
+        start: { date: undefined, time: undefined },
+        end: { date: undefined, time: undefined },
+        cancellable: false,
+        guests: [],
+      };
+      const bookings = [bs];
+      respond(createBookingsResponse(bookings));
+      expect(await client.bookings()).toEqual([
+        { ...bs, experience: { ...bs.experience, name: 'Barnstormer' } },
       ]);
     });
   });
