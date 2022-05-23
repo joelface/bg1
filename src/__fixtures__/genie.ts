@@ -8,6 +8,8 @@ import {
 import data from '@/api/data/wdw';
 import { Party } from '@/contexts/Party';
 
+data.pdts[80007944] = ['10:30', '13:30', '16:30'];
+
 export const [mk, ep, hs, ak] = data.parks;
 
 export const mickey = {
@@ -150,3 +152,4 @@ jest.spyOn(client, 'book').mockResolvedValue({ ...booking });
 jest.spyOn(client, 'cancelBooking').mockResolvedValue(undefined);
 jest.spyOn(client, 'bookings').mockResolvedValue([...bookings]);
 jest.spyOn(client, 'plusExperiences').mockResolvedValue([hm, sm, jc]);
+jest.spyOn(client, 'pdt').mockReturnValue('13:30');

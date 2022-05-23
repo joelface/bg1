@@ -239,4 +239,17 @@ describe('TipBoard', () => {
     screen.getByRole('heading', { name: sm.name });
     expect(screen.queryByText('Rebooking')).not.toBeInTheDocument();
   });
+
+  it('shows time banners', async () => {
+    renderComponent();
+    client.plusExperiences.mockResolvedValueOnce([
+      { ...hm, flex: { available: false, enrollmentStartTime: '07:00:00' } },
+    ]);
+    click('Refresh Tip Board');
+    expect(await screen.findByText('Booking start:')).toHaveTextContent(
+      '7:00 AM'
+    );
+    click('Refresh Tip Board');
+    expect(await screen.findByText('Next drop:')).toHaveTextContent('1:30 PM');
+  });
 });

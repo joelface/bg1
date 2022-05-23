@@ -1,3 +1,8 @@
+const pdts = (start: number, gap = 150) =>
+  [431, ...[0, 1, 2].map(i => start + i * gap)].map(m =>
+    new Date(new Date().setHours(m / 60, m % 60, 0)).toTimeString().slice(0, 5)
+  );
+
 export default {
   parks: [
     {
@@ -90,5 +95,11 @@ export default {
     '80010154': { name: 'Kali River Rapids', priority: 6 },
     '80010157': { name: 'Kilimanjaro Safaris', priority: 3 },
     '18665185': { name: "Na'vi River Journey", priority: 2 },
+  },
+  pdts: {
+    '80007944': pdts(647),
+    '80007838': pdts(767, 120),
+    '80007998': pdts(647),
+    '80007823': pdts(617),
   },
 };

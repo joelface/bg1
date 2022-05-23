@@ -15,6 +15,7 @@ import BookingPanel from './BookingPanel';
 import GeniePlusButton from './GeniePlusButton';
 import RebookingHeader from './RebookingHeader';
 import StandbyTime from './StandbyTime';
+import TimeBanner from './TimeBanner';
 
 const AUTO_REFRESH_MIN_MS = 60_000;
 
@@ -67,6 +68,11 @@ export default function TipBoard(): h.JSX.Element {
     },
   }));
   const pageElem = useRef<HTMLDivElement>(null);
+  const bookingStart =
+    experiences.length > 0 && !experiences[0].flex.available
+      ? experiences[0].flex.enrollmentStartTime
+      : undefined;
+  const pdt = experiences.length > 0 ? client.pdt(park) : undefined;
 
   const refresh = useCallback(
     (force: unknown = true) => {
@@ -157,6 +163,11 @@ export default function TipBoard(): h.JSX.Element {
       >
         <div aria-hidden={!!(experience || bookingPanelOpen)}>
           <RebookingHeader />
+          {bookingStart ? (
+            <TimeBanner label="Booking start" time={bookingStart} />
+          ) : pdt ? (
+            <TimeBanner label="Next drop" time={pdt} />
+          ) : null}
           <ul>
             {experiences
               .sort(

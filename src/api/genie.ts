@@ -101,6 +101,7 @@ export interface Park {
 interface ResortData {
   parks: Park[];
   experiences: { [id: string]: { name: string; priority?: number } };
+  pdts: { [id: string]: string[] };
 }
 
 export interface NewBookingResponse {
@@ -491,6 +492,11 @@ export class GenieClient {
 
   isRebookable(booking: Booking): boolean {
     return this.bookingStack.isRebookable(booking);
+  }
+
+  pdt(park: Pick<Park, 'id'>): string | undefined {
+    const now = dateTimeStrings().time.slice(0, 5);
+    return this.data.pdts[park.id]?.find(pdt => pdt >= now);
   }
 
   protected async request(request: {

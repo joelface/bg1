@@ -18,6 +18,7 @@ import {
   RequestError,
 } from '../genie';
 import { fetchJson } from '@/fetch';
+import { setTime } from '@/testing';
 import wdw from '../data/wdw';
 
 jest.mock('@/fetch');
@@ -453,6 +454,19 @@ describe('GenieClient', () => {
       expect(await client.bookings()).toEqual([
         { ...bs, experience: { ...bs.experience, name: 'Barnstormer' } },
       ]);
+    });
+  });
+
+  describe('pdt()', () => {
+    it('returns next PDT', () => {
+      setTime('10:30:59');
+      expect(client.pdt(mk)).toBe('10:30');
+      setTime('10:31:00');
+      expect(client.pdt(mk)).toBe('13:30');
+      setTime('13:31:00');
+      expect(client.pdt(mk)).toBe('16:30');
+      setTime('16:31:00');
+      expect(client.pdt(mk)).toBe(undefined);
     });
   });
 });

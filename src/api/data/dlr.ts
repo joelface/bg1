@@ -48,4 +48,5 @@ export default {
     '16514416': { name: 'Radiator Springs Racers', priority: 1 },
     '19531124': { name: 'WEB SLINGERS', priority: 2 },
   },
+  pdts: {},
 };

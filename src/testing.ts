@@ -39,6 +39,12 @@ export function click(labelOrElem: string | HTMLElement) {
   );
 }
 
+export function setTime(time: string, relativeDays = 0) {
+  let date = new Date(`2022-07-17T${time}-0400`);
+  date = new Date(date.setDate(date.getDate() + relativeDays));
+  jest.spyOn(Date, 'now').mockReturnValue(date.getTime());
+}
+
 if (!HTMLElement.prototype.scroll) {
   HTMLElement.prototype.scroll = () => undefined;
 }
