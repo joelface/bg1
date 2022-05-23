@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { Booking, Park, PlusExperience } from '@/api/genie';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { Rebooking, RebookingProvider } from '@/contexts/Rebooking';
+import { dateTimeStrings } from '@/datetime';
 import useDataLoader from '@/hooks/useDataLoader';
 import LightningIcon from '@/icons/LightningIcon';
 import RefreshIcon from '@/icons/RefreshIcon';
@@ -18,6 +19,7 @@ import StandbyTime from './StandbyTime';
 import TimeBanner from './TimeBanner';
 
 const AUTO_REFRESH_MIN_MS = 60_000;
+const PARK_KEY = 'bg1.genie.tipBoard.park';
 
 type ExperienceSorter = (a: PlusExperience, b: PlusExperience) => number;
 
@@ -46,7 +48,14 @@ const sorters: { [key: string]: ExperienceSorter } = {
 export default function TipBoard(): h.JSX.Element {
   const client = useGenieClient();
   const { parks } = client;
-  const [park, setPark] = useState(parks[0]);
+  const [park, setPark] = useState(() => {
+    const { id = parks[0].id, date = '' } =
+      JSON.parse(sessionStorage.getItem(PARK_KEY) || '{}') || {};
+    return (
+      (date === dateTimeStrings().date && parks.find(p => p.id === id)) ||
+      parks[0]
+    );
+  });
   const [experiences, setExperiences] = useState<PlusExperience[]>([]);
   const [experience, setExperience] = useState<PlusExperience>();
   const [bookingPanelOpen, setBookingPanelOpen] = useState(false);
@@ -108,6 +117,13 @@ export default function TipBoard(): h.JSX.Element {
   useEffect(() => {
     pageElem.current?.scroll(0, 0);
   }, [park, sortType, rebooking]);
+
+  useEffect(() => {
+    sessionStorage.setItem(
+      PARK_KEY,
+      JSON.stringify({ id: park.id, date: dateTimeStrings().date })
+    );
+  }, [park]);
 
   return (
     <RebookingProvider value={rebooking}>

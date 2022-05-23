@@ -9,6 +9,7 @@ import {
   fireEvent,
   render,
   screen,
+  setTime,
   waitFor,
   within,
 } from '@/testing';
@@ -251,5 +252,24 @@ describe('TipBoard', () => {
     );
     click('Refresh Tip Board');
     expect(await screen.findByText('Next drop:')).toHaveTextContent('1:30 PM');
+  });
+
+  it('saves selected park until tomorrow', async () => {
+    const parkId = () => (screen.getByTitle('Park') as HTMLSelectElement).value;
+
+    setTime('12:00');
+    let { unmount } = renderComponent();
+    expect(parkId()).toBe(mk.id);
+
+    changePark(hs);
+    unmount();
+    setTime('23:59:59');
+    ({ unmount } = renderComponent());
+    expect(parkId()).toBe(hs.id);
+
+    unmount();
+    setTime('00:00', 1);
+    ({ unmount } = renderComponent());
+    expect(parkId()).toBe(mk.id);
   });
 });
