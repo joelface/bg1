@@ -466,6 +466,7 @@ describe('GenieClient', () => {
 
   describe('pdt()', () => {
     it('returns next PDT', () => {
+      jest.useFakeTimers();
       setTime('10:30:59');
       expect(client.pdt(mk)).toBe('10:30');
       setTime('10:31:00');
@@ -474,6 +475,7 @@ describe('GenieClient', () => {
       expect(client.pdt(mk)).toBe('16:30');
       setTime('16:31:00');
       expect(client.pdt(mk)).toBe(undefined);
+      jest.useRealTimers();
     });
   });
 

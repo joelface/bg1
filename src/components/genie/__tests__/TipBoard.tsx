@@ -49,7 +49,8 @@ const changePark = (park: Park) =>
     target: { value: park.id },
   });
 
-jest.useFakeTimers({ now: new Date('2022-07-17 9:00:00') });
+jest.useFakeTimers();
+setTime('09:00');
 
 const waitForRefresh = async () => {
   await screen.findByLabelText('Loading…');
@@ -73,6 +74,7 @@ const renderComponent = () =>
 describe('TipBoard', () => {
   beforeEach(() => {
     elemScrollMock.mockClear();
+    localStorage.clear();
   });
 
   it('renders TipBoard`', async () => {
@@ -292,5 +294,16 @@ describe('TipBoard', () => {
     );
     click(screen.getAllByRole('button', { name: 'Favorite' })[2]);
     expect(getExperiences()).toEqual([hm.name, jc.name, sm.name]);
+  });
+
+  it('shows lightning picks at top, but below starred rides', async () => {
+    setTime('12:05');
+    renderComponent();
+    const lp = (await screen.findAllByRole('listitem'))[0];
+    expect(lp).toHaveTextContent(sm.name);
+    within(lp).getByTitle('Lightning Pick');
+
+    click(screen.getAllByRole('button', { name: 'Favorite' })[2]);
+    expect(getExperiences()).toEqual([hm.name, sm.name, jc.name]);
   });
 });

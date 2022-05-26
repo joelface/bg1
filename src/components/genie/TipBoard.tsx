@@ -24,7 +24,11 @@ const AUTO_REFRESH_MIN_MS = 60_000;
 const PARK_KEY = 'bg1.genie.tipBoard.park';
 const STARRED_KEY = 'bg1.genie.tipBoard.starred';
 
-type ExperienceSorter = (a: PlusExperience, b: PlusExperience) => number;
+type Experience = PlusExperience & { lp: boolean };
+
+type ExperienceSorter = (a: Experience, b: Experience) => number;
+
+const sortByLP: ExperienceSorter = (a, b) => +b.lp - +a.lp;
 
 const sortByPriority: ExperienceSorter = (a, b) =>
   (a.priority || Infinity) - (b.priority || Infinity);
@@ -40,13 +44,24 @@ const sortBySoonest: ExperienceSorter = (a, b) =>
 const sortByName: ExperienceSorter = (a, b) =>
   a.name.toLowerCase().localeCompare(b.name.toLowerCase());
 
+function timeToMinutes(time: string) {
+  const [h, m] = time.split(':').map(Number);
+  return h * 60 + m;
+}
+
 const sorters: { [key: string]: ExperienceSorter } = {
   priority: (a, b) =>
-    sortByPriority(a, b) || sortByStandby(a, b) || sortBySoonest(a, b),
+    sortByLP(a, b) ||
+    sortByPriority(a, b) ||
+    sortByStandby(a, b) ||
+    sortBySoonest(a, b),
   standby: (a, b) => sortByStandby(a, b) || sortBySoonest(a, b),
   soonest: (a, b) => sortBySoonest(a, b) || sortByStandby(a, b),
   aToZ: () => 0,
 };
+
+const LP_MIN_STANDBY = 30;
+const LP_MAX_LL_WAIT = 60;
 
 export default function TipBoard() {
   const client = useGenieClient();
@@ -59,7 +74,7 @@ export default function TipBoard() {
       parks[0]
     );
   });
-  const [experiences, setExperiences] = useState<PlusExperience[]>([]);
+  const [experiences, setExperiences] = useState<Experience[]>([]);
   const [experience, setExperience] = useState<PlusExperience>();
   const [bookingPanelOpen, setBookingPanelOpen] = useState(false);
   const [sortType, sort] = useState<keyof typeof sorters>('priority');
@@ -101,9 +116,28 @@ export default function TipBoard() {
         if (!force && Date.now() - lastRefresh < AUTO_REFRESH_MIN_MS) {
           return lastRefresh;
         }
-        loadData(async () =>
-          setExperiences(await client.plusExperiences(park))
-        );
+        loadData(async () => {
+          const experiences = await client.plusExperiences(park);
+          const nowMinutes = timeToMinutes(dateTimeStrings().time);
+          setExperiences(
+            experiences.map(exp => {
+              const standby = exp.standby.waitTime || 0;
+              const returnTime = exp.flex.nextAvailableTime;
+              if (!returnTime) return { ...exp, lp: false };
+              const minutesUntilReturn = timeToMinutes(returnTime) - nowMinutes;
+              return {
+                ...exp,
+                lp:
+                  standby >= LP_MIN_STANDBY &&
+                  minutesUntilReturn <=
+                    Math.min(
+                      LP_MAX_LL_WAIT,
+                      ((4 - Math.trunc(exp.priority || 4)) / 3) * standby
+                    ),
+              };
+            })
+          );
+        });
         return Date.now();
       });
     },
@@ -223,15 +257,22 @@ export default function TipBoard() {
                   className="pb-3 first:border-0 border-t-4 border-gray-300"
                   key={exp.id + (starred.has(exp.id) ? '*' : '')}
                 >
-                  <div className="flex items-center">
+                  <div className="flex items-center gap-x-2 mt-2">
                     <StarButton
                       experience={exp}
                       starred={starred}
                       onClick={toggleStar}
                     />
-                    <h2 className="mt-2 text-lg leading-tight truncate">
+                    <h2 className="flex-1 mt-0 text-lg leading-tight truncate">
                       {exp.name}
                     </h2>
+                    {exp.lp && (
+                      <span title="Lightning Pick">
+                        <LightningIcon
+                          className={`text${park.theme.bg.slice(2)}`}
+                        />
+                      </span>
+                    )}
                   </div>
                   {exp.flex.preexistingPlan ? (
                     <div className="mt-2 border-2 border-green-600 rounded p-1 text-sm uppercase font-semibold text-center text-green-600 bg-green-100">
@@ -281,11 +322,11 @@ function StarButton({
 }) {
   const theme = useTheme();
   return (
-    <div className="relative w-6 h-8">
+    <div className="relative w-4 h-6">
       <button
         data-id={experience.id}
         title="Favorite"
-        className="absolute top-0 -left-2 p-2"
+        className="absolute -top-2 -left-2 p-2"
         onClick={onClick}
       >
         <StarIcon

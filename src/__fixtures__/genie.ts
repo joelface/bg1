@@ -35,7 +35,7 @@ export const hm: PlusExperience = {
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 30 },
   flex: { available: true, nextAvailableTime: '14:30:00' },
-  priority: 7,
+  priority: 2.3,
 };
 
 export const jc: PlusExperience = {
@@ -48,7 +48,7 @@ export const jc: PlusExperience = {
     nextAvailableTime: '18:00:00',
     preexistingPlan: true,
   },
-  priority: 1,
+  priority: 1.1,
 };
 
 export const sm: PlusExperience = {
@@ -57,7 +57,7 @@ export const sm: PlusExperience = {
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 60 },
   flex: { available: true, nextAvailableTime: '12:45:00' },
-  priority: 6,
+  priority: 2.0,
 };
 
 export const offer: Offer = {

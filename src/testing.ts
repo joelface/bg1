@@ -59,7 +59,7 @@ export async function loading() {
 export function setTime(time: string, relativeDays = 0) {
   let date = new Date(`2022-07-17T${time}-0400`);
   date = new Date(date.setDate(date.getDate() + relativeDays));
-  jest.spyOn(Date, 'now').mockReturnValue(date.getTime());
+  jest.setSystemTime(date);
 }
 
 if (!HTMLElement.prototype.scroll) {
