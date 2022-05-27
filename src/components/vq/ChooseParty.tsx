@@ -10,7 +10,7 @@ export default function ChooseParty({
   onToggle,
   onConfirm,
 }: {
-  guests: Guest[];
+  guests?: Guest[];
   party: Set<Guest>;
   onToggle: (guest: Guest) => void;
   onConfirm: () => void;
@@ -18,7 +18,9 @@ export default function ChooseParty({
   return (
     <>
       <h2 className="mt-5 text-xl">Choose Your Party</h2>
-      {guests.length > 0 ? (
+      {!guests ? (
+        <p>Loading guests…</p>
+      ) : guests.length > 0 ? (
         <GuestList
           guests={guests}
           selectable={{ isSelected: g => party.has(g), onToggle }}

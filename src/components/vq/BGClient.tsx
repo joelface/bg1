@@ -16,7 +16,7 @@ export default function BGClient(): h.JSX.Element {
   const client = useVQClient();
   const [queues, setQueues] = useState<Queue[]>();
   const [queue, setQueue] = useState<Queue | null>(null);
-  const [guests, setGuests] = useState<Guest[]>([]);
+  const [guests, setGuests] = useState<Guest[]>();
   const [party, setParty] = useState<Set<Guest>>(new Set());
   const [joinResult, setJoinResult] = useState<JoinQueueResult>({
     boardingGroup: null,
@@ -92,7 +92,7 @@ export default function BGClient(): h.JSX.Element {
 
   if (!queue) return <div />; // This should never happen
 
-  const partyGuests = guests.filter(g => party.has(g));
+  const partyGuests = (guests || []).filter(g => party.has(g));
   const timeBoard = (
     <TimeBoard
       resort={client.resort}
