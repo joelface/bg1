@@ -517,9 +517,7 @@ export class GenieClient {
       data: request.data,
       headers: {
         Authorization: `BEARER ${accessToken}`,
-        'User-Agent': 'Mozilla/5.0',
       },
-      credentials: 'omit',
     });
     const { key } = request;
     if (String(status)[0] === '2' && (!key || data[key])) {

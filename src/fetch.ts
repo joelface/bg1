@@ -15,6 +15,13 @@ export async function fetchJson(
 ): Promise<JsonResponse> {
   const { params, data, timeout = DEFAULT_TIMEOUT_MS, ...fetchInit } = init;
   init = fetchInit;
+  init.referrer ||= '';
+  init.credentials ||= 'omit';
+  init.cache ||= 'no-store';
+  init.headers = {
+    'User-Agent': 'Mozilla/5.0',
+    ...(init.headers || {}),
+  };
   if (params) {
     url +=
       '?' +
@@ -26,7 +33,7 @@ export async function fetchJson(
   if (data) {
     init.method ||= 'POST';
     init.headers = {
-      ...(init.headers || {}),
+      ...init.headers,
       'Content-Type': 'application/json',
     };
     init.body = JSON.stringify(data);

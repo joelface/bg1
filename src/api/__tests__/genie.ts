@@ -54,9 +54,7 @@ function expectFetch(
       data,
       headers: {
         Authorization: `BEARER ${accessToken}`,
-        'User-Agent': 'Mozilla/5.0',
       },
-      credentials: 'omit',
     }
   );
 }

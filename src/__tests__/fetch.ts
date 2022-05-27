@@ -20,6 +20,13 @@ function mockFetch(body: any, headers: { [name: string]: string } = {}) {
 
 const url = 'https://example.com/';
 const signal = expect.any(AbortSignal);
+const init = {
+  headers: { 'User-Agent': 'Mozilla/5.0' },
+  cache: 'no-store',
+  credentials: 'omit',
+  referrer: '',
+  signal,
+};
 
 describe('fetchJson()', () => {
   it('returns response', async () => {
@@ -37,15 +44,15 @@ describe('fetchJson()', () => {
     await fetchJson(url, { data });
     expect(fetchMock).lastCalledWith(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
-      signal,
+      ...init,
+      headers: { ...init.headers, 'Content-Type': 'application/json' },
     });
   });
 
   it('adds params to URL', async () => {
     await fetchJson(url, { params: { start: 5, end: 15 } });
-    expect(fetchMock).lastCalledWith(url + '?start=5&end=15', { signal });
+    expect(fetchMock).lastCalledWith(url + '?start=5&end=15', init);
   });
 
   it('returns status=0 response on timeout', async () => {

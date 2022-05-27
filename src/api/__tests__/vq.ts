@@ -23,15 +23,14 @@ function respond(...responses: ReturnType<typeof response>[]) {
   for (const res of responses) fetchJsonMock.mockResolvedValueOnce(res);
 }
 
-function expectFetch(url: string, postData?: unknown) {
+function expectFetch(url: string, data?: unknown) {
   const fetchArgs: unknown[] = [url];
-  if (postData) {
+  if (data) {
     fetchArgs.push({
       method: 'POST',
-      body: JSON.stringify(postData),
+      data,
       headers: {
         Authorization: 'BEARER access_token_123',
-        'Content-Type': 'application/json',
       },
     });
   }

@@ -239,10 +239,9 @@ export class VQClient {
     const { status, data } = await fetchJson(this.url(request.resource), {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         Authorization: `BEARER ${this.getAuthData().accessToken}`,
       },
-      body: JSON.stringify(request.data),
+      data: request.data,
     });
     if (!status || status >= 500) {
       throw new RequestError({ status, data });
