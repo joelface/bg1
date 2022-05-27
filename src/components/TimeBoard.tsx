@@ -19,6 +19,7 @@ export default function TimeBoard({
   label: string;
   time?: string | null;
 }): h.JSX.Element {
+  const id = TIME_IS_IDS[resort];
   const [synced, setSynced] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -33,7 +34,7 @@ export default function TimeBoard({
       <Row
         heading={
           <a
-            href={`https://time.is/${resort}`}
+            href={`https://time.is/${id.split('_')[0]}`}
             id="time_is_link"
             target="_blank"
             rel="noreferrer"
@@ -43,7 +44,7 @@ export default function TimeBoard({
         }
         time={
           <>
-            <Clock id={TIME_IS_IDS[resort]} onSync={onSync} />
+            <Clock id={id} onSync={onSync} />
             {synced === false ? (
               <span className="text-sm font-sans font-semibold text-red-600">
                 {' '}
