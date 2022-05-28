@@ -1,5 +1,5 @@
-const pdts = (start: number, gap = 150) =>
-  [431, ...[0, 1, 2].map(i => start + i * gap)].map(m =>
+const pdts = (start: number, gap = 150, count = 3) =>
+  [431, ...[...Array(count).keys()].map(i => start + i * gap)].map(m =>
     new Date(new Date().setHours(m / 60, m % 60, 0)).toTimeString().slice(0, 5)
   );
 
@@ -98,7 +98,7 @@ export default {
   },
   pdts: {
     '80007944': pdts(647),
-    '80007838': pdts(767, 120),
+    '80007838': pdts(767, 120, 4),
     '80007998': pdts(647),
     '80007823': pdts(617),
   },
