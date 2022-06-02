@@ -2,11 +2,11 @@ import { h, Fragment } from 'preact';
 import { useState } from 'preact/hooks';
 
 import { Guest, RequestError } from '@/api/vq';
-import { useTheme } from '@/contexts/Theme';
 import useFlash from '@/hooks/useFlash';
 import { sleep } from '@/sleep';
 import FloatingButton from '../FloatingButton';
 import GuestList from '../GuestList';
+import Button from '../Button';
 
 const JOIN_BTN_DISABLED_MIN_MS = 999;
 
@@ -21,7 +21,6 @@ export default function JoinQueue({
 }): h.JSX.Element {
   const [joinDisabled, setJoinDisabled] = useState<boolean>(false);
   const [flashElem, flash] = useFlash();
-  const { bg } = useTheme();
 
   async function onJoinClick() {
     setJoinDisabled(true);
@@ -41,15 +40,10 @@ export default function JoinQueue({
   return (
     <>
       <div className="mt-4">
-        <h2 className="inline text-xl">Your Party</h2>
-        <span>
-          <button
-            onClick={onEdit}
-            className={`ml-3 px-2 py-1.5 rounded-lg ${bg} text-white text-xs uppercase font-semibold tracking-wide align-middle`}
-          >
-            Edit
-          </button>
-        </span>
+        <h2 className="inline mr-3 text-xl">Your Party</h2>
+        <Button type="small" onClick={onEdit}>
+          Edit
+        </Button>
       </div>
       <GuestList guests={guests} />
       <FloatingButton disabled={joinDisabled} onClick={onJoinClick}>
