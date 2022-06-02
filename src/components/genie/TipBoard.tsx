@@ -17,6 +17,7 @@ import GeniePlusButton from './GeniePlusButton';
 import RebookingHeader from './RebookingHeader';
 import StandbyTime from './StandbyTime';
 import TimeBanner from './TimeBanner';
+import LogoutButton from '../LogoutButton';
 
 const AUTO_REFRESH_MIN_MS = 60_000;
 const PARK_KEY = 'bg1.genie.tipBoard.park';
@@ -210,6 +211,11 @@ export default function TipBoard(): h.JSX.Element {
                 </li>
               ))}
           </ul>
+          {!isLoading && (
+            <div className="mt-12 text-center">
+              <LogoutButton />
+            </div>
+          )}
           {loaderElem}
         </div>
       </Page>

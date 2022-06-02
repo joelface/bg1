@@ -3,6 +3,7 @@ import { h, Fragment } from 'preact';
 import { Guest } from '@/api/vq';
 import FloatingButton from '../FloatingButton';
 import GuestList from '../GuestList';
+import LogoutButton from '../LogoutButton';
 
 export default function ChooseParty({
   guests,
@@ -17,7 +18,10 @@ export default function ChooseParty({
 }): h.JSX.Element {
   return (
     <>
-      <h2 className="mt-5 text-xl">Choose Your Party</h2>
+      <div className="mt-5">
+        <h2 className="inline mr-3 text-xl">Choose Your Party</h2>
+        <LogoutButton />
+      </div>
       {!guests ? (
         <p>Loading guests…</p>
       ) : guests.length > 0 ? (
