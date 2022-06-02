@@ -1,8 +1,4 @@
-import { createContext } from 'preact';
-import { useContext } from 'preact/hooks';
-
 import { VQClient } from '@/api/vq';
+import { useClient } from './Client';
 
-export const VQClientContext = createContext({} as VQClient);
-export const VQClientProvider = VQClientContext.Provider;
-export const useVQClient = () => useContext(VQClientContext);
+export const useVQClient: () => VQClient = useClient;

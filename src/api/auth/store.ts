@@ -19,19 +19,23 @@ export class AuthStore {
   ) {}
 
   getData(): Pick<AuthData, 'swid' | 'accessToken'> {
-    const json = this.storage.getItem(this.storageKey);
-    if (json) {
-      const { swid, accessToken, expires: expiresStr } = JSON.parse(json);
-      const expires = dateTimeStrings(new Date(expiresStr));
-      const now = dateTimeStrings();
-      if (
-        expires.date > now.date ||
-        (expires.date === now.date &&
-          expires.time > now.time &&
-          expires.time >= '17')
-      ) {
-        return { swid, accessToken };
+    try {
+      const json = this.storage.getItem(this.storageKey);
+      if (json) {
+        const { swid, accessToken, expires: expiresStr } = JSON.parse(json);
+        const expires = dateTimeStrings(new Date(expiresStr));
+        const now = dateTimeStrings();
+        if (
+          expires.date > now.date ||
+          (expires.date === now.date &&
+            expires.time > now.time &&
+            expires.time >= '17')
+        ) {
+          return { swid, accessToken };
+        }
       }
+    } catch (error) {
+      console.error(error);
     }
     throw new ReauthNeeded(this.storageKey);
   }

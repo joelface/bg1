@@ -18,7 +18,7 @@ import {
   RequestError,
 } from '../genie';
 import { fetchJson } from '@/fetch';
-import { setTime } from '@/testing';
+import { setTime, waitFor } from '@/testing';
 import wdw from '../data/wdw';
 
 jest.mock('@/fetch');
@@ -75,11 +75,18 @@ describe('isGenieOrigin()', () => {
 });
 
 describe('GenieClient', () => {
+  const authStore = {
+    getData: () => ({ accessToken, swid }),
+    setData: () => null,
+    deleteData: jest.fn(),
+  };
   const client = new GenieClient({
     origin: 'https://disneyworld.disney.go.com',
-    getAuthData: () => ({ accessToken, swid }),
+    authStore,
     data: wdw,
   });
+  const onUnauthorized = jest.fn();
+  client.onUnauthorized = onUnauthorized;
   const guests = [minnie, pluto, mickey];
   const ineligibleGuests = [donald];
   const guestsRes = response({
@@ -90,6 +97,8 @@ describe('GenieClient', () => {
 
   beforeEach(() => {
     fetchJsonMock.mockReset();
+    authStore.deleteData.mockReset();
+    onUnauthorized.mockReset();
   });
 
   describe('isRebookable()', () => {
@@ -113,7 +122,7 @@ describe('GenieClient', () => {
     it('loads Genie client', async () => {
       const client = await GenieClient.load({
         origin: 'https://disneyland.disney.go.com',
-        getAuthData: () => ({ accessToken, swid }),
+        authStore,
       });
       expect(client.parks.map(p => p.name)).toEqual([
         'Disneyland',
@@ -465,6 +474,20 @@ describe('GenieClient', () => {
       expect(client.pdt(mk)).toBe('16:30');
       setTime('16:31:00');
       expect(client.pdt(mk)).toBe(undefined);
+    });
+  });
+
+  describe('logOut()', () => {
+    it('calls onUnauthorized() and authStore.deleteData()', () => {
+      client.logOut();
+      expect(onUnauthorized).toBeCalledTimes(1);
+      expect(authStore.deleteData).toBeCalledTimes(1);
+    });
+
+    it('is called on 401 Unauthorized response', async () => {
+      respond({ status: 401, data: {} });
+      await expect(client.plusExperiences(mk)).rejects.toThrow(RequestError);
+      await waitFor(() => expect(onUnauthorized).toBeCalledTimes(1));
     });
   });
 });

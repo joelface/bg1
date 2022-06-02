@@ -1,5 +1,6 @@
 import { dateTimeStrings } from '@/datetime';
 import { fetchJson } from '@/fetch';
+import { AuthStore } from './auth/store';
 
 const ORIGIN_TO_RESORT = {
   'https://disneyworld.disney.go.com': 'WDW',
@@ -216,8 +217,9 @@ export class RequestError extends Error {
 const idNum = (id: string) => id.split(';')[0];
 
 export class GenieClient {
+  onUnauthorized = () => undefined;
   protected origin: Origin;
-  protected getAuthData: () => { accessToken: string; swid: string };
+  protected authStore: Public<AuthStore>;
   protected data: ResortData;
   protected guestNames = new Map<string, string>();
   protected bookingStack: BookingStack;
@@ -236,11 +238,11 @@ export class GenieClient {
 
   constructor(args: {
     origin: GenieClient['origin'];
-    getAuthData: GenieClient['getAuthData'];
+    authStore: GenieClient['authStore'];
     data: GenieClient['data'];
   }) {
     this.origin = args.origin;
-    this.getAuthData = args.getAuthData;
+    this.authStore = args.authStore;
     this.data = args.data;
     this.bookingStack = new BookingStack();
   }
@@ -400,7 +402,7 @@ export class GenieClient {
   }
 
   async bookings(): Promise<Booking[]> {
-    const { swid } = this.getAuthData();
+    const { swid } = this.authStore.getData();
     const now = new Date(Date.now());
     const itineraryApiName = RESORT_TO_ITINERARY_API_NAME[this.resort];
     const {
@@ -499,6 +501,11 @@ export class GenieClient {
     return this.data.pdts[park.id]?.find(pdt => pdt >= now);
   }
 
+  logOut(): void {
+    this.authStore.deleteData();
+    this.onUnauthorized();
+  }
+
   protected async request(request: {
     path: string;
     method?: 'GET' | 'POST' | 'DELETE';
@@ -507,7 +514,7 @@ export class GenieClient {
     key?: string;
     userId?: boolean;
   }): Promise<any> {
-    const { swid, accessToken } = this.getAuthData();
+    const { swid, accessToken } = this.authStore.getData();
     const url = this.origin + request.path;
     const params = { ...request.params };
     if (request.userId ?? true) params.userId = swid;
@@ -519,9 +526,13 @@ export class GenieClient {
         Authorization: `BEARER ${accessToken}`,
       },
     });
-    const { key } = request;
-    if (String(status)[0] === '2' && (!key || data[key])) {
-      return key ? data[key] : data;
+    if (status === 401) {
+      setTimeout(() => this.logOut());
+    } else {
+      const { key } = request;
+      if (String(status)[0] === '2' && (!key || data[key])) {
+        return key ? data[key] : data;
+      }
     }
     throw new RequestError({ status, data });
   }

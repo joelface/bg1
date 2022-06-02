@@ -7,6 +7,7 @@ import {
   RequestError,
 } from '../vq';
 import { fetchJson } from '@/fetch';
+import { waitFor } from '@/testing';
 
 jest.mock('@/fetch');
 const fetchJsonMock = fetchJson as jest.MockedFunction<typeof fetchJson>;
@@ -52,10 +53,17 @@ describe('isVirtualQueueOrigin()', () => {
 });
 
 describe('VQClient', () => {
+  const authStore = {
+    getData: () => ({ swid: '', accessToken: 'access_token_123' }),
+    setData: () => null,
+    deleteData: jest.fn(),
+  };
   const client = new VQClient({
     origin: 'https://vqguest-svc-wdw.wdprapps.disney.com',
-    getAuthData: () => ({ accessToken: 'access_token_123' }),
+    authStore,
   });
+  const onUnauthorized = jest.fn();
+  client.onUnauthorized = onUnauthorized;
   const getQueuesUrl = client.url('getQueues');
   const joinQueueUrl = client.url('joinQueue');
   const getLinkedGuestsUrl = client.url('getLinkedGuests');
@@ -206,6 +214,22 @@ describe('VQClient', () => {
       await expect(client.joinQueue(rotr, guests)).rejects.toThrow(
         RequestError
       );
+    });
+  });
+
+  describe('logOut()', () => {
+    it('calls onUnauthorized() and authStore.deleteData()', () => {
+      client.logOut();
+      expect(onUnauthorized).toBeCalledTimes(1);
+      expect(authStore.deleteData).toBeCalledTimes(1);
+    });
+
+    it('is called on 401 Unauthorized response', async () => {
+      respond(response({}, 'UNAUTHORIZED', 401));
+      await expect(client.getLinkedGuests({ id: '1' })).rejects.toThrow(
+        RequestError
+      );
+      await waitFor(() => expect(onUnauthorized).toBeCalledTimes(1));
     });
   });
 });

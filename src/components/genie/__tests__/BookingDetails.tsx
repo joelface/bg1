@@ -1,7 +1,7 @@
 import { h } from 'preact';
 
 import { Booking } from '@/api/genie';
-import { GenieClientProvider } from '@/contexts/GenieClient';
+import { ClientProvider } from '@/contexts/Client';
 import { click, render, screen, waitFor } from '@/testing';
 import {
   client,
@@ -18,9 +18,9 @@ import { displayTime } from '@/datetime';
 const onClose = jest.fn();
 const renderComponent = (b: Booking = booking) =>
   render(
-    <GenieClientProvider value={client}>
+    <ClientProvider value={client}>
       <BookingDetails booking={b} onClose={onClose} />
-    </GenieClientProvider>
+    </ClientProvider>
   );
 
 describe('BookingDetails', () => {

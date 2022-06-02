@@ -18,6 +18,6 @@ BG1 is an unofficial, experimental client for obtaining Genie+ Lightning Lane re
 
 - **Len Testa:** For helping me get as close as I could ever reasonably expect to accomplish a not very serious childhood dream of almost being an Imagineer. Also for creating [Touring Plans](https://touringplans.com/), which is pretty rad.
 
-- **Barry, Stacy, Jeff, Michelle, and others:** For helping me test and improve BG1.
+- **Barry, Stacy, Jeff, Michelle, Jim, and others:** For helping me test and improve BG1.
 
 - **[IcoMoon](https://icomoon.io/#icons-icomoon):** For the free icons, provided under a [Creative Commons license](https://creativecommons.org/licenses/by/4.0/).

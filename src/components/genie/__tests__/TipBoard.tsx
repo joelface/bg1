@@ -2,7 +2,7 @@ import { h } from 'preact';
 import FakeTimers from '@sinonjs/fake-timers';
 
 import { Park } from '@/api/genie';
-import { GenieClientProvider } from '@/contexts/GenieClient';
+import { ClientProvider } from '@/contexts/Client';
 import {
   click,
   elemScrollMock,
@@ -65,9 +65,9 @@ const names = (exps: { name: string }[]) => exps.map(({ name }) => name);
 
 const renderComponent = () =>
   render(
-    <GenieClientProvider value={client}>
+    <ClientProvider value={client}>
       <TipBoard />
-    </GenieClientProvider>
+    </ClientProvider>
   );
 
 describe('TipBoard', () => {
@@ -206,9 +206,9 @@ describe('TipBoard', () => {
     client.book.mockResolvedValueOnce({ ...newBooking });
 
     render(
-      <GenieClientProvider value={client}>
+      <ClientProvider value={client}>
         <TipBoard />
-      </GenieClientProvider>
+      </ClientProvider>
     );
     expect(screen.queryByText('Rebooking')).not.toBeInTheDocument();
     click('Your Lightning Lanes');

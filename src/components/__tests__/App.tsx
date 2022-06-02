@@ -3,6 +3,7 @@ import { h } from 'preact';
 import { click, render, screen } from '@/testing';
 import { AuthData } from '@/api/auth/client';
 import { ReauthNeeded } from '@/api/auth/store';
+import { ClientProvider } from '@/contexts/Client';
 import { DISCLAIMER_ACCEPTED_KEY } from '@/hooks/useDisclaimer';
 import App from '../App';
 
@@ -25,11 +26,16 @@ const authStore = {
   deleteData: jest.fn(),
 };
 
+const client = {
+  onUnauthorized: () => null,
+  logOut: () => null,
+  resort: 'WDW' as const,
+};
 const renderComponent = () =>
   render(
-    <App authStore={authStore} resort="WDW">
-      client loaded
-    </App>
+    <ClientProvider value={client}>
+      <App authStore={authStore}>client loaded</App>
+    </ClientProvider>
   );
 
 describe('App', () => {
@@ -64,5 +70,12 @@ describe('App', () => {
       expires: new Date(2121, 12, 21, 12, 21, 12),
     });
     expect(screen.getByText('client loaded')).toBeInTheDocument();
+  });
+
+  it('shows LoginForm if client.onAuthorized() called', async () => {
+    renderComponent();
+    screen.getByText('client loaded');
+    client.onUnauthorized();
+    await screen.findByText('Log In');
   });
 });

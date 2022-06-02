@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import FakeTimers from '@sinonjs/fake-timers';
 
-import { GenieClientProvider } from '@/contexts/GenieClient';
+import { ClientProvider } from '@/contexts/Client';
 import { displayTime } from '@/datetime';
 import { click, render, screen } from '@/testing';
 import { client, bookings } from '@/__fixtures__/genie';
@@ -10,9 +10,9 @@ import BookingPanel from '../BookingPanel';
 const onClose = jest.fn();
 const renderComponent = () =>
   render(
-    <GenieClientProvider value={client}>
+    <ClientProvider value={client}>
       <BookingPanel onClose={onClose} />
-    </GenieClientProvider>
+    </ClientProvider>
   );
 
 describe('BookingPanel', () => {

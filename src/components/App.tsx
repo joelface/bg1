@@ -1,34 +1,34 @@
 import { h, Fragment, ComponentChildren } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 
-import { AuthStore, ReauthNeeded } from '@/api/auth/store';
+import { AuthStore } from '@/api/auth/store';
 import useDisclaimer from '@/hooks/useDisclaimer';
 import LoginForm from './LoginForm';
+import { useClient } from '@/contexts/Client';
 
 export default function App({
-  resort,
   authStore,
   children,
 }: {
-  resort: 'WDW' | 'DLR';
   authStore: Public<AuthStore>;
   children: ComponentChildren;
 }): h.JSX.Element | null {
   const [screenName, show] = useState<keyof typeof screens>('Blank');
   const disclaimer = useDisclaimer();
+  const client = useClient();
+
+  useEffect(() => {
+    client.onUnauthorized = () => show('LoginForm');
+  }, [client]);
 
   useEffect(() => {
     function checkAuthData() {
-      if (document.hidden) return;
+      if (document.hidden || screenName === 'LoginForm') return;
       try {
         authStore.getData();
         show('Client');
-      } catch (error) {
-        if (error instanceof ReauthNeeded) {
-          return show('LoginForm');
-        } else {
-          console.error(error);
-        }
+      } catch {
+        return show('LoginForm');
       }
     }
 
@@ -37,13 +37,13 @@ export default function App({
     return () => {
       document.removeEventListener('visibilitychange', checkAuthData);
     };
-  }, [authStore]);
+  }, [authStore, screenName]);
 
   const screens = {
     Blank: <div />,
     LoginForm: (
       <LoginForm
-        resort={resort}
+        resort={client.resort}
         onLogin={data => {
           authStore.setData(data);
           show('Client');

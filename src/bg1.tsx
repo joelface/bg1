@@ -1,4 +1,4 @@
-import { h, render, ComponentType, Provider } from 'preact';
+import { h, render, ComponentType } from 'preact';
 
 import { AuthStore } from './api/auth/store';
 import { GenieClient, isGenieOrigin } from './api/genie';
@@ -6,26 +6,23 @@ import { VQClient, isVirtualQueueOrigin } from './api/vq';
 import App from './components/App';
 import TipBoard from './components/genie/TipBoard';
 import BGClient from './components/vq/BGClient';
+import { Client, ClientProvider } from './contexts/Client';
 import { setDefaultTimeZone } from './datetime';
-import { GenieClientProvider } from './contexts/GenieClient';
-import { VQClientProvider } from './contexts/VQClient';
 
 const authStore = new AuthStore('bg1.auth');
-const getAuthData = () => authStore.getData();
 if (isVirtualQueueOrigin(origin)) {
-  renderApp(new VQClient({ origin, getAuthData }), BGClient, VQClientProvider);
+  renderApp(new VQClient({ origin, authStore }), BGClient);
 } else if (isGenieOrigin(origin)) {
-  GenieClient.load({ origin, getAuthData }).then(client =>
-    renderApp(client, TipBoard, GenieClientProvider)
+  GenieClient.load({ origin, authStore }).then(client =>
+    renderApp(client, TipBoard)
   );
 } else {
   location.href = 'https://joelface.github.io/bg1/start.html';
 }
 
-async function renderApp<T extends { resort: 'WDW' | 'DLR' }>(
+async function renderApp<T extends Client>(
   apiClient: T,
-  ClientUI: ComponentType,
-  Provider: Provider<T>
+  ClientUI: ComponentType
 ) {
   document.head.innerHTML += `
     <meta name=viewport content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -38,11 +35,11 @@ async function renderApp<T extends { resort: 'WDW' | 'DLR' }>(
     }[apiClient.resort]
   );
   render(
-    <App resort={apiClient.resort} authStore={authStore}>
-      <Provider value={apiClient}>
+    <ClientProvider value={apiClient}>
+      <App authStore={authStore}>
         <ClientUI />
-      </Provider>
-    </App>,
+      </App>
+    </ClientProvider>,
     document.body
   );
   disableDoubleTapZoom();

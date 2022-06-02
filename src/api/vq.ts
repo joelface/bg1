@@ -1,4 +1,5 @@
 import { fetchJson } from '@/fetch';
+import { AuthStore } from './auth/store';
 
 const ORIGIN_TO_RESORT = {
   'https://vqguest-svc-wdw.wdprapps.disney.com': 'WDW',
@@ -132,15 +133,16 @@ export class RequestError extends Error {
 }
 
 export class VQClient {
+  onUnauthorized = () => undefined;
   protected origin: Origin;
-  protected getAuthData: () => { accessToken: string };
+  protected authStore: Public<AuthStore>;
 
   constructor(args: {
     origin: VQClient['origin'];
-    getAuthData: VQClient['getAuthData'];
+    authStore: VQClient['authStore'];
   }) {
     this.origin = args.origin;
-    this.getAuthData = args.getAuthData;
+    this.authStore = args.authStore;
   }
 
   get resort(): Resort {
@@ -233,17 +235,23 @@ export class VQClient {
     }
   }
 
+  logOut(): void {
+    this.authStore.deleteData();
+    this.onUnauthorized();
+  }
+
   protected async post<T>(
     request: VQRequest
   ): Promise<{ status: number; data: T }> {
     const { status, data } = await fetchJson(this.url(request.resource), {
       method: 'POST',
       headers: {
-        Authorization: `BEARER ${this.getAuthData().accessToken}`,
+        Authorization: `BEARER ${this.authStore.getData().accessToken}`,
       },
       data: request.data,
     });
-    if (!status || status >= 500) {
+    if (status === 401) setTimeout(() => this.logOut());
+    if (!status || status === 401 || status >= 500) {
       throw new RequestError({ status, data });
     }
     return { status, data };

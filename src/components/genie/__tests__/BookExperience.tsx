@@ -2,7 +2,7 @@ import { h } from 'preact';
 import FakeTimers from '@sinonjs/fake-timers';
 
 import { RequestError } from '@/api/genie';
-import { GenieClientProvider } from '@/contexts/GenieClient';
+import { ClientProvider } from '@/contexts/Client';
 import { RebookingProvider } from '@/contexts/Rebooking';
 import { click, render, screen, waitFor } from '@/testing';
 import {
@@ -44,7 +44,7 @@ const mockMakeRes = (status: number) =>
 
 const renderComponent = (available = true) =>
   render(
-    <GenieClientProvider value={client}>
+    <ClientProvider value={client}>
       <BookExperience
         experience={{
           ...hm,
@@ -53,7 +53,7 @@ const renderComponent = (available = true) =>
         park={mk}
         onClose={onClose}
       />
-    </GenieClientProvider>
+    </ClientProvider>
   );
 
 describe('BookExperience', () => {
@@ -163,7 +163,7 @@ describe('BookExperience', () => {
       ],
     });
     render(
-      <GenieClientProvider value={client}>
+      <ClientProvider value={client}>
         <RebookingProvider
           value={{ current: booking, begin: () => null, end: () => null }}
         >
@@ -176,7 +176,7 @@ describe('BookExperience', () => {
             onClose={onClose}
           />
         </RebookingProvider>
-      </GenieClientProvider>
+      </ClientProvider>
     );
     await screen.findByText('Unable to Rebook');
     expect(screen.getByText(guests[0].name)).toHaveTextContent(

@@ -2,7 +2,7 @@ import { h } from 'preact';
 import FakeTimers from '@sinonjs/fake-timers';
 
 import { RequestError, VQClient } from '@/api/vq';
-import { VQClientProvider } from '@/contexts/VQClient';
+import { ClientProvider } from '@/contexts/Client';
 import { elemScrollMock, fireEvent, render, screen, waitFor } from '@/testing';
 import { queues, guests } from '@/__fixtures__/vq';
 import BGClient from '../BGClient';
@@ -10,7 +10,11 @@ import { pluto } from '@/__fixtures__/vq';
 
 const client = new VQClient({
   origin: 'https://vqguest-svc-wdw.wdprapps.disney.com',
-  getAuthData: () => ({ accessToken: '' }),
+  authStore: {
+    getData: () => ({ swid: '', accessToken: '' }),
+    setData: () => null,
+    deleteData: () => null,
+  },
 }) as jest.Mocked<VQClient>;
 jest.spyOn(client, 'getQueues').mockResolvedValue(queues);
 jest.spyOn(client, 'getQueue').mockResolvedValue(queues[1]);
@@ -34,9 +38,9 @@ const joinBtn = () => screen.getByText('Join Boarding Group');
 
 const renderComponent = () =>
   render(
-    <VQClientProvider value={client}>
+    <ClientProvider value={client}>
       <BGClient />
-    </VQClientProvider>
+    </ClientProvider>
   );
 
 function setup() {

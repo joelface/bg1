@@ -138,7 +138,11 @@ stack.update(bookings);
 
 export const client = new GenieClient({
   origin: 'https://disneyworld.disney.go.com',
-  getAuthData: () => ({ swid: '', accessToken: '' }),
+  authStore: {
+    getData: () => ({ swid: '', accessToken: '' }),
+    setData: () => null,
+    deleteData: () => null,
+  },
   data,
 }) as jest.Mocked<GenieClient>;
 

@@ -1,6 +1,6 @@
 import { h } from 'preact';
 
-import { GenieClientProvider } from '@/contexts/GenieClient';
+import { ClientProvider } from '@/contexts/Client';
 import { click, render, screen, waitFor } from '@/testing';
 import { client, booking, mickey, minnie, pluto } from '@/__fixtures__/genie';
 import CancelGuests from '../CancelGuests';
@@ -10,9 +10,9 @@ const { guests } = booking;
 const onClose = jest.fn();
 const renderComponent = () =>
   render(
-    <GenieClientProvider value={client}>
+    <ClientProvider value={client}>
       <CancelGuests booking={booking} onClose={onClose} />
-    </GenieClientProvider>
+    </ClientProvider>
   );
 
 describe('CancelGuests', () => {
