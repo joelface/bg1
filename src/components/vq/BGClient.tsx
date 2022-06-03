@@ -59,7 +59,7 @@ export default function BGClient(): h.JSX.Element {
     newParty[newParty.has(guest) ? 'delete' : 'add'](guest);
     const maxPartySize = Number(queue?.maxPartySize);
     if (maxPartySize > 0 && newParty.size > maxPartySize) {
-      flash(`Max party size: ${maxPartySize}`, 'error');
+      flash(`Maximum party size: ${maxPartySize}`);
     } else {
       setParty(newParty);
       flash('');

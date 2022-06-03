@@ -217,6 +217,7 @@ export class RequestError extends Error {
 const idNum = (id: string) => id.split(';')[0];
 
 export class GenieClient {
+  readonly maxPartySize = 12;
   onUnauthorized = () => undefined;
   protected origin: Origin;
   protected authStore: Public<AuthStore>;

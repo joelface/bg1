@@ -91,9 +91,9 @@ describe('BGClient', () => {
       expect(screen.getByText('Your Party')).toBeInTheDocument();
     });
 
-    it('shows "Max party size" error when limit reached', async () => {
+    it('shows error when attempting to exceed max party size', async () => {
       const { maxPartySize } = queues[0];
-      const errMsg = `Max party size: ${maxPartySize}`;
+      const errMsg = `Maximum party size: ${maxPartySize}`;
       const checked = await screen.findAllByRole('checkbox', {
         checked: true,
       });

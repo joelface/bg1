@@ -6,7 +6,6 @@ import {
   PlusExperience,
 } from '@/api/genie';
 import data from '@/api/data/wdw';
-import { Party } from '@/contexts/Party';
 
 data.pdts[80007944] = ['10:30', '13:30', '16:30'];
 
@@ -29,17 +28,6 @@ export const donald = {
   name: 'Donald Duck',
   ineligibleReason: 'INVALID_PARK_ADMISSION' as const,
 };
-
-export function createParty(overrides?: Partial<Party>) {
-  const party: Party = {
-    eligible: [mickey, minnie, pluto],
-    ineligible: [donald],
-    selected: [mickey, minnie],
-    setSelected: selected => (party.selected = selected),
-    ...overrides,
-  };
-  return party;
-}
 
 export const hm: PlusExperience = {
   id: '80010208',

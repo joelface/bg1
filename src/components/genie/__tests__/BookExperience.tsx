@@ -212,4 +212,19 @@ describe('BookExperience', () => {
     await mockMakeRes(-1);
     await screen.findByText('Unknown error occurred');
   });
+
+  it('limits offers to maxPartySize', async () => {
+    const eligible = [...Array(client.maxPartySize + 5).keys()]
+      .map(String)
+      .map(id => ({ id, name: id }));
+    client.guests.mockResolvedValueOnce({ eligible, ineligible: [] });
+    renderComponent();
+    await clock.runToLastAsync();
+    expect(client.offer).toBeCalledTimes(1);
+    expect(client.offer).lastCalledWith(
+      expect.objectContaining({
+        guests: eligible.slice(0, client.maxPartySize),
+      })
+    );
+  });
 });

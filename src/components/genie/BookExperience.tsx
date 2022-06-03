@@ -132,7 +132,7 @@ export default function BookExperience({
         }
         setParty({
           ...guests,
-          selected: guests.eligible,
+          selected: guests.eligible.slice(0, client.maxPartySize),
           setSelected: (selected: Guest[]) =>
             setParty(party => {
               if (!party) return party;
@@ -162,7 +162,7 @@ export default function BookExperience({
   useEffect(loadParty, [loadParty]);
 
   useEffect(() => {
-    if (offer !== undefined || !party || party.eligible.length === 0) return;
+    if (offer !== undefined || !party || party.selected.length === 0) return;
     loadData(
       async () => {
         try {
@@ -224,7 +224,7 @@ export default function BookExperience({
           ) : (
             <NoEligibleGuests onClose={onClose} />
           )
-        ) : !party || offer === undefined ? (
+        ) : offer === undefined ? (
           <div />
         ) : !available ? (
           <Prebooking

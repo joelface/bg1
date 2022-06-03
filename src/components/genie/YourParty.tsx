@@ -1,10 +1,13 @@
 import { h, Fragment, ComponentChildren } from 'preact';
 import { useState } from 'preact/hooks';
 
+import { useGenieClient } from '@/contexts/GenieClient';
 import { useParty } from '@/contexts/Party';
+import useFlash from '@/hooks/useFlash';
 import Button from '../Button';
 import FloatingButton from '../FloatingButton';
 import GuestList, { Guest } from '../GuestList';
+import Warning from '../Warning';
 import IneligibleGuestList from './IneligibleGuestList';
 
 export default function YourParty({
@@ -16,11 +19,19 @@ export default function YourParty({
 }) {
   const { eligible, ineligible, selected, setSelected } = useParty();
   const [party, setParty] = useState<Set<Guest>>();
+  const [flashElem, flash] = useFlash();
+  const { maxPartySize } = useGenieClient();
 
   const toggleGuest = (guest: Guest) =>
     setParty(party => {
+      flash('');
       party = new Set(party);
-      party[party.has(guest) ? 'delete' : 'add'](guest);
+      const method = party.has(guest) ? 'delete' : 'add';
+      if (method === 'add' && party.size >= maxPartySize) {
+        flash(`Maximum party size: ${maxPartySize}`);
+      } else {
+        party[method](guest);
+      }
       return party;
     });
 
@@ -49,9 +60,13 @@ export default function YourParty({
       >
         Confirm Party
       </FloatingButton>
+      {flashElem}
     </>
   ) : (
     <>
+      {eligible.length > maxPartySize && (
+        <Warning>Party size restricted</Warning>
+      )}
       <div className="mt-4">
         <h3 className="inline mt-0">Your Party</h3>
         <span>
