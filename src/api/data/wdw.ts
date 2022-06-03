@@ -9,25 +9,37 @@ export default {
       id: '80007944',
       name: 'Magic Kingdom',
       abbr: 'MK',
-      theme: { bg: 'bg-fuchsia-600' },
+      theme: {
+        bg: 'bg-fuchsia-600',
+        // text-fuchsia-600
+      },
     },
     {
       id: '80007838',
       name: 'EPCOT',
       abbr: 'EP',
-      theme: { bg: 'bg-indigo-600' },
+      theme: {
+        bg: 'bg-indigo-600',
+        // text-indigo-600
+      },
     },
     {
       id: '80007998',
       name: 'Hollywood Studios',
       abbr: 'HS',
-      theme: { bg: 'bg-orange-600' },
+      theme: {
+        bg: 'bg-orange-600',
+        // text-orange-600
+      },
     },
     {
       id: '80007823',
       name: 'Animal Kingdom',
       abbr: 'AK',
-      theme: { bg: 'bg-green-600' },
+      theme: {
+        bg: 'bg-green-600',
+        // text-green-600
+      },
     },
   ],
   experiences: {

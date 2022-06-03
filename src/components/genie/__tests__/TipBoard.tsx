@@ -272,4 +272,12 @@ describe('TipBoard', () => {
     ({ unmount } = renderComponent());
     expect(parkId()).toBe(mk.id);
   });
+
+  it('pins attraction to top if favorited', async () => {
+    renderComponent();
+    await clock.runToLastAsync();
+    expect(getExperiences()).toEqual([jc.name, sm.name, hm.name]);
+    click(screen.getAllByRole('button', { name: 'Favorite' })[2]);
+    expect(getExperiences()).toEqual([hm.name, jc.name, sm.name]);
+  });
 });

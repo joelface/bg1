@@ -18,9 +18,12 @@ import RebookingHeader from './RebookingHeader';
 import StandbyTime from './StandbyTime';
 import TimeBanner from './TimeBanner';
 import LogoutButton from '../LogoutButton';
+import StarIcon from '@/icons/StarIcon';
+import { useTheme } from '@/contexts/Theme';
 
 const AUTO_REFRESH_MIN_MS = 60_000;
 const PARK_KEY = 'bg1.genie.tipBoard.park';
+const STARRED_KEY = 'bg1.genie.tipBoard.starred';
 
 type ExperienceSorter = (a: PlusExperience, b: PlusExperience) => number;
 
@@ -83,6 +86,15 @@ export default function TipBoard(): h.JSX.Element {
       ? experiences[0].flex.enrollmentStartTime
       : undefined;
   const pdt = experiences.length > 0 ? client.pdt(park) : undefined;
+  const [starred, setStarred] = useState(() => {
+    let starred = [];
+    try {
+      starred = JSON.parse(localStorage.getItem(STARRED_KEY) || '[]');
+    } catch (error) {
+      console.error(error);
+    }
+    return new Set<string>(starred);
+  });
 
   const refresh = useCallback(
     (force: unknown = true) => {
@@ -125,6 +137,20 @@ export default function TipBoard(): h.JSX.Element {
       JSON.stringify({ id: park.id, date: dateTimeStrings().date })
     );
   }, [park]);
+
+  function toggleStar(event: Event) {
+    const btn = event.currentTarget;
+    if (!(btn instanceof HTMLElement)) return;
+    const id = btn.getAttribute('data-id');
+    if (!id) return;
+    if (starred.has(id)) {
+      starred.delete(id);
+    } else {
+      starred.add(id);
+    }
+    localStorage.setItem(STARRED_KEY, JSON.stringify([...starred]));
+    setStarred(new Set([...starred]));
+  }
 
   return (
     <RebookingProvider value={rebooking}>
@@ -190,15 +216,25 @@ export default function TipBoard(): h.JSX.Element {
               .sort(
                 (a, b) =>
                   +b.flex.available - +a.flex.available ||
+                  +starred.has(b.id) - +starred.has(a.id) ||
                   sorters[sortType](a, b) ||
                   sortByName(a, b)
               )
               .map(exp => (
                 <li
                   className="pb-3 first:border-0 border-t-4 border-gray-300"
-                  key={exp.id}
+                  key={exp.id + (starred.has(exp.id) ? '*' : '')}
                 >
-                  <h2 className="text-lg leading-tight truncate">{exp.name}</h2>
+                  <div className="flex items-center">
+                    <StarButton
+                      experience={exp}
+                      starred={starred}
+                      onClick={toggleStar}
+                    />
+                    <h2 className="mt-2 text-lg leading-tight truncate">
+                      {exp.name}
+                    </h2>
+                  </div>
                   {exp.flex.preexistingPlan ? (
                     <div className="mt-2 border-2 border-green-600 rounded p-1 text-sm uppercase font-semibold text-center text-green-600 bg-green-100">
                       Lightning Lane Booked
@@ -233,5 +269,35 @@ export default function TipBoard(): h.JSX.Element {
         />
       )}
     </RebookingProvider>
+  );
+}
+
+function StarButton({
+  experience,
+  starred,
+  onClick,
+}: {
+  experience: PlusExperience;
+  starred: Set<string>;
+  onClick: (event: Event) => void;
+}) {
+  const theme = useTheme();
+  return (
+    <div className="relative w-6 h-8">
+      <button
+        data-id={experience.id}
+        title="Favorite"
+        className="absolute top-0 -left-2 p-2"
+        onClick={onClick}
+      >
+        <StarIcon
+          className={
+            starred.has(experience.id)
+              ? 'text' + theme.bg.slice(2)
+              : 'text-gray-300'
+          }
+        />
+      </button>
+    </div>
   );
 }
