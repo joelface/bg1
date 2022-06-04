@@ -131,8 +131,8 @@ describe('BGClient', () => {
       click(joinBtn());
       expect(await screen.findByText('Boarding Group: 33')).toBeInTheDocument();
       expect(screen.getByText(queues[1].name)).toBeInTheDocument();
-      await clock.runToLastAsync();
-      click(screen.getByText('Done'));
+      clock.runToLast();
+      click(await screen.findByText('Done'));
       expect(screen.getByText('Choose Your Party')).toBeInTheDocument();
     });
 
@@ -140,7 +140,7 @@ describe('BGClient', () => {
       click(joinBtn());
       expect(await screen.findByText('Queue not open yet')).toBeInTheDocument();
       expect(joinBtn()).toBeDisabled();
-      await clock.runToLastAsync();
+      clock.runToLast();
       await waitFor(() => {
         expect(joinBtn()).toBeEnabled();
       });

@@ -96,7 +96,9 @@ describe('TipBoard', () => {
 
     expect(getExperiences()).toEqual(names([jc, sm, hm]));
     expect(sortBy('soonest')).toEqual(names([sm, hm, jc]));
+    clock.runToLast();
     await waitFor(() => expect(sortBy('standby')).toEqual(names([sm, jc, hm])));
+    clock.runToLast();
     await waitFor(() => expect(sortBy('aToZ')).toEqual(names([hm, jc, sm])));
     expect(elemScrollMock).toBeCalledTimes(4);
 

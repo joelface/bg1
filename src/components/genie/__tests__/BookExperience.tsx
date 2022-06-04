@@ -73,6 +73,7 @@ describe('BookExperience', () => {
     expect(screen.queryByText(mickey.name)).not.toBeInTheDocument();
     screen.getByText(minnie.name);
     click('Book Lightning Lane');
+    clock.runToLast();
     await screen.findByText('Your Lightning Lane');
     screen.getByText(hm.name);
     click('Done');
@@ -108,6 +109,7 @@ describe('BookExperience', () => {
     click('Edit');
     click(mickey.name);
     click('Confirm Party');
+    clock.runToLast();
     await screen.findByText('10:05 AM');
   });
 
@@ -122,6 +124,7 @@ describe('BookExperience', () => {
   it('shows "No Guests Found" when no guests loaded', async () => {
     client.guests.mockResolvedValueOnce({ eligible: [], ineligible: [] });
     renderComponent();
+    clock.runToLast();
     await screen.findByText('No Guests Found');
   });
 
@@ -131,6 +134,7 @@ describe('BookExperience', () => {
       ineligible: [donald],
     });
     renderComponent();
+    clock.runToLast();
     await screen.findByText('No Eligible Guests');
     expect(screen.getByText(donald.name)).toHaveTextContent(
       donald.ineligibleReason.replace(/_/g, ' ')
@@ -178,6 +182,7 @@ describe('BookExperience', () => {
         </RebookingProvider>
       </ClientProvider>
     );
+    clock.runToLast();
     await screen.findByText('Unable to Rebook');
     expect(screen.getByText(guests[0].name)).toHaveTextContent(
       'ELIGIBLE FOR NEW BOOKING'
