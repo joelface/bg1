@@ -3,10 +3,16 @@ import FakeTimers from '@sinonjs/fake-timers';
 
 import { RequestError, VQClient } from '@/api/vq';
 import { ClientProvider } from '@/contexts/Client';
-import { elemScrollMock, fireEvent, render, screen, waitFor } from '@/testing';
-import { queues, guests } from '@/__fixtures__/vq';
+import {
+  elemScrollMock,
+  fireEvent,
+  click,
+  render,
+  screen,
+  waitFor,
+} from '@/testing';
+import { queues, rotr, santa, guests, pluto } from '@/__fixtures__/vq';
 import BGClient from '../BGClient';
-import { pluto } from '@/__fixtures__/vq';
 
 const client = new VQClient({
   origin: 'https://vqguest-svc-wdw.wdprapps.disney.com',
@@ -17,7 +23,7 @@ const client = new VQClient({
   },
 }) as jest.Mocked<VQClient>;
 jest.spyOn(client, 'getQueues').mockResolvedValue(queues);
-jest.spyOn(client, 'getQueue').mockResolvedValue(queues[1]);
+jest.spyOn(client, 'getQueue').mockResolvedValue(santa);
 jest.spyOn(client, 'joinQueue').mockResolvedValue({
   boardingGroup: 33,
   conflicts: [] as any,
@@ -27,33 +33,37 @@ jest.spyOn(client, 'getLinkedGuests').mockResolvedValue(guests);
 
 function queueOpen() {
   client.getQueue.mockResolvedValueOnce({
-    ...queues[1],
+    ...santa,
     isAcceptingJoins: true,
   });
 }
 
-const { change, click } = fireEvent;
-const confirmBtn = () => screen.getByText('Confirm Party');
-const joinBtn = () => screen.getByText('Join Boarding Group');
+const { change } = fireEvent;
+const CONFIRM = 'Confirm Party';
+const JOIN = 'Join Boarding Group';
 
-const renderComponent = () =>
+let hidden = false;
+Object.defineProperty(document, 'hidden', { get: () => hidden });
+
+function toggleVisibility() {
+  hidden = !hidden;
+  document.dispatchEvent(new Event('visibilitychange'));
+}
+
+const renderComponent = () => {
   render(
     <ClientProvider value={client}>
       <BGClient />
     </ClientProvider>
   );
-
-function setup() {
-  renderComponent();
-}
+};
 
 describe('BGClient', () => {
   const clock = FakeTimers.install({ shouldAdvanceTime: true });
 
-  beforeEach(setup);
-
-  it('scrolls to top on screen change', () => {
-    click(confirmBtn());
+  it('scrolls to top on screen change', async () => {
+    renderComponent();
+    await waitFor(() => click(CONFIRM));
     expect(elemScrollMock).toBeCalledWith(0, 0);
   });
 
@@ -61,38 +71,62 @@ describe('BGClient', () => {
     client.getQueues.mockResolvedValueOnce([]);
     renderComponent();
     await screen.findByText('No Virtual Queues');
+    client.getQueues.mockResolvedValueOnce([]);
+    click('Refresh');
+    await screen.findByText('No queues available');
+    click('Refresh');
+    await screen.findByText(rotr.name);
+    expect(screen.getAllByRole('option').map(opt => opt.textContent)).toEqual([
+      rotr.name,
+      santa.name,
+    ]);
+  });
+
+  it('switches to first available queue if current one is no longer available', async () => {
+    client.getQueues.mockClear();
+    renderComponent();
+    expect(
+      (await screen.findAllByRole('option')).map(opt => opt.textContent)
+    ).toEqual([rotr.name, santa.name]);
+    expect(client.getQueues).toBeCalledTimes(1);
+    client.getQueues.mockResolvedValueOnce([santa]);
+    toggleVisibility();
+    toggleVisibility();
+    await waitFor(() => expect(client.getQueues).toBeCalledTimes(2));
+    await screen.findByRole('heading', { name: santa.name });
   });
 
   describe('ChooseParty screen', () => {
     it('toggles guest when clicked', async () => {
-      const lbl = await screen.findByLabelText(pluto.name);
-      expect(lbl).not.toBeChecked();
-      click(lbl);
-      expect(lbl).toBeChecked();
-      click(lbl);
-      expect(lbl).not.toBeChecked();
+      renderComponent();
+      const cbx = await screen.findByLabelText(pluto.name);
+      expect(cbx).not.toBeChecked();
+      click(cbx);
+      expect(cbx).toBeChecked();
+      click(cbx);
+      expect(cbx).not.toBeChecked();
     });
 
     it('updates queue and guest list when new queue selected', async () => {
-      const lbl = await screen.findByLabelText(pluto.name);
-      click(lbl);
-      change(screen.getByDisplayValue(queues[0].name), {
-        target: { value: queues[1].id },
+      renderComponent();
+      await waitFor(() => click(pluto.name));
+      change(screen.getByDisplayValue(rotr.name), {
+        target: { value: santa.id },
       });
-      expect(
-        await screen.findByDisplayValue(queues[1].name)
-      ).toBeInTheDocument();
-      expect(lbl).not.toBeChecked();
+      await screen.findByDisplayValue(santa.name);
+      expect(await screen.findByLabelText(pluto.name)).not.toBeChecked();
     });
 
-    it('goes to JoinQueue when Confirm Party button clicked', () => {
-      expect(screen.getByText('Choose Your Party')).toBeInTheDocument();
-      click(screen.getByText('Confirm Party'));
-      expect(screen.getByText('Your Party')).toBeInTheDocument();
+    it('goes to JoinQueue when Confirm Party button clicked', async () => {
+      renderComponent();
+      await screen.findByText(CONFIRM);
+      click(CONFIRM);
+      screen.getByText('Your Party');
     });
 
     it('shows error when attempting to exceed max party size', async () => {
-      const { maxPartySize } = queues[0];
+      renderComponent();
+      const { maxPartySize } = rotr;
       const errMsg = `Maximum party size: ${maxPartySize}`;
       const checked = await screen.findAllByRole('checkbox', {
         checked: true,
@@ -103,7 +137,7 @@ describe('BGClient', () => {
       unchecked.slice(0, numToCheck).forEach(cb => click(cb));
       expect(screen.queryByText(errMsg)).not.toBeInTheDocument();
       click(unchecked[numToCheck]);
-      expect(await screen.findByText(errMsg)).toBeInTheDocument();
+      await screen.findByText(errMsg);
     });
 
     it('shows message if no guests', async () => {
@@ -114,45 +148,49 @@ describe('BGClient', () => {
   });
 
   describe('JoinQueue screen', () => {
-    beforeEach(() => {
-      change(screen.getByDisplayValue(queues[0].name), {
-        target: { value: queues[1].id },
+    async function renderAndConfirm() {
+      renderComponent();
+      change(await screen.findByDisplayValue(rotr.name), {
+        target: { value: santa.id },
       });
-      click(confirmBtn());
-    });
+      click(CONFIRM);
+    }
 
-    it('returns to ChooseParty when Edit button clicked', () => {
-      click(screen.getByText('Edit'));
-      expect(screen.getByText('Choose Your Party')).toBeInTheDocument();
+    it('returns to ChooseParty when Edit button clicked', async () => {
+      await renderAndConfirm();
+      click('Edit');
+      screen.getByText('Choose Your Party');
     });
 
     it('goes to BGResult when BG obtained', async () => {
+      await renderAndConfirm();
       queueOpen();
-      click(joinBtn());
-      expect(await screen.findByText('Boarding Group: 33')).toBeInTheDocument();
-      expect(screen.getByText(queues[1].name)).toBeInTheDocument();
+      click(JOIN);
+      await screen.findByText('Boarding Group: 33');
+      screen.getByText(santa.name);
       clock.runToLast();
-      click(await screen.findByText('Done'));
-      expect(screen.getByText('Choose Your Party')).toBeInTheDocument();
+      await waitFor(() => click('Done'));
+      screen.getByText('Choose Your Party');
     });
 
     it('shows "Queue not open yet" alert when queue closed', async () => {
-      click(joinBtn());
-      expect(await screen.findByText('Queue not open yet')).toBeInTheDocument();
-      expect(joinBtn()).toBeDisabled();
+      await renderAndConfirm();
+      const joinBtn = screen.getByText(JOIN);
+      click(joinBtn);
+      await screen.findByText('Queue not open yet');
+      expect(joinBtn).toBeDisabled();
       clock.runToLast();
-      await waitFor(() => {
-        expect(joinBtn()).toBeEnabled();
-      });
+      await waitFor(() => expect(joinBtn).toBeEnabled());
     });
 
     it('shows "Error: try again" alert when request fails', async () => {
+      await renderAndConfirm();
       queueOpen();
       client.joinQueue.mockRejectedValueOnce(
         new RequestError({ status: 404, data: { responseStatus: 'NOT_OK' } })
       );
-      click(joinBtn());
-      expect(await screen.findByText('Error: try again')).toBeInTheDocument();
+      click(JOIN);
+      await screen.findByText('Error: try again');
     });
   });
 });

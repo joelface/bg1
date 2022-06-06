@@ -16,6 +16,7 @@ export function isVirtualQueueOrigin(origin: string): origin is Origin {
 interface BaseQueue {
   name: string;
   isAcceptingJoins: boolean;
+  isAcceptingPartyCreation: boolean;
   nextScheduledOpenTime: string | null;
   maxPartySize: number;
   howToEnterMessage: string;
@@ -156,14 +157,7 @@ export class VQClient {
   async getQueues(): Promise<Queue[]> {
     return (
       (await fetchJson(this.url('getQueues'))).data.queues as GetQueuesResponse
-    )
-      .map(({ queueId, ...queue }) => ({ ...queue, id: queueId }))
-      .sort((a, b) => {
-        if (a.categoryContentId === b.categoryContentId) {
-          return a.name.localeCompare(b.name);
-        }
-        return a.categoryContentId === 'attraction' ? -1 : 1;
-      });
+    ).map(({ queueId, ...queue }) => ({ ...queue, id: queueId }));
   }
 
   async getQueue(queue: Pick<Queue, 'id'>): Promise<Queue> {

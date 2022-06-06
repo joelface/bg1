@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 
 import { Guest, Queue, JoinQueueResult } from '@/api/vq';
 import { useVQClient } from '@/contexts/VQClient';
@@ -11,6 +11,9 @@ import ChooseParty from './ChooseParty';
 import HowToEnter from './HowToEnter';
 import JoinQueue from './JoinQueue';
 import QueueHeading from './QueueHeading';
+import FloatingButton from '../FloatingButton';
+
+const isAttraction = (queue: Queue) => queue.categoryContentId === 'attraction';
 
 export default function BGClient(): h.JSX.Element {
   const client = useVQClient();
@@ -23,20 +26,51 @@ export default function BGClient(): h.JSX.Element {
     conflicts: {},
     closed: true,
   });
+  const [refreshing, setRefreshing] = useState(false);
   const [screenName, show] = useState<keyof typeof screens>('ChooseParty');
   const [flashElem, flash] = useFlash();
   const pageElem = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      const queues = await client.getQueues();
-      setQueues(queues);
-      setQueue(queues[0]);
-    })();
-  }, [client]);
+  const refreshQueues = useCallback(async () => {
+    flash('');
+    setRefreshing(true);
+    const queues = (await client.getQueues())
+      .filter(q => q.isAcceptingJoins || q.isAcceptingPartyCreation)
+      .sort(
+        (a, b) =>
+          +isAttraction(b) - +isAttraction(a) || a.name.localeCompare(b.name)
+      );
+    setRefreshing(false);
+    setQueues(oldQueues => {
+      if (oldQueues && queues.length === 0) {
+        flash('No queues available');
+      }
+      return queues;
+    });
+  }, [client, flash]);
 
   useEffect(() => {
-    if (!queue) return;
+    refreshQueues();
+    const updateIfVisible = () => {
+      if (!document.hidden) refreshQueues();
+    };
+    document.addEventListener('visibilitychange', updateIfVisible);
+    return () => {
+      document.removeEventListener('visibilitychange', updateIfVisible);
+    };
+  }, [refreshQueues]);
+
+  useEffect(() => {
+    setQueue(queue => {
+      const sameQueue = queue && queues?.find(q => q.id === queue.id);
+      if (sameQueue) return sameQueue;
+      setGuests(undefined);
+      return queues && queues.length > 0 ? queues[0] : null;
+    });
+  }, [queues]);
+
+  useEffect(() => {
+    if (guests || !queue) return;
     let canceled = false;
     (async () => {
       const guests = await client.getLinkedGuests(queue);
@@ -48,7 +82,7 @@ export default function BGClient(): h.JSX.Element {
     return () => {
       canceled = true;
     };
-  }, [client, queue]);
+  }, [client, queue, guests]);
 
   useEffect(() => {
     pageElem.current?.scroll(0, 0);
@@ -68,7 +102,10 @@ export default function BGClient(): h.JSX.Element {
 
   function changeQueue(queueId: string) {
     const q = queues?.find(q => q.id === queueId);
-    if (q) setQueue(q);
+    if (q) {
+      setQueue(q);
+      setGuests(undefined);
+    }
   }
 
   async function joinQueue() {
@@ -84,13 +121,18 @@ export default function BGClient(): h.JSX.Element {
     return (
       <Page heading="No Virtual Queues">
         <p>
-          The virtual queue system is not currently in use for any attractions.
+          No virtual queues are currently available. Tap the Refresh button to
+          check again.
         </p>
+        <FloatingButton disabled={refreshing} onClick={refreshQueues}>
+          Refresh
+        </FloatingButton>
+        {flashElem}
       </Page>
     );
   }
 
-  if (!queue) return <div />; // This should never happen
+  if (!queue) return <div />;
 
   const partyGuests = (guests || []).filter(g => party.has(g));
   const timeBoard = (

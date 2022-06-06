@@ -93,7 +93,7 @@ describe('VQClient', () => {
   describe('getQueues()', () => {
     it('returns queues', async () => {
       respond(queueClosedRes);
-      expect(await client.getQueues()).toEqual([mtwr, rotr, santa]);
+      expect(await client.getQueues()).toEqual([santa, mtwr, rotr]);
       expectFetch(getQueuesUrl);
     });
   });

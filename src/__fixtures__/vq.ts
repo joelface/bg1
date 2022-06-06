@@ -3,8 +3,9 @@ import { Guest, Queue } from '@/api/vq';
 export const rotr: Queue = {
   id: '3720fcab-537c-4b2b-b3b2-37918ac7df8f',
   name: 'Star Wars: Rise of the Resistance',
-  nextScheduledOpenTime: null,
+  nextScheduledOpenTime: '13:00:00',
   isAcceptingJoins: false,
+  isAcceptingPartyCreation: true,
   maxPartySize: 3,
   howToEnterMessage: 'lol nm just stand in line',
   categoryContentId: 'attraction',
@@ -14,6 +15,7 @@ export const mtwr: Queue = {
   name: "Mr. Toad's Wild Ride",
   nextScheduledOpenTime: null,
   isAcceptingJoins: false,
+  isAcceptingPartyCreation: false,
   maxPartySize: 3,
   howToEnterMessage: 'Go to Disneyland or reverse the flow of time.',
   categoryContentId: 'attraction',
@@ -21,13 +23,14 @@ export const mtwr: Queue = {
 export const santa: Queue = {
   id: 'santa',
   name: 'Meet Santa Claus',
-  nextScheduledOpenTime: null,
+  nextScheduledOpenTime: '10:00:00',
   isAcceptingJoins: false,
+  isAcceptingPartyCreation: true,
   maxPartySize: 10,
   howToEnterMessage: '',
   categoryContentId: 'character',
 };
-export const queues = [rotr, santa, mtwr];
+export const queues = [santa, mtwr, rotr];
 
 export const mickey: Guest = {
   id: 'mickey',
