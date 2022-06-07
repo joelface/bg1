@@ -70,7 +70,7 @@ describe('BGClient', () => {
   it('shows message if no virtual queues', async () => {
     client.getQueues.mockResolvedValueOnce([]);
     renderComponent();
-    await screen.findByText('No Virtual Queues');
+    await screen.findByText('No Active Queues');
     client.getQueues.mockResolvedValueOnce([]);
     click('Refresh');
     await screen.findByText('No queues available');

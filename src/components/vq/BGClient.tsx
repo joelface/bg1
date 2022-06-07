@@ -119,10 +119,10 @@ export default function BGClient(): h.JSX.Element {
 
   if (queues?.length === 0) {
     return (
-      <Page heading="No Virtual Queues">
+      <Page heading="No Active Queues">
         <p>
-          No virtual queues are currently available. Tap the Refresh button to
-          check again.
+          You can't join any virtual queues just yet. Check back within an hour
+          of the queue opening time, or tap the Refresh button to check again.
         </p>
         <FloatingButton disabled={refreshing} onClick={refreshQueues}>
           Refresh
