@@ -1,12 +1,10 @@
-import { h, Fragment } from 'preact';
-
 import FloatingButton from '../FloatingButton';
 
 export default function NoGuestsFound({
   onRefresh,
 }: {
   onRefresh: () => void;
-}): h.JSX.Element {
+}) {
   return (
     <>
       <h3>No Guests Found</h3>

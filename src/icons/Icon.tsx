@@ -1,10 +1,8 @@
-import { h, ComponentChildren } from 'preact';
-
 export default function Icon({
   children,
   className,
 }: {
-  children: ComponentChildren;
+  children: React.ReactNode;
   className?: string;
 }) {
   className ||= '';

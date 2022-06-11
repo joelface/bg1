@@ -1,4 +1,4 @@
-import { h } from 'preact';
+import { useState } from 'react';
 
 import { click, render, screen, within } from '@/testing';
 import { guests, mickey, minnie, pluto, fifi } from '@/__fixtures__/vq';
@@ -33,27 +33,27 @@ describe('GuestList', () => {
     expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
   });
 
-  it('renders selectable guest list', () => {
-    const selected = new Set([mickey]);
-    render(
-      <GuestList
-        guests={guests}
-        selectable={{
-          isSelected: g => selected.has(g),
-          onToggle: g => {
-            selected[selected.has(g) ? 'delete' : 'add'](g);
-          },
-        }}
-      />
-    );
+  it('renders selectable guest list', async () => {
+    function Party() {
+      const [party, setParty] = useState(new Set([mickey]));
+      return (
+        <GuestList
+          guests={guests}
+          selectable={{
+            isSelected: g => party.has(g),
+            onToggle: g => {
+              party[party.has(g) ? 'delete' : 'add'](g);
+              setParty(new Set([...party]));
+            },
+          }}
+        />
+      );
+    }
+    render(<Party />);
     expect(getAllChecked()).toEqual([true, false, false, false]);
 
     click(mickey.name);
-    expect(selected.has(mickey)).toBe(false);
-
     click(pluto.name);
-    expect(selected.has(pluto)).toBe(true);
-
     expect(getAllChecked()).toEqual([false, false, false, true]);
   });
 

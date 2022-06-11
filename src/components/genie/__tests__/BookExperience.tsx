@@ -1,10 +1,7 @@
-import { h } from 'preact';
-import FakeTimers from '@sinonjs/fake-timers';
-
 import { RequestError } from '@/api/genie';
 import { ClientProvider } from '@/contexts/Client';
 import { RebookingProvider } from '@/contexts/Rebooking';
-import { click, render, screen, waitFor } from '@/testing';
+import { click, loading, render, screen, waitFor } from '@/testing';
 import {
   client,
   hm,
@@ -19,8 +16,8 @@ import BookExperience from '../BookExperience';
 
 const onClose = jest.fn();
 const errorMock = jest.spyOn(console, 'error');
-const clock = FakeTimers.install({
-  shouldAdvanceTime: true,
+jest.useFakeTimers({
+  advanceTimers: true,
 });
 
 const mockClickResponse = async (
@@ -33,7 +30,7 @@ const mockClickResponse = async (
   errorMock.mockImplementationOnce(() => null);
   clientMethod.mockRejectedValueOnce(error);
   await waitFor(() => click(buttonText));
-  clock.runToLast();
+  jest.runOnlyPendingTimers();
 };
 
 const mockBook = (status: number) =>
@@ -42,7 +39,7 @@ const mockBook = (status: number) =>
 const mockMakeRes = (status: number) =>
   mockClickResponse(client.plusExperiences, 'Check Availability', status);
 
-const renderComponent = (available = true) =>
+const renderComponent = (available = true) => {
   render(
     <ClientProvider value={client}>
       <BookExperience
@@ -55,6 +52,7 @@ const renderComponent = (available = true) =>
       />
     </ClientProvider>
   );
+};
 
 describe('BookExperience', () => {
   beforeEach(() => {
@@ -63,8 +61,10 @@ describe('BookExperience', () => {
 
   it('performs successful booking', async () => {
     renderComponent(false);
+    await loading();
     await screen.findByText('Not Available Yet');
     click('Check Availability');
+    await loading();
     await screen.findByText('11:25 AM');
     screen.getByText('12:25 PM');
     click('Edit');
@@ -73,7 +73,8 @@ describe('BookExperience', () => {
     expect(screen.queryByText(mickey.name)).not.toBeInTheDocument();
     screen.getByText(minnie.name);
     click('Book Lightning Lane');
-    clock.runToLast();
+    await loading();
+    // jest.runOnlyPendingTimers();
     await screen.findByText('Your Lightning Lane');
     screen.getByText(hm.name);
     click('Done');
@@ -109,7 +110,7 @@ describe('BookExperience', () => {
     click('Edit');
     click(mickey.name);
     click('Confirm Party');
-    clock.runToLast();
+    jest.runOnlyPendingTimers();
     await screen.findByText('10:05 AM');
   });
 
@@ -124,7 +125,6 @@ describe('BookExperience', () => {
   it('shows "No Guests Found" when no guests loaded', async () => {
     client.guests.mockResolvedValueOnce({ eligible: [], ineligible: [] });
     renderComponent();
-    clock.runToLast();
     await screen.findByText('No Guests Found');
   });
 
@@ -134,7 +134,7 @@ describe('BookExperience', () => {
       ineligible: [donald],
     });
     renderComponent();
-    clock.runToLast();
+    jest.runOnlyPendingTimers();
     await screen.findByText('No Eligible Guests');
     expect(screen.getByText(donald.name)).toHaveTextContent(
       donald.ineligibleReason.replace(/_/g, ' ')
@@ -182,7 +182,7 @@ describe('BookExperience', () => {
         </RebookingProvider>
       </ClientProvider>
     );
-    clock.runToLast();
+    jest.runOnlyPendingTimers();
     await screen.findByText('Unable to Rebook');
     expect(screen.getByText(guests[0].name)).toHaveTextContent(
       'ELIGIBLE FOR NEW BOOKING'
@@ -210,7 +210,7 @@ describe('BookExperience', () => {
       { ...hm, flex: { available: false } },
     ]);
     await waitFor(() => click('Check Availability'));
-    clock.runToLast();
+    jest.runOnlyPendingTimers();
     await screen.findByText('Reservations not open yet');
     await mockMakeRes(0);
     await screen.findByText('Network request failed');
@@ -224,8 +224,7 @@ describe('BookExperience', () => {
       .map(id => ({ id, name: id }));
     client.guests.mockResolvedValueOnce({ eligible, ineligible: [] });
     renderComponent();
-    await clock.runToLastAsync();
-    expect(client.offer).toBeCalledTimes(1);
+    await waitFor(() => expect(client.offer).toBeCalledTimes(1));
     expect(client.offer).lastCalledWith(
       expect.objectContaining({
         guests: eligible.slice(0, client.maxPartySize),

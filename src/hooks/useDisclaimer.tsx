@@ -1,5 +1,4 @@
-import { h } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useState } from 'react';
 
 import FloatingButton from '@/components/FloatingButton';
 import Page from '@/components/Page';
@@ -8,7 +7,7 @@ export const DISCLAIMER_ACCEPTED_KEY = 'bg1.disclaimer.accepted';
 
 const theme = { bg: 'bg-red-600' };
 
-export default function useDisclaimer(): h.JSX.Element | null {
+export default function useDisclaimer() {
   const storage = localStorage;
   const acceptedKey = DISCLAIMER_ACCEPTED_KEY;
   const [accepted, setAccepted] = useState(!!storage.getItem(acceptedKey));
@@ -20,7 +19,7 @@ export default function useDisclaimer(): h.JSX.Element | null {
   return accepted ? null : <Disclaimer onAccept={() => setAccepted(true)} />;
 }
 
-function Disclaimer({ onAccept }: { onAccept: () => void }): h.JSX.Element {
+function Disclaimer({ onAccept }: { onAccept: () => void }) {
   return (
     <Page heading="Warning!" theme={theme}>
       <p>

@@ -1,7 +1,14 @@
 import '@testing-library/jest-dom';
-import { fireEvent, queryHelpers, within } from '@testing-library/preact';
+import {
+  act,
+  fireEvent,
+  queryHelpers,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 
-export * from '@testing-library/preact';
+export * from '@testing-library/react';
 
 function getByTextOrTitle(container: HTMLElement, label: string) {
   const c = within(container);
@@ -36,6 +43,16 @@ export function click(labelOrElem: string | HTMLElement) {
     labelOrElem instanceof HTMLElement
       ? labelOrElem
       : getByTextOrTitle(document.body, labelOrElem)
+  );
+}
+
+export async function loading() {
+  await screen.findByLabelText('Loading…');
+  act(() => {
+    jest.advanceTimersByTime(500);
+  });
+  await waitFor(() =>
+    expect(screen.queryByLabelText('Loading…')).not.toBeInTheDocument()
   );
 }
 

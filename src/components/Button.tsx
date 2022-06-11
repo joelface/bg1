@@ -1,8 +1,6 @@
-import { h } from 'preact';
-
 import { useTheme } from '@/contexts/Theme';
 
-type ButtonProps = h.JSX.HTMLAttributes<HTMLButtonElement>;
+type ButtonProps = React.HTMLProps<HTMLButtonElement>;
 
 type Props = Omit<ButtonProps, 'type'> & {
   type?: keyof typeof TYPES;
@@ -14,7 +12,7 @@ const TYPES = {
   full: 'w-full py-3',
 };
 
-export default function Button(props: Props): h.JSX.Element {
+export default function Button(props: Props) {
   const { type, className, ...attrs } = props;
   const cls = (className || '') + ' ' + TYPES[type || 'normal'];
   const { bg } = useTheme();

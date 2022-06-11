@@ -1,5 +1,4 @@
-import { h, Fragment } from 'preact';
-import { useCallback, useEffect, useState } from 'preact/hooks';
+import { useCallback, useEffect, useState } from 'react';
 
 import { Booking, Guest, Offer, Park, PlusExperience } from '@/api/genie';
 import { useGenieClient } from '@/contexts/GenieClient';
@@ -25,7 +24,7 @@ export default function BookExperience({
   experience: PlusExperience;
   park: Park;
   onClose: () => void;
-}): h.JSX.Element | null {
+}) {
   const client = useGenieClient();
   const rebooking = useRebooking();
   const [party, setParty] = useState<Party>();

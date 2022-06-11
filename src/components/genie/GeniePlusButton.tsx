@@ -1,5 +1,3 @@
-import { h } from 'preact';
-
 import { PlusExperience } from '@/api/genie';
 import { displayTime } from '@/datetime';
 import Button from '../Button';
@@ -11,7 +9,7 @@ export default function GeniePlusButton({
 }: {
   experience: PlusExperience;
   onClick: (experience: PlusExperience) => void;
-}): h.JSX.Element {
+}) {
   const { flex } = experience;
 
   return (

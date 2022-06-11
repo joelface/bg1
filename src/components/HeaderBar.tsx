@@ -1,13 +1,11 @@
-import { h, ComponentChildren } from 'preact';
-
 import { useTheme } from '@/contexts/Theme';
 
 export default function HeaderBar({
   title,
   children,
 }: {
-  title: ComponentChildren;
-  children?: ComponentChildren;
+  title: React.ReactNode;
+  children?: React.ReactNode;
 }) {
   const { bg } = useTheme();
   return (

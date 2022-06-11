@@ -1,12 +1,10 @@
-import { h, Fragment } from 'preact';
-
 import FloatingButton from '../FloatingButton';
 
 export default function NoReservationsAvailable({
   onClose,
 }: {
   onClose: () => void;
-}): h.JSX.Element {
+}) {
   return (
     <>
       <h3>No Reservations Available</h3>

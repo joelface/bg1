@@ -1,15 +1,13 @@
-import { h, ComponentChildren, Ref } from 'preact';
-
 import { Theme, ThemeProvider, DEFAULT_THEME } from '@/contexts/Theme';
 import HeaderBar from './HeaderBar';
 import Overlay from './Overlay';
 
 type Props = Omit<Parameters<typeof Overlay>[0], 'className'> & {
-  heading: string | ComponentChildren;
-  buttons?: ComponentChildren;
+  heading: React.ReactNode;
+  buttons?: React.ReactNode;
   className?: string;
   theme?: Theme;
-  containerRef?: Ref<HTMLDivElement>;
+  containerRef?: React.Ref<HTMLDivElement>;
 };
 
 export default function Page({
@@ -20,7 +18,7 @@ export default function Page({
   containerRef,
   children,
   ...attrs
-}: Props): h.JSX.Element {
+}: Props) {
   return (
     <ThemeProvider value={theme || DEFAULT_THEME}>
       <Overlay

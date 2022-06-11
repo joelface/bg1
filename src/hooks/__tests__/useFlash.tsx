@@ -1,8 +1,7 @@
-import { h } from 'preact';
-import FakeTimers from '@sinonjs/fake-timers';
-
-import { click, render, screen, waitFor } from '@/testing';
+import { act, click, render, screen, waitFor } from '@/testing';
 import useFlash, { Flash } from '../useFlash';
+
+jest.useFakeTimers();
 
 describe('Flash', () => {
   it('shows alert message', () => {
@@ -21,7 +20,7 @@ describe('Flash', () => {
   });
 });
 
-function UseFlashExample(): h.JSX.Element {
+function UseFlashExample() {
   const [flashElem, flash] = useFlash();
   return (
     <div>
@@ -34,7 +33,6 @@ function UseFlashExample(): h.JSX.Element {
 
 describe('useFlash()', () => {
   it('flashes message when triggered', async () => {
-    const clock = FakeTimers.install();
     render(<UseFlashExample />);
     expect(screen.queryByText('hi')).not.toBeInTheDocument();
     expect(screen.queryByText('oops')).not.toBeInTheDocument();
@@ -44,10 +42,11 @@ describe('useFlash()', () => {
 
     click('Error');
     expect(screen.getByText('oops')).toHaveClass('bg-red-200');
-    clock.runToLast();
+    act(() => {
+      jest.runOnlyPendingTimers();
+    });
     await waitFor(() =>
       expect(screen.queryByText('oops')).not.toBeInTheDocument()
     );
-    clock.uninstall();
   });
 });

@@ -1,5 +1,4 @@
-import { h } from 'preact';
-import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Guest, Queue, JoinQueueResult } from '@/api/vq';
 import { useVQClient } from '@/contexts/VQClient';
@@ -15,7 +14,7 @@ import FloatingButton from '../FloatingButton';
 
 const isAttraction = (queue: Queue) => queue.categoryContentId === 'attraction';
 
-export default function BGClient(): h.JSX.Element {
+export default function BGClient() {
   const client = useVQClient();
   const [queues, setQueues] = useState<Queue[]>();
   const [queue, setQueue] = useState<Queue | null>(null);

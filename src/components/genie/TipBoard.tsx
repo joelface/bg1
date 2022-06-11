@@ -1,5 +1,4 @@
-import { h, Fragment } from 'preact';
-import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Booking, Park, PlusExperience } from '@/api/genie';
 import { useGenieClient } from '@/contexts/GenieClient';
@@ -49,7 +48,7 @@ const sorters: { [key: string]: ExperienceSorter } = {
   aToZ: () => 0,
 };
 
-export default function TipBoard(): h.JSX.Element {
+export default function TipBoard() {
   const client = useGenieClient();
   const { parks } = client;
   const [park, setPark] = useState(() => {
@@ -138,9 +137,8 @@ export default function TipBoard(): h.JSX.Element {
     );
   }, [park]);
 
-  function toggleStar(event: Event) {
+  function toggleStar(event: React.MouseEvent<HTMLButtonElement>) {
     const btn = event.currentTarget;
-    if (!(btn instanceof HTMLElement)) return;
     const id = btn.getAttribute('data-id');
     if (!id) return;
     if (starred.has(id)) {
@@ -279,7 +277,7 @@ function StarButton({
 }: {
   experience: PlusExperience;
   starred: Set<string>;
-  onClick: (event: Event) => void;
+  onClick: React.MouseEventHandler;
 }) {
   const theme = useTheme();
   return (

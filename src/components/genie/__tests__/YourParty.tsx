@@ -1,11 +1,10 @@
-import { h } from 'preact';
+import { useState } from 'react';
 
 import { ClientProvider } from '@/contexts/Client';
 import { Party, PartyProvider } from '@/contexts/Party';
 import { click, render, screen } from '@/testing';
 import { client, mickey, pluto, minnie, donald } from '@/__fixtures__/genie';
 import YourParty from '../YourParty';
-import { useState } from 'preact/hooks';
 
 const onSubmit = jest.fn();
 

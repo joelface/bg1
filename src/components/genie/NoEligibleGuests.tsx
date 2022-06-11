@@ -1,16 +1,10 @@
-import { h, Fragment } from 'preact';
-
 import { useParty } from '@/contexts/Party';
 import { useRebooking } from '@/contexts/Rebooking';
 import { displayTime } from '@/datetime';
 import FloatingButton from '../FloatingButton';
 import IneligibleGuestList from './IneligibleGuestList';
 
-export default function NoEligibleGuests({
-  onClose,
-}: {
-  onClose: () => void;
-}): h.JSX.Element {
+export default function NoEligibleGuests({ onClose }: { onClose: () => void }) {
   const { ineligible } = useParty();
   const { eligibleAfter } = ineligible[0] || {};
   const rebooking = useRebooking();

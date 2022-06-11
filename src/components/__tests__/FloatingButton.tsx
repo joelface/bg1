@@ -1,5 +1,3 @@
-import { h } from 'preact';
-
 import { click, render, screen, within } from '@/testing';
 import FloatingButton from '../FloatingButton';
 

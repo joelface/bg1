@@ -1,5 +1,4 @@
-import { h, Fragment } from 'preact';
-import { useState } from 'preact/hooks';
+import { useState } from 'react';
 
 import { Guest, RequestError } from '@/api/vq';
 import useFlash from '@/hooks/useFlash';
@@ -18,7 +17,7 @@ export default function JoinQueue({
   guests: Guest[];
   joinQueue: () => Promise<boolean>;
   onEdit: () => void;
-}): h.JSX.Element {
+}) {
   const [joinDisabled, setJoinDisabled] = useState<boolean>(false);
   const [flashElem, flash] = useFlash();
 

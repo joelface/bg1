@@ -1,22 +1,18 @@
-import { h } from 'preact';
-import FakeTimers from '@sinonjs/fake-timers';
-
-import { click, render, screen } from '@/testing';
+import { act, click, render, screen } from '@/testing';
 import { guests } from '@/__fixtures__/vq';
 import GuestList from '../../GuestList';
 import BGResult from '../BGResult';
 
+jest.useFakeTimers();
 jest.mock('../../GuestList');
 const GuestListMock = GuestList as jest.MockedFunction<typeof GuestList>;
 
 const onDone = jest.fn();
 
 describe('BGResult', () => {
-  const clock = FakeTimers.install();
-
   beforeEach(async () => {
     GuestListMock.mockClear();
-    await clock.runToLastAsync();
+    // await clock.runToLastAsync();
   });
 
   it('shows boarding group obtained', async () => {
@@ -38,7 +34,9 @@ describe('BGResult', () => {
     screen.getByText('Boarding Group: 89');
 
     expect(screen.queryByText('Done')).not.toBeInTheDocument();
-    await clock.tickAsync(5000);
+    act(() => {
+      jest.advanceTimersByTime(5000);
+    });
     click('Done');
     expect(onDone).toBeCalledTimes(1);
 
@@ -71,7 +69,9 @@ describe('BGResult', () => {
     expect(GuestListMock).lastCalledWith({ guests: [], conflicts: {} }, {});
 
     expect(screen.queryByText('Done')).not.toBeInTheDocument();
-    await clock.tickAsync(1000);
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
     expect(screen.getByText('Done')).toBeEnabled();
   });
 });

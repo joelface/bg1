@@ -1,6 +1,4 @@
-import { h } from 'preact';
-
-import { click, render, screen } from '@/testing';
+import { act, click, render, screen } from '@/testing';
 import { AuthData } from '@/api/auth/client';
 import { ReauthNeeded } from '@/api/auth/store';
 import { ClientProvider } from '@/contexts/Client';
@@ -75,7 +73,9 @@ describe('App', () => {
   it('shows LoginForm if client.onAuthorized() called', async () => {
     renderComponent();
     screen.getByText('client loaded');
-    client.onUnauthorized();
+    act(() => {
+      client.onUnauthorized();
+    });
     await screen.findByText('Log In');
   });
 });

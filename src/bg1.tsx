@@ -1,4 +1,4 @@
-import { h, render, ComponentType } from 'preact';
+import { createRoot } from 'react-dom/client';
 
 import { AuthStore } from './api/auth/store';
 import { GenieClient, isGenieOrigin } from './api/genie';
@@ -22,25 +22,28 @@ if (isVirtualQueueOrigin(origin)) {
 
 async function renderApp<T extends Client>(
   apiClient: T,
-  ClientUI: ComponentType
+  ClientUI: React.FunctionComponent
 ) {
   document.head.innerHTML += `
     <meta name=viewport content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>BG1</title>
   `;
+  document.body.innerHTML = '<div id=app><div>';
   setDefaultTimeZone(
     {
       WDW: 'America/New_York',
       DLR: 'America/Los_Angeles',
     }[apiClient.resort]
   );
-  render(
+  const rootElem = document.getElementById('app');
+  if (!rootElem) return;
+  const root = createRoot(rootElem);
+  root.render(
     <ClientProvider value={apiClient}>
       <App authStore={authStore}>
         <ClientUI />
       </App>
-    </ClientProvider>,
-    document.body
+    </ClientProvider>
   );
   disableDoubleTapZoom();
 }

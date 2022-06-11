@@ -1,10 +1,8 @@
-import { h } from 'preact';
-
-type Props = Omit<h.JSX.HTMLAttributes<HTMLDivElement>, 'className'> & {
+type Props = Omit<React.HTMLProps<HTMLDivElement>, 'className'> & {
   className?: string | { outer?: string; inner?: string };
 };
 
-export default function Overlay(props: Props): h.JSX.Element {
+export default function Overlay(props: Props) {
   const { children, className, ...attrs } = props;
   const classNames = {
     outer: '',

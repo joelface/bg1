@@ -1,7 +1,4 @@
-import { h } from 'preact';
-import FakeTimers from '@sinonjs/fake-timers';
-
-import { render, screen } from '@/testing';
+import { act, render, screen } from '@/testing';
 import TimeBoard, { TIME_IS_IDS } from '../TimeBoard';
 
 jest.mock('@/datetime', () => {
@@ -12,20 +9,16 @@ jest.mock('@/datetime', () => {
 
 self.time_is_widget = { init: jest.fn() };
 
-function setup() {
+function renderComponent() {
   render(<TimeBoard resort="WDW" label="Next queue opening" time="13:00:00" />);
 }
 
 describe('TimeBoard', () => {
   const unsyncedMsg = '(unsynced)';
-  const clock = FakeTimers.install();
-
-  beforeEach(() => {
-    clock.runToLast();
-    setup();
-  });
+  jest.useFakeTimers();
 
   it('shows next queue open time and current time', () => {
+    renderComponent();
     const ths = screen.getAllByRole('rowheader');
     const tds = screen.getAllByRole('cell');
     expect(ths[0]).toHaveTextContent('Next queue opening:');
@@ -35,16 +28,22 @@ describe('TimeBoard', () => {
   });
 
   it("doesn't show unsynced if syncing succeeds", async () => {
+    renderComponent();
     // Fake clock syncing
     (document.getElementById(TIME_IS_IDS.WDW) as HTMLElement).innerHTML =
       '<span>12:59:48</span>';
-    await clock.tickAsync(5000);
+    act(() => {
+      jest.advanceTimersByTime(5000);
+    });
     expect(screen.queryByText(unsyncedMsg)).not.toBeInTheDocument();
   });
 
   it('shows unsynced if syncing fails', async () => {
+    renderComponent();
     expect(screen.queryByText(unsyncedMsg)).not.toBeInTheDocument();
-    await clock.tickAsync(5000);
+    act(() => {
+      jest.advanceTimersByTime(5000);
+    });
     expect(await screen.findByText(unsyncedMsg)).toBeInTheDocument();
   });
 });

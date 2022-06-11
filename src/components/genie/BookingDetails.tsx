@@ -1,5 +1,4 @@
-import { h, Fragment } from 'preact';
-import { useState } from 'preact/hooks';
+import { useState } from 'react';
 
 import { Booking, BookingGuest } from '@/api/genie';
 import Button from '../Button';
@@ -20,7 +19,7 @@ export default function BookingDetails({
   onClose: (newGuests: BookingGuest[]) => void;
   isRebookable?: boolean;
   isNew?: boolean;
-}): h.JSX.Element {
+}) {
   const rebooking = useRebooking();
   const [guests, setGuests] = useState(booking.guests);
   const [canceling, setCanceling] = useState(false);

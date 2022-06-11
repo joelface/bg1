@@ -1,5 +1,4 @@
-import { h } from 'preact';
-import { useEffect } from 'preact/hooks';
+import { useEffect } from 'react';
 
 import { dateTimeStrings } from '@/datetime';
 import * as timeIs from '@/time-is';
@@ -17,7 +16,7 @@ export default function Clock({
 }: {
   id: string;
   onSync: () => void;
-}): h.JSX.Element {
+}) {
   useEffect(() => {
     timeIs.add(id);
     updateTime(id, onSync);

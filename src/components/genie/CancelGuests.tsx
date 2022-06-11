@@ -1,5 +1,4 @@
-import { h } from 'preact';
-import { useState } from 'preact/hooks';
+import { useState } from 'react';
 
 import { Booking, BookingGuest } from '@/api/genie';
 import { useGenieClient } from '@/contexts/GenieClient';
@@ -15,7 +14,7 @@ export default function CancelGuests({
 }: {
   booking: Booking;
   onClose: (newGuests: BookingGuest[]) => void;
-}): h.JSX.Element {
+}) {
   const client = useGenieClient();
   const [guestsToCancel, setGuestsToCancel] = useState<Set<BookingGuest>>(
     new Set()

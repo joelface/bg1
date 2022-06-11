@@ -1,5 +1,3 @@
-import { h } from 'preact';
-
 import { useTheme } from '@/contexts/Theme';
 import { displayTime } from '@/datetime';
 

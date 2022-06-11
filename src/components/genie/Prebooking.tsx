@@ -1,5 +1,3 @@
-import { h, Fragment } from 'preact';
-
 import { displayTime } from '@/datetime';
 import TimeBoard from '../TimeBoard';
 import YourParty from './YourParty';
@@ -10,7 +8,7 @@ export default function Prebooking({
 }: {
   startTime?: string;
   onRefresh: () => void;
-}): h.JSX.Element {
+}) {
   return (
     <>
       {startTime && (

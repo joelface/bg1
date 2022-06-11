@@ -1,5 +1,3 @@
-import { h } from 'preact';
-
 import { Booking } from '@/api/genie';
 import { displayTime } from '@/datetime';
 
@@ -8,7 +6,7 @@ export default function BookingListing({
   button,
 }: {
   booking: Booking;
-  button?: h.JSX.Element;
+  button?: React.ReactNode;
 }) {
   return (
     <div className="flex items-center gap-x-2">
@@ -17,13 +15,13 @@ export default function BookingListing({
           {booking.start.time ? (
             <time>{displayTime(booking.start.time)}</time>
           ) : (
-            'open'
+            <span>open</span>
           )}
           {' - '}
           {booking.end.time ? (
             <time>{displayTime(booking.end.time)}</time>
           ) : (
-            'close'
+            <span>close</span>
           )}
         </div>
         <div className="text-lg font-semibold leading-tight truncate">

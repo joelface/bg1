@@ -1,5 +1,3 @@
-import { h } from 'preact';
-
 import Icon from './Icon';
 
 /**

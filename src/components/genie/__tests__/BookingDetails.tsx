@@ -1,5 +1,3 @@
-import { h } from 'preact';
-
 import { Booking } from '@/api/genie';
 import { ClientProvider } from '@/contexts/Client';
 import { click, render, screen, waitFor } from '@/testing';

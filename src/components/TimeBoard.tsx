@@ -1,5 +1,4 @@
-import { h, Fragment } from 'preact';
-import { useCallback, useEffect, useState } from 'preact/hooks';
+import { useCallback, useEffect, useState } from 'react';
 
 import Clock from './Clock';
 
@@ -18,7 +17,7 @@ export default function TimeBoard({
   resort: keyof typeof TIME_IS_IDS;
   label: string;
   time?: string | null;
-}): h.JSX.Element {
+}) {
   const id = TIME_IS_IDS[resort];
   const [synced, setSynced] = useState<boolean | null>(null);
 
@@ -30,30 +29,32 @@ export default function TimeBoard({
 
   return (
     <table className="mt-4 mx-auto text-gray-500">
-      <Row heading={label} time={<time>{time || '--:--:--'}</time>} />
-      <Row
-        heading={
-          <a
-            href={`https://time.is/${id.split('_')[0]}`}
-            id="time_is_link"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Current time
-          </a>
-        }
-        time={
-          <>
-            <Clock id={id} onSync={onSync} />
-            {synced === false ? (
-              <span className="text-sm font-sans font-semibold text-red-600">
-                {' '}
-                (unsynced)
-              </span>
-            ) : null}
-          </>
-        }
-      />
+      <tbody>
+        <Row heading={label} time={<time>{time || '--:--:--'}</time>} />
+        <Row
+          heading={
+            <a
+              href={`https://time.is/${id.split('_')[0]}`}
+              id="time_is_link"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Current time
+            </a>
+          }
+          time={
+            <>
+              <Clock id={id} onSync={onSync} />
+              {synced === false ? (
+                <span className="text-sm font-sans font-semibold text-red-600">
+                  {' '}
+                  (unsynced)
+                </span>
+              ) : null}
+            </>
+          }
+        />
+      </tbody>
     </table>
   );
 }
@@ -62,8 +63,8 @@ function Row({
   heading,
   time,
 }: {
-  heading: string | h.JSX.Element;
-  time: h.JSX.Element;
+  heading: React.ReactNode;
+  time: React.ReactNode;
 }) {
   return (
     <tr>

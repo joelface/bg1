@@ -1,5 +1,3 @@
-import { h, Fragment } from 'preact';
-
 import { Offer } from '@/api/genie';
 import { useRebooking } from '@/contexts/Rebooking';
 import Warning from '../Warning';
@@ -12,7 +10,7 @@ export default function OfferDetails({
 }: {
   offer: Offer;
   onBook: () => void;
-}): h.JSX.Element {
+}) {
   const rebooking = useRebooking();
 
   return (

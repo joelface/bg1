@@ -1,17 +1,20 @@
 {
-  "exclude": ["node_modules", "**/.*/"],
+  "exclude": [
+    "node_modules",
+    "**/.*/"
+  ],
   "compilerOptions": {
     "baseUrl": "src",
     "paths": {
-      "@/*": ["*"]
+      "@/*": [
+        "*"
+      ],
     },
     "incremental": true,
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "node",
-    "jsx": "react",
-    "jsxFactory": "h",
-    "jsxFragmentFactory": "Fragment",
+    "jsx": "react-jsx",
     "isolatedModules": true,
     "strict": true,
     "noImplicitAny": true,

@@ -1,5 +1,3 @@
-import { h } from 'preact';
-
 import { render, screen } from '@/testing';
 import StandbyTime from '../StandbyTime';
 

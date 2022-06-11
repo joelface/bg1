@@ -1,10 +1,8 @@
-import { h } from 'preact';
-
 import { useParty } from '@/contexts/Party';
 import { displayTime } from '@/datetime';
 import GuestList from '../GuestList';
 
-export default function IneligibleGuestList(): h.JSX.Element {
+export default function IneligibleGuestList() {
   const { ineligible } = useParty();
   return (
     <GuestList

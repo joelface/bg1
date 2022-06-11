@@ -1,5 +1,4 @@
-import { createContext } from 'preact';
-import { useContext } from 'preact/hooks';
+import { createContext, useContext } from 'react';
 
 export interface Client {
   onUnauthorized: () => void;

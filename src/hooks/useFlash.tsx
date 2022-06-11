@@ -1,12 +1,11 @@
-import { h } from 'preact';
-import { useCallback, useState } from 'preact/hooks';
+import { useCallback, useState } from 'react';
 
 type FlashType = 'alert' | 'error';
 
 const DEFAULT_DURATION_MS = 3000;
 const COLORS = { alert: 'bg-yellow-200', error: 'bg-red-200' };
 
-export default function useFlash(): [h.JSX.Element, typeof flash] {
+export default function useFlash(): [React.ReactNode, typeof flash] {
   const [, setTimeoutId] = useState(0);
   const [message, setMessage] = useState('');
   const [type, setType] = useState<FlashType>('alert');
@@ -27,13 +26,7 @@ export default function useFlash(): [h.JSX.Element, typeof flash] {
   return [flashElem, flash];
 }
 
-export function Flash({
-  message,
-  type,
-}: {
-  message: string;
-  type: FlashType;
-}): h.JSX.Element | null {
+export function Flash({ message, type }: { message: string; type: FlashType }) {
   return message ? (
     <div
       role="alert"

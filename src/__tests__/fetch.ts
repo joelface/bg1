@@ -1,6 +1,6 @@
-import FakeTimers from '@sinonjs/fake-timers';
-
 import { fetchJson } from '../fetch';
+
+jest.useFakeTimers();
 
 const fetchMock = jest.fn();
 self.fetch = fetchMock;
@@ -57,7 +57,6 @@ describe('fetchJson()', () => {
 
   it('returns status=0 response on timeout', async () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => null);
-    const clock = FakeTimers.install();
     const timeout = 5000;
     fetchMock.mockImplementationOnce((url: string, init: RequestInit) => {
       return new Promise((resolve, reject) => {
@@ -71,8 +70,7 @@ describe('fetchJson()', () => {
       });
     });
     const promise = fetchJson(url, { timeout });
-    await clock.tickAsync(timeout);
+    jest.advanceTimersByTime(timeout);
     expect(await promise).toEqual({ status: 0, data: null });
-    clock.uninstall();
   });
 });

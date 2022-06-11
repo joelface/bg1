@@ -1,5 +1,3 @@
-import { h } from 'preact';
-
 export interface Guest {
   id: string;
   name: string;
@@ -21,7 +19,7 @@ export default function GuestList<T extends Guest>({
     onToggle: (guest: T) => void;
   };
   conflicts?: InfoById;
-}): h.JSX.Element | null {
+}) {
   if (guests.length === 0) return null;
 
   return (

@@ -1,7 +1,7 @@
-import { h } from 'preact';
-
 import { click, render, screen } from '@/testing';
 import Prebooking from '../Prebooking';
+
+jest.useFakeTimers();
 
 const onRefresh = jest.fn();
 
@@ -13,7 +13,7 @@ describe('Prebooking', () => {
   it('shows prebooking info with start time', () => {
     render(<Prebooking startTime={'07:00:00'} onRefresh={onRefresh} />);
     screen.getByText('Booking start:');
-    expect(screen.getByText('7:00 AM')).toBeInTheDocument();
+    screen.getByText('7:00 AM');
     click('Check Availability');
     expect(onRefresh).toBeCalledTimes(1);
   });

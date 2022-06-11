@@ -1,9 +1,7 @@
-import { h } from 'preact';
-import FakeTimers from '@sinonjs/fake-timers';
-
 import { Park } from '@/api/genie';
 import { ClientProvider } from '@/contexts/Client';
 import {
+  act,
   click,
   elemScrollMock,
   fireEvent,
@@ -51,11 +49,13 @@ const changePark = (park: Park) =>
     target: { value: park.id },
   });
 
-const clock = FakeTimers.install({ shouldAdvanceTime: true });
+jest.useFakeTimers({ now: new Date('2022-07-17 9:00:00') });
 
 const waitForRefresh = async () => {
-  await screen.findAllByLabelText('Loading…');
-  clock.runToLast();
+  await screen.findByLabelText('Loading…');
+  act(() => {
+    jest.advanceTimersByTime(500);
+  });
   await waitFor(() =>
     expect(screen.queryByLabelText('Loading…')).not.toBeInTheDocument()
   );
@@ -87,18 +87,16 @@ describe('TipBoard', () => {
     expect(elemScrollMock).toBeCalledTimes(1);
 
     click('Your Lightning Lanes');
+    await screen.findByText('Your Lightning Lanes');
 
     click('Close');
-    clock.runToLast();
     await waitFor(() =>
       expect(screen.queryByText('Your Lightning Lanes')).not.toBeInTheDocument()
     );
 
     expect(getExperiences()).toEqual(names([jc, sm, hm]));
     expect(sortBy('soonest')).toEqual(names([sm, hm, jc]));
-    clock.runToLast();
     await waitFor(() => expect(sortBy('standby')).toEqual(names([sm, jc, hm])));
-    clock.runToLast();
     await waitFor(() => expect(sortBy('aToZ')).toEqual(names([hm, jc, sm])));
     expect(elemScrollMock).toBeCalledTimes(4);
 
@@ -112,22 +110,30 @@ describe('TipBoard', () => {
     client.plusExperiences.mockResolvedValueOnce([sdd]);
     elemScrollMock.mockClear();
     changePark(hs);
+    await waitForRefresh();
+    await screen.findByText(sdd.name);
     expect(client.plusExperiences).lastCalledWith(
       expect.objectContaining({ id: hs.id })
     );
-    await screen.findByText(sdd.name);
     expect(elemScrollMock).toBeCalledTimes(1);
     changePark(mk);
+    await waitForRefresh();
     await screen.findByText(hm.name);
 
+    await waitFor(() => click('2:30 PM'));
     await waitForRefresh();
-    click('2:30 PM');
-    await waitForRefresh();
+    await screen.findByText('Your Party');
     await waitFor(() => click('Cancel'));
 
     client.plusExperiences.mockClear();
-    toggleVisibility();
-    toggleVisibility();
+
+    act(() => {
+      jest.advanceTimersByTime(60_000);
+      toggleVisibility();
+      toggleVisibility();
+    });
+    await waitForRefresh();
+    return;
     click('Refresh Tip Board');
     await waitForRefresh();
   });
@@ -149,7 +155,7 @@ describe('TipBoard', () => {
 
     jc.flex.nextAvailableTime = hm.flex.nextAvailableTime;
     await waitFor(async () =>
-      expect(sortBy('soonest')).toEqual([hm.name, jc.name])
+      expect(sortBy('soonest')).toEqual([jc.name, hm.name])
     );
     jc.flex.nextAvailableTime = nextAvailableTime;
 
@@ -215,7 +221,7 @@ describe('TipBoard', () => {
     expect(screen.queryByText('Rebooking')).not.toBeInTheDocument();
     click('Your Lightning Lanes');
     await screen.findByText('Your Lightning Lanes');
-    click('More');
+    await waitFor(() => click('More'));
     screen.getByRole('heading', { name: bookings[0].experience.name });
     expect(
       screen.queryByRole('button', { name: 'Rebook' })
@@ -229,13 +235,14 @@ describe('TipBoard', () => {
     screen.getByText('Rebooking');
 
     click('12:45 PM');
-    await clock.runToLastAsync();
-    click('Edit');
+    await waitFor(() => click('Edit'));
     click(mickey.name);
     click('Confirm Party');
     click('Rebook Lightning Lane');
-    await clock.runToLastAsync();
 
+    await waitForRefresh();
+
+    await waitFor(() => expect(client.cancelBooking).toBeCalledTimes(2));
     expect(client.cancelBooking).nthCalledWith(1, [bookings[2].guests[1]]);
     expect(client.cancelBooking).nthCalledWith(2, [newBooking.guests[0]]);
     screen.getByText('Your Lightning Lane');
@@ -261,24 +268,28 @@ describe('TipBoard', () => {
 
     setTime('12:00');
     let { unmount } = renderComponent();
+    await screen.findByText(hm.name);
     expect(parkId()).toBe(mk.id);
 
     changePark(hs);
     unmount();
     setTime('23:59:59');
     ({ unmount } = renderComponent());
+    await screen.findByText(hm.name);
     expect(parkId()).toBe(hs.id);
 
     unmount();
     setTime('00:00', 1);
     ({ unmount } = renderComponent());
+    await screen.findByText(hm.name);
     expect(parkId()).toBe(mk.id);
   });
 
   it('pins attraction to top if favorited', async () => {
     renderComponent();
-    await clock.runToLastAsync();
-    expect(getExperiences()).toEqual([jc.name, sm.name, hm.name]);
+    await waitFor(() =>
+      expect(getExperiences()).toEqual([jc.name, sm.name, hm.name])
+    );
     click(screen.getAllByRole('button', { name: 'Favorite' })[2]);
     expect(getExperiences()).toEqual([hm.name, jc.name, sm.name]);
   });

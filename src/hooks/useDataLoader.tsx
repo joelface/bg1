@@ -1,12 +1,11 @@
-import { h, Fragment } from 'preact';
-import { useCallback } from 'preact/hooks';
+import { useCallback } from 'react';
 
 import { RequestError } from '@/api/genie';
 import useFlash from './useFlash';
 import useSpinner from './useSpinner';
 
 export default function useDataLoader(): {
-  loaderElem: h.JSX.Element;
+  loaderElem: React.ReactNode;
   loadData: typeof loadData;
   isLoading: boolean;
 } {

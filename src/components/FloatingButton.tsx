@@ -1,5 +1,3 @@
-import { h, ComponentChildren } from 'preact';
-
 import Button from './Button';
 
 export default function FloatingButton({
@@ -11,8 +9,8 @@ export default function FloatingButton({
   onClick?: () => void;
   disabled?: boolean;
   href?: string;
-  children: ComponentChildren;
-}): h.JSX.Element {
+  children: React.ReactNode;
+}) {
   return (
     <div className="mb-20">
       <div className="fixed bottom-0 left-0 w-full bg-white bg-opacity-75 text-center">

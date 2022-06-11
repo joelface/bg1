@@ -1,5 +1,3 @@
-import { h } from 'preact';
-
 import { displayTime } from '@/datetime';
 
 interface ArrivalTimes {

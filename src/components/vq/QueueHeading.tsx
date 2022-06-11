@@ -1,5 +1,3 @@
-import { h, Fragment } from 'preact';
-
 import { Queue } from '@/api/vq';
 import { useTheme } from '@/contexts/Theme';
 
@@ -11,7 +9,7 @@ export default function QueueHeading({
   queue: Queue;
   queues?: Queue[];
   onChange?: (value: string) => void;
-}): h.JSX.Element {
+}) {
   queues ||= [];
   const { bg } = useTheme();
   const className = `block w-full ${bg} text-white text-xl font-semibold`;
@@ -22,15 +20,11 @@ export default function QueueHeading({
       ) : (
         <select
           className={`${className} pr-1`}
+          value={queue.id}
           onChange={e => (onChange ? onChange(e.currentTarget.value) : null)}
         >
           {queues.map(q => (
-            <option
-              selected={q === queue}
-              key={q.id}
-              value={q.id}
-              className="text-base font-normal"
-            >
+            <option key={q.id} value={q.id} className="text-base font-normal">
               {q.name}
             </option>
           ))}

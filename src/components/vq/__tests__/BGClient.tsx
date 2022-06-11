@@ -1,18 +1,10 @@
-import { h } from 'preact';
-import FakeTimers from '@sinonjs/fake-timers';
-
 import { RequestError, VQClient } from '@/api/vq';
 import { ClientProvider } from '@/contexts/Client';
-import {
-  elemScrollMock,
-  fireEvent,
-  click,
-  render,
-  screen,
-  waitFor,
-} from '@/testing';
+import { act, fireEvent, click, render, screen, waitFor } from '@/testing';
 import { queues, rotr, santa, guests, pluto } from '@/__fixtures__/vq';
 import BGClient from '../BGClient';
+
+jest.useFakeTimers({ advanceTimers: true });
 
 const client = new VQClient({
   origin: 'https://vqguest-svc-wdw.wdprapps.disney.com',
@@ -41,6 +33,7 @@ function queueOpen() {
 const { change } = fireEvent;
 const CONFIRM = 'Confirm Party';
 const JOIN = 'Join Boarding Group';
+const REFRESH = 'Refresh';
 
 let hidden = false;
 Object.defineProperty(document, 'hidden', { get: () => hidden });
@@ -59,22 +52,14 @@ const renderComponent = () => {
 };
 
 describe('BGClient', () => {
-  const clock = FakeTimers.install({ shouldAdvanceTime: true });
-
-  it('scrolls to top on screen change', async () => {
-    renderComponent();
-    await waitFor(() => click(CONFIRM));
-    expect(elemScrollMock).toBeCalledWith(0, 0);
-  });
-
-  it('shows message if no virtual queues', async () => {
+  it('shows message if no active queues', async () => {
     client.getQueues.mockResolvedValueOnce([]);
     renderComponent();
     await screen.findByText('No Active Queues');
     client.getQueues.mockResolvedValueOnce([]);
-    click('Refresh');
+    click(REFRESH);
     await screen.findByText('No queues available');
-    click('Refresh');
+    click(REFRESH);
     await screen.findByText(rotr.name);
     expect(screen.getAllByRole('option').map(opt => opt.textContent)).toEqual([
       rotr.name,
@@ -91,7 +76,9 @@ describe('BGClient', () => {
     expect(client.getQueues).toBeCalledTimes(1);
     client.getQueues.mockResolvedValueOnce([santa]);
     toggleVisibility();
-    toggleVisibility();
+    act(() => {
+      toggleVisibility();
+    });
     await waitFor(() => expect(client.getQueues).toBeCalledTimes(2));
     await screen.findByRole('heading', { name: santa.name });
   });
@@ -138,6 +125,10 @@ describe('BGClient', () => {
       expect(screen.queryByText(errMsg)).not.toBeInTheDocument();
       click(unchecked[numToCheck]);
       await screen.findByText(errMsg);
+      act(() => {
+        jest.runOnlyPendingTimers();
+      });
+      expect(screen.queryByText(errMsg)).not.toBeInTheDocument();
     });
 
     it('shows message if no guests', async () => {
@@ -153,7 +144,9 @@ describe('BGClient', () => {
       change(await screen.findByDisplayValue(rotr.name), {
         target: { value: santa.id },
       });
+      await screen.findByText(pluto.name);
       click(CONFIRM);
+      screen.getByText('Your Party');
     }
 
     it('returns to ChooseParty when Edit button clicked', async () => {
@@ -168,7 +161,9 @@ describe('BGClient', () => {
       click(JOIN);
       await screen.findByText('Boarding Group: 33');
       screen.getByText(santa.name);
-      clock.runToLast();
+      act(() => {
+        jest.runOnlyPendingTimers();
+      });
       await waitFor(() => click('Done'));
       screen.getByText('Choose Your Party');
     });
@@ -179,7 +174,9 @@ describe('BGClient', () => {
       click(joinBtn);
       await screen.findByText('Queue not open yet');
       expect(joinBtn).toBeDisabled();
-      clock.runToLast();
+      act(() => {
+        jest.runOnlyPendingTimers();
+      });
       await waitFor(() => expect(joinBtn).toBeEnabled());
     });
 

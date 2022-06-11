@@ -1,8 +1,6 @@
-import { h, Fragment } from 'preact';
-
 import { Queue } from '@/api/vq';
 
-export default function HowToEnter({ queue }: { queue: Queue }): h.JSX.Element {
+export default function HowToEnter({ queue }: { queue: Queue }) {
   return (
     <>
       {queue.howToEnterMessage.split('\n\n').map((graf, i) => (
