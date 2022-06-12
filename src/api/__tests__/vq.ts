@@ -1,4 +1,4 @@
-import { rotr, mtwr, santa, queues, guests } from '@/__fixtures__/vq';
+import { rotr, mtwr, santa, queues, guests } from '/__fixtures__/vq';
 import {
   VQClient,
   Guest,
@@ -6,10 +6,10 @@ import {
   sortGuests,
   RequestError,
 } from '../vq';
-import { fetchJson } from '@/fetch';
-import { waitFor } from '@/testing';
+import { fetchJson } from '/fetch';
+import { waitFor } from '/testing';
 
-jest.mock('@/fetch');
+jest.mock('/fetch');
 const fetchJsonMock = fetchJson as jest.MockedFunction<typeof fetchJson>;
 
 function response(

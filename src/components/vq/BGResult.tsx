@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { Guest, JoinQueueResult } from '@/api/vq';
+import { Guest, JoinQueueResult } from '/api/vq';
 import FloatingButton from '../FloatingButton';
 import GuestList from '../GuestList';
 

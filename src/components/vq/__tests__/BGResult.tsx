@@ -1,5 +1,5 @@
-import { act, click, render, screen } from '@/testing';
-import { guests } from '@/__fixtures__/vq';
+import { act, click, render, screen } from '/testing';
+import { guests } from '/__fixtures__/vq';
 import GuestList from '../../GuestList';
 import BGResult from '../BGResult';
 

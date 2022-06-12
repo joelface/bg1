@@ -1,4 +1,4 @@
-import { dateTimeStrings } from '@/datetime';
+import { dateTimeStrings } from '/datetime';
 import { AuthData } from './client';
 
 export class ReauthNeeded extends Error {

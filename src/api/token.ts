@@ -1,4 +1,4 @@
-import { dateTimeStrings } from '@/datetime';
+import { dateTimeStrings } from '/datetime';
 
 export class TokenStale extends Error {
   name = 'TokenStale';

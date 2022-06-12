@@ -1,5 +1,5 @@
-import { Queue } from '@/api/vq';
-import { useTheme } from '@/contexts/Theme';
+import { Queue } from '/api/vq';
+import { useTheme } from '/contexts/Theme';
 
 export default function QueueHeading({
   queue,

@@ -1,7 +1,7 @@
-import { RequestError } from '@/api/genie';
-import { ClientProvider } from '@/contexts/Client';
-import { RebookingProvider } from '@/contexts/Rebooking';
-import { click, loading, render, screen, waitFor } from '@/testing';
+import { RequestError } from '/api/genie';
+import { ClientProvider } from '/contexts/Client';
+import { RebookingProvider } from '/contexts/Rebooking';
+import { click, loading, render, screen, waitFor } from '/testing';
 import {
   client,
   hm,
@@ -11,7 +11,7 @@ import {
   mickey,
   minnie,
   donald,
-} from '@/__fixtures__/genie';
+} from '/__fixtures__/genie';
 import BookExperience from '../BookExperience';
 
 const onClose = jest.fn();

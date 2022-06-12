@@ -1,5 +1,5 @@
-import { dateTimeStrings } from '@/datetime';
-import { fetchJson } from '@/fetch';
+import { dateTimeStrings } from '/datetime';
+import { fetchJson } from '/fetch';
 import { AuthStore } from './auth/store';
 
 const ORIGIN_TO_RESORT = {

@@ -1,7 +1,7 @@
-import { RequestError, VQClient } from '@/api/vq';
-import { ClientProvider } from '@/contexts/Client';
-import { act, fireEvent, click, render, screen, waitFor } from '@/testing';
-import { queues, rotr, santa, guests, pluto } from '@/__fixtures__/vq';
+import { RequestError, VQClient } from '/api/vq';
+import { ClientProvider } from '/contexts/Client';
+import { act, fireEvent, click, render, screen, waitFor } from '/testing';
+import { queues, rotr, santa, guests, pluto } from '/__fixtures__/vq';
 import BGClient from '../BGClient';
 
 jest.useFakeTimers({ advanceTimers: true });

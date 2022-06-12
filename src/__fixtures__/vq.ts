@@ -1,4 +1,4 @@
-import { Guest, Queue } from '@/api/vq';
+import { Guest, Queue } from '/api/vq';
 
 export const rotr: Queue = {
   id: '3720fcab-537c-4b2b-b3b2-37918ac7df8f',

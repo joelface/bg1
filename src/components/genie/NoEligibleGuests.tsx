@@ -1,6 +1,6 @@
-import { useParty } from '@/contexts/Party';
-import { useRebooking } from '@/contexts/Rebooking';
-import { displayTime } from '@/datetime';
+import { useParty } from '/contexts/Party';
+import { useRebooking } from '/contexts/Rebooking';
+import { displayTime } from '/datetime';
 import FloatingButton from '../FloatingButton';
 import IneligibleGuestList from './IneligibleGuestList';
 

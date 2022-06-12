@@ -1,4 +1,4 @@
-import { Queue } from '@/api/vq';
+import { Queue } from '/api/vq';
 
 export default function HowToEnter({ queue }: { queue: Queue }) {
   return (

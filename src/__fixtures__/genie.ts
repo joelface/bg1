@@ -4,8 +4,8 @@ import {
   GenieClient,
   Offer,
   PlusExperience,
-} from '@/api/genie';
-import data from '@/api/data/wdw';
+} from '/api/genie';
+import data from '/api/data/wdw';
 
 data.pdts[80007944] = ['10:30', '13:30', '16:30'];
 

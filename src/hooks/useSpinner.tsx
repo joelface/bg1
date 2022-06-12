@@ -1,9 +1,9 @@
 import { useCallback, useState } from 'react';
 
-import Overlay from '@/components/Overlay';
-import { useTheme } from '@/contexts/Theme';
-import RefreshIcon from '@/icons/RefreshIcon';
-import { sleep } from '@/sleep';
+import Overlay from '/components/Overlay';
+import { useTheme } from '/contexts/Theme';
+import RefreshIcon from '/icons/RefreshIcon';
+import { sleep } from '/sleep';
 
 export default function useSpinner(): [
   React.ReactNode | null,

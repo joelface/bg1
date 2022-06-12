@@ -8,7 +8,7 @@ import {
   donald,
   pluto,
   bookings,
-} from '@/__fixtures__/genie';
+} from '/__fixtures__/genie';
 import {
   Booking,
   BookingStack,
@@ -17,11 +17,11 @@ import {
   isGenieOrigin,
   RequestError,
 } from '../genie';
-import { fetchJson } from '@/fetch';
-import { setTime, waitFor } from '@/testing';
+import { fetchJson } from '/fetch';
+import { setTime, waitFor } from '/testing';
 import wdw from '../data/wdw';
 
-jest.mock('@/fetch');
+jest.mock('/fetch');
 const fetchJsonMock = fetchJson as jest.MockedFunction<typeof fetchJson>;
 
 const accessToken = 'access_token_123';

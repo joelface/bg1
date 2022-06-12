@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
-import { Booking, BookingGuest } from '@/api/genie';
-import { useGenieClient } from '@/contexts/GenieClient';
-import useDataLoader from '@/hooks/useDataLoader';
+import { Booking, BookingGuest } from '/api/genie';
+import { useGenieClient } from '/contexts/GenieClient';
+import useDataLoader from '/hooks/useDataLoader';
 import FloatingButton from '../FloatingButton';
 import GuestList from '../GuestList';
 import Page from '../Page';

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
-import { Guest, RequestError } from '@/api/vq';
-import useFlash from '@/hooks/useFlash';
-import { sleep } from '@/sleep';
+import { Guest, RequestError } from '/api/vq';
+import useFlash from '/hooks/useFlash';
+import { sleep } from '/sleep';
 import FloatingButton from '../FloatingButton';
 import GuestList from '../GuestList';
 import Button from '../Button';

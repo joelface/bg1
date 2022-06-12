@@ -1,5 +1,5 @@
-import { click, render } from '@/testing';
-import { offer } from '@/__fixtures__/genie';
+import { click, render } from '/testing';
+import { offer } from '/__fixtures__/genie';
 import OfferDetails from '../OfferDetails';
 
 const onBook = jest.fn();

@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Booking, Park, PlusExperience } from '@/api/genie';
-import { useGenieClient } from '@/contexts/GenieClient';
-import { Rebooking, RebookingProvider } from '@/contexts/Rebooking';
-import { dateTimeStrings } from '@/datetime';
-import useDataLoader from '@/hooks/useDataLoader';
-import LightningIcon from '@/icons/LightningIcon';
-import RefreshIcon from '@/icons/RefreshIcon';
+import { Booking, Park, PlusExperience } from '/api/genie';
+import { useGenieClient } from '/contexts/GenieClient';
+import { Rebooking, RebookingProvider } from '/contexts/Rebooking';
+import { dateTimeStrings } from '/datetime';
+import useDataLoader from '/hooks/useDataLoader';
+import LightningIcon from '/icons/LightningIcon';
+import RefreshIcon from '/icons/RefreshIcon';
 import Button from '../Button';
 import Page from '../Page';
 import Select from '../Select';
@@ -17,8 +17,8 @@ import RebookingHeader from './RebookingHeader';
 import StandbyTime from './StandbyTime';
 import TimeBanner from './TimeBanner';
 import LogoutButton from '../LogoutButton';
-import StarIcon from '@/icons/StarIcon';
-import { useTheme } from '@/contexts/Theme';
+import StarIcon from '/icons/StarIcon';
+import { useTheme } from '/contexts/Theme';
 
 const AUTO_REFRESH_MIN_MS = 60_000;
 const PARK_KEY = 'bg1.genie.tipBoard.park';

@@ -1,8 +1,8 @@
-import { act, click, render, screen } from '@/testing';
-import { AuthData } from '@/api/auth/client';
-import { ReauthNeeded } from '@/api/auth/store';
-import { ClientProvider } from '@/contexts/Client';
-import { DISCLAIMER_ACCEPTED_KEY } from '@/hooks/useDisclaimer';
+import { act, click, render, screen } from '/testing';
+import { AuthData } from '/api/auth/client';
+import { ReauthNeeded } from '/api/auth/store';
+import { ClientProvider } from '/contexts/Client';
+import { DISCLAIMER_ACCEPTED_KEY } from '/hooks/useDisclaimer';
 import App from '../App';
 
 jest.mock('../LoginForm', () => {

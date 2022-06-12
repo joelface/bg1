@@ -1,4 +1,4 @@
-import { displayTime } from '@/datetime';
+import { displayTime } from '/datetime';
 
 interface ArrivalTimes {
   start: { time?: string };

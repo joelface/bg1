@@ -1,4 +1,4 @@
-import { fetchJson } from '@/fetch';
+import { fetchJson } from '/fetch';
 import { AuthStore } from './auth/store';
 
 const ORIGIN_TO_RESORT = {
