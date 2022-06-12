@@ -1,3 +1,5 @@
+import { fetchJson } from '/fetch';
+import { setTime, waitFor } from '/testing';
 import {
   hm,
   jc,
@@ -17,8 +19,6 @@ import {
   isGenieOrigin,
   RequestError,
 } from '../genie';
-import { fetchJson } from '/fetch';
-import { setTime, waitFor } from '/testing';
 import wdw from '../data/wdw';
 
 jest.mock('/fetch');

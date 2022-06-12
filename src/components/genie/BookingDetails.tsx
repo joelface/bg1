@@ -1,13 +1,13 @@
 import { useState } from 'react';
 
 import { Booking, BookingGuest } from '/api/genie';
+import { useRebooking } from '/contexts/Rebooking';
 import Button from '../Button';
 import FloatingButton from '../FloatingButton';
 import GuestList from '../GuestList';
 import Page from '../Page';
 import ArrivalTimes from './ArrivalTimes';
 import CancelGuests from './CancelGuests';
-import { useRebooking } from '/contexts/Rebooking';
 
 export default function BookingDetails({
   booking,

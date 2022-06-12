@@ -1,5 +1,6 @@
 import { Booking } from '/api/genie';
 import { ClientProvider } from '/contexts/Client';
+import { displayTime } from '/datetime';
 import { click, render, screen, waitFor } from '/testing';
 import {
   client,
@@ -11,7 +12,6 @@ import {
   pluto,
 } from '/__fixtures__/genie';
 import BookingDetails from '../BookingDetails';
-import { displayTime } from '/datetime';
 
 const onClose = jest.fn();
 const renderComponent = (b: Booking = booking) =>
