@@ -135,7 +135,6 @@ describe('TipBoard', () => {
       toggleVisibility();
     });
     await waitForRefresh();
-    return;
     click('Refresh Tip Board');
     await waitForRefresh();
   });
