@@ -288,6 +288,11 @@ describe('TipBoard', () => {
   });
 
   it('pins attraction to top if favorited', async () => {
+    client.plusExperiences.mockResolvedValueOnce([
+      jc,
+      sm,
+      { ...hm, flex: { available: false } },
+    ]);
     renderComponent();
     await waitFor(() =>
       expect(getExperiences()).toEqual([jc.name, sm.name, hm.name])

@@ -247,8 +247,8 @@ export default function TipBoard() {
             {experiences
               .sort(
                 (a, b) =>
-                  +b.flex.available - +a.flex.available ||
                   +starred.has(b.id) - +starred.has(a.id) ||
+                  +b.flex.available - +a.flex.available ||
                   sorters[sortType](a, b) ||
                   sortByName(a, b)
               )
