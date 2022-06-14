@@ -79,14 +79,21 @@ describe('YourParty', () => {
     });
     expect(screen.getAllByRole('listitem')).toHaveLength(maxPartySize);
     screen.getByText('Party size restricted');
+
     click('Edit');
     click(lastGuest);
     screen.getByText('Maximum party size: ' + maxPartySize);
+
     click(firstGuest);
     click(lastGuest);
     click('Confirm Party');
     expect(screen.getAllByRole('listitem')).toHaveLength(maxPartySize);
     screen.getByText(lastGuest);
     expect(screen.queryByText(firstGuest)).not.toBeInTheDocument();
+
+    click('Edit');
+    click(lastGuest);
+    click('Confirm Party');
+    expect(screen.queryByText('Party size restricted')).not.toBeInTheDocument();
   });
 });

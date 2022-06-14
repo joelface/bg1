@@ -63,7 +63,7 @@ export default function YourParty({
     </>
   ) : (
     <>
-      {eligible.length > maxPartySize && (
+      {eligible.length > maxPartySize && selected.length === maxPartySize && (
         <Warning>Party size restricted</Warning>
       )}
       <div className="mt-4">
