@@ -4,7 +4,7 @@ import { act, fireEvent, click, render, screen, waitFor } from '/testing';
 import { queues, rotr, santa, guests, pluto } from '/__fixtures__/vq';
 import BGClient from '../BGClient';
 
-jest.useFakeTimers({ advanceTimers: true });
+jest.useFakeTimers();
 
 const client = new VQClient({
   origin: 'https://vqguest-svc-wdw.wdprapps.disney.com',

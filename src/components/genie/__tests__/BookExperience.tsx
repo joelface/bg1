@@ -16,9 +16,7 @@ import BookExperience from '../BookExperience';
 
 const onClose = jest.fn();
 const errorMock = jest.spyOn(console, 'error');
-jest.useFakeTimers({
-  advanceTimers: true,
-});
+jest.useFakeTimers();
 
 const mockClickResponse = async (
   clientMethod: jest.MockedFunction<any>,

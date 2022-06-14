@@ -9,4 +9,7 @@ module.exports = {
     '^/(.*)': '<rootDir>/src/$1',
   },
   testEnvironment: 'jsdom',
+  fakeTimers: {
+    advanceTimers: true,
+  },
 };
