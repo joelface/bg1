@@ -72,7 +72,6 @@ describe('BookExperience', () => {
     screen.getByText(minnie.name);
     click('Book Lightning Lane');
     await loading();
-    // jest.runOnlyPendingTimers();
     await screen.findByText('Your Lightning Lane');
     screen.getByText(hm.name);
     click('Done');

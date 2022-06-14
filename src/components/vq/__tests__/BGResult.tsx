@@ -12,7 +12,6 @@ const onDone = jest.fn();
 describe('BGResult', () => {
   beforeEach(async () => {
     GuestListMock.mockClear();
-    // await clock.runToLastAsync();
   });
 
   it('shows boarding group obtained', async () => {
