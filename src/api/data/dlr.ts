@@ -5,12 +5,14 @@ export default {
       name: 'Disneyland',
       abbr: 'DL',
       theme: { bg: 'bg-pink-600' },
+      // text-pink-600
     },
     {
       id: '336894',
       name: 'California Adventure',
       abbr: 'CA',
       theme: { bg: 'bg-yellow-600' },
+      // text-yellow-600
     },
   ],
   experiences: {
