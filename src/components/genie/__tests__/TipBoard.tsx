@@ -5,6 +5,7 @@ import {
   click,
   elemScrollMock,
   fireEvent,
+  loading,
   render,
   screen,
   setTime,
@@ -51,16 +52,6 @@ const changePark = (park: Park) =>
 
 jest.useFakeTimers();
 setTime('09:00');
-
-const waitForRefresh = async () => {
-  await screen.findByLabelText('Loading…');
-  act(() => {
-    jest.advanceTimersByTime(500);
-  });
-  await waitFor(() =>
-    expect(screen.queryByLabelText('Loading…')).not.toBeInTheDocument()
-  );
-};
 
 const names = (exps: { name: string }[]) => exps.map(({ name }) => name);
 
@@ -112,18 +103,18 @@ describe('TipBoard', () => {
     client.plusExperiences.mockResolvedValueOnce([sdd]);
     elemScrollMock.mockClear();
     changePark(hs);
-    await waitForRefresh();
+    await loading();
     await screen.findByText(sdd.name);
     expect(client.plusExperiences).lastCalledWith(
       expect.objectContaining({ id: hs.id })
     );
     expect(elemScrollMock).toBeCalledTimes(1);
     changePark(mk);
-    await waitForRefresh();
+    await loading();
     await screen.findByText(hm.name);
 
     await waitFor(() => click('2:30 PM'));
-    await waitForRefresh();
+    await loading();
     await screen.findByText('Your Party');
     await waitFor(() => click('Cancel'));
 
@@ -134,9 +125,9 @@ describe('TipBoard', () => {
       toggleVisibility();
       toggleVisibility();
     });
-    await waitForRefresh();
+    await loading();
     click('Refresh Tip Board');
-    await waitForRefresh();
+    await loading();
   });
 
   it('sorts list properly', async () => {
@@ -241,7 +232,7 @@ describe('TipBoard', () => {
     click('Confirm Party');
     click('Rebook Lightning Lane');
 
-    await waitForRefresh();
+    await loading();
 
     await waitFor(() => expect(client.cancelBooking).toBeCalledTimes(2));
     expect(client.cancelBooking).nthCalledWith(1, [bookings[2].guests[1]]);
