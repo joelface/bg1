@@ -91,15 +91,13 @@ export default function BookExperience({
     if (!party || party.eligible.length === 0) return;
     loadData(
       async () => {
-        const newOffer = await client.offer({
-          experience,
-          park,
-          guests: party.eligible,
-        });
-        setOffer(offer => {
-          if (offer) client.cancelOffer(offer);
-          return newOffer;
-        });
+        setOffer(
+          await client.offer({
+            experience,
+            park,
+            guests: party.eligible,
+          })
+        );
       },
       { 410: 'No reservations available' }
     );
@@ -136,13 +134,7 @@ export default function BookExperience({
             setParty(party => {
               if (!party) return party;
               const oldSelected = new Set(party.selected);
-              if (selected.some(g => !oldSelected.has(g))) {
-                setOffer(offer => {
-                  if (!offer) return offer;
-                  client.cancelOffer(offer);
-                  return undefined;
-                });
-              }
+              if (selected.some(g => !oldSelected.has(g))) setOffer(undefined);
               return { ...party, selected };
             }),
         });
