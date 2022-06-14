@@ -88,14 +88,14 @@ export default function BookExperience({
   }
 
   function refreshOffer() {
-    if (!party || party.eligible.length === 0) return;
+    if (!party || party.selected.length === 0) return;
     loadData(
       async () => {
         setOffer(
           await client.offer({
             experience,
             park,
-            guests: party.eligible,
+            guests: party.selected,
           })
         );
       },
