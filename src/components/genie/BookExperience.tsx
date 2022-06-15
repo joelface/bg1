@@ -87,22 +87,6 @@ export default function BookExperience({
     onClose();
   }
 
-  function refreshOffer() {
-    if (!party || party.selected.length === 0) return;
-    loadData(
-      async () => {
-        setOffer(
-          await client.offer({
-            experience,
-            park,
-            guests: party.selected,
-          })
-        );
-      },
-      { 410: 'No reservations available' }
-    );
-  }
-
   const loadParty = useCallback(() => {
     loadData(async () => {
       try {
@@ -152,26 +136,33 @@ export default function BookExperience({
 
   useEffect(loadParty, [loadParty]);
 
+  const refreshOffer = useCallback(
+    (event?: React.MouseEvent<HTMLButtonElement>) => {
+      if (!party || party.selected.length === 0) return;
+      loadData(
+        async () => {
+          try {
+            setOffer(
+              await client.offer({
+                experience,
+                park,
+                guests: party.selected,
+              })
+            );
+          } catch (error) {
+            if (!event) setOffer(null);
+            throw error;
+          }
+        },
+        { 410: event ? 'No reservations available' : '' }
+      );
+    },
+    [client, experience, park, party, loadData]
+  );
+
   useEffect(() => {
-    if (offer !== undefined || !party || party.selected.length === 0) return;
-    loadData(
-      async () => {
-        try {
-          setOffer(
-            await client.offer({
-              experience,
-              park,
-              guests: [...party.selected],
-            })
-          );
-        } catch (error) {
-          setOffer(null);
-          throw error;
-        }
-      },
-      { 410: '' }
-    );
-  }, [client, experience, park, party, offer, loadData]);
+    if (offer === undefined) refreshOffer();
+  }, [offer, refreshOffer]);
 
   if (booking) {
     return <BookingDetails booking={booking} onClose={onClose} isNew={true} />;
