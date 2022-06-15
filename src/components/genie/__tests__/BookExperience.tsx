@@ -75,6 +75,8 @@ describe('BookExperience', () => {
     await screen.findByText('Your Lightning Lane');
     screen.getByText(hm.name);
     click('Done');
+    expect(client.guests).toBeCalledTimes(1);
+    expect(client.book).toBeCalledTimes(1);
     expect(client.cancelBooking).lastCalledWith(
       booking.guests.filter(g => g.id === mickey.id)
     );
