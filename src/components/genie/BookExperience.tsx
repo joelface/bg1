@@ -134,7 +134,9 @@ export default function BookExperience({
     });
   }, [client, experience, park, rebooking, loadData]);
 
-  useEffect(loadParty, [loadParty]);
+  useEffect(() => {
+    if (!party) loadParty();
+  }, [party, loadParty]);
 
   const refreshOffer = useCallback(
     (event?: React.MouseEvent<HTMLButtonElement>) => {
