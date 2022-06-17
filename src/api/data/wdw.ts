@@ -1,7 +1,11 @@
 const pdts = (start: number, gap = 150, count = 3) =>
-  [431, ...[...Array(count).keys()].map(i => start + i * gap)].map(m =>
-    new Date(new Date().setHours(m / 60, m % 60, 0)).toTimeString().slice(0, 5)
-  );
+  [...Array(count).keys()]
+    .map(i => start + i * gap)
+    .map(m =>
+      new Date(new Date().setHours(m / 60, m % 60, 0))
+        .toTimeString()
+        .slice(0, 5)
+    );
 
 export default {
   parks: [
