@@ -5,11 +5,11 @@ import {
   sortGuests,
   RequestError,
 } from '../vq';
-import { fetchJson } from '/fetch';
-import { waitFor } from '/testing';
-import { rotr, mtwr, santa, queues, guests } from '/__fixtures__/vq';
+import { fetchJson } from '@/fetch';
+import { waitFor } from '@/testing';
+import { rotr, mtwr, santa, queues, guests } from '@/__fixtures__/vq';
 
-jest.mock('/fetch');
+jest.mock('@/fetch');
 const fetchJsonMock = fetchJson as jest.MockedFunction<typeof fetchJson>;
 
 function response(

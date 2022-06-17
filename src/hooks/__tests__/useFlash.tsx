@@ -1,4 +1,4 @@
-import { act, click, render, screen, waitFor } from '/testing';
+import { act, click, render, screen, waitFor } from '@/testing';
 import useFlash, { Flash } from '../useFlash';
 
 jest.useFakeTimers();

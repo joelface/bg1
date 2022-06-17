@@ -1,7 +1,7 @@
-import { ClientProvider } from '/contexts/Client';
-import { displayTime } from '/datetime';
-import { click, loading, render, screen, within } from '/testing';
-import { client, bookings } from '/__fixtures__/genie';
+import { ClientProvider } from '@/contexts/Client';
+import { displayTime } from '@/datetime';
+import { click, loading, render, screen, within } from '@/testing';
+import { client, bookings } from '@/__fixtures__/genie';
 import BookingPanel from '../BookingPanel';
 
 const onClose = jest.fn();

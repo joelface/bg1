@@ -1,5 +1,5 @@
-import { Booking } from '/api/genie';
-import { displayTime } from '/datetime';
+import { Booking } from '@/api/genie';
+import { displayTime } from '@/datetime';
 
 export default function BookingListing({
   booking,

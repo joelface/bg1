@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-import { Booking, BookingGuest } from '/api/genie';
-import { useRebooking } from '/contexts/Rebooking';
+import { Booking, BookingGuest } from '@/api/genie';
+import { useRebooking } from '@/contexts/Rebooking';
 import Button from '../Button';
 import FloatingButton from '../FloatingButton';
 import GuestList from '../GuestList';

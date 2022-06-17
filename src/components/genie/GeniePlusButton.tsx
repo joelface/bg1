@@ -1,5 +1,5 @@
-import { PlusExperience } from '/api/genie';
-import { displayTime } from '/datetime';
+import { PlusExperience } from '@/api/genie';
+import { displayTime } from '@/datetime';
 import Button from '../Button';
 import LabelledItem from './LabelledItem';
 

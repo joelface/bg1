@@ -1,4 +1,4 @@
-import { Guest } from '/api/vq';
+import { Guest } from '@/api/vq';
 import FloatingButton from '../FloatingButton';
 import GuestList from '../GuestList';
 import LogoutButton from '../LogoutButton';

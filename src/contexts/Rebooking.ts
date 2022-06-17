@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 
-import { Booking } from '/api/genie';
+import { Booking } from '@/api/genie';
 
 export interface Rebooking {
   current: Booking | null;

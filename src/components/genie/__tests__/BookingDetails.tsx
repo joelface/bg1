@@ -1,7 +1,7 @@
-import { Booking } from '/api/genie';
-import { ClientProvider } from '/contexts/Client';
-import { displayTime } from '/datetime';
-import { click, render, screen, waitFor } from '/testing';
+import { Booking } from '@/api/genie';
+import { ClientProvider } from '@/contexts/Client';
+import { displayTime } from '@/datetime';
+import { click, render, screen, waitFor } from '@/testing';
 import {
   client,
   booking,
@@ -10,7 +10,7 @@ import {
   mickey,
   minnie,
   pluto,
-} from '/__fixtures__/genie';
+} from '@/__fixtures__/genie';
 import BookingDetails from '../BookingDetails';
 
 const onClose = jest.fn();

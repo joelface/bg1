@@ -1,7 +1,7 @@
-import { render, screen, waitFor } from '/testing';
+import { render, screen, waitFor } from '@/testing';
 import Clock from '../Clock';
 
-jest.mock('/datetime', () => {
+jest.mock('@/datetime', () => {
   return {
     dateTimeStrings: () => ({ date: '2020-04-05', time: '12:59:47' }),
   };

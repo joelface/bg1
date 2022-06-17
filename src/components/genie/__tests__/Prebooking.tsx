@@ -1,4 +1,4 @@
-import { click, render, screen } from '/testing';
+import { click, render, screen } from '@/testing';
 import Prebooking from '../Prebooking';
 
 jest.useFakeTimers();

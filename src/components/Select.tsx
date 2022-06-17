@@ -1,4 +1,4 @@
-import { useTheme } from '/contexts/Theme';
+import { useTheme } from '@/contexts/Theme';
 
 type Props = React.HTMLProps<HTMLSelectElement>;
 

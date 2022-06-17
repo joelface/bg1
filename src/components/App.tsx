@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { AuthStore } from '/api/auth/store';
-import { useClient } from '/contexts/Client';
-import useDisclaimer from '/hooks/useDisclaimer';
+import { AuthStore } from '@/api/auth/store';
+import { useClient } from '@/contexts/Client';
+import useDisclaimer from '@/hooks/useDisclaimer';
 import LoginForm from './LoginForm';
 
 export default function App({

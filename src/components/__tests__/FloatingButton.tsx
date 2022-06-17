@@ -1,4 +1,4 @@
-import { click, render, screen, within } from '/testing';
+import { click, render, screen, within } from '@/testing';
 import FloatingButton from '../FloatingButton';
 
 let clicked = false;

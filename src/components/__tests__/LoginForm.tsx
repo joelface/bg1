@@ -1,8 +1,8 @@
-import { render, screen } from '/testing';
-import { AuthClient } from '/api/auth/client';
+import { render, screen } from '@/testing';
+import { AuthClient } from '@/api/auth/client';
 import LoginForm from '../LoginForm';
 
-jest.mock('/api/auth/client');
+jest.mock('@/api/auth/client');
 
 const AuthClientMock = AuthClient as jest.Mock<AuthClient>;
 

@@ -1,4 +1,4 @@
-import { Guest, Guests } from '/api/genie';
+import { Guest, Guests } from '@/api/genie';
 import { createContext, useContext } from 'react';
 
 export interface Party extends Guests {

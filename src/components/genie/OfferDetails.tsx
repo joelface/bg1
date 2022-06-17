@@ -1,5 +1,5 @@
-import { Offer } from '/api/genie';
-import { useRebooking } from '/contexts/Rebooking';
+import { Offer } from '@/api/genie';
+import { useRebooking } from '@/contexts/Rebooking';
 import Warning from '../Warning';
 import ArrivalTimes from './ArrivalTimes';
 import YourParty from './YourParty';

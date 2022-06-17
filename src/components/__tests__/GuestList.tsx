@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-import { click, render, screen, within } from '/testing';
-import { guests, mickey, minnie, pluto, fifi } from '/__fixtures__/vq';
+import { click, render, screen, within } from '@/testing';
+import { guests, mickey, minnie, pluto, fifi } from '@/__fixtures__/vq';
 import GuestList from '../GuestList';
 
 function getAllChecked() {

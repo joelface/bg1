@@ -1,7 +1,7 @@
-import { RequestError } from '/api/genie';
-import { ClientProvider } from '/contexts/Client';
-import { click, render, screen, waitFor } from '/testing';
-import { client, booking, mickey, minnie, pluto } from '/__fixtures__/genie';
+import { RequestError } from '@/api/genie';
+import { ClientProvider } from '@/contexts/Client';
+import { click, render, screen, waitFor } from '@/testing';
+import { client, booking, mickey, minnie, pluto } from '@/__fixtures__/genie';
 import CancelGuests from '../CancelGuests';
 
 jest.useFakeTimers();

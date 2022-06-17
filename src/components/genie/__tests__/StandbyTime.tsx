@@ -1,4 +1,4 @@
-import { render, screen } from '/testing';
+import { render, screen } from '@/testing';
 import StandbyTime from '../StandbyTime';
 
 describe('StandbyTime', () => {

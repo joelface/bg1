@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Booking, Park, PlusExperience } from '/api/genie';
-import { useGenieClient } from '/contexts/GenieClient';
-import { Rebooking, RebookingProvider } from '/contexts/Rebooking';
-import { useTheme } from '/contexts/Theme';
-import { dateTimeStrings } from '/datetime';
-import useDataLoader from '/hooks/useDataLoader';
-import LightningIcon from '/icons/LightningIcon';
-import RefreshIcon from '/icons/RefreshIcon';
-import StarIcon from '/icons/StarIcon';
+import { Booking, Park, PlusExperience } from '@/api/genie';
+import { useGenieClient } from '@/contexts/GenieClient';
+import { Rebooking, RebookingProvider } from '@/contexts/Rebooking';
+import { useTheme } from '@/contexts/Theme';
+import { dateTimeStrings } from '@/datetime';
+import useDataLoader from '@/hooks/useDataLoader';
+import LightningIcon from '@/icons/LightningIcon';
+import RefreshIcon from '@/icons/RefreshIcon';
+import StarIcon from '@/icons/StarIcon';
 import Button from '../Button';
 import LogoutButton from '../LogoutButton';
 import Page from '../Page';

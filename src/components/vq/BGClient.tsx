@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Guest, Queue, JoinQueueResult } from '/api/vq';
-import { useVQClient } from '/contexts/VQClient';
-import useFlash from '/hooks/useFlash';
+import { Guest, Queue, JoinQueueResult } from '@/api/vq';
+import { useVQClient } from '@/contexts/VQClient';
+import useFlash from '@/hooks/useFlash';
 import Page from '../Page';
 import TimeBoard from '../TimeBoard';
 import BGResult from './BGResult';

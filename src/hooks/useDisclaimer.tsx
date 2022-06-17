@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import FloatingButton from '/components/FloatingButton';
-import Page from '/components/Page';
+import FloatingButton from '@/components/FloatingButton';
+import Page from '@/components/Page';
 
 export const DISCLAIMER_ACCEPTED_KEY = 'bg1.disclaimer.accepted';
 

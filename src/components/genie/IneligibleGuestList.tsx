@@ -1,5 +1,5 @@
-import { useParty } from '/contexts/Party';
-import { displayTime } from '/datetime';
+import { useParty } from '@/contexts/Party';
+import { displayTime } from '@/datetime';
 import GuestList from '../GuestList';
 
 export default function IneligibleGuestList() {

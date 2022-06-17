@@ -1,4 +1,4 @@
-import { displayTime } from '/datetime';
+import { displayTime } from '@/datetime';
 import TimeBoard from '../TimeBoard';
 import YourParty from './YourParty';
 

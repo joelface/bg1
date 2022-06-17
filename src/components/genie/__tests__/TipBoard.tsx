@@ -1,5 +1,5 @@
-import { Park } from '/api/genie';
-import { ClientProvider } from '/contexts/Client';
+import { Park } from '@/api/genie';
+import { ClientProvider } from '@/contexts/Client';
 import {
   act,
   click,
@@ -11,7 +11,7 @@ import {
   setTime,
   waitFor,
   within,
-} from '/testing';
+} from '@/testing';
 import {
   client,
   mk,
@@ -22,7 +22,7 @@ import {
   mickey,
   minnie,
   bookings,
-} from '/__fixtures__/genie';
+} from '@/__fixtures__/genie';
 import TipBoard from '../TipBoard';
 
 let hidden = false;

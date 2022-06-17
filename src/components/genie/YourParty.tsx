@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
-import { useGenieClient } from '/contexts/GenieClient';
-import { useParty } from '/contexts/Party';
-import useFlash from '/hooks/useFlash';
+import { useGenieClient } from '@/contexts/GenieClient';
+import { useParty } from '@/contexts/Party';
+import useFlash from '@/hooks/useFlash';
 import Button from '../Button';
 import FloatingButton from '../FloatingButton';
 import GuestList, { Guest } from '../GuestList';

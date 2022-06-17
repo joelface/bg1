@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-import { AuthClient, AuthData } from '/api/auth/client';
+import { AuthClient, AuthData } from '@/api/auth/client';
 
 export default function LoginForm({
   resort,

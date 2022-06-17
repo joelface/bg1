@@ -1,7 +1,7 @@
-import { act, render, screen } from '/testing';
+import { act, render, screen } from '@/testing';
 import TimeBoard, { TIME_IS_IDS } from '../TimeBoard';
 
-jest.mock('/datetime', () => {
+jest.mock('@/datetime', () => {
   return {
     dateTimeStrings: () => ({ date: '2020-04-05', time: '12:59:47.328' }),
   };

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import { Booking, BookingGuest } from '/api/genie';
-import { useGenieClient } from '/contexts/GenieClient';
+import { Booking, BookingGuest } from '@/api/genie';
+import { useGenieClient } from '@/contexts/GenieClient';
 import Button from '../Button';
 import Overlay from '../Overlay';
 import Page from '../Page';
