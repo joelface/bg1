@@ -107,9 +107,11 @@ export default {
     '26068': { name: 'Expedition Everest', priority: 3.1 },
     '19581372': { name: 'Feathered Friends in Flight' },
     '12432': { name: 'Festival of the Lion King' },
+    '411550125': { name: 'Finding Nemo: The Big Blue and Beyond' },
     '80010150': { name: "It's Tough to be a Bug" },
     '80010154': { name: 'Kali River Rapids', priority: 2.0 },
     '80010157': { name: 'Kilimanjaro Safaris', priority: 1.2 },
+    '17421326': { name: 'Meet Disney Pals @ Adventurers Outpost' },
     '18665185': { name: "Na'vi River Journey", priority: 1.1 },
   },
   pdts: {
