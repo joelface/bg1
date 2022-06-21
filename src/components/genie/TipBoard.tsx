@@ -19,6 +19,7 @@ import GeniePlusButton from './GeniePlusButton';
 import RebookingHeader from './RebookingHeader';
 import StandbyTime from './StandbyTime';
 import TimeBanner from './TimeBanner';
+import useCoords, { Coords } from '@/hooks/useCoords';
 
 const AUTO_REFRESH_MIN_MS = 60_000;
 const PARK_KEY = 'bg1.genie.tipBoard.park';
@@ -26,7 +27,11 @@ const STARRED_KEY = 'bg1.genie.tipBoard.starred';
 
 type Experience = PlusExperience & { lp: boolean };
 
-type ExperienceSorter = (a: Experience, b: Experience) => number;
+type ExperienceSorter = (
+  a: Experience,
+  b: Experience,
+  coords?: Coords
+) => number;
 
 const sortByLP: ExperienceSorter = (a, b) => +b.lp - +a.lp;
 
@@ -44,6 +49,18 @@ const sortBySoonest: ExperienceSorter = (a, b) =>
 const sortByName: ExperienceSorter = (a, b) =>
   a.name.toLowerCase().localeCompare(b.name.toLowerCase());
 
+const distance = (a: Coords, b: Coords) =>
+  Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2));
+
+const sortByNearby: ExperienceSorter = (a, b, coords) =>
+  coords ? distance(a.geo, coords) - distance(b.geo, coords) : 0;
+
+function inPark(park: Park, coords: Coords) {
+  const { n, s, e, w } = park.geo;
+  const [lat, lon] = coords;
+  return lat < n && lat > s && lon < e && lon > w;
+}
+
 function timeToMinutes(time: string) {
   const [h, m] = time.split(':').map(Number);
   return h * 60 + m;
@@ -57,6 +74,7 @@ const sorters: { [key: string]: ExperienceSorter } = {
     sortBySoonest(a, b),
   standby: (a, b) => sortByStandby(a, b) || sortBySoonest(a, b),
   soonest: (a, b) => sortBySoonest(a, b) || sortByStandby(a, b),
+  nearby: (a, b, coords) => sortByNearby(a, b, coords),
   aToZ: () => 0,
 };
 
@@ -109,6 +127,11 @@ export default function TipBoard() {
     }
     return new Set<string>(starred);
   });
+  const [coords, updateCoords] = useCoords(loadData);
+
+  useEffect(() => {
+    if (sortType === 'nearby') updateCoords();
+  }, [sortType, updateCoords]);
 
   const refresh = useCallback(
     (force: unknown = true) => {
@@ -117,6 +140,10 @@ export default function TipBoard() {
           return lastRefresh;
         }
         loadData(async () => {
+          sort(sortType => {
+            if (sortType === 'nearby') updateCoords();
+            return sortType;
+          });
           const experiences = await client.plusExperiences(park);
           const nowMinutes = timeToMinutes(dateTimeStrings().time);
           setExperiences(
@@ -141,7 +168,7 @@ export default function TipBoard() {
         return Date.now();
       });
     },
-    [client, park, loadData]
+    [client, park, loadData, updateCoords]
   );
 
   useEffect(() => {
@@ -224,6 +251,7 @@ export default function TipBoard() {
               title="Sort By"
             >
               <option value="priority">Priority</option>
+              <option value="nearby">Nearby</option>
               <option value="standby">Standby</option>
               <option value="soonest">Soonest</option>
               <option value="aToZ">A to Z</option>
@@ -249,7 +277,11 @@ export default function TipBoard() {
                 (a, b) =>
                   +starred.has(b.id) - +starred.has(a.id) ||
                   +b.flex.available - +a.flex.available ||
-                  sorters[sortType](a, b) ||
+                  sorters[
+                    sortType === 'nearby' && !(coords && inPark(park, coords))
+                      ? 'priority'
+                      : sortType
+                  ](a, b, coords) ||
                   sortByName(a, b)
               )
               .map(exp => (

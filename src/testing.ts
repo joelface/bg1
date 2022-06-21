@@ -66,3 +66,29 @@ if (!HTMLElement.prototype.scroll) {
   HTMLElement.prototype.scroll = () => undefined;
 }
 export const elemScrollMock = jest.spyOn(HTMLElement.prototype, 'scroll');
+
+const MK_BTMRR_COORDS = [28.4197486, -81.5845092] as const;
+let globalCoords: readonly [number, number] | undefined = MK_BTMRR_COORDS;
+Object.defineProperty(navigator, 'geolocation', {
+  value: {
+    getCurrentPosition(onSuccess: any, onError: any) {
+      if (globalCoords) {
+        onSuccess({
+          coords: { latitude: globalCoords[0], longitude: globalCoords[1] },
+        });
+      } else {
+        onError({ code: 2, message: 'Position unavailable' });
+      }
+    },
+  },
+});
+
+export async function withCoords(
+  coords: typeof globalCoords | undefined,
+  callback: () => void | Promise<void>
+) {
+  const origCoords = globalCoords;
+  globalCoords = coords;
+  await callback();
+  globalCoords = origCoords;
+}

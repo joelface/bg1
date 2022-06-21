@@ -8,6 +8,7 @@ import {
   loading,
   render,
   screen,
+  withCoords,
   setTime,
   waitFor,
   within,
@@ -94,11 +95,15 @@ describe('TipBoard', () => {
     expect(sortBy('soonest')).toEqual(names([sm, hm, jc]));
     expect(sortBy('standby')).toEqual(names([sm, jc, hm]));
     expect(sortBy('aToZ')).toEqual(names([hm, jc, sm]));
-    expect(elemScrollMock).toBeCalledTimes(4);
+    sortBy('nearby');
+    await loading();
+    expect(getExperiences()).toEqual(names([sm, hm, jc]));
+    expect(elemScrollMock).toBeCalledTimes(5);
 
     const sdd = {
       id: 'sdd',
       name: 'Slinky Dog Dash',
+      geo: [28.3562472, -81.5628474],
       type: 'ATTRACTION',
       standby: { available: true, waitTime: 75 },
       flex: { available: false },
@@ -295,5 +300,20 @@ describe('TipBoard', () => {
 
     click(screen.getAllByRole('button', { name: 'Favorite' })[2]);
     expect(getExperiences()).toEqual(names([hm, sm, jc]));
+  });
+
+  it('only sorts by location if user is in the park', async () => {
+    await renderComponent();
+    expect(getExperiences()).toEqual(names([jc, sm, hm]));
+
+    sortBy('nearby');
+    await loading();
+    expect(getExperiences()).toEqual(names([sm, hm, jc]));
+
+    await withCoords([0, 0], async () => {
+      click('Refresh Tip Board');
+      await loading();
+      expect(getExperiences()).toEqual(names([jc, sm, hm]));
+    });
   });
 });

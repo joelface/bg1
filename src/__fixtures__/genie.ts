@@ -32,6 +32,7 @@ export const donald = {
 export const hm: PlusExperience = {
   id: '80010208',
   name: 'Haunted Mansion',
+  geo: [28.4208771, -81.5830102],
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 30 },
   flex: { available: true, nextAvailableTime: '14:30:00' },
@@ -41,6 +42,7 @@ export const hm: PlusExperience = {
 export const jc: PlusExperience = {
   id: '80010153',
   name: 'Jungle Cruise',
+  geo: [28.4180339, -81.5834548],
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 45 },
   flex: {
@@ -54,6 +56,7 @@ export const jc: PlusExperience = {
 export const sm: PlusExperience = {
   id: '80010192',
   name: 'Splash Mountain',
+  geo: [28.4196223, -81.584991],
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 60 },
   flex: { available: true, nextAvailableTime: '12:45:00' },

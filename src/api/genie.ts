@@ -21,6 +21,7 @@ export function isGenieOrigin(origin: string): origin is Origin {
 export interface Experience {
   id: string;
   name: string;
+  geo: readonly [number, number];
   type: 'ATTRACTION' | 'ENTERTAINMENT';
   standby: {
     available: boolean;
@@ -96,6 +97,7 @@ export interface Park {
   id: string;
   name: string;
   abbr: string;
+  geo: { n: number; s: number; e: number; w: number };
   theme: { bg: string };
 }
 
