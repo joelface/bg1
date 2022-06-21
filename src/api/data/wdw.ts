@@ -229,7 +229,7 @@ export default {
     // Hollywood Studios
     '18904172': {
       name: 'Alien Swirling Saucers',
-      priority: 3.0,
+      priority: 3.1,
       geo: [28.3553702, -81.5624558],
     },
     '80010848': {
@@ -293,7 +293,7 @@ export default {
     '209857': {
       name: 'Toy Story Mania',
       geo: [28.3563865, -81.5619019],
-      priority: 3.1,
+      priority: 3.0,
     },
     '80010218': {
       name: 'Twilight Zone Tower of Terror',
