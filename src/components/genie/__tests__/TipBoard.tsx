@@ -51,25 +51,28 @@ const changePark = (park: Park) =>
   });
 
 jest.useFakeTimers();
-setTime('09:00');
 
 const names = (exps: { name: string }[]) => exps.map(({ name }) => name);
 
-const renderComponent = () =>
-  render(
+const renderComponent = async () => {
+  const view = render(
     <ClientProvider value={client}>
       <TipBoard />
     </ClientProvider>
   );
+  await loading();
+  return view;
+};
 
 describe('TipBoard', () => {
   beforeEach(() => {
+    setTime('09:00');
     elemScrollMock.mockClear();
     localStorage.clear();
   });
 
   it('renders TipBoard`', async () => {
-    renderComponent();
+    await renderComponent();
 
     expect(client.plusExperiences).lastCalledWith(
       expect.objectContaining({ id: mk.id })
@@ -89,8 +92,8 @@ describe('TipBoard', () => {
 
     expect(getExperiences()).toEqual(names([jc, sm, hm]));
     expect(sortBy('soonest')).toEqual(names([sm, hm, jc]));
-    await waitFor(() => expect(sortBy('standby')).toEqual(names([sm, jc, hm])));
-    await waitFor(() => expect(sortBy('aToZ')).toEqual(names([hm, jc, sm])));
+    expect(sortBy('standby')).toEqual(names([sm, jc, hm]));
+    expect(sortBy('aToZ')).toEqual(names([hm, jc, sm]));
     expect(elemScrollMock).toBeCalledTimes(4);
 
     const sdd = {
@@ -104,19 +107,19 @@ describe('TipBoard', () => {
     elemScrollMock.mockClear();
     changePark(hs);
     await loading();
-    await screen.findByText(sdd.name);
+    screen.getByText(sdd.name);
     expect(client.plusExperiences).lastCalledWith(
       expect.objectContaining({ id: hs.id })
     );
     expect(elemScrollMock).toBeCalledTimes(1);
     changePark(mk);
     await loading();
-    await screen.findByText(hm.name);
+    screen.getByText(hm.name);
 
-    await waitFor(() => click('2:30 PM'));
+    click('2:30 PM');
     await loading();
-    await screen.findByText('Your Party');
-    await waitFor(() => click('Cancel'));
+    screen.getByText('Your Party');
+    click('Cancel');
 
     client.plusExperiences.mockClear();
 
@@ -132,7 +135,6 @@ describe('TipBoard', () => {
 
   it('sorts list properly', async () => {
     client.plusExperiences.mockResolvedValueOnce([jc, hm]);
-    renderComponent();
     const {
       priority,
       flex: { nextAvailableTime },
@@ -140,30 +142,25 @@ describe('TipBoard', () => {
     } = jc;
 
     jc.priority = undefined;
-    await waitFor(async () =>
-      expect(getExperiences()).toEqual([hm.name, jc.name])
-    );
+    await renderComponent();
+    expect(getExperiences()).toEqual(names([hm, jc]));
     jc.priority = priority;
 
     jc.flex.nextAvailableTime = hm.flex.nextAvailableTime;
-    await waitFor(async () =>
-      expect(sortBy('soonest')).toEqual([jc.name, hm.name])
-    );
+    expect(sortBy('soonest')).toEqual(names([jc, hm]));
     jc.flex.nextAvailableTime = nextAvailableTime;
 
     jc.standby.waitTime = hm.standby.waitTime;
-    await waitFor(async () =>
-      expect(sortBy('standby')).toEqual([hm.name, jc.name])
-    );
+    expect(sortBy('standby')).toEqual(names([hm, jc]));
     jc.standby.waitTime = waitTime;
 
     jc.flex.available = false;
-    expect(getExperiences()).toEqual([hm.name, jc.name]);
+    expect(getExperiences()).toEqual(names([hm, jc]));
     jc.flex.available = true;
   });
 
   it('shows Rebooking pane when rebooking', async () => {
-    renderComponent();
+    await renderComponent();
     expect(elemScrollMock).toBeCalledTimes(1);
     click('Your Lightning Lanes');
     click((await screen.findAllByText('More'))[2]);
@@ -210,6 +207,7 @@ describe('TipBoard', () => {
         <TipBoard />
       </ClientProvider>
     );
+    await loading();
     expect(screen.queryByText('Rebooking')).not.toBeInTheDocument();
     click('Your Lightning Lanes');
     await screen.findByText('Your Lightning Lanes');
@@ -227,14 +225,15 @@ describe('TipBoard', () => {
     screen.getByText('Rebooking');
 
     click('12:45 PM');
-    await waitFor(() => click('Edit'));
+    await loading();
+    click('Edit');
     click(mickey.name);
     click('Confirm Party');
     click('Rebook Lightning Lane');
 
     await loading();
 
-    await waitFor(() => expect(client.cancelBooking).toBeCalledTimes(2));
+    expect(client.cancelBooking).toBeCalledTimes(2);
     expect(client.cancelBooking).nthCalledWith(1, [bookings[2].guests[1]]);
     expect(client.cancelBooking).nthCalledWith(2, [newBooking.guests[0]]);
     screen.getByText('Your Lightning Lane');
@@ -243,37 +242,35 @@ describe('TipBoard', () => {
   });
 
   it('shows time banners', async () => {
-    renderComponent();
     client.plusExperiences.mockResolvedValueOnce([
       { ...hm, flex: { available: false, enrollmentStartTime: '07:00:00' } },
     ]);
+    await renderComponent();
+    expect(screen.getByText('Booking start:')).toHaveTextContent('7:00 AM');
     click('Refresh Tip Board');
-    expect(await screen.findByText('Booking start:')).toHaveTextContent(
-      '7:00 AM'
-    );
-    click('Refresh Tip Board');
-    expect(await screen.findByText('Next drop:')).toHaveTextContent('1:30 PM');
+    await loading();
+    expect(screen.getByText('Next drop:')).toHaveTextContent('1:30 PM');
   });
 
   it('saves selected park until tomorrow', async () => {
     const parkId = () => (screen.getByTitle('Park') as HTMLSelectElement).value;
 
     setTime('12:00');
-    let { unmount } = renderComponent();
-    await screen.findByText(hm.name);
+    let { unmount } = await renderComponent();
+    screen.getByText(hm.name);
     expect(parkId()).toBe(mk.id);
 
     changePark(hs);
     unmount();
     setTime('23:59:59');
-    ({ unmount } = renderComponent());
-    await screen.findByText(hm.name);
+    ({ unmount } = await renderComponent());
+    screen.getByText(hm.name);
     expect(parkId()).toBe(hs.id);
 
     unmount();
     setTime('00:00', 1);
-    ({ unmount } = renderComponent());
-    await screen.findByText(hm.name);
+    ({ unmount } = await renderComponent());
+    screen.getByText(hm.name);
     expect(parkId()).toBe(mk.id);
   });
 
@@ -283,22 +280,20 @@ describe('TipBoard', () => {
       sm,
       { ...hm, flex: { available: false } },
     ]);
-    renderComponent();
-    await waitFor(() =>
-      expect(getExperiences()).toEqual([jc.name, sm.name, hm.name])
-    );
+    await renderComponent();
+    expect(getExperiences()).toEqual(names([jc, sm, hm]));
     click(screen.getAllByRole('button', { name: 'Favorite' })[2]);
-    expect(getExperiences()).toEqual([hm.name, jc.name, sm.name]);
+    expect(getExperiences()).toEqual(names([hm, jc, sm]));
   });
 
   it('shows lightning picks at top, but below starred rides', async () => {
     setTime('12:05');
-    renderComponent();
-    const lp = (await screen.findAllByRole('listitem'))[0];
+    await renderComponent();
+    const lp = screen.getAllByRole('listitem')[0];
     expect(lp).toHaveTextContent(sm.name);
     within(lp).getByTitle('Lightning Pick');
 
     click(screen.getAllByRole('button', { name: 'Favorite' })[2]);
-    expect(getExperiences()).toEqual([hm.name, sm.name, jc.name]);
+    expect(getExperiences()).toEqual(names([hm, sm, jc]));
   });
 });

@@ -1,4 +1,4 @@
-import { act, click, render, screen, waitFor } from '@/testing';
+import { act, click, render, screen } from '@/testing';
 import useFlash, { Flash } from '../useFlash';
 
 jest.useFakeTimers();
@@ -45,8 +45,6 @@ describe('useFlash()', () => {
     act(() => {
       jest.runOnlyPendingTimers();
     });
-    await waitFor(() =>
-      expect(screen.queryByText('oops')).not.toBeInTheDocument()
-    );
+    expect(screen.queryByText('oops')).not.toBeInTheDocument();
   });
 });

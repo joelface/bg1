@@ -1,7 +1,7 @@
 import { RequestError } from '@/api/genie';
 import { ClientProvider } from '@/contexts/Client';
 import { RebookingProvider } from '@/contexts/Rebooking';
-import { click, loading, render, screen, waitFor } from '@/testing';
+import { click, loading, render, screen } from '@/testing';
 import {
   client,
   hm,
@@ -27,8 +27,8 @@ const mockClickResponse = async (
     status >= 0 ? new RequestError({ status, data: {} }) : new Error();
   errorMock.mockImplementationOnce(() => null);
   clientMethod.mockRejectedValueOnce(error);
-  await waitFor(() => click(buttonText));
-  jest.runOnlyPendingTimers();
+  click(buttonText);
+  await loading();
 };
 
 const mockBook = (status: number) =>
@@ -37,7 +37,7 @@ const mockBook = (status: number) =>
 const mockMakeRes = (status: number) =>
   mockClickResponse(client.plusExperiences, 'Check Availability', status);
 
-const renderComponent = (available = true) => {
+const renderComponent = async (available = true) => {
   render(
     <ClientProvider value={client}>
       <BookExperience
@@ -50,6 +50,7 @@ const renderComponent = (available = true) => {
       />
     </ClientProvider>
   );
+  await loading();
 };
 
 describe('BookExperience', () => {
@@ -58,12 +59,11 @@ describe('BookExperience', () => {
   });
 
   it('performs successful booking', async () => {
-    renderComponent(false);
-    await loading();
-    await screen.findByText('Not Available Yet');
+    await renderComponent(false);
+    screen.getByText('Not Available Yet');
     click('Check Availability');
     await loading();
-    await screen.findByText('11:25 AM');
+    screen.getByText('11:25 AM');
     screen.getByText('12:25 PM');
     click('Edit');
     click(mickey.name);
@@ -72,7 +72,7 @@ describe('BookExperience', () => {
     screen.getByText(minnie.name);
     click('Book Lightning Lane');
     await loading();
-    await screen.findByText('Your Lightning Lane');
+    screen.getByText('Your Lightning Lane');
     screen.getByText(hm.name);
     click('Done');
     expect(client.guests).toBeCalledTimes(1);
@@ -91,17 +91,18 @@ describe('BookExperience', () => {
   };
 
   it('refreshes offer when Refresh Offer button clicked', async () => {
-    renderComponent();
-    await screen.findByText('11:25 AM');
+    await renderComponent();
+    screen.getByText('11:25 AM');
     client.offer.mockResolvedValueOnce(newOffer);
     click('Refresh Offer');
-    await screen.findByText('10:05 AM');
+    await loading();
+    screen.getByText('10:05 AM');
     screen.getByText('11:05 AM');
   });
 
   it('refreshes offer when someone added to party', async () => {
-    renderComponent();
-    await screen.findByText('11:25 AM');
+    await renderComponent();
+    screen.getByText('11:25 AM');
     client.offer.mockResolvedValueOnce(newOffer);
     click('Edit');
     click(mickey.name);
@@ -109,22 +110,22 @@ describe('BookExperience', () => {
     click('Edit');
     click(mickey.name);
     click('Confirm Party');
-    jest.runOnlyPendingTimers();
-    await screen.findByText('10:05 AM');
+    await loading();
+    screen.getByText('10:05 AM');
   });
 
   it('cancels offer and calls onClose when Cancel button clicked', async () => {
-    renderComponent();
-    await screen.findByText('Arrive by:');
-    await waitFor(() => click('Cancel'));
+    await renderComponent();
+    screen.getByText('Arrive by:');
+    click('Cancel');
     expect(onClose).toBeCalledTimes(1);
     expect(client.cancelOffer).toBeCalledTimes(1);
   });
 
   it('shows "No Guests Found" when no guests loaded', async () => {
     client.guests.mockResolvedValueOnce({ eligible: [], ineligible: [] });
-    renderComponent();
-    await screen.findByText('No Guests Found');
+    await renderComponent();
+    screen.getByText('No Guests Found');
   });
 
   it('shows "No Eligible Guests" when no eligible guests loaded', async () => {
@@ -132,9 +133,8 @@ describe('BookExperience', () => {
       eligible: [],
       ineligible: [donald],
     });
-    renderComponent();
-    jest.runOnlyPendingTimers();
-    await screen.findByText('No Eligible Guests');
+    await renderComponent();
+    screen.getByText('No Eligible Guests');
     expect(screen.getByText(donald.name)).toHaveTextContent(
       donald.ineligibleReason.replace(/_/g, ' ')
     );
@@ -144,9 +144,9 @@ describe('BookExperience', () => {
     client.offer.mockRejectedValueOnce(
       new RequestError({ status: 410, data: {} })
     );
-    renderComponent();
-    await waitFor(() => expect(client.offer).toBeCalledTimes(1));
-    await screen.findByText('No Reservations Available');
+    await renderComponent();
+    expect(client.offer).toBeCalledTimes(1);
+    screen.getByText('No Reservations Available');
   });
 
   it('shows "Unable to Rebook" if any guest has conflict while rebooking', async () => {
@@ -181,8 +181,8 @@ describe('BookExperience', () => {
         </RebookingProvider>
       </ClientProvider>
     );
-    jest.runOnlyPendingTimers();
-    await screen.findByText('Unable to Rebook');
+    await loading();
+    screen.getByText('Unable to Rebook');
     expect(screen.getByText(guests[0].name)).toHaveTextContent(
       'ELIGIBLE FOR NEW BOOKING'
     );
@@ -194,27 +194,27 @@ describe('BookExperience', () => {
   });
 
   it('flashes error message when booking fails', async () => {
-    renderComponent();
+    await renderComponent();
     await mockBook(410);
-    await screen.findByText('Offer expired');
+    screen.getByText('Offer expired');
     await mockBook(0);
-    await screen.findByText('Network request failed');
+    screen.getByText('Network request failed');
     await mockBook(-1);
-    await screen.findByText('Unknown error occurred');
+    screen.getByText('Unknown error occurred');
   });
 
   it('flashes error message when enrollment not open or enrollment check fails', async () => {
-    renderComponent(false);
     client.plusExperiences.mockResolvedValueOnce([
       { ...hm, flex: { available: false } },
     ]);
-    await waitFor(() => click('Check Availability'));
-    jest.runOnlyPendingTimers();
-    await screen.findByText('Reservations not open yet');
+    await renderComponent(false);
+    click('Check Availability');
+    await loading();
+    screen.getByText('Reservations not open yet');
     await mockMakeRes(0);
-    await screen.findByText('Network request failed');
+    screen.getByText('Network request failed');
     await mockMakeRes(-1);
-    await screen.findByText('Unknown error occurred');
+    screen.getByText('Unknown error occurred');
   });
 
   it('limits offers to maxPartySize', async () => {
@@ -222,8 +222,8 @@ describe('BookExperience', () => {
       .map(String)
       .map(id => ({ id, name: id }));
     client.guests.mockResolvedValueOnce({ eligible, ineligible: [] });
-    renderComponent();
-    await waitFor(() => expect(client.offer).toBeCalledTimes(1));
+    await renderComponent();
+    expect(client.offer).toBeCalledTimes(1);
     expect(client.offer).lastCalledWith(
       expect.objectContaining({
         guests: eligible.slice(0, client.maxPartySize),
