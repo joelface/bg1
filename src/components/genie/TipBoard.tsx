@@ -22,6 +22,8 @@ import TimeBanner from './TimeBanner';
 import useCoords, { Coords } from '@/hooks/useCoords';
 
 const AUTO_REFRESH_MIN_MS = 60_000;
+const LP_MIN_STANDBY = 30;
+const LP_MAX_LL_WAIT = 60;
 const PARK_KEY = 'bg1.genie.tipBoard.park';
 const STARRED_KEY = 'bg1.genie.tipBoard.starred';
 
@@ -77,9 +79,6 @@ const sorters: { [key: string]: ExperienceSorter } = {
   nearby: (a, b, coords) => sortByNearby(a, b, coords),
   aToZ: () => 0,
 };
-
-const LP_MIN_STANDBY = 30;
-const LP_MAX_LL_WAIT = 60;
 
 export default function TipBoard() {
   const client = useGenieClient();
