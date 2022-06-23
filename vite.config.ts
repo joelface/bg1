@@ -33,6 +33,9 @@ export default {
       },
     },
   },
+  optimizeDeps: {
+    include: ['preact/compat', 'preact/compat/client'],
+  },
   esbuild: { jsxInject: `import * as React from 'react'` },
   server,
   preview: server,
