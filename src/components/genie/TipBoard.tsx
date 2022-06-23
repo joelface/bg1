@@ -353,11 +353,11 @@ function StarButton({
 }) {
   const theme = useTheme();
   return (
-    <div className="relative w-4 h-6">
+    <div className="w-4 h-6">
       <button
         data-id={experience.id}
         title="Favorite"
-        className="absolute -top-2 -left-2 p-2"
+        className="-translate-x-2 -translate-y-2 p-2"
         onClick={onClick}
       >
         <StarIcon
