@@ -1,8 +1,5 @@
 import path from 'path';
-import prefresh from '@prefresh/vite';
 import { UserConfig } from 'vite';
-
-const hmr = +(process.env.HMR ?? 0);
 
 const server = {
   host: '0.0.0.0',
@@ -11,7 +8,6 @@ const server = {
     cert: './tls/dev.cert',
     key: './tls/dev.key',
   },
-  hmr: hmr && { host: process.env.HOST || 'localhost' },
 };
 
 export default {
@@ -40,5 +36,4 @@ export default {
   esbuild: { jsxInject: `import * as React from 'react'` },
   server,
   preview: server,
-  plugins: [hmr && prefresh()],
 } as UserConfig;
