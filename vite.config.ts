@@ -1,5 +1,5 @@
 import path from 'path';
-import { UserConfig } from 'vite';
+import { defineConfig } from 'vite';
 
 const server = {
   host: '0.0.0.0',
@@ -10,7 +10,7 @@ const server = {
   },
 };
 
-export default {
+export default defineConfig({
   base: '/bg1/',
   root: 'src',
   resolve: {
@@ -29,7 +29,6 @@ export default {
         entryFileNames: '[name].js',
         chunkFileNames: '[name].js',
         assetFileNames: '[name][extname]',
-        manualChunks: {},
       },
     },
   },
@@ -39,4 +38,4 @@ export default {
   esbuild: { jsxInject: `import * as React from 'react'` },
   server,
   preview: server,
-} as UserConfig;
+});
