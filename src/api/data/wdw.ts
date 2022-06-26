@@ -1,3 +1,5 @@
+import { ResortData } from '../genie';
+
 const pdts = (start: number, gap = 150, count = 3) =>
   [...Array(count).keys()]
     .map(i => start + i * gap)
@@ -7,7 +9,7 @@ const pdts = (start: number, gap = 150, count = 3) =>
         .slice(0, 5)
     );
 
-export default {
+const data: ResortData = {
   parks: [
     {
       id: '80007944',
@@ -363,3 +365,4 @@ export default {
     '80007823': pdts(617),
   },
 };
+export default data;

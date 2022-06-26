@@ -1,4 +1,6 @@
-export default {
+import { ResortData } from '../genie';
+
+const data: ResortData = {
   parks: [
     {
       id: '330339',
@@ -152,3 +154,4 @@ export default {
   },
   pdts: {},
 };
+export default data;

@@ -45,6 +45,9 @@ export interface Experience {
 
 export type PlusExperience = Experience & Required<Pick<Experience, 'flex'>>;
 
+type ApiExperience = Omit<Experience, 'name' | 'priority' | 'geo'>;
+type ApiPlusExperience = ApiExperience & Required<Pick<Experience, 'flex'>>;
+
 interface GuestEligibility {
   ineligibleReason?:
     | 'INVALID_PARK_ADMISSION'
@@ -101,9 +104,15 @@ export interface Park {
   theme: { bg: string };
 }
 
-interface ResortData {
+export interface ResortData {
   parks: Park[];
-  experiences: { [id: string]: { name: string; priority?: number } };
+  experiences: {
+    [id: string]: {
+      name: string;
+      geo: readonly [number, number];
+      priority?: number;
+    };
+  };
   pdts: { [id: string]: string[] };
 }
 
@@ -200,7 +209,7 @@ interface Profile {
 }
 
 interface Itinerary {
-  assets: { [id: string]: Asset | LocationAsset };
+  assets: { [id: string]: Asset };
   items: (Item | FastPass)[];
   profiles: { [id: string]: Profile };
 }
@@ -259,16 +268,18 @@ export class GenieClient {
   }
 
   async plusExperiences(park: Pick<Park, 'id'>): Promise<PlusExperience[]> {
-    const experiences: Omit<Experience, 'name' | 'parkId'>[] =
-      await this.request({
-        path: `/tipboard-vas/api/v1/parks/${encodeURIComponent(
-          park.id
-        )}/experiences`,
-        key: 'availableExperiences',
-      });
+    const experiences: ApiExperience[] = await this.request({
+      path: `/tipboard-vas/api/v1/parks/${encodeURIComponent(
+        park.id
+      )}/experiences`,
+      key: 'availableExperiences',
+    });
     return experiences
-      .map(exp => ({ ...exp, ...this.data.experiences[exp.id] }))
-      .filter((exp): exp is PlusExperience => !!(exp.name && exp.flex));
+      .filter(
+        (exp): exp is ApiPlusExperience =>
+          !!exp.flex && exp.id in this.data.experiences
+      )
+      .map(exp => ({ ...exp, ...this.data.experiences[exp.id] }));
   }
 
   async guests(args: {
