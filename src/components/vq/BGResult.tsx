@@ -37,12 +37,12 @@ export default function BGResult({
           <h2 className="mt-5 text-xl">Boarding Group: {boardingGroup}</h2>
           <GuestList guests={joinedGuests} />
 
-          {Object.keys(conflicts).length > 0 ? (
+          {Object.keys(conflicts).length > 0 && (
             <>
               <p className="font-semibold">These guests could not join:</p>
               <GuestList guests={failedGuests} conflicts={conflicts} />
             </>
-          ) : null}
+          )}
 
           <p>
             Refer to the My Disney Experience app for return time and other

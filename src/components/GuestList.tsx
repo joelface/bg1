@@ -28,14 +28,14 @@ export default function GuestList<T extends Guest>({
         return (
           <li key={g.id} className="px-3 py-1">
             <label className="flex items-center">
-              {selectable ? (
+              {selectable && (
                 <input
                   type="checkbox"
                   checked={selectable.isSelected(g)}
                   onChange={() => selectable.onToggle(g)}
                   className="mr-3"
                 />
-              ) : null}
+              )}
               <span className="w-[48px] h-[48px] leading-[48px] mr-3 rounded-full text-3xl font-bold text-center bg-gray-400 text-white">
                 {g.avatarImageUrl ? (
                   <img
@@ -52,11 +52,11 @@ export default function GuestList<T extends Guest>({
               <span className="leading-tight">
                 {g.name}
                 <br />
-                {conflicts?.[g.id] ? (
+                {conflicts?.[g.id] && (
                   <span className="text-xs font-semibold text-red-700 uppercase">
                     {conflicts[g.id]?.replace(/_/g, ' ')}
                   </span>
-                ) : null}
+                )}
               </span>
             </label>
           </li>

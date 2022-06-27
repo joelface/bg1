@@ -305,11 +305,11 @@ export default function TipBoard() {
                       </span>
                     )}
                   </div>
-                  {exp.flex.preexistingPlan ? (
+                  {exp.flex.preexistingPlan && (
                     <div className="mt-2 border-2 border-green-600 rounded p-1 text-sm uppercase font-semibold text-center text-green-600 bg-green-100">
                       Lightning Lane Booked
                     </div>
-                  ) : null}
+                  )}
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     <StandbyTime experience={exp} />
                     <GeniePlusButton experience={exp} onClick={setExperience} />

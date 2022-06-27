@@ -45,12 +45,12 @@ export default function TimeBoard({
           time={
             <>
               <Clock id={id} onSync={onSync} />
-              {synced === false ? (
+              {synced === false && (
                 <span className="text-sm font-sans font-semibold text-red-600">
                   {' '}
                   (unsynced)
                 </span>
-              ) : null}
+              )}
             </>
           }
         />
