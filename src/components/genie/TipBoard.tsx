@@ -92,8 +92,8 @@ export default function TipBoard() {
     );
   });
   const [experiences, setExperiences] = useState<Experience[]>([]);
-  const [experience, setExperience] = useState<PlusExperience>();
-  const [bookingPanelOpen, setBookingPanelOpen] = useState(false);
+  const [modal, setModal] = useState<React.ReactNode>();
+  const closeModal = () => setModal(undefined);
   const [sortType, sort] = useState<keyof typeof sorters>('priority');
   const { loadData, loaderElem, isLoading } = useDataLoader();
   const [, setLastRefresh] = useState(0);
@@ -102,13 +102,13 @@ export default function TipBoard() {
     begin: (booking: Booking) => {
       setRebooking({ ...rebooking, current: booking });
       setPark(booking.park);
-      setBookingPanelOpen(false);
+      closeModal();
     },
     end: (canceled = false) => {
       setRebooking(rebooking =>
         rebooking.current ? { ...rebooking, current: null } : rebooking
       );
-      if (canceled) setExperience(undefined);
+      if (canceled) closeModal();
     },
   }));
   const pageElem = useRef<HTMLDivElement>(null);
@@ -176,7 +176,7 @@ export default function TipBoard() {
   }, [refresh]);
 
   useEffect(() => {
-    if (isLoading || experience || bookingPanelOpen) return;
+    if (isLoading || modal) return;
     const refreshIfVisible = () => {
       if (!document.hidden) refresh(false);
     };
@@ -184,7 +184,7 @@ export default function TipBoard() {
     return () => {
       document.removeEventListener('visibilitychange', refreshIfVisible);
     };
-  }, [experience, refresh, isLoading, bookingPanelOpen]);
+  }, [modal, refresh, isLoading]);
 
   useEffect(() => {
     pageElem.current?.scroll(0, 0);
@@ -222,7 +222,7 @@ export default function TipBoard() {
         buttons={
           <>
             <Button
-              onClick={() => setBookingPanelOpen(true)}
+              onClick={() => setModal(<BookingPanel onClose={closeModal} />)}
               title="Your Lightning Lanes"
             >
               <LightningIcon />
@@ -263,7 +263,7 @@ export default function TipBoard() {
         }
         containerRef={pageElem}
       >
-        <div aria-hidden={!!(experience || bookingPanelOpen)}>
+        <div aria-hidden={!!modal}>
           <RebookingHeader />
           {bookingStart ? (
             <TimeBanner label="Booking start" time={bookingStart} />
@@ -312,7 +312,21 @@ export default function TipBoard() {
                   )}
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     <StandbyTime experience={exp} />
-                    <GeniePlusButton experience={exp} onClick={setExperience} />
+                    <GeniePlusButton
+                      experience={exp}
+                      onClick={experience =>
+                        setModal(
+                          <BookExperience
+                            experience={experience}
+                            park={park}
+                            onClose={() => {
+                              closeModal();
+                              refresh(false);
+                            }}
+                          />
+                        )
+                      }
+                    />
                   </div>
                 </li>
               ))}
@@ -325,19 +339,7 @@ export default function TipBoard() {
           {loaderElem}
         </div>
       </Page>
-      {bookingPanelOpen && (
-        <BookingPanel onClose={() => setBookingPanelOpen(false)} />
-      )}
-      {experience && (
-        <BookExperience
-          experience={experience}
-          park={park}
-          onClose={() => {
-            refresh(false);
-            setExperience(undefined);
-          }}
-        />
-      )}
+      {modal}
     </RebookingProvider>
   );
 }
