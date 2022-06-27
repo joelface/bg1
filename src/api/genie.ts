@@ -451,8 +451,9 @@ export class GenieClient {
       )
       .filter(
         fp =>
-          (!fp.displayEndDate || fp.displayEndDate >= earliest.date) &&
-          (!fp.displayEndTime || fp.displayEndTime >= earliest.time)
+          (fp.displayEndDate || '9999') > earliest.date ||
+          (fp.displayEndDate === earliest.date &&
+            (fp.displayEndTime || '24') >= earliest.time)
       )
       .map(fp => {
         const id = idNum(fp.facility);

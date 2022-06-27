@@ -9,6 +9,7 @@ import {
   minnie,
   donald,
   pluto,
+  booking,
   bookings,
 } from '@/__fixtures__/genie';
 import {
@@ -426,22 +427,36 @@ describe('GenieClient', () => {
       });
     }
     const bookingsRes = createBookingsResponse(bookings);
-    const nowMock = jest.spyOn(Date, 'now');
+
+    jest.useFakeTimers();
+    afterAll(() => jest.useRealTimers());
 
     it('returns current bookings', async () => {
-      nowMock.mockReturnValueOnce(new Date('2022-07-17 12:40:00').getTime());
+      setTime('12:40');
       respond(bookingsRes);
       expect(await client.bookings()).toEqual(bookings);
     });
 
     it('returns only unexpired bookings', async () => {
-      nowMock.mockReturnValueOnce(new Date('2022-07-17 12:41:00').getTime());
+      setTime('12:41');
       respond(bookingsRes);
       expect(await client.bookings()).toEqual([
         bookings[0],
         bookings[2],
         bookings[3],
       ]);
+    });
+
+    it('returns bookings that expire on/after midnight', async () => {
+      setTime('23:00');
+      const bookings = [
+        {
+          ...booking,
+          end: { date: '2022-07-18', time: '00:00:00' },
+        },
+      ];
+      respond(createBookingsResponse(bookings));
+      expect(await client.bookings()).toEqual(bookings);
     });
 
     it('uses names defined in park data files', async () => {
