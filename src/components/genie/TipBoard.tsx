@@ -11,6 +11,7 @@ import RefreshIcon from '@/icons/RefreshIcon';
 import StarIcon from '@/icons/StarIcon';
 import Button from '../Button';
 import LogoutButton from '../LogoutButton';
+import Overlay from '../Overlay';
 import Page from '../Page';
 import Select from '../Select';
 import BookExperience from './BookExperience';
@@ -298,11 +299,17 @@ export default function TipBoard() {
                       {exp.name}
                     </h2>
                     {exp.lp && (
-                      <span title="Lightning Pick">
+                      <button
+                        title="Lightning Pick"
+                        className="px-2"
+                        onClick={() =>
+                          setModal(<LightningPickModal onClose={closeModal} />)
+                        }
+                      >
                         <LightningIcon
                           className={`text${park.theme.bg.slice(2)}`}
                         />
-                      </span>
+                      </button>
                     )}
                   </div>
                   {exp.flex.preexistingPlan && (
@@ -371,5 +378,34 @@ function StarButton({
         />
       </button>
     </div>
+  );
+}
+
+function LightningPickModal({ onClose }: { onClose: () => void }) {
+  return (
+    <Overlay
+      className={{
+        outer: 'bg-black bg-opacity-75',
+        inner: 'p-2 flex items-center justify-center',
+      }}
+      onClick={onClose}
+    >
+      <div
+        className="rounded-lg px-3 py-4 bg-white"
+        onClick={event => event.stopPropagation()}
+      >
+        <h2 className="mt-0">Lightning Pick</h2>
+        <p>
+          When an attraction with a long wait has a Lightning Lane return time
+          in the near future, it's highlighted as a Lightning Pick. Book these
+          quick before they're gone!
+        </p>
+        <div>
+          <Button type="full" onClick={onClose}>
+            Close
+          </Button>
+        </div>
+      </div>
+    </Overlay>
   );
 }

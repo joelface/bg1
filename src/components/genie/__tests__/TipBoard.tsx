@@ -300,6 +300,13 @@ describe('TipBoard', () => {
 
     click(screen.getAllByRole('button', { name: 'Favorite' })[2]);
     expect(getExperiences()).toEqual(names([hm, sm, jc]));
+
+    click('Lightning Pick');
+    const modalHeading = screen.getByRole('heading', {
+      name: 'Lightning Pick',
+    });
+    click('Close');
+    expect(modalHeading).not.toBeInTheDocument();
   });
 
   it('only sorts by location if user is in the park', async () => {
