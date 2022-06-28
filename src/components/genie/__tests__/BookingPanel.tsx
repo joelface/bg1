@@ -18,11 +18,15 @@ describe('BookingPanel', () => {
   it('renders booking panel', async () => {
     renderComponent();
     const lis = await screen.findAllByRole('listitem');
-    lis.forEach((li, i) => {
-      const { experience, start, end } = bookings[i];
-      within(li).getByText(experience.name);
-      within(li).getByText(start.time ? displayTime(start.time) : 'open');
-      within(li).getByText(end.time ? displayTime(end.time) : 'close');
+    bookings.forEach((booking, i) => {
+      const { experience, start, end } = booking;
+      const inLI = within(lis[i]);
+      inLI.getByText(experience.name);
+      inLI.getByText(start.time ? displayTime(start.time) : 'open');
+      inLI.getByText(end.time ? displayTime(end.time) : 'close');
+      expect(!!inLI.queryByTitle('Rebookable')).toBe(
+        client.isRebookable(booking)
+      );
     });
 
     click('More');

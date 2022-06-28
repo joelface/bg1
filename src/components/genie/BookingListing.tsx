@@ -4,12 +4,15 @@ import { displayTime } from '@/datetime';
 export default function BookingListing({
   booking,
   button,
+  badge,
 }: {
   booking: Booking;
   button?: React.ReactNode;
+  badge?: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-x-2">
+    <div className="flex items-center gap-x-3">
+      {badge}
       <div className="flex-1 min-w-0">
         <div className="text-gray-500 text-sm font-semibold uppercase">
           {booking.start.time ? (

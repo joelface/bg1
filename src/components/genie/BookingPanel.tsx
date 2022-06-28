@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { Booking, BookingGuest } from '@/api/genie';
 import { useGenieClient } from '@/contexts/GenieClient';
+import { useTheme } from '@/contexts/Theme';
 import Button from '../Button';
 import Overlay from '../Overlay';
 import Page from '../Page';
@@ -10,6 +11,7 @@ import BookingListing from './BookingListing';
 
 export default function BookingPanel({ onClose }: { onClose: () => void }) {
   const client = useGenieClient();
+  const theme = useTheme();
   const [bookings, setBookings] = useState<Booking[]>();
   const [booking, setBooking] = useState<Booking>();
   const [opened, setOpened] = useState(false);
@@ -75,6 +77,14 @@ export default function BookingPanel({ onClose }: { onClose: () => void }) {
                     <Button type="small" onClick={() => setBooking(booking)}>
                       More
                     </Button>
+                  }
+                  badge={
+                    client.isRebookable(booking) && (
+                      <div
+                        title="Rebookable"
+                        className={`w-2.5 h-2.5 rounded-full ${theme.bg}`}
+                      />
+                    )
                   }
                 />
               </li>
