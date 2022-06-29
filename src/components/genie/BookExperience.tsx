@@ -118,7 +118,11 @@ export default function BookExperience({
             setParty(party => {
               if (!party) return party;
               const oldSelected = new Set(party.selected);
-              if (selected.some(g => !oldSelected.has(g))) setOffer(undefined);
+              setOffer(offer =>
+                offer === null || selected.some(g => !oldSelected.has(g))
+                  ? undefined
+                  : offer
+              );
               return { ...party, selected };
             }),
         });
@@ -156,10 +160,10 @@ export default function BookExperience({
             throw error;
           }
         },
-        { 410: event ? 'No reservations available' : '' }
+        { 410: offer ? 'No reservations available' : '' }
       );
     },
-    [client, experience, park, party, loadData]
+    [client, experience, park, party, offer, loadData]
   );
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import FloatingButton from '../FloatingButton';
+import YourParty from './YourParty';
 
 export default function NoReservationsAvailable({
   onClose,
@@ -9,10 +9,12 @@ export default function NoReservationsAvailable({
     <>
       <h3>No Reservations Available</h3>
       <p>
-        Tap the refresh button above to try again or go back to the tip board
-        and select another attraction.
+        There aren't enough reservation slots available for your entire party.
+        If only part of your group wishes to go on this attraction, edit your
+        party to check again. Otherwise, go back to the tip board and select
+        another attraction.
       </p>
-      <FloatingButton onClick={onClose}>Back</FloatingButton>
+      <YourParty buttonText="Back" onSubmit={onClose} />
     </>
   );
 }

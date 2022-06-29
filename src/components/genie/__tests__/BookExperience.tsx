@@ -153,6 +153,12 @@ describe('BookExperience', () => {
     screen.getByText('No Reservations Available');
     screen.getByTitle('Refresh Offer');
     expect(screen.queryByText('Cancel')).not.toBeInTheDocument();
+
+    click('Edit');
+    click(minnie.name);
+    click('Confirm Party');
+    await loading();
+    expect(client.offer).toBeCalledTimes(2);
   });
 
   it('shows "Unable to Rebook" if any guest has conflict while rebooking', async () => {
