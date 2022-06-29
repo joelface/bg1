@@ -170,13 +170,16 @@ export default function BookExperience({
     return <BookingDetails booking={booking} onClose={onClose} isNew={true} />;
   }
 
+  const noGuestsFound =
+    party?.eligible.length === 0 && party?.ineligible.length === 0;
+
   return (
     <Page
       heading="Lightning Lane"
       theme={park.theme}
       buttons={
         <>
-          {(!available || offer !== null) && (
+          {party && (!available || offer || noGuestsFound) && (
             <Button onClick={cancel}>Cancel</Button>
           )}
           {available && offer !== undefined && (

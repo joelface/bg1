@@ -126,6 +126,8 @@ describe('BookExperience', () => {
     client.guests.mockResolvedValueOnce({ eligible: [], ineligible: [] });
     await renderComponent();
     screen.getByText('No Guests Found');
+    screen.getByText('Cancel');
+    expect(screen.queryByTitle('Refresh Offer')).not.toBeInTheDocument();
   });
 
   it('shows "No Eligible Guests" when no eligible guests loaded', async () => {
@@ -138,6 +140,8 @@ describe('BookExperience', () => {
     expect(screen.getByText(donald.name)).toHaveTextContent(
       donald.ineligibleReason.replace(/_/g, ' ')
     );
+    expect(screen.queryByText('Cancel')).not.toBeInTheDocument();
+    expect(screen.queryByTitle('Refresh Offer')).not.toBeInTheDocument();
   });
 
   it('shows "No Reservations Available" when no offer', async () => {
@@ -147,6 +151,8 @@ describe('BookExperience', () => {
     await renderComponent();
     expect(client.offer).toBeCalledTimes(1);
     screen.getByText('No Reservations Available');
+    screen.getByTitle('Refresh Offer');
+    expect(screen.queryByText('Cancel')).not.toBeInTheDocument();
   });
 
   it('shows "Unable to Rebook" if any guest has conflict while rebooking', async () => {
