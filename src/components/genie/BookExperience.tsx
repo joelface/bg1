@@ -33,7 +33,7 @@ export default function BookExperience({
     available ? undefined : null
   );
   const [booking, setBooking] = useState<Booking>();
-  const { loadData, loaderElem, isLoading } = useDataLoader();
+  const { loadData, loaderElem } = useDataLoader();
 
   async function book() {
     if (!offer || !party) return;
@@ -203,15 +203,13 @@ export default function BookExperience({
           }
         }
       >
-        {party?.eligible?.length === 0 ? (
-          isLoading ? (
-            <div />
-          ) : party.ineligible.length === 0 ? (
+        {party?.eligible.length === 0 ? (
+          noGuestsFound ? (
             <NoGuestsFound onRefresh={loadParty} />
           ) : (
             <NoEligibleGuests onClose={onClose} />
           )
-        ) : offer === undefined ? (
+        ) : !party || offer === undefined ? (
           <div />
         ) : !available ? (
           <Prebooking
