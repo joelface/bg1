@@ -26,6 +26,8 @@ import {
 } from '@/__fixtures__/genie';
 import TipBoard from '../TipBoard';
 
+jest.mock('@/ping');
+
 let hidden = false;
 Object.defineProperty(document, 'hidden', { get: () => hidden });
 

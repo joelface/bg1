@@ -1,6 +1,7 @@
 import { RequestError } from '@/api/genie';
 import { ClientProvider } from '@/contexts/Client';
 import { RebookingProvider } from '@/contexts/Rebooking';
+import { ping } from '@/ping';
 import { click, loading, render, screen } from '@/testing';
 import {
   client,
@@ -13,6 +14,8 @@ import {
   donald,
 } from '@/__fixtures__/genie';
 import BookExperience from '../BookExperience';
+
+jest.mock('@/ping');
 
 const onClose = jest.fn();
 const errorMock = jest.spyOn(console, 'error');
@@ -74,6 +77,7 @@ describe('BookExperience', () => {
     await loading();
     screen.getByText('Your Lightning Lane');
     screen.getByText(hm.name);
+    expect(ping).toBeCalledTimes(1);
     click('Done');
     expect(client.guests).toBeCalledTimes(1);
     expect(client.book).toBeCalledTimes(1);

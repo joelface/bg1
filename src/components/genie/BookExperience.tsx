@@ -6,6 +6,7 @@ import { Party, PartyProvider } from '@/contexts/Party';
 import { useRebooking } from '@/contexts/Rebooking';
 import useDataLoader from '@/hooks/useDataLoader';
 import RefreshIcon from '@/icons/RefreshIcon';
+import { ping } from '@/ping';
 import Button from '../Button';
 import Page from '../Page';
 import BookingDetails from './BookingDetails';
@@ -62,6 +63,7 @@ export default function BookExperience({
           await client.cancelBooking(guestsToCancel);
           booking.guests = booking.guests.filter(g => selectedIds.has(g.id));
         }
+        ping();
       },
       { 410: 'Offer expired' }
     );

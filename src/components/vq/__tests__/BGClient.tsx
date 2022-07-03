@@ -1,8 +1,11 @@
 import { RequestError, VQClient } from '@/api/vq';
 import { ClientProvider } from '@/contexts/Client';
+import { ping } from '@/ping';
 import { act, fireEvent, click, render, screen, waitFor } from '@/testing';
 import { queues, rotr, santa, guests, pluto } from '@/__fixtures__/vq';
 import BGClient from '../BGClient';
+
+jest.mock('@/ping');
 
 jest.useFakeTimers();
 
@@ -52,6 +55,10 @@ const renderComponent = () => {
 };
 
 describe('BGClient', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('shows message if no active queues', async () => {
     client.getQueues.mockResolvedValueOnce([]);
     renderComponent();
@@ -161,6 +168,7 @@ describe('BGClient', () => {
       click(JOIN);
       await screen.findByText('Boarding Group: 33');
       screen.getByText(santa.name);
+      expect(ping).toBeCalledTimes(1);
       act(() => {
         jest.runOnlyPendingTimers();
       });
