@@ -19,7 +19,7 @@ const client = new VQClient({
 }) as jest.Mocked<VQClient>;
 jest.spyOn(client, 'getQueues').mockResolvedValue(queues);
 jest.spyOn(client, 'getQueue').mockResolvedValue(santa);
-jest.spyOn(client, 'joinQueue').mockResolvedValue({
+const joinQueueMock = jest.spyOn(client, 'joinQueue').mockResolvedValue({
   boardingGroup: 33,
   conflicts: [] as any,
   closed: false,
@@ -174,6 +174,19 @@ describe('BGClient', () => {
       });
       await waitFor(() => click('Done'));
       screen.getByText('Choose Your Party');
+    });
+
+    it('shows failure message when no BG obtained', async () => {
+      joinQueueMock.mockResolvedValueOnce({
+        boardingGroup: null,
+        conflicts: [] as any,
+        closed: false,
+      });
+      await renderAndConfirm();
+      queueOpen();
+      click(JOIN);
+      await screen.findByText('Sorry!');
+      expect(ping).not.toBeCalled();
     });
 
     it('shows "Queue not open yet" alert when queue closed', async () => {

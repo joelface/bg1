@@ -112,9 +112,10 @@ export default function BGClient() {
     if (!queue || !(await client.getQueue(queue)).isAcceptingJoins) {
       return false;
     }
-    setJoinResult(await client.joinQueue(queue, [...party]));
+    const result = await client.joinQueue(queue, [...party]);
+    setJoinResult(result);
     show('BGResult');
-    ping();
+    if (result.boardingGroup !== null) ping();
     return true;
   }
 
