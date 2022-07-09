@@ -8,6 +8,6 @@ export async function ping(): Promise<void> {
   const { date } = dateTimeStrings();
   const pingDate = localStorage.getItem(PING_DATE_KEY);
   if (pingDate === date) return;
-  await fetchJson(PING_URL, { method: 'POST' });
-  localStorage.setItem(PING_DATE_KEY, date);
+  const { status } = await fetchJson(PING_URL, { method: 'POST' });
+  if (status === 204) localStorage.setItem(PING_DATE_KEY, date);
 }
