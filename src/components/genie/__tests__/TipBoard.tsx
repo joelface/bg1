@@ -4,7 +4,6 @@ import {
   act,
   click,
   elemScrollMock,
-  fireEvent,
   loading,
   render,
   screen,
@@ -42,16 +41,16 @@ const getExperiences = () =>
     .map(li => within(li).getByRole('heading').textContent);
 
 const sortBy = (sortType: string) => {
-  fireEvent.change(screen.getByTitle('Sort By'), {
-    target: { value: sortType },
-  });
+  click('Sort By');
+  click(sortType);
   return getExperiences();
 };
 
-const changePark = (park: Park) =>
-  fireEvent.change(screen.getByTitle('Park'), {
-    target: { value: park.id },
-  });
+const changePark = async (park: Park) => {
+  click('Park');
+  click(park.name);
+  await loading();
+};
 
 jest.useFakeTimers();
 
@@ -94,10 +93,10 @@ describe('TipBoard', () => {
     );
 
     expect(getExperiences()).toEqual(names([jc, sm, hm]));
-    expect(sortBy('soonest')).toEqual(names([sm, hm, jc]));
-    expect(sortBy('standby')).toEqual(names([sm, jc, hm]));
-    expect(sortBy('aToZ')).toEqual(names([hm, jc, sm]));
-    sortBy('nearby');
+    expect(sortBy('Soonest')).toEqual(names([sm, hm, jc]));
+    expect(sortBy('Standby')).toEqual(names([sm, jc, hm]));
+    expect(sortBy('A to Z')).toEqual(names([hm, jc, sm]));
+    sortBy('Nearby');
     await loading();
     expect(getExperiences()).toEqual(names([sm, hm, jc]));
     expect(elemScrollMock).toBeCalledTimes(5);
@@ -112,15 +111,13 @@ describe('TipBoard', () => {
     } as const;
     client.plusExperiences.mockResolvedValueOnce([sdd]);
     elemScrollMock.mockClear();
-    changePark(hs);
-    await loading();
+    await changePark(hs);
     screen.getByText(sdd.name);
     expect(client.plusExperiences).lastCalledWith(
       expect.objectContaining({ id: hs.id })
     );
     expect(elemScrollMock).toBeCalledTimes(1);
-    changePark(mk);
-    await loading();
+    await changePark(mk);
     screen.getByText(hm.name);
 
     click('2:30 PM');
@@ -154,11 +151,11 @@ describe('TipBoard', () => {
     jc.priority = priority;
 
     jc.flex.nextAvailableTime = hm.flex.nextAvailableTime;
-    expect(sortBy('soonest')).toEqual(names([jc, hm]));
+    expect(sortBy('Soonest')).toEqual(names([jc, hm]));
     jc.flex.nextAvailableTime = nextAvailableTime;
 
     jc.standby.waitTime = hm.standby.waitTime;
-    expect(sortBy('standby')).toEqual(names([hm, jc]));
+    expect(sortBy('Standby')).toEqual(names([hm, jc]));
     jc.standby.waitTime = waitTime;
 
     jc.flex.available = false;
@@ -260,25 +257,26 @@ describe('TipBoard', () => {
   });
 
   it('saves selected park until tomorrow', async () => {
-    const parkId = () => (screen.getByTitle('Park') as HTMLSelectElement).value;
+    const parkIcon = () =>
+      (screen.getByTitle('Park') as HTMLButtonElement).textContent;
 
     setTime('12:00');
     let { unmount } = await renderComponent();
     screen.getByText(hm.name);
-    expect(parkId()).toBe(mk.id);
+    expect(parkIcon()).toBe(mk.icon);
 
-    changePark(hs);
+    await changePark(hs);
     unmount();
     setTime('23:59:59');
     ({ unmount } = await renderComponent());
     screen.getByText(hm.name);
-    expect(parkId()).toBe(hs.id);
+    expect(parkIcon()).toBe(hs.icon);
 
     unmount();
     setTime('00:00', 1);
     ({ unmount } = await renderComponent());
     screen.getByText(hm.name);
-    expect(parkId()).toBe(mk.id);
+    expect(parkIcon()).toBe(mk.icon);
   });
 
   it('pins attraction to top if favorited', async () => {
@@ -315,7 +313,7 @@ describe('TipBoard', () => {
     await renderComponent();
     expect(getExperiences()).toEqual(names([jc, sm, hm]));
 
-    sortBy('nearby');
+    sortBy('Nearby');
     await loading();
     expect(getExperiences()).toEqual(names([sm, hm, jc]));
 

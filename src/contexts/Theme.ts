@@ -6,6 +6,7 @@ export interface Theme {
 
 export const DEFAULT_THEME = {
   bg: 'bg-blue-500',
+  // text-blue-500
 } as const;
 
 export const ThemeContext = createContext<Theme>(DEFAULT_THEME);

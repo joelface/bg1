@@ -99,7 +99,7 @@ export interface Offer {
 export interface Park {
   id: string;
   name: string;
-  abbr: string;
+  icon: string;
   geo: { n: number; s: number; e: number; w: number };
   theme: { bg: string };
 }

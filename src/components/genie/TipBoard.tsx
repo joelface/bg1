@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Booking, Park, PlusExperience } from '@/api/genie';
 import { useGenieClient } from '@/contexts/GenieClient';
@@ -69,7 +69,7 @@ function timeToMinutes(time: string) {
   return h * 60 + m;
 }
 
-const sorters: { [key: string]: ExperienceSorter } = {
+const sorters: Record<string, ExperienceSorter> = {
   priority: (a, b) =>
     sortByLP(a, b) ||
     sortByPriority(a, b) ||
@@ -80,6 +80,16 @@ const sorters: { [key: string]: ExperienceSorter } = {
   nearby: (a, b, coords) => sortByNearby(a, b, coords),
   aToZ: () => 0,
 };
+
+const sortOptions = [
+  { value: 'priority', text: 'Priority' },
+  { value: 'nearby', text: 'Nearby' },
+  { value: 'standby', text: 'Standby' },
+  { value: 'soonest', text: 'Soonest' },
+  { value: 'aToZ', text: 'A to Z' },
+] as const;
+
+type SortType = typeof sortOptions[number]['value'];
 
 export default function TipBoard() {
   const client = useGenieClient();
@@ -95,7 +105,7 @@ export default function TipBoard() {
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [modal, setModal] = useState<React.ReactNode>();
   const closeModal = () => setModal(undefined);
-  const [sortType, sort] = useState<keyof typeof sorters>('priority');
+  const [sortType, sort] = useState<SortType>('priority');
   const { loadData, loaderElem, isLoading } = useDataLoader();
   const [, setLastRefresh] = useState(0);
   const [rebooking, setRebooking] = useState<Rebooking>(() => ({
@@ -211,6 +221,16 @@ export default function TipBoard() {
     setStarred(new Set([...starred]));
   }
 
+  const parkOptions = useMemo(
+    () =>
+      parks.map(p => ({
+        value: p.id,
+        icon: p.icon,
+        text: p.name,
+      })),
+    [parks]
+  );
+
   return (
     <RebookingProvider value={rebooking}>
       <Page
@@ -230,32 +250,18 @@ export default function TipBoard() {
             </Button>
 
             <Select
+              options={parkOptions}
               value={park.id}
-              onChange={e => {
-                setPark(
-                  parks.find(p => p.id === e.currentTarget.value) as Park
-                );
-              }}
+              onChange={id => setPark(parks.find(p => p.id === id) as Park)}
               title="Park"
-            >
-              {parks.map(p => (
-                <option value={p.id} title={p.name} key={p.id}>
-                  {p.abbr}
-                </option>
-              ))}
-            </Select>
+            />
 
             <Select
+              options={sortOptions}
               value={sortType}
-              onChange={e => sort(e.currentTarget.value)}
+              onChange={sort}
               title="Sort By"
-            >
-              <option value="priority">Priority</option>
-              <option value="nearby">Nearby</option>
-              <option value="standby">Standby</option>
-              <option value="soonest">Soonest</option>
-              <option value="aToZ">A to Z</option>
-            </Select>
+            />
 
             <Button onClick={refresh} title="Refresh Tip Board">
               <RefreshIcon />

@@ -24,30 +24,38 @@ async function renderApp<T extends Client>(
   apiClient: T,
   ClientUI: React.FunctionComponent
 ) {
-  document.head.innerHTML += `
-    <meta name=viewport content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>BG1</title>
-  `;
-  document.body.innerHTML = '<div id=app><div>';
   setDefaultTimeZone(
     {
       WDW: 'America/New_York',
       DLR: 'America/Los_Angeles',
     }[apiClient.resort]
   );
-  const rootElem = document.getElementById('app');
-  if (!rootElem) return;
-  const root = createRoot(rootElem);
-  root.render(
+  document.title = 'BG1';
+  addViewportMeta();
+  disableDoubleTapZoom();
+  createReactRoot().render(
     <ClientProvider value={apiClient}>
       <App authStore={authStore}>
         <ClientUI />
       </App>
     </ClientProvider>
   );
-  disableDoubleTapZoom();
 }
 
 function disableDoubleTapZoom() {
   document.body.addEventListener('click', () => null);
+}
+
+function addViewportMeta() {
+  const meta = document.createElement('meta');
+  meta.name = 'viewport';
+  meta.content = 'width=device-width, initial-scale=1, maximum-scale=1';
+  document.head.appendChild(meta);
+}
+
+function createReactRoot() {
+  const rootElem = document.createElement('div');
+  rootElem.id = 'app';
+  document.body.appendChild(rootElem);
+  return createRoot(rootElem);
 }

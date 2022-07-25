@@ -14,7 +14,7 @@ const data: ResortData = {
     {
       id: '80007944',
       name: 'Magic Kingdom',
-      abbr: 'MK',
+      icon: '🏰',
       geo: {
         n: 28.422,
         s: 28.415,
@@ -29,7 +29,7 @@ const data: ResortData = {
     {
       id: '80007838',
       name: 'EPCOT',
-      abbr: 'EP',
+      icon: '🌐',
       geo: {
         n: 28.377,
         s: 28.366,
@@ -44,7 +44,7 @@ const data: ResortData = {
     {
       id: '80007998',
       name: 'Hollywood Studios',
-      abbr: 'HS',
+      icon: '🎬',
       geo: {
         n: 28.362,
         s: 28.353,
@@ -59,7 +59,7 @@ const data: ResortData = {
     {
       id: '80007823',
       name: 'Animal Kingdom',
-      abbr: 'AK',
+      icon: '🌳',
       geo: {
         n: 28.369,
         s: 28.354,

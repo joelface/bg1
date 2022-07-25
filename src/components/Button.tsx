@@ -1,8 +1,6 @@
 import { useTheme } from '@/contexts/Theme';
 
-type ButtonProps = React.HTMLProps<HTMLButtonElement>;
-
-type Props = Omit<ButtonProps, 'type'> & {
+type Props = Omit<React.HTMLProps<HTMLButtonElement>, 'type'> & {
   type?: keyof typeof TYPES;
 };
 
@@ -14,11 +12,12 @@ const TYPES = {
 
 export default function Button(props: Props) {
   const { type, className, ...attrs } = props;
-  const cls = (className || '') + ' ' + TYPES[type || 'normal'];
+  let cls = `${TYPES[type || 'normal']} ${className || ''}`;
   const { bg } = useTheme();
+  if (!cls.includes(' bg-')) cls += ` ${bg} text-white`;
   return (
     <button
-      className={`${cls} border-2 border-white rounded-lg px-2 ${bg} text-white font-semibold disabled:opacity-50`}
+      className={`${cls} inline-flex items-center justify-center min-w-[36px] rounded-lg px-2 font-semibold disabled:opacity-50`}
       {...attrs}
     />
   );

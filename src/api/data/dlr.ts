@@ -5,26 +5,26 @@ const data: ResortData = {
     {
       id: '330339',
       name: 'Disneyland',
+      icon: '🏰',
       geo: {
         n: 33.8163919,
         s: 33.8091255,
         e: -117.9155825,
         w: -117.9243814,
       },
-      abbr: 'DL',
       theme: { bg: 'bg-pink-600' },
       // text-pink-600
     },
     {
       id: '336894',
       name: 'California Adventure',
+      icon: '☀️',
       geo: {
         n: 33.8091255,
         s: 33.8037845,
         e: -117.9155825,
         w: -117.9243814,
       },
-      abbr: 'CA',
       theme: { bg: 'bg-yellow-600' },
       // text-yellow-600
     },
