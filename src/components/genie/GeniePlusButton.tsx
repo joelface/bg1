@@ -14,17 +14,13 @@ export default function GeniePlusButton({
 
   return (
     <LabelledItem label="Genie+">
-      {flex.nextAvailableTime ? (
-        <span>
-          <Button onClick={() => onClick(experience)}>
-            {displayTime(flex.nextAvailableTime)}
-          </Button>
-        </span>
-      ) : (
-        <span className="inline-block border-2 border-gray-500 rounded px-1.5 py-0.5 font-semibold text-gray-500 bg-gray-100">
-          none
-        </span>
-      )}
+      <span>
+        <Button onClick={() => onClick(experience)}>
+          {flex.nextAvailableTime
+            ? displayTime(flex.nextAvailableTime)
+            : 'none'}
+        </Button>
+      </span>
     </LabelledItem>
   );
 }

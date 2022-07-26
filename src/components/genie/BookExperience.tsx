@@ -29,9 +29,12 @@ export default function BookExperience({
   const client = useGenieClient();
   const rebooking = useRebooking();
   const [party, setParty] = useState<Party>();
-  const [available, setAvailable] = useState(experience.flex.available);
+  const [prebooking, setPrebooking] = useState(
+    !experience.flex.available &&
+      experience.flex.enrollmentStartTime !== undefined
+  );
   const [offer, setOffer] = useState<Offer | null | undefined>(
-    available ? undefined : null
+    prebooking ? null : undefined
   );
   const [booking, setBooking] = useState<Booking>();
   const { loadData, loaderElem } = useDataLoader();
@@ -76,7 +79,7 @@ export default function BookExperience({
       const experiences = await client.plusExperiences(park);
       const exp = experiences.find(exp => exp.id === experience.id);
       if (exp?.flex.available) {
-        setAvailable(true);
+        setPrebooking(false);
         setOffer(undefined);
       } else {
         flash('Reservations not open yet');
@@ -185,10 +188,10 @@ export default function BookExperience({
       theme={park.theme}
       buttons={
         <>
-          {party && (!available || offer || noGuestsFound) && (
+          {party && (prebooking || offer || noGuestsFound) && (
             <Button onClick={cancel}>Cancel</Button>
           )}
-          {available && offer !== undefined && (
+          {!prebooking && offer !== undefined && (
             <Button onClick={refreshOffer} title="Refresh Offer">
               <RefreshIcon />
             </Button>
@@ -217,7 +220,7 @@ export default function BookExperience({
           )
         ) : !party || offer === undefined ? (
           <div />
-        ) : !available ? (
+        ) : prebooking ? (
           <Prebooking
             startTime={experience.flex.enrollmentStartTime}
             onRefresh={checkAvailability}
