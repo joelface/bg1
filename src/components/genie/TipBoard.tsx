@@ -372,7 +372,7 @@ function StarButton({
       <button
         data-id={experience.id}
         title="Favorite"
-        className="-translate-x-2 -translate-y-2 p-2"
+        className="-m-2 p-2"
         onClick={onClick}
       >
         <StarIcon
