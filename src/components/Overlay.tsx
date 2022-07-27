@@ -9,6 +9,7 @@ export default function Overlay(props: Props) {
     inner: '',
     ...(typeof className === 'string' ? { inner: className } : className),
   };
+  if (!classNames.outer.match(/\bz-/)) classNames.outer += ' z-10';
 
   return (
     <div className={`${classNames.outer} fixed inset-0`} {...attrs}>

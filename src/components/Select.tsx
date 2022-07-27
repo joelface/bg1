@@ -85,7 +85,7 @@ export default function Select<V extends string>(props: Props<V>) {
       {showingList && (
         <Overlay
           className={{
-            outer: 'z-10 bg-black bg-opacity-75',
+            outer: 'bg-black bg-opacity-75',
             inner: 'flex items-center justify-center h-full',
           }}
           onClick={event => {

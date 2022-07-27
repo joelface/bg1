@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { Booking, BookingGuest } from '@/api/genie';
 import { useGenieClient } from '@/contexts/GenieClient';
-import { useTheme } from '@/contexts/Theme';
+import { DEFAULT_THEME } from '@/contexts/Theme';
 import Button from '../Button';
 import Overlay from '../Overlay';
 import Page from '../Page';
@@ -11,7 +11,7 @@ import BookingListing from './BookingListing';
 
 export default function BookingPanel({ onClose }: { onClose: () => void }) {
   const client = useGenieClient();
-  const theme = useTheme();
+  const theme = DEFAULT_THEME;
   const [bookings, setBookings] = useState<Booking[]>();
   const [booking, setBooking] = useState<Booking>();
   const [opened, setOpened] = useState(false);
@@ -55,7 +55,7 @@ export default function BookingPanel({ onClose }: { onClose: () => void }) {
       <Overlay
         onClick={close}
         data-testid="panel-shade"
-        className={`bg-black bg-opacity-75`}
+        className={{ inner: `bg-black bg-opacity-75` }}
       />
       <Page
         heading="Your Lightning Lanes"

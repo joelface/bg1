@@ -15,11 +15,11 @@ import Overlay from '../Overlay';
 import Page from '../Page';
 import Select from '../Select';
 import BookExperience from './BookExperience';
-import BookingPanel from './BookingPanel';
 import GeniePlusButton from './GeniePlusButton';
 import RebookingHeader from './RebookingHeader';
 import StandbyTime from './StandbyTime';
 import TimeBanner from './TimeBanner';
+import YLLButton from './YLLButton';
 import useCoords, { Coords } from '@/hooks/useCoords';
 
 const AUTO_REFRESH_MIN_MS = 60_000;
@@ -242,12 +242,7 @@ export default function TipBoard() {
         theme={park.theme}
         buttons={
           <>
-            <Button
-              onClick={() => setModal(<BookingPanel onClose={closeModal} />)}
-              title="Your Lightning Lanes"
-            >
-              <LightningIcon />
-            </Button>
+            <YLLButton onOpen={setModal} onClose={closeModal} />
 
             <Select
               options={parkOptions}

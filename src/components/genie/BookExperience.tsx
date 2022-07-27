@@ -16,6 +16,7 @@ import NoEligibleGuests from './NoEligibleGuests';
 import NoGuestsFound from './NoGuestsFound';
 import NoReservationsAvailable from './NoReservationsAvailable';
 import RebookingHeader from './RebookingHeader';
+import YLLButton from './YLLButton';
 
 export default function BookExperience({
   experience,
@@ -188,6 +189,7 @@ export default function BookExperience({
       theme={park.theme}
       buttons={
         <>
+          <YLLButton />
           {party && (prebooking || offer || noGuestsFound) && (
             <Button onClick={cancel}>Cancel</Button>
           )}
