@@ -11,7 +11,7 @@ export default function RebookingHeader() {
     <div className={`sticky top-0 -mx-3 pb-1 ${theme.bg}`}>
       <div className="pb-3 bg-white">
         <div
-          className={`py-1.5 ${theme.bg} text-white text-sm font-semibold uppercase text-center`}
+          className={`pb-1 ${theme.bg} text-white text-sm font-semibold uppercase text-center`}
         >
           Rebooking
         </div>
