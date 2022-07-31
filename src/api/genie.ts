@@ -240,11 +240,8 @@ export class GenieClient {
   static async load(
     args: Omit<ConstructorParameters<typeof GenieClient>[0], 'data'>
   ) {
-    const data = (
-      await import(
-        `./data/${ORIGIN_TO_RESORT[args.origin].toLocaleLowerCase()}.ts`
-      )
-    ).default;
+    const resort = ORIGIN_TO_RESORT[args.origin].toLowerCase();
+    const data = (await import(`./data/${resort}.ts`)).default;
     return new GenieClient({ ...args, data });
   }
 
