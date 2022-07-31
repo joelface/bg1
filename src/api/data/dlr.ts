@@ -31,123 +31,123 @@ const data: ResortData = {
   ],
   experiences: {
     // Disneyland
-    '353293': {
+    353293: {
       name: 'Autopia',
       geo: [33.8126634, -117.9167994],
     },
-    '353295': {
+    353295: {
       name: 'Big Thunder Mountain Railroad',
       geo: [33.8124801, -117.9205132],
       priority: 3.6,
     },
-    '353301': {
+    353301: {
       name: 'Buzz Lightyear Astro Blasters',
       geo: [33.8122751, -117.9181819],
     },
-    '353347': {
+    353347: {
       name: 'Haunted Mansion',
       geo: [33.811616, -117.9218924],
       priority: 3.5,
     },
-    '353355': {
+    353355: {
       name: 'Indiana Jones Adventure',
       geo: [33.8114097, -117.9204077],
       priority: 2.1,
     },
-    '367492': {
+    367492: {
       name: "it's a small world",
       geo: [33.8144167, -117.9181268],
     },
-    '353377': {
+    353377: {
       name: 'Matterhorn Bobsleds',
       geo: [33.8127838, -117.9182386],
       priority: 3.4,
     },
-    '19193459': {
+    19193459: {
       name: 'Millennium Falcon: Smugglers Run',
       geo: [33.8153228, -117.922197],
       priority: 2.3,
     },
-    '353405': {
+    353405: {
       name: 'Pirates of the Caribbean',
       geo: [33.811295, -117.9209785],
     },
-    '353421': {
+    353421: {
       name: "Roger Rabbit's Car Toon Spin",
       geo: [33.8155682, -117.9181205],
     },
-    '353435': {
+    353435: {
       name: 'Space Mountain',
       geo: [33.8112647, -117.9175892],
       priority: 2.2,
     },
-    '18237368': {
+    18237368: {
       name: 'Hyperspace Mountain',
       geo: [33.8112647, -117.9175892],
       priority: 2.2,
     },
-    '353437': {
+    353437: {
       name: 'Splash Mountain',
       geo: [33.8123509, -117.9221379],
     },
-    '353439': {
+    353439: {
       name: 'Star Tours',
       geo: [33.8119436, -117.9182118],
     },
-    '19193461': {
+    19193461: {
       name: 'Rise of the Resistance',
       geo: [33.8135671, -117.9236346],
       priority: 1.0,
     },
     // California Adventure
-    '15822029': {
+    15822029: {
       name: "Goofy's Sky School",
       geo: [33.8062523, -117.9228425],
     },
-    '353345': {
+    353345: {
       name: 'Grizzly River Run',
       geo: [33.8069638, -117.9212689],
       priority: 3.1,
     },
-    '353451': {
+    353451: {
       name: 'Guardians of the Galaxy – Mission: BREAKOUT',
       geo: [33.8068606, -117.9172434],
       priority: 2.0,
     },
-    '18774860': {
+    18774860: {
       name: 'Guardians of the Galaxy – Monsters After Dark',
       geo: [33.8068606, -117.9172434],
       priority: 2.0,
     },
-    '353303': {
+    353303: {
       name: 'Incredicoaster',
       geo: [33.8046948, -117.9207725],
     },
-    '353387': {
+    353387: {
       name: 'Monsters, Inc.',
       geo: [33.8081471, -117.9175137],
     },
-    '353431': {
+    353431: {
       name: "Soarin' Around the World",
       geo: [33.8085516, -117.9204917],
       priority: 3.2,
     },
-    '19324604': {
+    19324604: {
       name: "Soarin' Over California",
       geo: [33.8085516, -117.9204917],
       priority: 3.2,
     },
-    '353453': {
+    353453: {
       name: 'Toy Story Midway Mania',
       geo: [33.804614, -117.9216383],
       priority: 3.0,
     },
-    '16514416': {
+    16514416: {
       name: 'Radiator Springs Racers',
       geo: [33.8052475, -117.9198715],
       priority: 1.0,
     },
-    '19531124': {
+    19531124: {
       name: 'WEB SLINGERS',
       geo: [33.8067598, -117.91849],
     },
