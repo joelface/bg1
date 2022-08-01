@@ -88,7 +88,7 @@ describe('GenieClient', () => {
   });
   const onUnauthorized = jest.fn();
   client.onUnauthorized = onUnauthorized;
-  const guests = [minnie, pluto, mickey];
+  const guests = [mickey, minnie, pluto];
   const ineligibleGuests = [donald];
   const guestsRes = response({
     guests: guests.map(splitName),

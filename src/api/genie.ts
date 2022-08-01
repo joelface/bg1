@@ -316,7 +316,6 @@ export class GenieClient {
     const eligible = res.guests
       .map(convertGuest)
       .filter(g => !('ineligibleReason' in g) || (ineligible.push(g) && false));
-    eligible.sort((a, b) => a.name.localeCompare(b.name));
     ineligible.sort((a, b) => {
       const nameCmp = a.name.localeCompare(b.name);
       if (a.eligibleAfter || b.eligibleAfter) {
