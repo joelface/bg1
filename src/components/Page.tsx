@@ -23,7 +23,7 @@ export default function Page({
     <ThemeProvider value={theme || DEFAULT_THEME}>
       <Overlay
         className={{
-          outer: `bg-white ${className || ''}`,
+          outer: `bg-white text-black text-base ${className || ''}`,
           inner: `flex flex-col max-w-2xl h-full`,
         }}
         {...attrs}
