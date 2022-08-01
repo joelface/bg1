@@ -110,17 +110,13 @@ interface GetLinkedGuestsOKResponse {
 type VQRequest = JoinQueueRequest | GetLinkedGuestsRequest;
 type VQResource = VQRequest['resource'] | 'getQueues';
 
-export function sortGuests(guests: Guest[]): Guest[] {
-  return guests.sort((a, b) => {
-    if (a.isPrimaryGuest !== b.isPrimaryGuest) {
-      return Number(b.isPrimaryGuest) - Number(a.isPrimaryGuest);
-    }
-    if (a.isPreselected !== b.isPreselected) {
-      return Number(b.isPreselected) - Number(a.isPreselected);
-    }
-    return a.name.localeCompare(b.name);
-  });
-}
+export const sortGuests = (guests: Guest[]): Guest[] =>
+  guests.sort(
+    (a, b) =>
+      +!a.isPrimaryGuest - +!b.isPrimaryGuest ||
+      +!a.isPreselected - +!b.isPreselected ||
+      a.name.localeCompare(b.name)
+  );
 
 export class RequestError extends Error {
   name = 'RequestError';
