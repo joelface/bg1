@@ -223,14 +223,16 @@ describe('GenieClient', () => {
         ineligibleReason: 'TOO_EARLY',
         eligibleAfter: '10:30:00',
       };
+      const goofy = {
+        id: 'goofy',
+        firstName: 'Goofy',
+        lastName: '',
+        ineligibleReason: 'EXPERIENCE_LIMIT_REACHED',
+      };
       respond(
         response({
           guests: [],
           ineligibleGuests: [
-            {
-              ...mickey,
-              ineligibleReason: 'EXPERIENCE_LIMIT_REACHED',
-            },
             {
               ...minnie,
               ineligibleReason: 'TOO_EARLY',
@@ -243,6 +245,13 @@ describe('GenieClient', () => {
             },
             donald,
             fifi,
+            goofy,
+            {
+              ...mickey,
+              ineligibleReason: 'TOO_EARLY',
+              eligibleAfter: '10:30:00',
+              primary: true,
+            },
           ],
           primaryGuestId: mickey.id,
         })
@@ -252,7 +261,7 @@ describe('GenieClient', () => {
         park: mk,
       });
       expect(ineligible.map(g => g.id)).toEqual(
-        [pluto, fifi, minnie, mickey, donald].map(g => g.id)
+        [pluto, mickey, fifi, minnie, goofy, donald].map(g => g.id)
       );
     });
   });

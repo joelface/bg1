@@ -74,6 +74,7 @@ interface ApiGuest extends GuestEligibility {
   id: string;
   firstName: string;
   lastName: string;
+  primary: boolean;
   characterId: string;
 }
 
@@ -317,17 +318,17 @@ export class GenieClient {
       .map(convertGuest)
       .filter(g => !('ineligibleReason' in g) || (ineligible.push(g) && false));
     ineligible.sort((a, b) => {
-      const nameCmp = a.name.localeCompare(b.name);
+      const cmp = +!a.primary - +!b.primary || a.name.localeCompare(b.name);
       if (a.eligibleAfter || b.eligibleAfter) {
         return (
           (a.eligibleAfter || '99').localeCompare(b.eligibleAfter || '99') ||
-          nameCmp
+          cmp
         );
       }
-      if (a.ineligibleReason === b.ineligibleReason) return nameCmp;
+      if (a.ineligibleReason === b.ineligibleReason) return cmp;
       if (a.ineligibleReason === 'EXPERIENCE_LIMIT_REACHED') return -1;
       if (b.ineligibleReason === 'EXPERIENCE_LIMIT_REACHED') return 1;
-      return nameCmp;
+      return cmp;
     });
     return { eligible, ineligible };
   }
