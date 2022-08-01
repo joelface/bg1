@@ -168,6 +168,39 @@ describe('GenieClient', () => {
       });
     });
 
+    it('includes avatarImageUrls when characterId exists', async () => {
+      respond(
+        response({
+          guests: [
+            { ...splitName(mickey), characterId: 19633995 },
+            { ...splitName(minnie), characterId: 18405224 },
+            { ...splitName(pluto), characterId: 90004625 },
+          ],
+          ineligibleGuests: [],
+        })
+      );
+      expect(await client.guests({ experience: hm, park: mk })).toEqual({
+        eligible: [
+          {
+            ...mickey,
+            avatarImageUrl:
+              'https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/90/90/75/dam/disney-world/50th-anniversary/avatars/RetAvatar_180x180_50th_Mickey.png',
+          },
+          {
+            ...minnie,
+            avatarImageUrl:
+              'https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/90/90/75/dam/wdpro-assets/avatars/180x180/RetAvatar-180x180-Moana.png',
+          },
+          {
+            ...pluto,
+            avatarImageUrl:
+              'https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/90/90/75/dam/wdpro-assets/avatars/180x180/RetAvatar_180x180_Pluto.png',
+          },
+        ],
+        ineligible: [],
+      });
+    });
+
     it('treats any guests with ineligibleReason as ineligible', async () => {
       respond(
         response({

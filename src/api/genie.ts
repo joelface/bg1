@@ -1,6 +1,7 @@
 import { dateTimeStrings } from '@/datetime';
 import { fetchJson } from '@/fetch';
 import { AuthStore } from './auth/store';
+import { avatarUrl } from './avatar';
 
 const ORIGIN_TO_RESORT = {
   'https://disneyworld.disney.go.com': 'WDW',
@@ -73,6 +74,7 @@ interface ApiGuest extends GuestEligibility {
   id: string;
   firstName: string;
   lastName: string;
+  characterId: string;
 }
 
 interface GuestsResponse {
@@ -233,7 +235,10 @@ export class GenieClient {
   protected origin: Origin;
   protected authStore: Public<AuthStore>;
   protected data: ResortData;
-  protected guestNames = new Map<string, string>();
+  protected guestCache = new Map<
+    string,
+    { name: string; characterId: string }
+  >();
   protected bookingStack: BookingStack;
   protected _primaryGuestId = '';
 
@@ -279,10 +284,11 @@ export class GenieClient {
       .map(exp => ({ ...exp, ...this.data.experiences[exp.id] }));
   }
 
-  async guests(args: {
+  async guests(args?: {
     experience: Pick<Experience, 'id'>;
     park: Pick<Park, 'id'>;
   }): Promise<Guests> {
+    args ||= { experience: { id: '0' }, park: { id: '0' } };
     const res: GuestsResponse = await this.request({
       path: '/ea-vas/api/v1/guests',
       params: {
@@ -292,19 +298,24 @@ export class GenieClient {
       },
     });
     this._primaryGuestId = res.primaryGuestId;
-    const convertGuest = ({ firstName, lastName, ...rest }: ApiGuest) => ({
-      ...rest,
-      name: `${firstName} ${lastName}`.trim(),
-    });
+    const convertGuest = ({
+      id,
+      firstName,
+      lastName,
+      characterId,
+      ...rest
+    }: ApiGuest) => {
+      const name = `${firstName} ${lastName}`.trim();
+      if (!this.guestCache.has(id)) {
+        this.guestCache.set(id, { name, characterId });
+      }
+      const avatarImageUrl = avatarUrl(characterId);
+      return { ...rest, id, name, avatarImageUrl };
+    };
     const ineligible = res.ineligibleGuests.map(convertGuest);
-    const eligible = res.guests.map(convertGuest).filter(g => {
-      if (!('ineligibleReason' in g)) return true;
-      ineligible.push(g);
-      return false;
-    });
-    [...eligible, ...ineligible].forEach(g => {
-      if (!this.guestNames.has(g.id)) this.guestNames.set(g.id, g.name);
-    });
+    const eligible = res.guests
+      .map(convertGuest)
+      .filter(g => !('ineligibleReason' in g) || (ineligible.push(g) && false));
     eligible.sort((a, b) => a.name.localeCompare(b.name));
     ineligible.sort((a, b) => {
       const nameCmp = a.name.localeCompare(b.name);
@@ -392,11 +403,15 @@ export class GenieClient {
       start: dateTimeStrings(startDateTime),
       end: dateTimeStrings(endDateTime),
       cancellable: true,
-      guests: entitlements.map(e => ({
-        id: e.guestId,
-        name: this.guestNames.get(e.guestId) || '',
-        entitlementId: e.id,
-      })),
+      guests: entitlements.map(e => {
+        const g = this.guestCache.get(e.guestId);
+        return {
+          id: e.guestId,
+          name: g?.name || '',
+          avatarImageUrl: avatarUrl(g?.characterId),
+          entitlementId: e.id,
+        };
+      }),
     };
   }
 
@@ -470,11 +485,13 @@ export class GenieClient {
           },
           cancellable: fp.cancellable,
           guests: fp.guests.map(g => {
-            const { name } = profiles[g.id];
+            const { name, avatarId } = profiles[g.id];
+            const id = idNum(g.id);
             const guest: BookingGuest = {
-              id: idNum(g.id),
+              id,
               entitlementId: g.entitlementId,
               name: `${name.firstName} ${name.lastName}`.trim(),
+              avatarImageUrl: avatarUrl(avatarId),
               ...(g.redemptionsRemaining !== undefined && {
                 redemptions: g.redemptionsRemaining,
               }),
