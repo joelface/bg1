@@ -12,8 +12,7 @@ const data: ResortData = {
         e: -117.9155825,
         w: -117.9243814,
       },
-      theme: { bg: 'bg-pink-600' },
-      // text-pink-600
+      theme: { bg: 'bg-pink-600', text: 'text-pink-600' },
     },
     {
       id: '336894',
@@ -25,8 +24,7 @@ const data: ResortData = {
         e: -117.9155825,
         w: -117.9243814,
       },
-      theme: { bg: 'bg-yellow-600' },
-      // text-yellow-600
+      theme: { bg: 'bg-yellow-600', text: 'text-yellow-600' },
     },
   ],
   experiences: {

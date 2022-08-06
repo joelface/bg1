@@ -5,7 +5,7 @@ import Page from '@/components/Page';
 
 export const DISCLAIMER_ACCEPTED_KEY = 'bg1.disclaimer.accepted';
 
-const theme = { bg: 'bg-red-600' };
+const theme = { bg: 'bg-red-600', text: 'text-red-600' };
 
 export default function useDisclaimer() {
   const storage = localStorage;

@@ -21,10 +21,7 @@ const data: ResortData = {
         e: -81.575,
         w: -81.586,
       },
-      theme: {
-        bg: 'bg-fuchsia-600',
-        // text-fuchsia-600
-      },
+      theme: { bg: 'bg-fuchsia-600', text: 'text-fuchsia-600' },
     },
     {
       id: '80007838',
@@ -36,10 +33,7 @@ const data: ResortData = {
         e: -81.545,
         w: -81.555,
       },
-      theme: {
-        bg: 'bg-indigo-600',
-        // text-indigo-600
-      },
+      theme: { bg: 'bg-indigo-600', text: 'text-indigo-600' },
     },
     {
       id: '80007998',
@@ -51,10 +45,7 @@ const data: ResortData = {
         e: -81.557,
         w: -81.564,
       },
-      theme: {
-        bg: 'bg-orange-600',
-        // text-orange-600
-      },
+      theme: { bg: 'bg-orange-600', text: 'text-orange-600' },
     },
     {
       id: '80007823',
@@ -66,10 +57,7 @@ const data: ResortData = {
         e: -81.585,
         w: -81.597,
       },
-      theme: {
-        bg: 'bg-green-600',
-        // text-green-600
-      },
+      theme: { bg: 'bg-green-600', text: 'text-green-600' },
     },
   ],
   experiences: {

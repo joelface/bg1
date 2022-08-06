@@ -302,14 +302,12 @@ export default function TipBoard() {
                     {exp.lp && (
                       <button
                         title="Lightning Pick"
-                        className="px-2"
+                        className={`px-2 ${park.theme.text}`}
                         onClick={() =>
                           setModal(<LightningPickModal onClose={closeModal} />)
                         }
                       >
-                        <LightningIcon
-                          className={`text${park.theme.bg.slice(2)}`}
-                        />
+                        <LightningIcon />
                       </button>
                     )}
                   </div>
@@ -371,11 +369,7 @@ function StarButton({
         onClick={onClick}
       >
         <StarIcon
-          className={
-            starred.has(experience.id)
-              ? 'text' + theme.bg.slice(2)
-              : 'text-gray-300'
-          }
+          className={starred.has(experience.id) ? theme.text : 'text-gray-300'}
         />
       </button>
     </div>

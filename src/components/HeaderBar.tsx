@@ -9,7 +9,7 @@ export default function HeaderBar({
   title: React.ReactNode;
   children?: React.ReactNode;
 }) {
-  const { bg } = useTheme();
+  const { bg, text } = useTheme();
 
   function changeButtonColors(node: React.ReactNode): React.ReactNode {
     if (!isValidElement(node)) return node;
@@ -17,9 +17,7 @@ export default function HeaderBar({
       return Children.map(node.props.children, changeButtonColors);
     }
     return cloneElement(node, {
-      className: `bg-[#ffffffe6] text${bg.slice(2)} ${
-        node.props.className || ''
-      }`,
+      className: `bg-[#ffffffe6] ${text} ${node.props.className || ''}`,
     });
   }
 

@@ -104,7 +104,7 @@ export interface Park {
   name: string;
   icon: string;
   geo: { n: number; s: number; e: number; w: number };
-  theme: { bg: string };
+  theme: { bg: string; text: string };
 }
 
 export interface ResortData {
