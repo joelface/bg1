@@ -214,12 +214,10 @@ describe('TipBoard', () => {
     await loading();
     expect(screen.queryByText('Rebooking')).not.toBeInTheDocument();
     click('Your Lightning Lanes');
-    await screen.findByText('Your Lightning Lanes');
-    await waitFor(() => click('More'));
+    screen.getByText('Your Lightning Lanes');
+    click((await screen.findAllByText('More'))[0]);
     screen.getByRole('heading', { name: bookings[0].experience.name });
-    expect(
-      screen.queryByRole('button', { name: 'Rebook' })
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText('Rebook')).not.toBeInTheDocument();
 
     click('Back');
     click(screen.getAllByText('More')[2]);
@@ -287,7 +285,7 @@ describe('TipBoard', () => {
     ]);
     await renderComponent();
     expect(getExperiences()).toEqual(names([jc, sm, hm]));
-    click(screen.getAllByRole('button', { name: 'Favorite' })[2]);
+    click(screen.getAllByTitle('Favorite')[2]);
     expect(getExperiences()).toEqual(names([hm, jc, sm]));
   });
 
@@ -298,13 +296,11 @@ describe('TipBoard', () => {
     expect(lp).toHaveTextContent(sm.name);
     within(lp).getByTitle('Lightning Pick');
 
-    click(screen.getAllByRole('button', { name: 'Favorite' })[2]);
+    click(screen.getAllByTitle('Favorite')[2]);
     expect(getExperiences()).toEqual(names([hm, sm, jc]));
 
     click('Lightning Pick');
-    const modalHeading = screen.getByRole('heading', {
-      name: 'Lightning Pick',
-    });
+    const modalHeading = screen.getByText('Lightning Pick');
     click('Close');
     expect(modalHeading).not.toBeInTheDocument();
   });

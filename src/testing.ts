@@ -17,7 +17,6 @@ function getByTextOrTitle(container: HTMLElement, label: string) {
     () => c.getByLabelText(label),
     () => c.getByTitle(label),
     () => c.getByRole('button', { name: label }),
-    () => c.getAllByText(label)[0],
   ]) {
     try {
       const elem = query();

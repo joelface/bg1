@@ -29,7 +29,7 @@ describe('BookingPanel', () => {
       );
     });
 
-    click('More');
+    click(screen.getAllByText('More')[0]);
     click('Back');
 
     click(screen.getAllByText('More')[1]);
