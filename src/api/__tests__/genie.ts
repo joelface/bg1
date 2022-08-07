@@ -18,6 +18,7 @@ import {
   GenieClient,
   Guest,
   isGenieOrigin,
+  PlusExperience,
   RequestError,
 } from '../genie';
 import wdw from '../data/wdw';
@@ -140,13 +141,35 @@ describe('GenieClient', () => {
 
   describe('plusExperiences()', () => {
     it('returns Genie+ experiences', async () => {
-      respond(response({ availableExperiences: [hm] }));
-      expect(await client.plusExperiences(mk)).toEqual([
-        { ...hm, ...wdw.experiences['80010208'] },
-      ]);
+      jest.useFakeTimers();
+
+      const res = response({ availableExperiences: [sm] });
+      const { name, geo, priority } = wdw.experiences['80010192'];
+      const smExp: PlusExperience = {
+        ...sm,
+        name,
+        geo,
+        priority,
+        drop: true,
+      };
+      const plusExp = async () => client.plusExperiences(mk);
+      respond(...Array(4).fill(res));
+      setTime('10:00');
+      expect(await plusExp()).toEqual([smExp]);
       expectFetch(
         `/tipboard-vas/api/v1/parks/${encodeURIComponent(mk.id)}/experiences`
       );
+
+      setTime('13:00');
+      expect(await plusExp()).toEqual([smExp]);
+
+      setTime('15:00');
+      expect(await plusExp()).toEqual([smExp]);
+
+      setTime('18:00');
+      expect(await plusExp()).toEqual([{ ...smExp, drop: false }]);
+
+      jest.useRealTimers();
     });
   });
 
@@ -263,6 +286,34 @@ describe('GenieClient', () => {
       expect(ineligible.map(g => g.id)).toEqual(
         [pluto, mickey, fifi, minnie, goofy, donald].map(g => g.id)
       );
+    });
+  });
+
+  describe('nextBookTime()', () => {
+    const res = response({
+      guests: [pluto].map(splitName),
+      ineligibleGuests: [
+        { ...mickey, eligibleAfter: '11:30:00' },
+        { ...minnie, eligibleAfter: '11:00:00' },
+      ].map(g => ({ ...splitName(g), ineligibleReason: 'TOO_EARLY' })),
+      primaryGuestId: mickey.id,
+    });
+
+    beforeAll(() => jest.useFakeTimers());
+    afterAll(() => jest.useRealTimers());
+
+    it('returns the next time a LL can be booked', async () => {
+      setTime('10:00:00');
+      respond(res);
+      expect(await client.nextBookTime()).toBe('10:00:00');
+
+      res.data.guests = [];
+      respond(res);
+      expect(await client.nextBookTime()).toBe('11:00:00');
+
+      res.data.ineligibleGuests = [];
+      respond(res);
+      expect(await client.nextBookTime());
     });
   });
 
@@ -470,7 +521,7 @@ describe('GenieClient', () => {
     }
     const bookingsRes = createBookingsResponse(bookings);
 
-    jest.useFakeTimers();
+    beforeAll(() => jest.useFakeTimers());
     afterAll(() => jest.useRealTimers());
 
     it('returns current bookings', async () => {
@@ -521,17 +572,17 @@ describe('GenieClient', () => {
     });
   });
 
-  describe('pdt()', () => {
-    it('returns next PDT', () => {
+  describe('nextDropTime()', () => {
+    it('returns next drop time', () => {
       jest.useFakeTimers();
-      setTime('10:30:59');
-      expect(client.pdt(mk)).toBe('10:30');
-      setTime('10:31:00');
-      expect(client.pdt(mk)).toBe('13:30');
-      setTime('13:31:00');
-      expect(client.pdt(mk)).toBe('16:30');
-      setTime('16:31:00');
-      expect(client.pdt(mk)).toBe(undefined);
+      setTime('11:30:59');
+      expect(client.nextDropTime(mk)).toBe('11:30');
+      setTime('11:31:00');
+      expect(client.nextDropTime(mk)).toBe('14:30');
+      setTime('14:31:00');
+      expect(client.nextDropTime(mk)).toBe('17:30');
+      setTime('17:31:00');
+      expect(client.nextDropTime(mk)).toBe(undefined);
       jest.useRealTimers();
     });
   });

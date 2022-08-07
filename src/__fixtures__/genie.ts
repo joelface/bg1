@@ -7,7 +7,7 @@ import {
 } from '@/api/genie';
 import data from '@/api/data/wdw';
 
-data.pdts[80007944] = ['10:30', '13:30', '16:30'];
+data.pdts[80007944] = ['11:30', '14:30', '17:30'];
 
 export const [mk, ep, hs, ak] = data.parks;
 
@@ -61,6 +61,7 @@ export const sm: PlusExperience = {
   standby: { available: true, waitTime: 60 },
   flex: { available: true, nextAvailableTime: '12:45:00' },
   priority: 2.0,
+  drop: true,
 };
 
 export const offer: Offer = {
@@ -147,4 +148,5 @@ jest.spyOn(client, 'book').mockResolvedValue({ ...booking });
 jest.spyOn(client, 'cancelBooking').mockResolvedValue(undefined);
 jest.spyOn(client, 'bookings').mockResolvedValue([...bookings]);
 jest.spyOn(client, 'plusExperiences').mockResolvedValue([hm, sm, jc]);
-jest.spyOn(client, 'pdt').mockReturnValue('13:30');
+jest.spyOn(client, 'nextBookTime').mockResolvedValue('11:00');
+jest.spyOn(client, 'nextDropTime').mockReturnValue('11:30');

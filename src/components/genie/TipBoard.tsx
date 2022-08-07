@@ -4,14 +4,15 @@ import { Booking, Park, PlusExperience } from '@/api/genie';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { Rebooking, RebookingProvider } from '@/contexts/Rebooking';
 import { useTheme } from '@/contexts/Theme';
-import { dateTimeStrings } from '@/datetime';
+import { dateTimeStrings, displayTime } from '@/datetime';
 import useDataLoader from '@/hooks/useDataLoader';
+import DropIcon from '@/icons/DropIcon';
 import LightningIcon from '@/icons/LightningIcon';
 import RefreshIcon from '@/icons/RefreshIcon';
 import StarIcon from '@/icons/StarIcon';
 import Button from '../Button';
 import LogoutButton from '../LogoutButton';
-import Overlay from '../Overlay';
+import Modal from '../Modal';
 import Page from '../Page';
 import Select from '../Select';
 import BookExperience from './BookExperience';
@@ -123,11 +124,6 @@ export default function TipBoard() {
     },
   }));
   const pageElem = useRef<HTMLDivElement>(null);
-  const bookingStart =
-    experiences.length > 0 && !experiences[0].flex.available
-      ? experiences[0].flex.enrollmentStartTime
-      : undefined;
-  const pdt = experiences.length > 0 ? client.pdt(park) : undefined;
   const [starred, setStarred] = useState(() => {
     let starred = [];
     try {
@@ -231,6 +227,9 @@ export default function TipBoard() {
     [parks]
   );
 
+  const startTime = experiences?.[0]?.flex.enrollmentStartTime;
+  const dropTime = client.nextDropTime(park);
+
   return (
     <RebookingProvider value={rebooking}>
       <Page
@@ -267,11 +266,11 @@ export default function TipBoard() {
       >
         <div aria-hidden={!!modal}>
           <RebookingHeader />
-          {bookingStart ? (
-            <TimeBanner label="Booking start" time={bookingStart} />
-          ) : pdt ? (
-            <TimeBanner label="Next drop" time={pdt} />
-          ) : null}
+          <TimeBanner
+            startTime={startTime}
+            dropTime={dropTime}
+            update={isLoading && experiences.length > 0}
+          />
           <ul>
             {experiences
               .sort(
@@ -299,17 +298,28 @@ export default function TipBoard() {
                     <h2 className="flex-1 mt-0 text-lg leading-tight truncate">
                       {exp.name}
                     </h2>
-                    {exp.lp && (
-                      <button
-                        title="Lightning Pick"
-                        className={`px-2 ${park.theme.text}`}
+                    {exp.lp ? (
+                      <InfoButton
+                        name="Lightning Pick"
+                        icon={LightningIcon}
                         onClick={() =>
                           setModal(<LightningPickModal onClose={closeModal} />)
                         }
-                      >
-                        <LightningIcon />
-                      </button>
-                    )}
+                      />
+                    ) : dropTime && exp.drop ? (
+                      <InfoButton
+                        name="Upcoming Drop"
+                        icon={DropIcon}
+                        onClick={() =>
+                          setModal(
+                            <DropTimeModal
+                              dropTime={dropTime}
+                              onClose={closeModal}
+                            />
+                          )
+                        }
+                      />
+                    ) : null}
                   </div>
                   {exp.flex.preexistingPlan && (
                     <div className="mt-2 border-2 border-green-600 rounded p-1 text-sm uppercase font-semibold text-center text-green-600 bg-green-100">
@@ -350,6 +360,27 @@ export default function TipBoard() {
   );
 }
 
+function InfoButton({
+  name,
+  icon: Icon,
+  onClick,
+}: {
+  name: string;
+  icon: React.FunctionComponent;
+  onClick: () => void;
+}) {
+  const theme = useTheme();
+  return (
+    <button
+      title={`${name} (more info)`}
+      className={`-mx-2 px-2 ${theme.text}`}
+      onClick={onClick}
+    >
+      {<Icon />}
+    </button>
+  );
+}
+
 function StarButton({
   experience,
   starred,
@@ -361,46 +392,49 @@ function StarButton({
 }) {
   const theme = useTheme();
   return (
-    <div className="w-4 h-6">
-      <button
-        data-id={experience.id}
-        title="Favorite"
-        className="-m-2 p-2"
-        onClick={onClick}
-      >
-        <StarIcon
-          className={starred.has(experience.id) ? theme.text : 'text-gray-300'}
-        />
-      </button>
-    </div>
+    <button
+      data-id={experience.id}
+      title="Favorite"
+      className="-m-2 p-2"
+      onClick={onClick}
+    >
+      <StarIcon
+        className={starred.has(experience.id) ? theme.text : 'text-gray-300'}
+      />
+    </button>
   );
 }
 
-function LightningPickModal({ onClose }: { onClose: () => void }) {
+function LightningPickModal(props: { onClose: () => void }) {
   return (
-    <Overlay
-      className={{
-        outer: 'bg-black bg-opacity-75',
-        inner: 'p-2 flex items-center justify-center',
-      }}
-      onClick={onClose}
-    >
-      <div
-        className="rounded-lg px-3 py-4 bg-white"
-        onClick={event => event.stopPropagation()}
-      >
-        <h2 className="mt-0">Lightning Pick</h2>
-        <p>
-          When an attraction with a long wait has a Lightning Lane return time
-          in the near future, it's highlighted as a Lightning Pick. Book these
-          quick before they're gone!
-        </p>
-        <div>
-          <Button type="full" onClick={onClose}>
-            Close
-          </Button>
-        </div>
-      </div>
-    </Overlay>
+    <Modal heading="Lightning Pick" {...props}>
+      <p>
+        When an attraction with a long wait has a Lightning Lane return time in
+        the near future, it's highlighted as a Lightning Pick. Book these quick
+        before they're gone!
+      </p>
+    </Modal>
+  );
+}
+
+function DropTimeModal({
+  dropTime,
+  onClose,
+}: {
+  dropTime: string;
+  onClose: () => void;
+}) {
+  return (
+    <Modal heading="Upcoming Drop" onClose={onClose}>
+      <p>
+        This attraction may be part of the{' '}
+        <time dateTime={dropTime} className="font-semibold">
+          {displayTime(dropTime)}
+        </time>{' '}
+        drop of additional Lightning Lane inventory with earlier return times
+        than what's currently being offered. Availability varies but is always
+        limited, so be sure you're ready to book when the drop time arrives!
+      </p>
+    </Modal>
   );
 }

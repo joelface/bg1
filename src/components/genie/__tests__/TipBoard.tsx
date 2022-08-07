@@ -135,6 +135,16 @@ describe('TipBoard', () => {
     await loading();
     click('Refresh Tip Board');
     await loading();
+
+    expect(screen.getByText('Book:')).toHaveTextContent('Book: 11:00 AM');
+    expect(screen.getByText('Drop:')).toHaveTextContent('Drop: 11:30 AM');
+
+    const dropBtn = screen.getByTitle('Upcoming Drop (more info)');
+    within(dropBtn.closest('li') as HTMLElement).getByText(sm.name);
+    click(dropBtn);
+    const dropHeading = screen.getByText('Upcoming Drop');
+    click('Close');
+    expect(dropHeading).not.toBeInTheDocument();
   });
 
   it('sorts list properly', async () => {
@@ -243,17 +253,6 @@ describe('TipBoard', () => {
     expect(screen.queryByText('Rebooking')).not.toBeInTheDocument();
   });
 
-  it('shows time banners', async () => {
-    client.plusExperiences.mockResolvedValueOnce([
-      { ...hm, flex: { available: false, enrollmentStartTime: '07:00:00' } },
-    ]);
-    await renderComponent();
-    expect(screen.getByText('Booking start:')).toHaveTextContent('7:00 AM');
-    click('Refresh Tip Board');
-    await loading();
-    expect(screen.getByText('Next drop:')).toHaveTextContent('1:30 PM');
-  });
-
   it('saves selected park until tomorrow', async () => {
     const parkIcon = () =>
       (screen.getByTitle('Park') as HTMLButtonElement).textContent;
@@ -294,15 +293,16 @@ describe('TipBoard', () => {
     await renderComponent();
     const lp = screen.getAllByRole('listitem')[0];
     expect(lp).toHaveTextContent(sm.name);
-    within(lp).getByTitle('Lightning Pick');
+    within(lp).getByTitle('Lightning Pick (more info)');
+    expect(within(lp).queryByTitle('Drop')).not.toBeInTheDocument();
 
     click(screen.getAllByTitle('Favorite')[2]);
     expect(getExperiences()).toEqual(names([hm, sm, jc]));
 
-    click('Lightning Pick');
-    const modalHeading = screen.getByText('Lightning Pick');
+    click('Lightning Pick (more info)');
+    const lpHeading = screen.getByText('Lightning Pick');
     click('Close');
-    expect(modalHeading).not.toBeInTheDocument();
+    expect(lpHeading).not.toBeInTheDocument();
   });
 
   it('only sorts by location if user is in the park', async () => {

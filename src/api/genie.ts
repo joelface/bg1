@@ -42,11 +42,12 @@ export interface Experience {
     displayPrice: string;
   };
   priority?: number;
+  drop?: boolean;
 }
 
 export type PlusExperience = Experience & Required<Pick<Experience, 'flex'>>;
 
-type ApiExperience = Omit<Experience, 'name' | 'priority' | 'geo'>;
+type ApiExperience = Omit<Experience, 'name' | 'priority' | 'geo' | 'drop'>;
 type ApiPlusExperience = ApiExperience & Required<Pick<Experience, 'flex'>>;
 
 interface GuestEligibility {
@@ -113,6 +114,7 @@ export interface ResortData {
     [id: string]: {
       name: string;
       geo: readonly [number, number];
+      pdtMask?: number;
       priority?: number;
     };
   };
@@ -277,12 +279,23 @@ export class GenieClient {
       )}/experiences`,
       key: 'availableExperiences',
     });
+    const pdt = this.nextDropTime(park);
+    const pdtIdx = (this.data.pdts[park.id] || []).indexOf(pdt || '');
+    const pdtBit = 1 << pdtIdx;
     return experiences
       .filter(
         (exp): exp is ApiPlusExperience =>
           !!exp.flex && exp.id in this.data.experiences
       )
-      .map(exp => ({ ...exp, ...this.data.experiences[exp.id] }));
+      .map(exp => {
+        const { pdtMask = 0, ...expData } = this.data.experiences[exp.id];
+        const e: PlusExperience = {
+          ...exp,
+          ...expData,
+          drop: !!(pdtBit & pdtMask),
+        };
+        return e;
+      });
   }
 
   async guests(args?: {
@@ -336,6 +349,13 @@ export class GenieClient {
   async primaryGuestId(args: Parameters<GenieClient['guests']>[0]) {
     if (!this._primaryGuestId) await this.guests(args);
     return this._primaryGuestId;
+  }
+
+  async nextBookTime(): Promise<string | undefined> {
+    const { eligible, ineligible } = await this.guests();
+    if (eligible.length > 0) return dateTimeStrings().time;
+    if (ineligible.length > 0) return ineligible[0].eligibleAfter;
+    return undefined;
   }
 
   async offer({
@@ -525,9 +545,9 @@ export class GenieClient {
     return this.bookingStack.isRebookable(booking);
   }
 
-  pdt(park: Pick<Park, 'id'>): string | undefined {
+  nextDropTime(park: Pick<Park, 'id'>): string | undefined {
     const now = dateTimeStrings().time.slice(0, 5);
-    return this.data.pdts[park.id]?.find(pdt => pdt >= now);
+    return this.data.pdts?.[park.id]?.find(pdt => pdt >= now);
   }
 
   logOut(): void {

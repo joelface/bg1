@@ -70,6 +70,7 @@ const data: ResortData = {
       name: 'Big Thunder Mountain Railroad',
       geo: [28.4197486, -81.5845092],
       priority: 2.2,
+      pdtMask: 0b111,
     },
     80010114: {
       name: "Buzz Lightyear's Space Ranger Spin",
@@ -156,6 +157,7 @@ const data: ResortData = {
       name: 'Splash Mountain',
       geo: [28.4196223, -81.584991],
       priority: 2.0,
+      pdtMask: 0b111,
     },
     80010222: {
       name: 'Tomorrowland Speedway',
@@ -174,6 +176,7 @@ const data: ResortData = {
       name: 'Frozen Ever After',
       geo: [28.3706716, -81.5465556],
       priority: 1.2,
+      pdtMask: 0b1111,
     },
     80010152: {
       name: 'Journey Into Imagination',
@@ -192,6 +195,7 @@ const data: ResortData = {
       name: "Remy's Ratatouille Adventure",
       geo: [28.3680021, -81.5534178],
       priority: 1.0,
+      pdtMask: 0b1111,
     },
     107785: {
       name: 'Seas with Nemo & Friends',
@@ -211,6 +215,7 @@ const data: ResortData = {
       name: 'Test Track',
       geo: [28.3733374, -81.5474931],
       priority: 1.1,
+      pdtMask: 0b111,
     },
     62992: {
       name: 'Turtle Talk With Crush',
@@ -269,6 +274,7 @@ const data: ResortData = {
       name: 'Slinky Dog Dash',
       geo: [28.3562472, -81.5628474],
       priority: 1.1,
+      pdtMask: 0b111,
     },
     80010193: {
       name: 'Star Tours',
@@ -284,11 +290,13 @@ const data: ResortData = {
       name: 'Toy Story Mania',
       geo: [28.3563865, -81.5619019],
       priority: 3.0,
+      pdtMask: 0b111,
     },
     80010218: {
       name: 'Twilight Zone Tower of Terror',
       geo: [28.3595812, -81.5597695],
       priority: 1.2,
+      pdtMask: 0b111,
     },
     // Animal Kingdom
     19330300: {
@@ -309,6 +317,7 @@ const data: ResortData = {
       name: 'Expedition Everest',
       geo: [28.3584979, -81.587395],
       priority: 3.1,
+      pdtMask: 0b111,
     },
     19581372: {
       name: 'Feathered Friends in Flight',
@@ -330,11 +339,13 @@ const data: ResortData = {
       name: 'Kali River Rapids',
       geo: [28.3592076, -81.5883195],
       priority: 2.0,
+      pdtMask: 0b111,
     },
     80010157: {
       name: 'Kilimanjaro Safaris',
       geo: [28.3592779, -81.5921478],
       priority: 1.2,
+      pdtMask: 0b111,
     },
     17421326: {
       name: 'Meet Disney Pals @ Adventurers Outpost',

@@ -1,10 +1,13 @@
+export interface IconProps {
+  className?: string;
+  title?: string;
+}
+
 export default function Icon({
   children,
   className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
+  title,
+}: IconProps & { children: React.ReactNode }) {
   className ||= '';
   if (!className.match(/\bw-\S+\s*/)) className += ' w-4';
   if (!className.match(/\bh-\S+\s*/)) className += ' h-auto';
@@ -14,7 +17,9 @@ export default function Icon({
       fill="currentColor"
       viewBox="0 0 16 16"
       className={className}
+      role="img"
     >
+      {title && <title>{title}</title>}
       {children}
     </svg>
   );
