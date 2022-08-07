@@ -5,6 +5,7 @@ import { useGenieClient } from '@/contexts/GenieClient';
 import { Rebooking, RebookingProvider } from '@/contexts/Rebooking';
 import { useTheme } from '@/contexts/Theme';
 import { dateTimeStrings, displayTime } from '@/datetime';
+import useCoords, { Coords } from '@/hooks/useCoords';
 import useDataLoader from '@/hooks/useDataLoader';
 import DropIcon from '@/icons/DropIcon';
 import LightningIcon from '@/icons/LightningIcon';
@@ -21,7 +22,6 @@ import RebookingHeader from './RebookingHeader';
 import StandbyTime from './StandbyTime';
 import TimeBanner from './TimeBanner';
 import YLLButton from './YLLButton';
-import useCoords, { Coords } from '@/hooks/useCoords';
 
 const AUTO_REFRESH_MIN_MS = 60_000;
 const LP_MIN_STANDBY = 30;
