@@ -40,7 +40,7 @@ export function displayTime(time: string) {
     t
       .map(v => String(v).padStart(2, '0'))
       .join(':')
-      .replace(/:00$/, '')
+      .replace(/(:\d+):00$/, '$1')
       .replace(/^0/, '') +
     ' ' +
     ampm

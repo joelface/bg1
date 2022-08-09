@@ -1,4 +1,4 @@
-import { dateTimeStrings, setDefaultTimeZone } from '../datetime';
+import { dateTimeStrings, displayTime, setDefaultTimeZone } from '../datetime';
 
 Date.now = jest
   .spyOn(Date, 'now')
@@ -17,6 +17,15 @@ describe('dateTimeStrings()', () => {
       date: '2021-10-01',
       time: '08:00:00',
     });
+  });
+});
+
+describe('displayTime()', () => {
+  it('formats time for display', () => {
+    expect(displayTime('08:14:42')).toBe('8:14:42 AM');
+    expect(displayTime('08:14')).toBe('8:14 AM');
+    expect(displayTime('08:14:00')).toBe('8:14 AM');
+    expect(displayTime('8:00')).toBe('8:00 AM');
   });
 });
 
