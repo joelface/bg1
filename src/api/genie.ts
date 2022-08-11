@@ -369,16 +369,17 @@ export class GenieClient {
   }): Promise<Offer> {
     const { id, date, startTime, endTime, changeStatus }: OfferResponse =
       await this.request({
-        path: '/ea-vas/api/v1/products/flex/offers',
+        path: '/ea-vas/api/v2/products/flex/offers',
         method: 'POST',
         data: {
-          productType: 'FLEX',
           guestIds: guests.map(g => g.id),
+          ineligibleGuests: [],
           primaryGuestId: await this.primaryGuestId({ experience, park }),
           parkId: park.id,
           experienceId: experience.id,
           selectedTime: experience.flex.nextAvailableTime,
         },
+        userId: false,
         key: 'offer',
       });
     return {
@@ -573,6 +574,7 @@ export class GenieClient {
       data: request.data,
       headers: {
         Authorization: `BEARER ${accessToken}`,
+        'x-user-id': swid,
       },
     });
     if (status === 401) {

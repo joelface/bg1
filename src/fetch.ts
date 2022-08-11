@@ -22,7 +22,7 @@ export async function fetchJson(
     'User-Agent': 'Mozilla/5.0',
     ...(init.headers || {}),
   };
-  if (params) {
+  if (params && Object.keys(params).length > 0) {
     url +=
       '?' +
       Object.entries(params)
