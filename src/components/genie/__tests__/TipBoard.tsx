@@ -201,7 +201,12 @@ describe('TipBoard', () => {
       id: 'sm1',
       start: { date: '2022-07-17', time: '12:45:00' },
       end: { date: '2022-07-17', time: '13:45:00' },
-      changeStatus: 'NONE',
+      active: true,
+      changed: false,
+      guests: {
+        eligible: [mickey, minnie],
+        ineligible: [],
+      },
     });
     const newBooking = {
       experience: sm,

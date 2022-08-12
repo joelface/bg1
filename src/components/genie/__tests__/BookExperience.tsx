@@ -5,6 +5,7 @@ import { ping } from '@/ping';
 import { click, loading, render, screen } from '@/testing';
 import {
   client,
+  offer,
   hm,
   jc,
   mk,
@@ -12,6 +13,7 @@ import {
   mickey,
   minnie,
   donald,
+  pluto,
 } from '@/__fixtures__/genie';
 import BookExperience from '../BookExperience';
 
@@ -87,11 +89,40 @@ describe('BookExperience', () => {
     expect(onClose).toBeCalledTimes(1);
   });
 
+  it('removes offer-ineligible guests from selected party', async () => {
+    client.offer.mockResolvedValueOnce({
+      ...offer,
+      guests: {
+        eligible: [minnie],
+        ineligible: [mickey, pluto].map(g => ({
+          ...g,
+          ineligibleReason: 'TOO_EARLY_FOR_PARK_HOPPING',
+        })),
+      },
+    });
+    await renderComponent();
+    screen.getByText(minnie.name);
+    expect(screen.queryByText(mickey.name)).not.toBeInTheDocument();
+    click('Edit');
+    screen.getByRole('checkbox', { checked: true });
+    expect(screen.getByText(mickey.name)).toHaveTextContent(
+      'TOO EARLY FOR PARK HOPPING'
+    );
+    expect(screen.getByText(pluto.name)).toHaveTextContent(
+      'TOO EARLY FOR PARK HOPPING'
+    );
+  });
+
   const newOffer = {
     id: 'new_offer',
     start: { date: '2022-07-17', time: '10:05:00' },
     end: { date: '2022-07-17', time: '11:05:00' },
-    changeStatus: 'NONE' as const,
+    active: true,
+    changed: true,
+    guests: {
+      eligible: [mickey, minnie, pluto],
+      ineligible: [],
+    },
   };
 
   it('refreshes offer when Refresh Offer button clicked', async () => {
@@ -102,6 +133,9 @@ describe('BookExperience', () => {
     await loading();
     screen.getByText('10:05 AM');
     screen.getByText('11:05 AM');
+    expect(
+      screen.queryByText('Return time has been changed')
+    ).not.toBeInTheDocument();
   });
 
   it('refreshes offer when someone added to party', async () => {

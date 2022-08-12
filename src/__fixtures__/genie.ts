@@ -68,7 +68,12 @@ export const offer: Offer = {
   id: '123',
   start: { date: '2022-07-17', time: '11:25:00' },
   end: { date: '2022-07-17', time: '12:25:00' },
-  changeStatus: 'NONE' as const,
+  active: true,
+  changed: false,
+  guests: {
+    eligible: [mickey, minnie, pluto],
+    ineligible: [],
+  },
 };
 
 export const booking = {

@@ -56,6 +56,7 @@ function expectFetch(
       data,
       headers: {
         Authorization: `BEARER ${accessToken}`,
+        'x-user-id': '{abc}',
       },
     }
   );
@@ -323,27 +324,76 @@ describe('GenieClient', () => {
       date: '2022-07-17',
       startTime: '14:30:00',
       endTime: '15:30:00',
+      status: 'ACTIVE',
       changeStatus: 'NONE',
     };
-    const offerRes = response({ offer }, 201);
+    const offerGuests = [mickey, minnie].map(splitName);
 
     it('obtains Lightning Lane offer', async () => {
-      respond(offerRes);
+      respond(
+        response(
+          {
+            offer,
+            eligibleGuests: offerGuests,
+            ineligibleGuests: [],
+          },
+          201
+        )
+      );
       expect(await client.offer({ experience: hm, park: mk, guests })).toEqual({
         id: offer.id,
         start: { date: offer.date, time: offer.startTime },
         end: { date: offer.date, time: offer.endTime },
-        changeStatus: 'NONE',
+        active: true,
+        changed: false,
+        guests: {
+          eligible: [mickey, minnie],
+          ineligible: [],
+        },
       });
-      expectFetch('/ea-vas/api/v1/products/flex/offers', {
-        method: 'POST',
-        data: {
-          productType: 'FLEX',
-          guestIds: guests.map(g => g.id),
-          primaryGuestId: mickey.id,
-          parkId: mk.id,
-          experienceId: hm.id,
-          selectedTime: '14:30:00',
+      expectFetch(
+        '/ea-vas/api/v2/products/flex/offers',
+        {
+          method: 'POST',
+          data: {
+            guestIds: guests.map(g => g.id),
+            ineligibleGuests: [],
+            primaryGuestId: mickey.id,
+            parkId: mk.id,
+            experienceId: hm.id,
+            selectedTime: '14:30:00',
+          },
+        },
+        false
+      );
+    });
+
+    it('reports changes/failure', async () => {
+      respond(
+        response(
+          {
+            offer: { ...offer, status: 'DELETED', changeStatus: 'CHANGED' },
+            eligibleGuests: [],
+            ineligibleGuests: offerGuests.map(g => ({
+              ...g,
+              ineligibleReason: 'TOO_EARLY_FOR_PARK_HOPPING',
+            })),
+          },
+          201
+        )
+      );
+      expect(await client.offer({ experience: hm, park: mk, guests })).toEqual({
+        id: offer.id,
+        start: { date: offer.date, time: offer.startTime },
+        end: { date: offer.date, time: offer.endTime },
+        active: false,
+        changed: true,
+        guests: {
+          eligible: [],
+          ineligible: [mickey, minnie].map(g => ({
+            ...g,
+            ineligibleReason: 'TOO_EARLY_FOR_PARK_HOPPING',
+          })),
         },
       });
     });

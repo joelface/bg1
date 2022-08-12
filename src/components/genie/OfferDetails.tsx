@@ -19,9 +19,9 @@ export default function OfferDetails({
         <Warning>Rebooking resets the two hour timer</Warning>
       )}
       <ArrivalTimes times={offer} />
-      {offer.changeStatus === 'PARK_HOPPING' && (
+      {offer.changed && (
         <div className="text-sm">
-          <strong>Note:</strong> Time changed due to park hopping
+          <strong>Note:</strong> Return time has been changed
         </div>
       )}
       <YourParty

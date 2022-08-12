@@ -154,13 +154,28 @@ export default function BookExperience({
       loadData(
         async () => {
           try {
-            setOffer(
-              await client.offer({
-                experience,
-                park,
-                guests: party.selected,
-              })
-            );
+            const newOffer = await client.offer({
+              experience,
+              park,
+              guests: party.selected,
+            });
+            const { ineligible } = newOffer.guests;
+            if (ineligible.length > 0) {
+              const ineligibleIds = new Set(ineligible.map(g => g.id));
+              const isEligible = (g: Guest) => !ineligibleIds.has(g.id);
+              setParty({
+                ...party,
+                eligible: party.eligible.filter(isEligible),
+                ineligible: [...ineligible, ...party.ineligible],
+                selected: party.selected.filter(isEligible),
+              });
+            }
+            if (newOffer.active) {
+              // If the user is intentionally refreshing, we don't need to warn
+              // them that the offer has changed
+              if (offer) newOffer.changed = false;
+              setOffer(newOffer);
+            }
           } catch (error) {
             if (!event) setOffer(null);
             throw error;

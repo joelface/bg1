@@ -56,7 +56,8 @@ interface GuestEligibility {
     | 'PARK_RESERVATION_NEEDED'
     | 'GENIE_PLUS_NEEDED'
     | 'EXPERIENCE_LIMIT_REACHED'
-    | 'TOO_EARLY';
+    | 'TOO_EARLY'
+    | 'TOO_EARLY_FOR_PARK_HOPPING';
   eligibleAfter?: string;
 }
 
@@ -86,18 +87,28 @@ interface GuestsResponse {
 }
 
 interface OfferResponse {
-  id: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  changeStatus: 'NONE' | 'PARK_HOPPING';
+  offer: {
+    id: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+    changeStatus: 'NONE' | 'CHANGED' | 'PARK_HOPPING';
+    status: 'ACTIVE' | 'DELETED';
+  };
+  eligibleGuests: ApiGuest[];
+  ineligibleGuests: ApiGuest[];
 }
 
 export interface Offer {
   id: string;
   start: DateTime;
   end: DateTime;
-  changeStatus: 'NONE' | 'PARK_HOPPING';
+  active: boolean;
+  changed: boolean;
+  guests: {
+    eligible: Guest[];
+    ineligible: Guest[];
+  };
 }
 
 export interface Park {
@@ -312,23 +323,9 @@ export class GenieClient {
       },
     });
     this._primaryGuestId = res.primaryGuestId;
-    const convertGuest = ({
-      id,
-      firstName,
-      lastName,
-      characterId,
-      ...rest
-    }: ApiGuest) => {
-      const name = `${firstName} ${lastName}`.trim();
-      if (!this.guestCache.has(id)) {
-        this.guestCache.set(id, { name, characterId });
-      }
-      const avatarImageUrl = avatarUrl(characterId);
-      return { ...rest, id, name, avatarImageUrl };
-    };
-    const ineligible = res.ineligibleGuests.map(convertGuest);
+    const ineligible = res.ineligibleGuests.map(this.convertGuest);
     const eligible = res.guests
-      .map(convertGuest)
+      .map(this.convertGuest)
       .filter(g => !('ineligibleReason' in g) || (ineligible.push(g) && false));
     ineligible.sort((a, b) => {
       const cmp = +!a.primary - +!b.primary || a.name.localeCompare(b.name);
@@ -367,26 +364,30 @@ export class GenieClient {
     park: Pick<Park, 'id'>;
     guests: Pick<Guest, 'id'>[];
   }): Promise<Offer> {
-    const { id, date, startTime, endTime, changeStatus }: OfferResponse =
-      await this.request({
-        path: '/ea-vas/api/v2/products/flex/offers',
-        method: 'POST',
-        data: {
-          guestIds: guests.map(g => g.id),
-          ineligibleGuests: [],
-          primaryGuestId: await this.primaryGuestId({ experience, park }),
-          parkId: park.id,
-          experienceId: experience.id,
-          selectedTime: experience.flex.nextAvailableTime,
-        },
-        userId: false,
-        key: 'offer',
-      });
+    const res: OfferResponse = await this.request({
+      path: '/ea-vas/api/v2/products/flex/offers',
+      method: 'POST',
+      data: {
+        guestIds: guests.map(g => g.id),
+        ineligibleGuests: [],
+        primaryGuestId: await this.primaryGuestId({ experience, park }),
+        parkId: park.id,
+        experienceId: experience.id,
+        selectedTime: experience.flex.nextAvailableTime,
+      },
+      userId: false,
+    });
+    const { id, date, startTime, endTime, status, changeStatus } = res.offer;
     return {
       id,
       start: { date, time: startTime },
       end: { date, time: endTime },
-      changeStatus,
+      active: status === 'ACTIVE',
+      changed: changeStatus !== 'NONE',
+      guests: {
+        eligible: (res.eligibleGuests || []).map(this.convertGuest),
+        ineligible: (res.ineligibleGuests || []).map(this.convertGuest),
+      },
     };
   }
 
@@ -555,6 +556,16 @@ export class GenieClient {
     this.authStore.deleteData();
     this.onUnauthorized();
   }
+
+  protected convertGuest = (guest: ApiGuest) => {
+    const { id, firstName, lastName, characterId, ...rest } = guest;
+    const name = `${firstName} ${lastName}`.trim();
+    if (!this.guestCache.has(id)) {
+      this.guestCache.set(id, { name, characterId });
+    }
+    const avatarImageUrl = avatarUrl(characterId);
+    return { ...rest, id, name, avatarImageUrl };
+  };
 
   protected async request(request: {
     path: string;
