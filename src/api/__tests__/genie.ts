@@ -1,4 +1,5 @@
 import { fetchJson } from '@/fetch';
+import { sleep } from '@/sleep';
 import { setTime, waitFor } from '@/testing';
 import {
   hm,
@@ -648,6 +649,23 @@ describe('GenieClient', () => {
       respond({ status: 401, data: {} });
       await expect(client.plusExperiences(mk)).rejects.toThrow(RequestError);
       await waitFor(() => expect(onUnauthorized).toBeCalledTimes(1));
+    });
+  });
+
+  describe('(add|remove)Listener()', () => {
+    it('fires event listeners', async () => {
+      const cancelRes = response({});
+      respond(cancelRes, cancelRes);
+      const cancel = async () => {
+        await client.cancelBooking([{ entitlementId: 'some_id' }]);
+        await sleep(0);
+      };
+      const listener = jest.fn();
+      client.addListener('bookingChange', listener);
+      await cancel();
+      client.removeListener('bookingChange', listener);
+      await cancel();
+      expect(listener).toBeCalledTimes(1);
     });
   });
 });

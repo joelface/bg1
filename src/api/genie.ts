@@ -230,6 +230,9 @@ interface Itinerary {
   profiles: { [id: string]: Profile };
 }
 
+type EventName = 'bookingChange';
+type EventListener = () => void;
+
 export class RequestError extends Error {
   name = 'RequestError';
 
@@ -254,6 +257,9 @@ export class GenieClient {
     { name: string; characterId: string }
   >();
   protected bookingStack: BookingStack;
+  protected listeners: Record<EventName, Set<EventListener>> = {
+    bookingChange: new Set(),
+  };
   protected _primaryGuestId = '';
 
   static async load(
@@ -416,6 +422,7 @@ export class GenieClient {
       key: 'booking',
     });
     this.bookings(); // Load bookings to refresh booking stack
+    this.fireEvent('bookingChange');
     return {
       experience: {
         id: experienceId,
@@ -447,6 +454,7 @@ export class GenieClient {
       method: 'DELETE',
       userId: false,
     });
+    this.fireEvent('bookingChange');
   }
 
   async bookings(): Promise<Booking[]> {
@@ -555,6 +563,20 @@ export class GenieClient {
   logOut(): void {
     this.authStore.deleteData();
     this.onUnauthorized();
+  }
+
+  addListener(event: EventName, listener: EventListener) {
+    this.listeners[event].add(listener);
+  }
+
+  removeListener(event: EventName, listener: EventListener) {
+    this.listeners[event].delete(listener);
+  }
+
+  protected fireEvent(event: EventName) {
+    setTimeout(() => {
+      for (const listener of this.listeners[event]) listener();
+    });
   }
 
   protected convertGuest = (guest: ApiGuest) => {

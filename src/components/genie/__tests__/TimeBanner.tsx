@@ -1,10 +1,15 @@
 import { useEffect, useState } from 'react';
 
 import { ClientProvider } from '@/contexts/Client';
+import { fetchJson } from '@/fetch';
 import { click, render, screen, setTime, waitFor } from '@/testing';
 import { client } from '@/__fixtures__/genie';
 import TimeBanner from '../TimeBanner';
 
+jest.mock('@/fetch');
+const fetchJsonMock = fetchJson as jest.MockedFunction<typeof fetchJson>;
+fetchJsonMock.mockResolvedValue({ status: 200, data: {} });
+client.cancelBooking.mockRestore();
 jest.useFakeTimers();
 
 function Banner(props: Omit<Parameters<typeof TimeBanner>[0], 'isLoading'>) {
@@ -30,7 +35,7 @@ const refresh = () => {
 describe('TimeBanner', () => {
   it('renders pre-enrollment time banner', async () => {
     setTime('06:59');
-    render(<TimeBanner startTime="07:00:00" dropTime="11:30:00" />);
+    render(<Banner startTime="07:00:00" dropTime="11:30:00" />);
     expect(screen.getByText('Book:')).toHaveTextContent('Book: 7:00 AM');
     expect(screen.getByText('Drop:')).toHaveTextContent('Drop: 11:30 AM');
   });
@@ -62,8 +67,27 @@ describe('TimeBanner', () => {
     );
   });
 
+  it('updates book time when the bookingChange event fires', async () => {
+    setTime('11:00');
+    const add = jest.spyOn(client, 'addListener');
+    const remove = jest.spyOn(client, 'removeListener');
+    const { unmount } = render(<Banner dropTime="11:30:00" />);
+    refresh();
+    expect(add).toBeCalledWith('bookingChange', expect.any(Function));
+    expect(await screen.findByText('Book:')).toHaveTextContent('Book: now');
+
+    client.nextBookTime.mockResolvedValueOnce('13:00:00');
+    client.cancelBooking([{ entitlementId: 'some_id' }]); // fires bookingChange
+    await waitFor(() =>
+      expect(screen.getByText('Book:')).toHaveTextContent('Book: 1:00 PM')
+    );
+
+    unmount();
+    expect(remove).toBeCalledWith('bookingChange', expect.any(Function));
+  });
+
   it('renders nothing if no times to show', async () => {
-    const { container } = render(<TimeBanner />);
-    expect(container).toBeEmptyDOMElement();
+    render(<Banner />);
+    expect(screen.getByTestId('banner')).toBeEmptyDOMElement();
   });
 });

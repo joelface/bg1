@@ -21,6 +21,15 @@ export default function TimeBanner({
   const [, setLastUpdated] = useState(0);
 
   useEffect(() => {
+    const updateTime = () => {
+      setLastUpdated(Date.now());
+      client.nextBookTime().then(setBookTime);
+    };
+    client.addListener('bookingChange', updateTime);
+    return () => client.removeListener('bookingChange', updateTime);
+  }, [client]);
+
+  useEffect(() => {
     if (startTime) {
       setBookTime(startTime);
       return;
