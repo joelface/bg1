@@ -1,4 +1,9 @@
-import { dateTimeStrings, displayTime, setDefaultTimeZone } from '../datetime';
+import {
+  dateTimeStrings,
+  displayTime,
+  setDefaultTimeZone,
+  splitDateTime,
+} from '../datetime';
 
 Date.now = jest
   .spyOn(Date, 'now')
@@ -26,6 +31,15 @@ describe('displayTime()', () => {
     expect(displayTime('08:14')).toBe('8:14 AM');
     expect(displayTime('08:14:00')).toBe('8:14 AM');
     expect(displayTime('8:00')).toBe('8:00 AM');
+  });
+});
+
+describe('splitDateTime()', () => {
+  it('splits date/time string', () => {
+    expect(splitDateTime('1998-04-22T16:35:40.123')).toEqual({
+      date: '1998-04-22',
+      time: '16:35:40',
+    });
   });
 });
 

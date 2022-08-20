@@ -7,7 +7,7 @@ export function setDefaultTimeZone(timeZone: string): void {
 /**
  * @returns Formatted date (YYYY-MM-DD) and time (HH:MM:SS) strings in the default time zone
  */
-export function dateTimeStrings(date?: Date | number | string): {
+export function dateTimeStrings(date?: Date | number): {
   date: string;
   time: string;
 } {
@@ -45,4 +45,12 @@ export function displayTime(time: string) {
     ' ' +
     ampm
   );
+}
+
+/**
+ * Splits ISO 8601 date/time string (YYYY-MM-DDTHH:mm:ss) into separate parts
+ */
+export function splitDateTime(dateTime: string) {
+  const [date, time] = dateTime.slice(0, 19).split('T');
+  return { date, time };
 }

@@ -1,4 +1,4 @@
-import { dateTimeStrings } from '@/datetime';
+import { dateTimeStrings, splitDateTime } from '@/datetime';
 import { fetchJson } from '@/fetch';
 import { AuthStore } from './auth/store';
 import { avatarUrl } from './avatar';
@@ -429,8 +429,8 @@ export class GenieClient {
         name: this.data.experiences[experienceId].name,
       },
       park: this.data.parks.find(p => p.id === parkId) as Park,
-      start: dateTimeStrings(startDateTime),
-      end: dateTimeStrings(endDateTime),
+      start: splitDateTime(startDateTime),
+      end: splitDateTime(endDateTime),
       cancellable: true,
       guests: entitlements.map(e => {
         const g = this.guestCache.get(e.guestId);
