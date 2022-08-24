@@ -60,8 +60,8 @@ export default function BookingPanel({ onClose }: { onClose: () => void }) {
       <Page
         heading="Your Lightning Lanes"
         buttons={<Button onClick={close}>Close</Button>}
-        className={`top-auto max-h-[50%] ${
-          opened ? 'h-[275px]' : 'h-0'
+        className={`top-auto ${
+          opened ? 'h-[60%]' : 'h-0'
         } duration-200 ease-linear`}
       >
         {bookings && bookings.length > 0 ? (
