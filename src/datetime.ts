@@ -33,14 +33,13 @@ export function dateTimeStrings(date?: Date | number): {
 }
 
 export function displayTime(time: string) {
-  const t = time.split(':').map(Number);
+  const t = time.split(':').slice(0, 2).map(Number);
   const ampm = t[0] >= 12 ? 'PM' : 'AM';
   t[0] = t[0] % 12 || 12;
   return (
     t
       .map(v => String(v).padStart(2, '0'))
       .join(':')
-      .replace(/(:\d+):00$/, '$1')
       .replace(/^0/, '') +
     ' ' +
     ampm
