@@ -152,6 +152,7 @@ jest.spyOn(client, 'cancelOffer').mockResolvedValue(undefined);
 jest.spyOn(client, 'book').mockResolvedValue({ ...booking });
 jest.spyOn(client, 'cancelBooking').mockResolvedValue(undefined);
 jest.spyOn(client, 'bookings').mockResolvedValue([...bookings]);
-jest.spyOn(client, 'plusExperiences').mockResolvedValue([hm, sm, jc]);
-jest.spyOn(client, 'nextBookTime').mockResolvedValue('11:00');
+jest
+  .spyOn(client, 'experiences')
+  .mockResolvedValue({ plus: [hm, sm, jc], nextBookTime: '11:00:00' });
 jest.spyOn(client, 'nextDropTime').mockReturnValue('11:30');

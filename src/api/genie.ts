@@ -50,6 +50,20 @@ export type PlusExperience = Experience & Required<Pick<Experience, 'flex'>>;
 type ApiExperience = Omit<Experience, 'name' | 'priority' | 'geo' | 'drop'>;
 type ApiPlusExperience = ApiExperience & Required<Pick<Experience, 'flex'>>;
 
+interface ExperiencesResponse {
+  availableExperiences: ApiExperience[];
+  eligibility?: {
+    flexEligibilityWindows?: {
+      time: {
+        time: string;
+        timeDisplayString: string;
+        timeStatus: string;
+      };
+    }[];
+    guestIds: string[];
+  };
+}
+
 interface GuestEligibility {
   ineligibleReason?:
     | 'INVALID_PARK_ADMISSION'
@@ -289,30 +303,40 @@ export class GenieClient {
     return this.data.parks;
   }
 
-  async plusExperiences(park: Pick<Park, 'id'>): Promise<PlusExperience[]> {
-    const experiences: ApiExperience[] = await this.request({
+  async experiences(park: Pick<Park, 'id'>): Promise<{
+    plus: PlusExperience[];
+    nextBookTime?: string;
+  }> {
+    await this.primaryGuestId(); // prime the guest cache
+    const res: ExperiencesResponse = await this.request({
       path: `/tipboard-vas/api/v1/parks/${encodeURIComponent(
         park.id
       )}/experiences`,
-      key: 'availableExperiences',
+      params: { eligibilityGuestIds: [...this.guestCache.keys()].join(',') },
     });
+    const nextBookTime = (res.eligibility?.flexEligibilityWindows || []).sort(
+      (a, b) => a.time.time.localeCompare(b.time.time)
+    )[0]?.time.time;
     const pdt = this.nextDropTime(park);
     const pdtIdx = (this.data.pdts[park.id] || []).indexOf(pdt || '');
     const pdtBit = 1 << pdtIdx;
-    return experiences
-      .filter(
-        (exp): exp is ApiPlusExperience =>
-          !!exp.flex && exp.id in this.data.experiences
-      )
-      .map(exp => {
-        const { pdtMask = 0, ...expData } = this.data.experiences[exp.id];
-        const e: PlusExperience = {
-          ...exp,
-          ...expData,
-          drop: !!(pdtBit & pdtMask),
-        };
-        return e;
-      });
+    return {
+      plus: res.availableExperiences
+        .filter(
+          (exp): exp is ApiPlusExperience =>
+            !!exp.flex && exp.id in this.data.experiences
+        )
+        .map(exp => {
+          const { pdtMask = 0, ...expData } = this.data.experiences[exp.id];
+          const e: PlusExperience = {
+            ...exp,
+            ...expData,
+            drop: !!(pdtBit & pdtMask),
+          };
+          return e;
+        }),
+      nextBookTime,
+    };
   }
 
   async guests(args?: {
@@ -349,16 +373,9 @@ export class GenieClient {
     return { eligible, ineligible };
   }
 
-  async primaryGuestId(args: Parameters<GenieClient['guests']>[0]) {
+  async primaryGuestId(args?: Parameters<GenieClient['guests']>[0]) {
     if (!this._primaryGuestId) await this.guests(args);
     return this._primaryGuestId;
-  }
-
-  async nextBookTime(): Promise<string | undefined> {
-    const { eligible, ineligible } = await this.guests();
-    if (eligible.length > 0) return dateTimeStrings().time;
-    if (ineligible.length > 0) return ineligible[0].eligibleAfter;
-    return undefined;
   }
 
   async offer({
@@ -422,7 +439,6 @@ export class GenieClient {
       key: 'booking',
     });
     this.bookings(); // Load bookings to refresh booking stack
-    this.fireEvent('bookingChange');
     return {
       experience: {
         id: experienceId,
@@ -454,7 +470,6 @@ export class GenieClient {
       method: 'DELETE',
       userId: false,
     });
-    this.fireEvent('bookingChange');
   }
 
   async bookings(): Promise<Booking[]> {
@@ -565,29 +580,27 @@ export class GenieClient {
     this.onUnauthorized();
   }
 
-  addListener(event: EventName, listener: EventListener) {
-    this.listeners[event].add(listener);
-  }
-
-  removeListener(event: EventName, listener: EventListener) {
-    this.listeners[event].delete(listener);
-  }
-
-  protected fireEvent(event: EventName) {
-    setTimeout(() => {
-      for (const listener of this.listeners[event]) listener();
-    });
-  }
-
   protected convertGuest = (guest: ApiGuest) => {
     const { id, firstName, lastName, characterId, ...rest } = guest;
     const name = `${firstName} ${lastName}`.trim();
     if (!this.guestCache.has(id)) {
-      this.guestCache.set(id, { name, characterId });
+      switch (guest.ineligibleReason) {
+        case 'INVALID_PARK_ADMISSION':
+        case 'PARK_RESERVATION_NEEDED':
+        case 'GENIE_PLUS_NEEDED':
+          if (guest.primary) this.cacheGuest(id, name, characterId);
+          break;
+        default:
+          this.cacheGuest(id, name, characterId);
+      }
     }
     const avatarImageUrl = avatarUrl(characterId);
     return { ...rest, id, name, avatarImageUrl };
   };
+
+  protected cacheGuest(id: string, name: string, characterId: string) {
+    this.guestCache.set(id, { name, characterId });
+  }
 
   protected async request(request: {
     path: string;

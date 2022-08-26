@@ -76,7 +76,7 @@ describe('TipBoard', () => {
   it('renders TipBoard`', async () => {
     await renderComponent();
 
-    expect(client.plusExperiences).lastCalledWith(
+    expect(client.experiences).lastCalledWith(
       expect.objectContaining({ id: mk.id })
     );
     within(
@@ -109,11 +109,11 @@ describe('TipBoard', () => {
       standby: { available: true, waitTime: 75 },
       flex: { available: false },
     } as const;
-    client.plusExperiences.mockResolvedValueOnce([sdd]);
+    client.experiences.mockResolvedValueOnce({ plus: [sdd] });
     elemScrollMock.mockClear();
     await changePark(hs);
     screen.getByText(sdd.name);
-    expect(client.plusExperiences).lastCalledWith(
+    expect(client.experiences).lastCalledWith(
       expect.objectContaining({ id: hs.id })
     );
     expect(elemScrollMock).toBeCalledTimes(1);
@@ -125,7 +125,7 @@ describe('TipBoard', () => {
     screen.getByText('Your Party');
     click('Cancel');
 
-    client.plusExperiences.mockClear();
+    client.experiences.mockClear();
 
     act(() => {
       jest.advanceTimersByTime(60_000);
@@ -148,7 +148,7 @@ describe('TipBoard', () => {
   });
 
   it('sorts list properly', async () => {
-    client.plusExperiences.mockResolvedValueOnce([jc, hm]);
+    client.experiences.mockResolvedValueOnce({ plus: [jc, hm] });
     const {
       priority,
       flex: { nextAvailableTime },
@@ -282,11 +282,9 @@ describe('TipBoard', () => {
   });
 
   it('pins attraction to top if favorited', async () => {
-    client.plusExperiences.mockResolvedValueOnce([
-      jc,
-      sm,
-      { ...hm, flex: { available: false } },
-    ]);
+    client.experiences.mockResolvedValueOnce({
+      plus: [jc, sm, { ...hm, flex: { available: false } }],
+    });
     await renderComponent();
     expect(getExperiences()).toEqual(names([jc, sm, hm]));
     click(screen.getAllByTitle('Favorite')[2]);

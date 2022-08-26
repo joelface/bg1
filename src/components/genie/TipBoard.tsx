@@ -104,6 +104,7 @@ export default function TipBoard() {
     );
   });
   const [experiences, setExperiences] = useState<Experience[]>([]);
+  const [nextBookTime, setNextBookTime] = useState<string>();
   const [modal, setModal] = useState<React.ReactNode>();
   const closeModal = () => setModal(undefined);
   const [sortType, sort] = useState<SortType>('priority');
@@ -150,10 +151,11 @@ export default function TipBoard() {
             if (sortType === 'nearby') updateCoords();
             return sortType;
           });
-          const experiences = await client.plusExperiences(park);
+          const { plus, nextBookTime } = await client.experiences(park);
+          setNextBookTime(nextBookTime);
           const nowMinutes = timeToMinutes(dateTimeStrings().time);
           setExperiences(
-            experiences.map(exp => {
+            plus.map(exp => {
               const standby = exp.standby.waitTime || 0;
               const returnTime = exp.flex.nextAvailableTime;
               if (!returnTime) return { ...exp, lp: false };
@@ -267,9 +269,8 @@ export default function TipBoard() {
         <div aria-hidden={!!modal}>
           <RebookingHeader />
           <TimeBanner
-            startTime={startTime}
+            bookTime={startTime || nextBookTime}
             dropTime={dropTime}
-            update={isLoading && experiences.length > 0}
           />
           <ul>
             {experiences

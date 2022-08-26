@@ -40,7 +40,7 @@ const mockBook = (status: number) =>
   mockClickResponse(client.book, 'Book Lightning Lane', status);
 
 const mockMakeRes = (status: number) =>
-  mockClickResponse(client.plusExperiences, 'Check Availability', status);
+  mockClickResponse(client.experiences, 'Check Availability', status);
 
 const renderComponent = async (available = true) => {
   render(
@@ -254,9 +254,9 @@ describe('BookExperience', () => {
   });
 
   it('flashes error message when enrollment not open or enrollment check fails', async () => {
-    client.plusExperiences.mockResolvedValueOnce([
-      { ...hm, flex: { available: false } },
-    ]);
+    client.experiences.mockResolvedValueOnce({
+      plus: [{ ...hm, flex: { available: false } }],
+    });
     await renderComponent(false);
     click('Check Availability');
     await loading();

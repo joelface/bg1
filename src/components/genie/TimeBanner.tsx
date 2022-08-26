@@ -1,49 +1,14 @@
-import { useEffect, useState } from 'react';
-
-import { useGenieClient } from '@/contexts/GenieClient';
 import { useTheme } from '@/contexts/Theme';
 import { dateTimeStrings, displayTime } from '@/datetime';
 
-const MIN_UPDATE_INTERVAL = 60_000;
-
 export default function TimeBanner({
-  startTime,
+  bookTime,
   dropTime,
-  update,
 }: {
-  startTime?: string;
+  bookTime?: string;
   dropTime?: string;
-  update?: boolean;
 }) {
-  const client = useGenieClient();
   const theme = useTheme();
-  const [bookTime, setBookTime] = useState<string | undefined>();
-  const [, setLastUpdated] = useState(0);
-
-  useEffect(() => {
-    const updateTime = () => {
-      setLastUpdated(Date.now());
-      client.nextBookTime().then(setBookTime);
-    };
-    client.addListener('bookingChange', updateTime);
-    return () => client.removeListener('bookingChange', updateTime);
-  }, [client]);
-
-  useEffect(() => {
-    if (startTime) {
-      setBookTime(startTime);
-      return;
-    }
-    if (!update) return;
-    setLastUpdated(lastUpdated => {
-      const now = Date.now();
-      if (now - lastUpdated < MIN_UPDATE_INTERVAL) {
-        return lastUpdated;
-      }
-      client.nextBookTime().then(setBookTime);
-      return now;
-    });
-  }, [client, startTime, update]);
 
   if (!bookTime && !dropTime) return null;
   return (
