@@ -6,6 +6,7 @@ import {
   PlusExperience,
 } from '@/api/genie';
 import data from '@/api/data/wdw';
+import { TODAY } from '@/testing';
 
 data.pdts[80007944] = ['11:30', '14:30', '17:30'];
 
@@ -14,24 +15,29 @@ export const [mk, ep, hs, ak] = data.parks;
 export const mickey = {
   id: 'mickey',
   name: 'Mickey Mouse',
+  avatarImageUrl: undefined,
 };
 export const minnie = {
   id: 'minnie',
   name: 'Minnie Mouse',
+  avatarImageUrl: undefined,
 };
 export const pluto = {
   id: 'pluto',
   name: 'Pluto',
+  avatarImageUrl: undefined,
 };
 export const donald = {
   id: 'donald',
   name: 'Donald Duck',
   ineligibleReason: 'INVALID_PARK_ADMISSION' as const,
+  avatarImageUrl: undefined,
 };
 
 export const hm: PlusExperience = {
   id: '80010208',
   name: 'Haunted Mansion',
+  park: mk,
   geo: [28.4208771, -81.5830102],
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 30 },
@@ -42,6 +48,7 @@ export const hm: PlusExperience = {
 export const jc: PlusExperience = {
   id: '80010153',
   name: 'Jungle Cruise',
+  park: mk,
   geo: [28.4180339, -81.5834548],
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 45 },
@@ -56,6 +63,7 @@ export const jc: PlusExperience = {
 export const sm: PlusExperience = {
   id: '80010192',
   name: 'Splash Mountain',
+  park: mk,
   geo: [28.4196223, -81.584991],
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 60 },
@@ -64,10 +72,20 @@ export const sm: PlusExperience = {
   drop: true,
 };
 
+export const sdd: PlusExperience = {
+  id: 'sdd',
+  name: 'Slinky Dog Dash',
+  park: hs,
+  geo: [28.3562472, -81.5628474],
+  type: 'ATTRACTION',
+  standby: { available: true, waitTime: 75 },
+  flex: { available: false },
+};
+
 export const offer: Offer = {
   id: '123',
-  start: { date: '2022-07-17', time: '11:25:00' },
-  end: { date: '2022-07-17', time: '12:25:00' },
+  start: { date: TODAY, time: '11:25:00' },
+  end: { date: TODAY, time: '12:25:00' },
   active: true,
   changed: false,
   guests: {
@@ -76,11 +94,12 @@ export const offer: Offer = {
   },
 };
 
-export const booking = {
-  experience: { id: hm.id, name: hm.name },
-  park: mk,
-  start: { date: '2022-07-17', time: '11:25:00' },
-  end: { date: '2022-07-17', time: '12:25:00' },
+export const booking: Booking = {
+  id: hm.id,
+  name: hm.name,
+  park: hm.park,
+  start: { date: TODAY, time: '11:25:00' },
+  end: { date: TODAY, time: '12:25:00' },
   cancellable: true,
   guests: [
     { ...mickey, entitlementId: 'hm1125_01' },
@@ -89,25 +108,27 @@ export const booking = {
   ],
 };
 
-export const multiExp = {
-  experience: { id: '', name: 'Multiple Experiences' },
-  park: mk,
-  start: { date: '2022-07-17', time: '15:15:00' },
-  end: { date: '2022-07-17' },
+export const multiExp: Booking = {
+  id: jc.id,
+  name: jc.name,
+  park: jc.park,
+  start: { date: TODAY, time: '15:15:00' },
+  end: { date: TODAY, time: undefined },
   cancellable: false,
   guests: [
     { ...mickey, entitlementId: 're1515_01', redemptions: 1 },
     { ...minnie, entitlementId: 're1515_02', redemptions: 1 },
     { ...pluto, entitlementId: 're1515_03', redemptions: 1 },
   ],
-  choices: [hm, jc, sm].map(({ id, name }) => ({ id, name })),
+  choices: [hm, jc, sdd, sm].map(({ id, name, park }) => ({ id, name, park })),
 };
 
-export const allDayExp = {
-  experience: { id: sm.id, name: sm.name },
-  park: mk,
-  start: {},
-  end: {},
+export const allDayExp: Booking = {
+  id: sm.id,
+  name: sm.name,
+  park: sm.park,
+  start: { date: undefined, time: undefined },
+  end: { date: undefined, time: undefined },
   cancellable: false,
   guests: [{ ...pluto, entitlementId: 'sm_01', redemptions: 1 }],
 };
@@ -116,10 +137,11 @@ export const bookings: Booking[] = [
   allDayExp,
   booking,
   {
-    experience: { id: jc.id, name: jc.name },
-    park: mk,
-    start: { date: '2022-07-17', time: '14:00:00' },
-    end: { date: '2022-07-17', time: '15:00:00' },
+    id: jc.id,
+    name: jc.name,
+    park: jc.park,
+    start: { date: TODAY, time: '14:00:00' },
+    end: { date: TODAY, time: '15:00:00' },
     cancellable: true,
     guests: [
       { ...mickey, entitlementId: 'jc1400_01' },

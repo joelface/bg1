@@ -2,13 +2,12 @@ import { RequestError } from '@/api/genie';
 import { ClientProvider } from '@/contexts/Client';
 import { RebookingProvider } from '@/contexts/Rebooking';
 import { ping } from '@/ping';
-import { click, loading, render, screen } from '@/testing';
+import { click, loading, render, screen, TODAY } from '@/testing';
 import {
   client,
   offer,
   hm,
   jc,
-  mk,
   booking,
   mickey,
   minnie,
@@ -50,7 +49,6 @@ const renderComponent = async (available = true) => {
           ...hm,
           flex: { available, enrollmentStartTime: '07:00:00' },
         }}
-        park={mk}
         onClose={onClose}
       />
     </ClientProvider>
@@ -68,8 +66,7 @@ describe('BookExperience', () => {
     screen.getByText('Not Available Yet');
     click('Check Availability');
     await loading();
-    screen.getByText('11:25 AM');
-    screen.getByText('12:25 PM');
+    screen.getByText('11:25 AM - 12:25 PM');
     click('Edit');
     click(mickey.name);
     click('Confirm Party');
@@ -115,8 +112,8 @@ describe('BookExperience', () => {
 
   const newOffer = {
     id: 'new_offer',
-    start: { date: '2022-07-17', time: '10:05:00' },
-    end: { date: '2022-07-17', time: '11:05:00' },
+    start: { date: TODAY, time: '10:05:00' },
+    end: { date: TODAY, time: '11:05:00' },
     active: true,
     changed: true,
     guests: {
@@ -127,12 +124,11 @@ describe('BookExperience', () => {
 
   it('refreshes offer when Refresh Offer button clicked', async () => {
     await renderComponent();
-    screen.getByText('11:25 AM');
+    screen.getByText('11:25 AM - 12:25 PM');
     client.offer.mockResolvedValueOnce(newOffer);
     click('Refresh Offer');
     await loading();
-    screen.getByText('10:05 AM');
-    screen.getByText('11:05 AM');
+    screen.getByText('10:05 AM - 11:05 AM');
     expect(
       screen.queryByText('Return time has been changed')
     ).not.toBeInTheDocument();
@@ -140,7 +136,7 @@ describe('BookExperience', () => {
 
   it('refreshes offer when someone added to party', async () => {
     await renderComponent();
-    screen.getByText('11:25 AM');
+    screen.getByText('11:25 AM - 12:25 PM');
     client.offer.mockResolvedValueOnce(newOffer);
     click('Edit');
     click(mickey.name);
@@ -149,7 +145,7 @@ describe('BookExperience', () => {
     click(mickey.name);
     click('Confirm Party');
     await loading();
-    screen.getByText('10:05 AM');
+    screen.getByText('10:05 AM - 11:05 AM');
   });
 
   it('cancels offer and calls onClose when Cancel button clicked', async () => {
@@ -225,7 +221,6 @@ describe('BookExperience', () => {
               ...jc,
               flex: { available: true, enrollmentStartTime: '07:00:00' },
             }}
-            park={mk}
             onClose={onClose}
           />
         </RebookingProvider>

@@ -1,10 +1,12 @@
 import {
   dateTimeStrings,
   displayTime,
+  returnTime,
   setDefaultTimeZone,
   splitDateTime,
 } from '../datetime';
 
+// 2021-10-01 08:00:00 EDT
 Date.now = jest
   .spyOn(Date, 'now')
   .mockImplementation(() => 1633089600000) as unknown as () => number;
@@ -53,5 +55,44 @@ describe('setDefaultTimeZone()', () => {
       date: '1998-04-22',
       time: '13:35:40',
     });
+  });
+});
+
+describe('returnTime()', () => {
+  it('returns return window string', () => {
+    expect(
+      returnTime({
+        start: { date: '2021-10-01', time: '11:35:00' },
+        end: { date: '2021-10-01', time: '12:35:00' },
+      })
+    ).toBe('11:35 AM - 12:35 PM');
+
+    expect(
+      returnTime({
+        start: { date: '2021-09-30', time: '11:35:00' },
+        end: { date: '2021-10-02' },
+      })
+    ).toBe('Sep 30 - Oct 2');
+
+    expect(
+      returnTime({
+        start: { date: '2021-10-01' },
+        end: { date: '2021-10-01' },
+      })
+    ).toBe('Park Open - Park Close');
+
+    expect(
+      returnTime({
+        start: { date: '2021-10-01', time: '12:00' },
+        end: { date: '2021-10-01' },
+      })
+    ).toBe('12:00 PM - Park Close');
+
+    expect(
+      returnTime({
+        start: { date: '2021-10-01', time: '12:00' },
+        end: { date: '2021-10-02' },
+      })
+    ).toBe('12:00 PM - Oct 2');
   });
 });

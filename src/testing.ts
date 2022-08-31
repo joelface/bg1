@@ -8,7 +8,14 @@ import {
   within,
 } from '@testing-library/react';
 
+import { dateTimeStrings } from './datetime';
+
 export * from '@testing-library/react';
+
+export const TODAY = dateTimeStrings().date;
+export const TOMORROW = dateTimeStrings(
+  new Date().setDate(new Date().getDate() + 1)
+).date;
 
 function getByTextOrTitle(container: HTMLElement, label: string) {
   const c = within(container);
@@ -56,7 +63,7 @@ export async function loading() {
 }
 
 export function setTime(time: string, relativeDays = 0) {
-  let date = new Date(`2022-07-17T${time}-0400`);
+  let date = new Date(`${TODAY}T${time}-0400`);
   date = new Date(date.setDate(date.getDate() + relativeDays));
   jest.setSystemTime(date);
 }

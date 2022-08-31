@@ -1,5 +1,5 @@
 import { fetchJson } from '@/fetch';
-import { setTime, waitFor } from '@/testing';
+import { setTime, TODAY, TOMORROW, waitFor } from '@/testing';
 import {
   hm,
   jc,
@@ -114,9 +114,8 @@ describe('GenieClient', () => {
   describe('primaryGuestId()', () => {
     it('returns primary guest ID', async () => {
       respond(guestsRes);
-      const args = { experience: hm, park: mk };
-      expect(await client.primaryGuestId(args)).toBe(mickey.id);
-      expect(await client.primaryGuestId(args)).toBe(mickey.id);
+      expect(await client.primaryGuestId(hm)).toBe(mickey.id);
+      expect(await client.primaryGuestId(hm)).toBe(mickey.id);
       expect(fetchJsonMock).toBeCalledTimes(1);
     });
   });
@@ -196,7 +195,7 @@ describe('GenieClient', () => {
 
     it('returns eligible guests for experience', async () => {
       respond(guestsRes);
-      expect(await client.guests({ experience: hm, park: mk })).toEqual({
+      expect(await client.guests(hm)).toEqual({
         eligible: [mickey, minnie, pluto],
         ineligible: ineligibleGuests,
       });
@@ -220,7 +219,7 @@ describe('GenieClient', () => {
           ineligibleGuests: [],
         })
       );
-      expect(await client.guests({ experience: hm, park: mk })).toEqual({
+      expect(await client.guests(hm)).toEqual({
         eligible: [
           {
             ...mickey,
@@ -250,7 +249,7 @@ describe('GenieClient', () => {
           primaryGuestId: mickey.id,
         })
       );
-      expect(await client.guests({ experience: hm, park: mk })).toEqual({
+      expect(await client.guests(hm)).toEqual({
         eligible: [],
         ineligible: [donald],
       });
@@ -297,10 +296,7 @@ describe('GenieClient', () => {
           primaryGuestId: mickey.id,
         })
       );
-      const { ineligible } = await client.guests({
-        experience: hm,
-        park: mk,
-      });
+      const { ineligible } = await client.guests(hm);
       expect(ineligible.map(g => g.id)).toEqual(
         [pluto, mickey, fifi, minnie, goofy, donald].map(g => g.id)
       );
@@ -310,7 +306,7 @@ describe('GenieClient', () => {
   describe('offer()', () => {
     const offer = {
       id: 'offer1',
-      date: '2022-07-17',
+      date: TODAY,
       startTime: '14:30:00',
       endTime: '15:30:00',
       status: 'ACTIVE',
@@ -329,7 +325,7 @@ describe('GenieClient', () => {
           201
         )
       );
-      expect(await client.offer({ experience: hm, park: mk, guests })).toEqual({
+      expect(await client.offer({ experience: hm, guests })).toEqual({
         id: offer.id,
         start: { date: offer.date, time: offer.startTime },
         end: { date: offer.date, time: offer.endTime },
@@ -371,7 +367,7 @@ describe('GenieClient', () => {
           201
         )
       );
-      expect(await client.offer({ experience: hm, park: mk, guests })).toEqual({
+      expect(await client.offer({ experience: hm, guests })).toEqual({
         id: offer.id,
         start: { date: offer.date, time: offer.startTime },
         end: { date: offer.date, time: offer.endTime },
@@ -409,8 +405,8 @@ describe('GenieClient', () => {
       const guests = [mickey, minnie];
       const offer = {
         id: 'offer1',
-        start: { date: '2022-07-17', time: '18:00:00' },
-        end: { date: '2022-07-17', time: '19:00:00' },
+        start: { date: TODAY, time: '18:00:00' },
+        end: { date: TODAY, time: '19:00:00' },
         changeStatus: 'NONE',
       };
       const entitlement = (guest: { id: string }) => ({
@@ -438,7 +434,8 @@ describe('GenieClient', () => {
       };
       respond(response({ booking: newBooking }, 201), guestsRes);
       expect(await client.book(offer)).toEqual({
-        experience: { id: hm.id, name: hm.name },
+        id: hm.id,
+        name: hm.name,
         park: mk,
         start: offer.start,
         end: offer.end,
@@ -481,8 +478,11 @@ describe('GenieClient', () => {
   });
 
   describe('bookings()', () => {
+    const entId = ({ id }: { id: string }, type = 'Attraction') =>
+      `${id};entityType=${type}`;
+    const xid = (guest: { id: string }) => guest.id + ';type=xid';
+
     function createBookingsResponse(bookings: Booking[]) {
-      const xid = (guest: { id: string }) => guest.id + ';type=xid';
       return response({
         items: [
           {
@@ -497,8 +497,7 @@ describe('GenieClient', () => {
             displayStartTime: b.start.time,
             displayEndDate: b.end.date,
             displayEndTime: b.end.time,
-            facility:
-              (b.choices ? hm : b.experience).id + ';entityType=Attraction',
+            facility: entId(b.choices ? hm : b),
             guests: b.guests.map(g => ({
               id: xid(g),
               entitlementId: g.entitlementId,
@@ -508,9 +507,13 @@ describe('GenieClient', () => {
             multipleExperiences: !!b.choices,
             assets: b.choices
               ? [
-                  { content: 'original-id', excluded: false, original: true },
-                  ...[hm, jc, sm].map(exp => ({
-                    content: exp.id,
+                  {
+                    content: entId(jc),
+                    excluded: false,
+                    original: true,
+                  },
+                  ...b.choices.map(exp => ({
+                    content: entId(exp),
                     excluded: false,
                     original: false,
                   })),
@@ -521,14 +524,16 @@ describe('GenieClient', () => {
         ],
         assets: {
           ...Object.fromEntries(
-            bookings.map(b => [
-              b.experience.id + ';entityType=Attraction',
-              {
-                id: b.experience.id + ';entityType=Attraction',
-                name: b.experience.name,
-                location: b.park.id + ';entityType=theme-park',
-              },
-            ])
+            [...bookings, ...bookings.map(b => b.choices || [])]
+              .flat()
+              .map(b => [
+                entId(b),
+                {
+                  id: entId(b),
+                  name: b.name,
+                  location: entId(b.park, 'theme-park'),
+                },
+              ])
           ),
           ...Object.fromEntries(
             guests.map(g => [
@@ -584,19 +589,17 @@ describe('GenieClient', () => {
       const bookings = [
         {
           ...booking,
-          end: { date: '2022-07-18', time: '00:00:00' },
+          end: { date: TOMORROW, time: '00:00:00' },
         },
       ];
       respond(createBookingsResponse(bookings));
       expect(await client.bookings()).toEqual(bookings);
     });
 
-    it('uses names defined in park data files', async () => {
+    it('includes park data', async () => {
       const bs = {
-        experience: {
-          id: '16491297',
-          name: 'The Barnstormer',
-        },
+        id: '16491297',
+        name: 'The Barnstormer',
         park: mk,
         start: { date: undefined, time: undefined },
         end: { date: undefined, time: undefined },
@@ -605,9 +608,7 @@ describe('GenieClient', () => {
       };
       const bookings = [bs];
       respond(createBookingsResponse(bookings));
-      expect(await client.bookings()).toEqual([
-        { ...bs, experience: { ...bs.experience, name: 'Barnstormer' } },
-      ]);
+      expect(await client.bookings()).toEqual([{ ...bs, name: 'Barnstormer' }]);
     });
   });
 

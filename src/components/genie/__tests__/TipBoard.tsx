@@ -1,5 +1,6 @@
 import { Park } from '@/api/genie';
 import { ClientProvider } from '@/contexts/Client';
+import { TODAY } from '@/testing';
 import {
   act,
   click,
@@ -22,6 +23,7 @@ import {
   mickey,
   minnie,
   bookings,
+  sdd,
 } from '@/__fixtures__/genie';
 import TipBoard from '../TipBoard';
 
@@ -101,14 +103,6 @@ describe('TipBoard', () => {
     expect(getExperiences()).toEqual(names([sm, hm, jc]));
     expect(elemScrollMock).toBeCalledTimes(5);
 
-    const sdd = {
-      id: 'sdd',
-      name: 'Slinky Dog Dash',
-      geo: [28.3562472, -81.5628474],
-      type: 'ATTRACTION',
-      standby: { available: true, waitTime: 75 },
-      flex: { available: false },
-    } as const;
     client.experiences.mockResolvedValueOnce({ plus: [sdd] });
     elemScrollMock.mockClear();
     await changePark(hs);
@@ -179,7 +173,7 @@ describe('TipBoard', () => {
     click('Your Lightning Lanes');
     click((await screen.findAllByText('More'))[2]);
     screen.getByText('Your Lightning Lane');
-    screen.getByRole('heading', { name: bookings[2].experience.name });
+    screen.getByRole('heading', { name: bookings[2].name });
     click('Rebook');
 
     expect(elemScrollMock).toBeCalledTimes(2);
@@ -199,8 +193,8 @@ describe('TipBoard', () => {
     });
     client.offer.mockResolvedValueOnce({
       id: 'sm1',
-      start: { date: '2022-07-17', time: '12:45:00' },
-      end: { date: '2022-07-17', time: '13:45:00' },
+      start: { date: TODAY, time: '12:45:00' },
+      end: { date: TODAY, time: '13:45:00' },
       active: true,
       changed: false,
       guests: {
@@ -209,10 +203,9 @@ describe('TipBoard', () => {
       },
     });
     const newBooking = {
-      experience: sm,
-      park: mk,
-      start: { date: '2022-07-17', time: '12:45:00' },
-      end: { date: '2022-07-17', time: '13:45:00' },
+      ...sm,
+      start: { date: TODAY, time: '12:45:00' },
+      end: { date: TODAY, time: '13:45:00' },
       cancellable: true,
       guests: [
         { ...mickey, entitlementId: 'sm1125_01' },
@@ -231,12 +224,12 @@ describe('TipBoard', () => {
     click('Your Lightning Lanes');
     screen.getByText('Your Lightning Lanes');
     click((await screen.findAllByText('More'))[0]);
-    screen.getByRole('heading', { name: bookings[0].experience.name });
+    screen.getByRole('heading', { name: bookings[0].name });
     expect(screen.queryByText('Rebook')).not.toBeInTheDocument();
 
     click('Back');
     click(screen.getAllByText('More')[2]);
-    screen.getByRole('heading', { name: bookings[2].experience.name });
+    screen.getByRole('heading', { name: bookings[2].name });
 
     click('Rebook');
     screen.getByText('Rebooking');

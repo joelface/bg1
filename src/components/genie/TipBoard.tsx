@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Booking, Park, PlusExperience } from '@/api/genie';
 import { useGenieClient } from '@/contexts/GenieClient';
+import { ParkProvider } from '@/contexts/Park';
 import { Rebooking, RebookingProvider } from '@/contexts/Rebooking';
 import { useTheme } from '@/contexts/Theme';
 import { dateTimeStrings, displayTime } from '@/datetime';
@@ -335,7 +336,6 @@ export default function TipBoard() {
                         setModal(
                           <BookExperience
                             experience={experience}
-                            park={park}
                             onClose={() => {
                               closeModal();
                               refresh(false);
@@ -356,7 +356,7 @@ export default function TipBoard() {
           {loaderElem}
         </div>
       </Page>
-      {modal}
+      <ParkProvider value={park}>{modal}</ParkProvider>
     </RebookingProvider>
   );
 }

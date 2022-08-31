@@ -40,6 +40,7 @@
     @apply my-1;
   }
 
+  b,
   strong {
     @apply font-semibold;
   }

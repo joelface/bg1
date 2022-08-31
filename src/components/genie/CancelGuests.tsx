@@ -6,7 +6,7 @@ import useDataLoader from '@/hooks/useDataLoader';
 import FloatingButton from '../FloatingButton';
 import GuestList from '../GuestList';
 import Page from '../Page';
-import ArrivalTimes from './ArrivalTimes';
+import ReturnTime from './ReturnTime';
 
 export default function CancelGuests({
   booking,
@@ -34,11 +34,13 @@ export default function CancelGuests({
     });
   }
 
+  const { name, park } = booking;
+
   return (
-    <Page heading="Your Lightning Lane" theme={booking.park.theme}>
-      <h2>{booking.experience.name}</h2>
-      <div>{booking.park.name}</div>
-      <ArrivalTimes times={booking} />
+    <Page heading="Your Lightning Lane" theme={park.theme}>
+      <h2>{name}</h2>
+      <div>{park.name}</div>
+      <ReturnTime {...booking} />
       <div className="ml-3">
         <label className="flex items-center py-4">
           <input

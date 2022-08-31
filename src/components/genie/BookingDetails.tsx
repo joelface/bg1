@@ -1,12 +1,15 @@
 import { useState } from 'react';
 
-import { Booking, BookingGuest } from '@/api/genie';
+import { Booking, BookingGuest, Park } from '@/api/genie';
+import { useGenieClient } from '@/contexts/GenieClient';
+import { usePark } from '@/contexts/Park';
 import { useRebooking } from '@/contexts/Rebooking';
+import { DEFAULT_THEME } from '@/contexts/Theme';
 import Button from '../Button';
 import FloatingButton from '../FloatingButton';
 import GuestList from '../GuestList';
 import Page from '../Page';
-import ArrivalTimes from './ArrivalTimes';
+import ReturnTime from './ReturnTime';
 import CancelGuests from './CancelGuests';
 
 export default function BookingDetails({
@@ -20,6 +23,9 @@ export default function BookingDetails({
   isRebookable?: boolean;
   isNew?: boolean;
 }) {
+  const client = useGenieClient();
+  const { name, park, choices } = booking;
+  const currentPark = usePark() || park;
   const rebooking = useRebooking();
   const [guests, setGuests] = useState(booking.guests);
   const [canceling, setCanceling] = useState(false);
@@ -40,31 +46,61 @@ export default function BookingDetails({
     );
   }
 
+  const choicesByPark = new Map([
+    [currentPark, []],
+    ...client.parks.map(
+      park => [park, []] as [Park, Required<typeof booking>['choices']]
+    ),
+  ]);
+  for (const exp of choices || []) choicesByPark.get(exp.park)?.push(exp);
+
+  const parkChoices = [...choicesByPark.keys()];
+  const theme = (
+    !choices
+      ? park
+      : parkChoices.length === 1
+      ? parkChoices[0]
+      : { theme: DEFAULT_THEME }
+  ).theme;
+
   return (
     <Page
       heading="Your Lightning Lane"
-      theme={booking.park.theme}
+      theme={theme}
       buttons={
         isRebookable && (
           <Button onClick={() => rebooking.begin(booking)}>Rebook</Button>
         )
       }
     >
-      <h2>{booking.experience.name}</h2>
-      <div>{booking.park.name}</div>
-      <ArrivalTimes times={booking} />
-      {booking.choices && (
+      {choices ? (
+        <h2>Multiple Experiences</h2>
+      ) : (
+        <>
+          <h2>{name}</h2>
+          <div>{park.name}</div>
+        </>
+      )}
+      <ReturnTime {...booking} />
+      {choices && (
         <>
           <p>
-            An experience you booked was temporarily unavailable during your
-            return time. You may redeem this Lightning Lane at one of these
-            replacement experiences:
+            <b>{name}</b> was temporarily unavailable during your return time.
+            You may redeem this Lightning Lane at one of these replacement
+            experiences:
           </p>
-          <ul className="list-disc mt-2 pl-8">
-            {booking.choices.map(exp => (
-              <li key={exp.id}>{exp.name}</li>
+          {[...choicesByPark]
+            .filter(([, choices]) => choices.length > 0)
+            .map(([park, choices = []]) => (
+              <div key={park.id} className={`mt-4 rounded ${park.theme.bg}`}>
+                <h3 className="mt-0 p-1 text-white text-center">{park.name}</h3>
+                <ul className="list-disc py-2 pl-8 bg-white bg-opacity-90">
+                  {choices.map(exp => (
+                    <li key={exp.id}>{exp.name}</li>
+                  ))}
+                </ul>
+              </div>
             ))}
-          </ul>
         </>
       )}
       <div className="flex mt-4">

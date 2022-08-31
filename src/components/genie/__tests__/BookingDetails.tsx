@@ -1,5 +1,6 @@
 import { Booking } from '@/api/genie';
 import { ClientProvider } from '@/contexts/Client';
+import { ParkProvider } from '@/contexts/Park';
 import { displayTime } from '@/datetime';
 import { click, render, screen, waitFor } from '@/testing';
 import {
@@ -10,6 +11,12 @@ import {
   mickey,
   minnie,
   pluto,
+  hs,
+  sdd,
+  jc,
+  hm,
+  sm,
+  mk,
 } from '@/__fixtures__/genie';
 import BookingDetails from '../BookingDetails';
 
@@ -17,7 +24,9 @@ const onClose = jest.fn();
 const renderComponent = (b: Booking = booking) =>
   render(
     <ClientProvider value={client}>
-      <BookingDetails booking={b} onClose={onClose} />
+      <ParkProvider value={hs}>
+        <BookingDetails booking={b} onClose={onClose} />
+      </ParkProvider>
     </ClientProvider>
   );
 
@@ -51,11 +60,20 @@ describe('BookingDetails', () => {
     const { container } = renderComponent(multiExp);
     screen.getByText('Multiple Experiences');
     expect(container).toHaveTextContent(
-      `${displayTime(multiExp.start.time)} - Park Close`
+      `${displayTime(multiExp.start.time || '')} - Park Close`
     );
-    multiExp.choices.forEach(({ name }) => {
-      screen.getByText(name);
-    });
+    expect(
+      screen
+        .getAllByRole('heading', { level: 3 })
+        .map(h => h.textContent)
+        .slice(0, 2)
+    ).toEqual([hs.name, mk.name]);
+    expect(
+      screen
+        .getAllByRole('listitem')
+        .map(li => li.textContent)
+        .slice(0, 4)
+    ).toEqual([sdd.name, hm.name, jc.name, sm.name]);
     expect(screen.getAllByText('Redemptions left: 1')).toHaveLength(
       multiExp.guests.length
     );
@@ -66,7 +84,7 @@ describe('BookingDetails', () => {
 
   it('shows all-day experience redemption details', async () => {
     renderComponent(allDayExp);
-    screen.getByText(allDayExp.experience.name);
+    screen.getByText(allDayExp.name);
     screen.getByText('Park Open - Park Close');
     screen.getByText('Redemptions left: 1');
     expect(

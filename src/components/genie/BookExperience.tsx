@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { Booking, Guest, Offer, Park, PlusExperience } from '@/api/genie';
+import { Booking, Guest, Offer, PlusExperience } from '@/api/genie';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { Party, PartyProvider } from '@/contexts/Party';
 import { useRebooking } from '@/contexts/Rebooking';
@@ -20,11 +20,9 @@ import YLLButton from './YLLButton';
 
 export default function BookExperience({
   experience,
-  park,
   onClose,
 }: {
   experience: PlusExperience;
-  park: Park;
   onClose: () => void;
 }) {
   const client = useGenieClient();
@@ -77,7 +75,7 @@ export default function BookExperience({
 
   function checkAvailability() {
     loadData(async flash => {
-      const { plus } = await client.experiences(park);
+      const { plus } = await client.experiences(experience.park);
       const exp = plus.find(exp => exp.id === experience.id);
       if (exp?.flex.available) {
         setPrebooking(false);
@@ -96,10 +94,7 @@ export default function BookExperience({
   const loadParty = useCallback(() => {
     loadData(async () => {
       try {
-        let guests = await client.guests({
-          experience,
-          park,
-        });
+        let guests = await client.guests(experience);
         const oldBooking = rebooking.current;
         if (oldBooking) {
           const oldGuestIds = new Set(oldBooking.guests.map(g => g.id));
@@ -109,7 +104,7 @@ export default function BookExperience({
               !(
                 g.ineligibleReason === 'TOO_EARLY' ||
                 (g.ineligibleReason === 'EXPERIENCE_LIMIT_REACHED' &&
-                  experience.id === oldBooking.experience.id)
+                  experience.id === oldBooking.id)
               )
           );
           guests =
@@ -142,7 +137,7 @@ export default function BookExperience({
         throw error;
       }
     });
-  }, [client, experience, park, rebooking, loadData]);
+  }, [client, experience, rebooking, loadData]);
 
   useEffect(() => {
     if (!party) loadParty();
@@ -156,7 +151,6 @@ export default function BookExperience({
           try {
             const newOffer = await client.offer({
               experience,
-              park,
               guests: party.selected,
             });
             const { ineligible } = newOffer.guests;
@@ -184,7 +178,7 @@ export default function BookExperience({
         { 410: offer ? 'No reservations available' : '' }
       );
     },
-    [client, experience, park, party, offer, loadData]
+    [client, experience, party, offer, loadData]
   );
 
   useEffect(() => {
@@ -201,7 +195,7 @@ export default function BookExperience({
   return (
     <Page
       heading="Lightning Lane"
-      theme={park.theme}
+      theme={experience.park.theme}
       buttons={
         <>
           <YLLButton />
@@ -218,7 +212,7 @@ export default function BookExperience({
     >
       <RebookingHeader />
       <h2>{experience.name}</h2>
-      <div>{park.name}</div>
+      <div>{experience.park.name}</div>
       <PartyProvider
         value={
           party || {

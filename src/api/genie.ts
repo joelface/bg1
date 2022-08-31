@@ -22,6 +22,7 @@ export function isGenieOrigin(origin: string): origin is Origin {
 export interface Experience {
   id: string;
   name: string;
+  park: Park;
   geo: readonly [number, number];
   type: 'ATTRACTION' | 'ENTERTAINMENT';
   standby: {
@@ -47,7 +48,10 @@ export interface Experience {
 
 export type PlusExperience = Experience & Required<Pick<Experience, 'flex'>>;
 
-type ApiExperience = Omit<Experience, 'name' | 'priority' | 'geo' | 'drop'>;
+type ApiExperience = Omit<
+  Experience,
+  'name' | 'park' | 'priority' | 'geo' | 'drop'
+>;
 type ApiPlusExperience = ApiExperience & Required<Pick<Experience, 'flex'>>;
 
 interface ExperiencesResponse {
@@ -180,16 +184,14 @@ export interface BookingGuest extends Guest {
 }
 
 export interface Booking {
-  experience: {
-    id: string;
-    name: string;
-  };
+  id: string;
+  name: string;
   park: Park;
   start: Partial<DateTime>;
   end: Partial<DateTime>;
   cancellable: boolean;
   guests: BookingGuest[];
-  choices?: Pick<Experience, 'id' | 'name'>[];
+  choices?: Pick<Experience, 'id' | 'name' | 'park'>[];
 }
 
 interface Asset {
@@ -266,6 +268,7 @@ export class GenieClient {
   protected origin: Origin;
   protected authStore: Public<AuthStore>;
   protected data: ResortData;
+  protected parkMap: { [id: string]: Park };
   protected guestCache = new Map<
     string,
     { name: string; characterId: string }
@@ -292,6 +295,7 @@ export class GenieClient {
     this.origin = args.origin;
     this.authStore = args.authStore;
     this.data = args.data;
+    this.parkMap = Object.fromEntries(this.parks.map(p => [p.id, p]));
     this.bookingStack = new BookingStack();
   }
 
@@ -303,7 +307,7 @@ export class GenieClient {
     return this.data.parks;
   }
 
-  async experiences(park: Pick<Park, 'id'>): Promise<{
+  async experiences(park: Park): Promise<{
     plus: PlusExperience[];
     nextBookTime?: string;
   }> {
@@ -331,6 +335,7 @@ export class GenieClient {
           const e: PlusExperience = {
             ...exp,
             ...expData,
+            park,
             drop: !!(pdtBit & pdtMask),
           };
           return e;
@@ -339,17 +344,17 @@ export class GenieClient {
     };
   }
 
-  async guests(args?: {
-    experience: Pick<Experience, 'id'>;
-    park: Pick<Park, 'id'>;
+  async guests(experience?: {
+    id: string;
+    park: { id: string };
   }): Promise<Guests> {
-    args ||= { experience: { id: '0' }, park: { id: '0' } };
+    experience ||= { id: '0', park: { id: '0' } };
     const res: GuestsResponse = await this.request({
       path: '/ea-vas/api/v1/guests',
       params: {
         productType: 'FLEX',
-        experienceId: args.experience.id,
-        parkId: args.park.id,
+        experienceId: experience.id,
+        parkId: experience.park.id,
       },
     });
     this._primaryGuestId = res.primaryGuestId;
@@ -380,11 +385,11 @@ export class GenieClient {
 
   async offer({
     experience,
-    park,
     guests,
   }: {
-    experience: Pick<PlusExperience, 'id' | 'flex'>;
-    park: Pick<Park, 'id'>;
+    experience: Pick<PlusExperience, 'id' | 'flex'> & {
+      park: Pick<Park, 'id'>;
+    };
     guests: Pick<Guest, 'id'>[];
   }): Promise<Offer> {
     const res: OfferResponse = await this.request({
@@ -393,8 +398,8 @@ export class GenieClient {
       data: {
         guestIds: guests.map(g => g.id),
         ineligibleGuests: [],
-        primaryGuestId: await this.primaryGuestId({ experience, park }),
-        parkId: park.id,
+        primaryGuestId: await this.primaryGuestId(experience),
+        parkId: experience.park.id,
         experienceId: experience.id,
         selectedTime: experience.flex.nextAvailableTime,
       },
@@ -440,11 +445,7 @@ export class GenieClient {
     });
     this.bookings(); // Load bookings to refresh booking stack
     return {
-      experience: {
-        id: experienceId,
-        name: this.data.experiences[experienceId].name,
-      },
-      park: this.data.parks.find(p => p.id === parkId) as Park,
+      ...this.getExperience(experienceId, parkId),
       start: splitDateTime(startDateTime),
       end: splitDateTime(endDateTime),
       cancellable: true,
@@ -496,7 +497,6 @@ export class GenieClient {
       },
       userId: false,
     })) as Itinerary;
-    const parkMap = Object.fromEntries(this.parks.map(p => [p.id, p]));
     const earliest = dateTimeStrings(
       new Date(now.getTime()).setMinutes(now.getMinutes() - 15)
     );
@@ -515,11 +515,8 @@ export class GenieClient {
       .map(fp => {
         const id = idNum(fp.facility);
         const expAsset = assets[fp.facility] as LocationAsset;
-        const { name } = this.data.experiences[id] || expAsset;
-        const parkId = idNum(expAsset.location);
-        const booking: Booking = {
-          experience: { id, name },
-          park: parkMap[parkId],
+        let booking: Booking = {
+          ...this.getExperience(id, idNum(expAsset.location), expAsset.name),
           start: {
             date: fp.displayStartDate,
             time: fp.displayStartTime,
@@ -545,13 +542,25 @@ export class GenieClient {
           }),
         };
         if (fp.multipleExperiences) {
-          booking.experience = { id: '', name: 'Multiple Experiences' };
+          const origAsset = fp.assets.find(a => a.original);
+          if (origAsset) {
+            booking = {
+              ...booking,
+              ...this.getExperience(
+                idNum(origAsset.content),
+                idNum((assets[origAsset.content] as LocationAsset).location)
+              ),
+            };
+          }
           booking.choices = fp.assets
             .filter(a => !a.excluded && !a.original)
             .map(({ content }) => {
-              const id = idNum(content);
-              const { name } = this.data.experiences[id] || assets[content];
-              return { id, name };
+              const asset = assets[content] as LocationAsset;
+              return this.getExperience(
+                idNum(content),
+                idNum(asset.location),
+                asset.name
+              );
             })
             .sort((a, b) => a.name.localeCompare(b.name));
         }
@@ -578,6 +587,14 @@ export class GenieClient {
   logOut(): void {
     this.authStore.deleteData();
     this.onUnauthorized();
+  }
+
+  protected getExperience(id: string, parkId: string, name?: string) {
+    return {
+      id,
+      name: (this.data.experiences[id]?.name || name) as string,
+      park: this.parkMap[parkId],
+    };
   }
 
   protected convertGuest = (guest: ApiGuest) => {

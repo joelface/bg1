@@ -1,7 +1,7 @@
 import { Offer } from '@/api/genie';
 import { useRebooking } from '@/contexts/Rebooking';
 import Warning from '../Warning';
-import ArrivalTimes from './ArrivalTimes';
+import ReturnTime from './ReturnTime';
 import YourParty from './YourParty';
 
 export default function OfferDetails({
@@ -18,7 +18,7 @@ export default function OfferDetails({
       {rebooking.current && (
         <Warning>Rebooking resets the two hour timer</Warning>
       )}
-      <ArrivalTimes times={offer} />
+      <ReturnTime {...offer} />
       {offer.changed && (
         <div className="text-sm">
           <strong>Note:</strong> Return time has been changed

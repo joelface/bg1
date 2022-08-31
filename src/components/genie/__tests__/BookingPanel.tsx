@@ -1,5 +1,5 @@
 import { ClientProvider } from '@/contexts/Client';
-import { displayTime } from '@/datetime';
+import { returnTime } from '@/datetime';
 import { click, loading, render, screen, within } from '@/testing';
 import { client, bookings } from '@/__fixtures__/genie';
 import BookingPanel from '../BookingPanel';
@@ -19,11 +19,9 @@ describe('BookingPanel', () => {
     renderComponent();
     const lis = await screen.findAllByRole('listitem');
     bookings.forEach((booking, i) => {
-      const { experience, start, end } = booking;
       const inLI = within(lis[i]);
-      inLI.getByText(experience.name);
-      inLI.getByText(start.time ? displayTime(start.time) : 'open');
-      inLI.getByText(end.time ? displayTime(end.time) : 'close');
+      inLI.getByText(booking.choices ? 'Multiple Experiences' : booking.name);
+      inLI.getByText(returnTime(booking));
       expect(!!inLI.queryByTitle('Rebookable')).toBe(
         client.isRebookable(booking)
       );
@@ -36,11 +34,9 @@ describe('BookingPanel', () => {
     click('Cancel');
     click('Select All');
     click('Cancel Reservation');
-    screen.getByText(bookings[1].experience.name);
+    screen.getByText(bookings[1].name);
     await loading();
-    expect(
-      screen.queryByText(bookings[1].experience.name)
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(bookings[1].name)).not.toBeInTheDocument();
 
     click('Close');
     click(screen.getByTestId('panel-shade'));
