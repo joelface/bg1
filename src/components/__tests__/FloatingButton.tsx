@@ -1,4 +1,4 @@
-import { click, render, screen, within } from '@/testing';
+import { click, render, screen } from '@/testing';
 import FloatingButton from '../FloatingButton';
 
 let clicked = false;
@@ -8,14 +8,6 @@ const label = 'Click Me';
 describe('FloatingButton', () => {
   beforeEach(() => {
     clicked = false;
-  });
-
-  it('renders button with link', () => {
-    const url = 'https://example.com/';
-    render(<FloatingButton href={url}>{label}</FloatingButton>);
-    const link = screen.getByRole('link');
-    expect(link).toHaveAttribute('href', url);
-    expect(within(link).getByRole('button')).toBeInTheDocument();
   });
 
   it('performs onClick action', () => {
