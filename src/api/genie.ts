@@ -218,7 +218,7 @@ interface Item {
 interface FastPass {
   id: string;
   type: 'FASTPASS';
-  kind: 'FLEX' | 'OTHER';
+  kind: 'FLEX' | 'OTHER' | 'STANDARD';
   facility: string;
   assets: { content: string; excluded: boolean; original: boolean }[];
   displayStartDate?: string;
@@ -500,11 +500,11 @@ export class GenieClient {
     const earliest = dateTimeStrings(
       new Date(now.getTime()).setMinutes(now.getMinutes() - 15)
     );
-    const types = new Set(['FLEX', 'OTHER']);
+    const kinds = new Set(['FLEX', 'OTHER', 'STANDARD']);
     const bookings = items
       .filter(
         (item): item is FastPass =>
-          item.type === 'FASTPASS' && types.has(item.kind)
+          item.type === 'FASTPASS' && kinds.has(item.kind)
       )
       .filter(
         fp =>
