@@ -1,6 +1,7 @@
 import { Children, Fragment, cloneElement, isValidElement } from 'react';
 
 import { useTheme } from '@/contexts/Theme';
+import Button from './Button';
 
 export default function HeaderBar({
   title,
@@ -16,7 +17,7 @@ export default function HeaderBar({
     if (node.type === Fragment) {
       return Children.map(node.props.children, changeButtonColors);
     }
-    return cloneElement(node, {
+    return cloneElement(node as ReturnType<typeof Button>, {
       className: `bg-[#ffffffe6] ${text} ${node.props.className || ''}`,
     });
   }
