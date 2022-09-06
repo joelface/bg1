@@ -1,5 +1,5 @@
 import { fetchJson } from '@/fetch';
-import { setTime, TODAY, TOMORROW, waitFor } from '@/testing';
+import { setTime, TODAY, waitFor } from '@/testing';
 import {
   hm,
   jc,
@@ -9,7 +9,6 @@ import {
   minnie,
   donald,
   pluto,
-  booking,
   bookings,
 } from '@/__fixtures__/genie';
 import {
@@ -571,28 +570,6 @@ describe('GenieClient', () => {
     it('returns current bookings', async () => {
       setTime('12:40');
       respond(bookingsRes);
-      expect(await client.bookings()).toEqual(bookings);
-    });
-
-    it('returns only unexpired bookings', async () => {
-      setTime('12:41');
-      respond(bookingsRes);
-      expect(await client.bookings()).toEqual([
-        bookings[0],
-        bookings[2],
-        bookings[3],
-      ]);
-    });
-
-    it('returns bookings that expire on/after midnight', async () => {
-      setTime('23:00');
-      const bookings = [
-        {
-          ...booking,
-          end: { date: TOMORROW, time: '00:00:00' },
-        },
-      ];
-      respond(createBookingsResponse(bookings));
       expect(await client.bookings()).toEqual(bookings);
     });
 

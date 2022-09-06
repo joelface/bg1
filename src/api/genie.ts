@@ -497,20 +497,11 @@ export class GenieClient {
       },
       userId: false,
     })) as Itinerary;
-    const earliest = dateTimeStrings(
-      new Date(now.getTime()).setMinutes(now.getMinutes() - 15)
-    );
     const kinds = new Set(['FLEX', 'OTHER', 'STANDARD']);
     const bookings = items
       .filter(
         (item): item is FastPass =>
           item.type === 'FASTPASS' && kinds.has(item.kind)
-      )
-      .filter(
-        fp =>
-          (fp.displayEndDate || '9999') > earliest.date ||
-          (fp.displayEndDate === earliest.date &&
-            (fp.displayEndTime || '24') >= earliest.time)
       )
       .map(fp => {
         const id = idNum(fp.facility);
