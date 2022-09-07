@@ -47,6 +47,11 @@ const data: ResortData = {
       geo: [33.811616, -117.9218924],
       priority: 3.5,
     },
+    18249927: {
+      name: 'Haunted Mansion Holiday',
+      geo: [33.811616, -117.9218924],
+      priority: 2.0,
+    },
     353355: {
       name: 'Indiana Jones Adventure',
       geo: [33.8114097, -117.9204077],
