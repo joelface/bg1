@@ -1,9 +1,7 @@
+import { setTime, TODAY } from '@/testing';
 import { AuthStore, ReauthNeeded } from '../store';
 
-const today = '2022-12-25';
-jest
-  .spyOn(Date, 'now')
-  .mockImplementation(() => new Date(`${today} 12:30:00 EST`).getTime());
+setTime('12:30');
 
 const storageKey = 'testAuth';
 const store = new AuthStore(storageKey);
@@ -40,7 +38,7 @@ describe('AuthStore', () => {
     });
 
     it('throws ReauthNeeded when expires today before 5 PM', () => {
-      setData(new Date(`${today} 16:59:59 EST`).getTime());
+      setData(new Date(`${TODAY} 16:59:59-0400`).getTime());
       expect(() => store.getData()).toThrow(ReauthNeeded);
     });
   });

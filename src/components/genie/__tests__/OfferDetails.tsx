@@ -1,7 +1,8 @@
-import { click, render, screen } from '@/testing';
+import { click, render, screen, setTime } from '@/testing';
 import { offer } from '@/__fixtures__/genie';
 import OfferDetails from '../OfferDetails';
 
+setTime('09:00');
 const onBook = jest.fn();
 
 describe('OfferDetails', () => {

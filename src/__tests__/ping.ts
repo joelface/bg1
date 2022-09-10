@@ -6,8 +6,6 @@ jest.mock('@/fetch');
 const fetchJsonMock = fetchJson as jest.MockedFunction<typeof fetchJson>;
 fetchJsonMock.mockResolvedValue({ status: 204, data: {} });
 
-jest.useFakeTimers();
-
 describe('ping()', () => {
   it('pings once per day', async () => {
     setTime('07:00');

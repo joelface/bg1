@@ -8,11 +8,9 @@ import {
   within,
 } from '@testing-library/react';
 
-import { dateTimeStrings } from './datetime';
-
 export * from '@testing-library/react';
 
-export const TODAY = dateTimeStrings().date;
+export const TODAY = '2021-10-01';
 
 function getByTextOrTitle(container: HTMLElement, label: string) {
   const c = within(container);
@@ -62,7 +60,7 @@ export async function loading() {
 export function setTime(time: string, relativeDays = 0) {
   let date = new Date(`${TODAY}T${time}-0400`);
   date = new Date(date.setDate(date.getDate() + relativeDays));
-  jest.setSystemTime(date);
+  jest.useFakeTimers({ now: date });
 }
 
 if (!HTMLElement.prototype.scroll) {

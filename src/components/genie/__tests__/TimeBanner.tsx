@@ -1,8 +1,6 @@
 import { render, screen, setTime } from '@/testing';
 import TimeBanner from '../TimeBanner';
 
-jest.useFakeTimers();
-
 describe('TimeBanner', () => {
   it('shows times', async () => {
     setTime('06:59');

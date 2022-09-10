@@ -1,3 +1,4 @@
+import { setTime } from '@/testing';
 import {
   dateTimeStrings,
   displayTime,
@@ -6,14 +7,11 @@ import {
   splitDateTime,
 } from '../datetime';
 
-// 2021-10-01 08:00:00 EDT
-Date.now = jest
-  .spyOn(Date, 'now')
-  .mockImplementation(() => 1633089600000) as unknown as () => number;
+setTime('08:00');
 
 describe('dateTimeStrings()', () => {
   it('parses Date object', () => {
-    expect(dateTimeStrings(new Date(893277340752))).toEqual({
+    expect(dateTimeStrings(new Date('1998-04-22T16:35:40-0400'))).toEqual({
       date: '1998-04-22',
       time: '16:35:40',
     });

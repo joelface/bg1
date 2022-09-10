@@ -1,9 +1,10 @@
 import { ClientProvider } from '@/contexts/Client';
 import { returnTime } from '@/datetime';
-import { click, loading, render, screen, within } from '@/testing';
+import { click, loading, render, screen, setTime, within } from '@/testing';
 import { client, bookings } from '@/__fixtures__/genie';
 import BookingPanel from '../BookingPanel';
 
+setTime('09:00');
 const onClose = jest.fn();
 const renderComponent = () =>
   render(
@@ -13,8 +14,6 @@ const renderComponent = () =>
   );
 
 describe('BookingPanel', () => {
-  jest.useFakeTimers();
-
   it('renders booking panel', async () => {
     renderComponent();
     const lis = await screen.findAllByRole('listitem');

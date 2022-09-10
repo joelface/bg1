@@ -2,7 +2,7 @@ import { Booking } from '@/api/genie';
 import { ClientProvider } from '@/contexts/Client';
 import { ParkProvider } from '@/contexts/Park';
 import { displayTime } from '@/datetime';
-import { click, render, screen, waitFor } from '@/testing';
+import { click, render, screen, setTime, waitFor } from '@/testing';
 import {
   client,
   booking,
@@ -20,6 +20,7 @@ import {
 } from '@/__fixtures__/genie';
 import BookingDetails from '../BookingDetails';
 
+setTime('09:00');
 const onClose = jest.fn();
 const renderComponent = (b: Booking = booking) =>
   render(

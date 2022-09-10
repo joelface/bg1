@@ -2,7 +2,7 @@ import { RequestError } from '@/api/genie';
 import { ClientProvider } from '@/contexts/Client';
 import { RebookingProvider } from '@/contexts/Rebooking';
 import { ping } from '@/ping';
-import { click, loading, render, screen, TODAY } from '@/testing';
+import { click, loading, render, screen, setTime, TODAY } from '@/testing';
 import {
   client,
   offer,
@@ -20,7 +20,7 @@ jest.mock('@/ping');
 
 const onClose = jest.fn();
 const errorMock = jest.spyOn(console, 'error');
-jest.useFakeTimers();
+setTime('09:00');
 
 const mockClickResponse = async (
   clientMethod: jest.MockedFunction<any>,
