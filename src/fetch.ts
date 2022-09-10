@@ -24,7 +24,7 @@ export async function fetchJson(
   };
   if (params && Object.keys(params).length > 0) {
     url +=
-      '?' +
+      (url.includes('?') ? '&' : '?') +
       Object.entries(params)
         .filter(([, v]) => v !== '')
         .map(kv => kv.map(encodeURIComponent).join('='))

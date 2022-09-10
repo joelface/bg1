@@ -83,6 +83,7 @@ export interface Guest extends GuestEligibility {
   id: string;
   name: string;
   avatarImageUrl?: string;
+  transactional?: boolean;
 }
 
 export interface Guests {
@@ -178,21 +179,39 @@ interface DateTime {
   time: string;
 }
 
-export interface BookingGuest extends Guest {
+export interface EntitledGuest extends Guest {
   entitlementId: string;
   redemptions?: number;
 }
 
-export interface Booking {
+interface BaseBooking {
+  type: string;
   id: string;
   name: string;
-  park: Park;
   start: Partial<DateTime>;
-  end: Partial<DateTime>;
+  end: Partial<DateTime> | undefined;
   cancellable: boolean;
-  guests: BookingGuest[];
+  guests: Guest[];
   choices?: Pick<Experience, 'id' | 'name' | 'park'>[];
+  bookingId: string;
 }
+
+export interface LightningLane extends BaseBooking {
+  type: 'LL';
+  park: Park;
+  end: Partial<DateTime>;
+  guests: EntitledGuest[];
+}
+
+export interface Reservation extends BaseBooking {
+  type: 'RES';
+  park: Partial<Park> & Pick<Park, 'id' | 'name'>;
+  start: DateTime;
+  end: undefined;
+  cancellable: false;
+}
+
+export type Booking = LightningLane | Reservation;
 
 interface Asset {
   id: string;
@@ -204,23 +223,18 @@ interface Asset {
       url: string;
     };
   };
-}
-
-interface LocationAsset extends Asset {
+  facility: string;
   location: string;
 }
 
-interface Item {
-  type: string;
-  kind: string;
-}
-
-interface FastPass {
+interface FastPassItem {
   id: string;
   type: 'FASTPASS';
   kind: 'FLEX' | 'OTHER' | 'STANDARD';
   facility: string;
   assets: { content: string; excluded: boolean; original: boolean }[];
+  startDateTime?: string;
+  endDateTime?: string;
   displayStartDate?: string;
   displayStartTime?: string;
   displayEndDate?: string;
@@ -234,15 +248,24 @@ interface FastPass {
   }[];
 }
 
+interface ReservationItem {
+  id: string;
+  type: 'DINING' | 'ACTIVITY';
+  startDateTime: string;
+  guests: { id: string }[];
+  asset: string;
+}
+
 interface Profile {
   id: string;
   name: { firstName: string; lastName: string };
   avatarId: string;
+  type: 'registered' | 'transactional';
 }
 
 interface Itinerary {
   assets: { [id: string]: Asset };
-  items: (Item | FastPass)[];
+  items: (FastPassItem | ReservationItem | object)[];
   profiles: { [id: string]: Profile };
 }
 
@@ -259,6 +282,9 @@ export class RequestError extends Error {
     super(`${message}: ${JSON.stringify(response)}`);
   }
 }
+
+const RES_TYPES = new Set(['ACTIVITY', 'DINING']);
+const FP_KINDS = new Set(['FLEX', 'OTHER', 'STANDARD']);
 
 const idNum = (id: string) => id.split(';')[0];
 
@@ -430,7 +456,7 @@ export class GenieClient {
     });
   }
 
-  async book(offer: Pick<Offer, 'id'>): Promise<Booking> {
+  async book(offer: Pick<Offer, 'id'>): Promise<LightningLane> {
     const {
       singleExperienceDetails: { experienceId, parkId },
       entitlements,
@@ -445,7 +471,9 @@ export class GenieClient {
     });
     this.bookings(); // Load bookings to refresh booking stack
     return {
+      type: 'LL',
       ...this.getExperience(experienceId, parkId),
+      bookingId: entitlements[0]?.id,
       start: splitDateTime(startDateTime),
       end: splitDateTime(endDateTime),
       cancellable: true,
@@ -462,7 +490,7 @@ export class GenieClient {
   }
 
   async cancelBooking(
-    guests: Pick<BookingGuest, 'entitlementId'>[]
+    guests: Pick<EntitledGuest, 'entitlementId'>[]
   ): Promise<void> {
     const ids = guests.map(g => g.entitlementId);
     const idParam = ids.map(encodeURIComponent).join(',');
@@ -482,11 +510,10 @@ export class GenieClient {
       assets = {},
       profiles = {},
     } = (await this.request({
-      path: `/plan/${itineraryApiName}/api/v1/itinerary-items/${swid}`,
+      path: `/plan/${itineraryApiName}/api/v1/itinerary-items/${swid}?item-types=FASTPASS&item-types=DINING&item-types=ACTIVITY`,
       params: {
         destination: this.resort,
         fields: 'items,profiles,assets',
-        'item-types': 'FASTPASS',
         'guest-locators': swid + ';type=swid',
         'guest-locator-groups': 'MY_FAMILY',
         'start-date': dateTimeStrings(now).date,
@@ -497,71 +524,100 @@ export class GenieClient {
       },
       userId: false,
     })) as Itinerary;
-    const kinds = new Set(['FLEX', 'OTHER', 'STANDARD']);
+    const getGuest = (g: ReservationItem['guests'][0]) => {
+      const { name, avatarId, type } = profiles[g.id];
+      const id = idNum(g.id);
+      return {
+        id,
+        name: `${name.firstName} ${name.lastName}`.trim(),
+        avatarImageUrl: avatarUrl(avatarId),
+        ...(type === 'transactional' && { transactional: true }),
+      };
+    };
     const bookings = items
       .filter(
-        (item): item is FastPass =>
-          item.type === 'FASTPASS' && kinds.has(item.kind)
+        (item): item is FastPassItem | ReservationItem =>
+          'type' in item &&
+          ((item.type === 'FASTPASS' && FP_KINDS.has(item.kind)) ||
+            RES_TYPES.has(item.type))
       )
-      .map(fp => {
-        const id = idNum(fp.facility);
-        const expAsset = assets[fp.facility] as LocationAsset;
-        let booking: Booking = {
-          ...this.getExperience(id, idNum(expAsset.location), expAsset.name),
+      .map(item => {
+        if (item.type !== 'FASTPASS') {
+          const activityAsset = assets[item.asset];
+          const facilityAsset = assets[activityAsset.facility];
+          const parkIdStr = facilityAsset.location;
+          const park = this.parkMap[idNum(parkIdStr)] || {
+            id: parkIdStr,
+            name: assets[parkIdStr].name,
+          };
+          const res: Reservation = {
+            type: 'RES',
+            id: idNum(item.asset),
+            park,
+            name: activityAsset.name,
+            start: dateTimeStrings(new Date(item.startDateTime)),
+            end: undefined,
+            cancellable: false,
+            guests: item.guests
+              .map(getGuest)
+              .sort(
+                (a, b) =>
+                  +(b.id === this._primaryGuestId) -
+                    +(a.id === this._primaryGuestId) ||
+                  +!b.transactional - +!a.transactional ||
+                  a.name.localeCompare(b.name)
+              ),
+            bookingId: item.id,
+          };
+          return res;
+        }
+
+        const expAsset = assets[item.facility];
+        const parkId = idNum(expAsset.location);
+        let booking: LightningLane = {
+          type: 'LL',
+          ...this.getExperience(idNum(item.facility), parkId, expAsset.name),
           start: {
-            date: fp.displayStartDate,
-            time: fp.displayStartTime,
+            date: item.displayStartDate,
+            time: item.displayStartTime,
           },
           end: {
-            date: fp.displayEndDate,
-            time: fp.displayEndTime,
+            date: item.displayEndDate,
+            time: item.displayEndTime,
           },
-          cancellable: fp.cancellable,
-          guests: fp.guests.map(g => {
-            const { name, avatarId } = profiles[g.id];
-            const id = idNum(g.id);
-            const guest: BookingGuest = {
-              id,
+          cancellable: item.cancellable,
+          guests: item.guests.map(g => {
+            return {
+              ...getGuest(g),
               entitlementId: g.entitlementId,
-              name: `${name.firstName} ${name.lastName}`.trim(),
-              avatarImageUrl: avatarUrl(avatarId),
               ...(g.redemptionsRemaining !== undefined && {
                 redemptions: g.redemptionsRemaining,
               }),
             };
-            return guest;
           }),
+          bookingId: item.guests[0]?.entitlementId,
         };
-        if (fp.multipleExperiences) {
-          const origAsset = fp.assets.find(a => a.original);
+        if (item.multipleExperiences) {
+          const origAsset = item.assets.find(a => a.original);
           if (origAsset) {
             booking = {
               ...booking,
               ...this.getExperience(
                 idNum(origAsset.content),
-                idNum((assets[origAsset.content] as LocationAsset).location)
+                idNum(assets[origAsset.content].location)
               ),
             };
           }
-          booking.choices = fp.assets
+          booking.choices = item.assets
             .filter(a => !a.excluded && !a.original)
             .map(({ content }) => {
-              const asset = assets[content] as LocationAsset;
-              return this.getExperience(
-                idNum(content),
-                idNum(asset.location),
-                asset.name
-              );
+              const { name, location } = assets[content];
+              return this.getExperience(idNum(content), idNum(location), name);
             })
             .sort((a, b) => a.name.localeCompare(b.name));
         }
         return booking;
-      })
-      .sort((a, b) =>
-        ((a.start.date || '0000-00-00') + (a.start.time || '')).localeCompare(
-          (b.start.date || '0000-00-00') + (b.start.time || '')
-        )
-      );
+      });
     this.bookingStack.update(bookings);
     return bookings;
   }
@@ -664,8 +720,9 @@ export class BookingStack {
   }
 
   isRebookable(booking: Booking): boolean {
-    return booking.guests.every(
-      g => this.mostRecent.get(g.id) === g.entitlementId
+    return (
+      booking.cancellable &&
+      booking.guests.every(g => this.mostRecent.get(g.id) === g.entitlementId)
     );
   }
 
@@ -673,7 +730,7 @@ export class BookingStack {
     const mostRecent = new Map<string, string>();
     const oldEntIds = new Set(this.entitlementIds);
     this.entitlementIds = bookings
-      .filter(({ cancellable }) => cancellable)
+      .filter((b: Booking): b is LightningLane => b.cancellable)
       .map(booking =>
         booking.guests.map(({ id, entitlementId }) => {
           this.entitlementIds.push(entitlementId);

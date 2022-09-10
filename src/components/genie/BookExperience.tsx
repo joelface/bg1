@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { Booking, Guest, Offer, PlusExperience } from '@/api/genie';
+import { Guest, LightningLane, Offer, PlusExperience } from '@/api/genie';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { Party, PartyProvider } from '@/contexts/Party';
 import { useRebooking } from '@/contexts/Rebooking';
@@ -16,7 +16,7 @@ import NoEligibleGuests from './NoEligibleGuests';
 import NoGuestsFound from './NoGuestsFound';
 import NoReservationsAvailable from './NoReservationsAvailable';
 import RebookingHeader from './RebookingHeader';
-import YLLButton from './YLLButton';
+import YourDayButton from './YourDayButton';
 
 export default function BookExperience({
   experience,
@@ -35,12 +35,12 @@ export default function BookExperience({
   const [offer, setOffer] = useState<Offer | null | undefined>(
     prebooking ? null : undefined
   );
-  const [booking, setBooking] = useState<Booking>();
+  const [booking, setBooking] = useState<LightningLane>();
   const { loadData, loaderElem } = useDataLoader();
 
   async function book() {
     if (!offer || !party) return;
-    let booking: Booking | null = null;
+    let booking: LightningLane | null = null;
 
     await loadData(
       async () => {
@@ -198,7 +198,7 @@ export default function BookExperience({
       theme={experience.park.theme}
       buttons={
         <>
-          <YLLButton />
+          <YourDayButton />
           {party && (prebooking || offer || noGuestsFound) && (
             <Button onClick={cancel}>Cancel</Button>
           )}

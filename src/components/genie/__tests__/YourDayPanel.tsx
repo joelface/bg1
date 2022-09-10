@@ -2,18 +2,18 @@ import { ClientProvider } from '@/contexts/Client';
 import { returnTime } from '@/datetime';
 import { click, loading, render, screen, setTime, within } from '@/testing';
 import { client, bookings } from '@/__fixtures__/genie';
-import BookingPanel from '../BookingPanel';
+import YourDayPanel from '../YourDayPanel';
 
 setTime('09:00');
 const onClose = jest.fn();
 const renderComponent = () =>
   render(
     <ClientProvider value={client}>
-      <BookingPanel onClose={onClose} />
+      <YourDayPanel onClose={onClose} />
     </ClientProvider>
   );
 
-describe('BookingPanel', () => {
+describe('YourDayPanel', () => {
   it('renders booking panel', async () => {
     renderComponent();
     const lis = await screen.findAllByRole('listitem');

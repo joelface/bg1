@@ -67,10 +67,29 @@ describe('returnTime()', () => {
 
     expect(
       returnTime({
+        start: { date: '2021-10-02', time: '00:00:00' },
+        end: { date: '2021-10-03', time: '23:59:00' },
+      })
+    ).toBe('Oct 2, 12:00 AM - Oct 3, 11:59 PM');
+
+    expect(
+      returnTime({
+        start: { date: '2021-10-01', time: '11:35:00' },
+      })
+    ).toBe('11:35 AM');
+
+    expect(
+      returnTime({
+        start: { date: '2021-09-30', time: '11:35:00' },
+      })
+    ).toBe('Sep 30, 11:35 AM');
+
+    expect(
+      returnTime({
         start: { date: '2021-09-30', time: '11:35:00' },
         end: { date: '2021-10-02' },
       })
-    ).toBe('Sep 30 - Oct 2');
+    ).toBe('Park Open - Oct 2');
 
     expect(
       returnTime({

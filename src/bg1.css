@@ -16,7 +16,7 @@
   }
 
   h2 {
-    @apply mt-3 text-xl font-semibold;
+    @apply mt-3 text-xl leading-snug font-semibold;
   }
 
   h3 {

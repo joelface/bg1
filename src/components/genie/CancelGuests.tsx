@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Booking, BookingGuest } from '@/api/genie';
+import { LightningLane } from '@/api/genie';
 import { useGenieClient } from '@/contexts/GenieClient';
 import useDataLoader from '@/hooks/useDataLoader';
 import FloatingButton from '../FloatingButton';
@@ -12,13 +12,13 @@ export default function CancelGuests({
   booking,
   onClose,
 }: {
-  booking: Booking;
-  onClose: (newGuests: BookingGuest[]) => void;
+  booking: LightningLane;
+  onClose: (newGuests: LightningLane['guests']) => void;
 }) {
   const client = useGenieClient();
-  const [guestsToCancel, setGuestsToCancel] = useState<Set<BookingGuest>>(
-    new Set()
-  );
+  const [guestsToCancel, setGuestsToCancel] = useState<
+    Set<LightningLane['guests'][0]>
+  >(new Set());
   const { loadData, loaderElem } = useDataLoader();
 
   const { guests } = booking;

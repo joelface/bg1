@@ -1,15 +1,15 @@
 import { useState } from 'react';
 
-import LightningIcon from '@/icons/LightningIcon';
+import ClockIcon from '@/icons/ClockIcon';
 import Button from '../Button';
-import BookingPanel from './BookingPanel';
+import YourDayPanel from './YourDayPanel';
 
 type Props = {
   onOpen?: (elem: React.ReactElement) => void;
   onClose?: () => void;
 } & Omit<Parameters<typeof Button>[0], 'onClick' | 'title'>;
 
-export default function YLLButton({ onOpen, onClose, ...props }: Props) {
+export default function YourDayButton({ onOpen, onClose, ...props }: Props) {
   const [panel, setPanel] = useState<React.ReactElement>();
   const open = onOpen || setPanel;
   const close = onClose || (() => setPanel(undefined));
@@ -17,10 +17,10 @@ export default function YLLButton({ onOpen, onClose, ...props }: Props) {
     <>
       <Button
         {...props}
-        onClick={() => open(<BookingPanel onClose={close} />)}
-        title="Your Lightning Lanes"
+        onClick={() => open(<YourDayPanel onClose={close} />)}
+        title="Your Day"
       >
-        <LightningIcon />
+        <ClockIcon />
       </Button>
       {panel}
     </>

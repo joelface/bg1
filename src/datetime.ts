@@ -61,25 +61,30 @@ export function returnTime({
   end,
 }: {
   start: Partial<DateTimeStrings>;
-  end: Partial<DateTimeStrings>;
+  end?: Partial<DateTimeStrings>;
 }): string {
-  const open = returnTimeValue(start, 'Park Open');
-  const close = returnTimeValue(end, 'Park Close');
-  return `${open} - ${close}`;
+  if (!end) return returnTimePart(start);
+  const today = dateTimeStrings().date;
+  const rtStart =
+    (start.date || '') < today
+      ? 'Park Open'
+      : returnTimePart(start, 'Park Open');
+  const rtEnd = returnTimePart(end, 'Park Close');
+  return `${rtStart} - ${rtEnd}`;
 }
 
-function returnTimeValue(
-  { date, time }: Partial<DateTimeStrings>,
-  noTimeText: string
+function returnTimePart(
+  { date, time }: Partial<DateTimeStrings> = {},
+  noTimeText = ''
 ) {
   const now = dateTimeStrings();
   if (date && date !== now.date) {
-    return new Date(date + 'T00:00').toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year:
-        date.split('-')[0] === now.date.split('-')[0] ? undefined : 'numeric',
-    });
+    return (
+      new Date(date + 'T00:00').toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+      }) + (time ? ', ' + displayTime(time) : '')
+    );
   }
   return time ? displayTime(time) : noTimeText;
 }

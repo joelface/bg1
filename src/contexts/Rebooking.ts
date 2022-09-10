@@ -1,10 +1,10 @@
 import { createContext, useContext } from 'react';
 
-import { Booking } from '@/api/genie';
+import { LightningLane } from '@/api/genie';
 
 export interface Rebooking {
-  current: Booking | null;
-  begin: (booking: Booking) => void;
+  current: LightningLane | null;
+  begin: (booking: LightningLane) => void;
   end: (canceled?: boolean) => void;
 }
 

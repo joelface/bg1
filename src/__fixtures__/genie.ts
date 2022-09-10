@@ -2,8 +2,10 @@ import {
   Booking,
   BookingStack,
   GenieClient,
+  LightningLane,
   Offer,
   PlusExperience,
+  Reservation,
 } from '@/api/genie';
 import data from '@/api/data/wdw';
 import { TODAY } from '@/testing';
@@ -94,7 +96,8 @@ export const offer: Offer = {
   },
 };
 
-export const booking: Booking = {
+export const booking: LightningLane = {
+  type: 'LL',
   id: hm.id,
   name: hm.name,
   park: hm.park,
@@ -106,9 +109,11 @@ export const booking: Booking = {
     { ...minnie, entitlementId: 'hm1125_02' },
     { ...pluto, entitlementId: 'hm1125_03' },
   ],
+  bookingId: 'hm1125_01',
 };
 
-export const multiExp: Booking = {
+export const multiExp: LightningLane = {
+  type: 'LL',
   id: jc.id,
   name: jc.name,
   park: jc.park,
@@ -121,9 +126,11 @@ export const multiExp: Booking = {
     { ...pluto, entitlementId: 're1515_03', redemptions: 1 },
   ],
   choices: [hm, jc, sdd, sm].map(({ id, name, park }) => ({ id, name, park })),
+  bookingId: 're1515_01',
 };
 
-export const allDayExp: Booking = {
+export const allDayExp: LightningLane = {
+  type: 'LL',
   id: sm.id,
   name: sm.name,
   park: sm.park,
@@ -131,12 +138,27 @@ export const allDayExp: Booking = {
   end: { date: undefined, time: undefined },
   cancellable: false,
   guests: [{ ...pluto, entitlementId: 'sm_01', redemptions: 1 }],
+  bookingId: 'sm_01',
+};
+
+export const lttRes: Reservation = {
+  type: 'RES',
+  id: '90006947',
+  name: 'Liberty Tree Tavern Lunch',
+  park: mk,
+  start: { date: TODAY, time: '12:15:00' },
+  end: undefined,
+  cancellable: false,
+  guests: [mickey, minnie],
+  bookingId: '38943;type=DINING',
 };
 
 export const bookings: Booking[] = [
   allDayExp,
   booking,
+  lttRes,
   {
+    type: 'LL',
     id: jc.id,
     name: jc.name,
     park: jc.park,
@@ -147,6 +169,7 @@ export const bookings: Booking[] = [
       { ...mickey, entitlementId: 'jc1400_01' },
       { ...minnie, entitlementId: 'jc1400_02' },
     ],
+    bookingId: 'jc1400_01',
   },
   multiExp,
 ];

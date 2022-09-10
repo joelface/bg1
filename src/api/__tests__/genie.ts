@@ -9,6 +9,7 @@ import {
   minnie,
   donald,
   pluto,
+  booking,
   bookings,
 } from '@/__fixtures__/genie';
 import {
@@ -17,6 +18,7 @@ import {
   GenieClient,
   Guest,
   isGenieOrigin,
+  LightningLane,
   PlusExperience,
   RequestError,
 } from '../genie';
@@ -105,7 +107,7 @@ describe('GenieClient', () => {
 
   describe('isRebookable()', () => {
     it('returns true if booking is rebookable', () => {
-      expect(client.isRebookable(bookings[2])).toBe(true);
+      expect(client.isRebookable(bookings[3])).toBe(true);
       expect(client.isRebookable(bookings[1])).toBe(false);
     });
   });
@@ -409,7 +411,7 @@ describe('GenieClient', () => {
         changeStatus: 'NONE',
       };
       const entitlement = (guest: { id: string }) => ({
-        id: 'entitlement-' + guest.id,
+        id: 'ent-' + guest.id,
         guestId: guest.id,
         usageDetails: {
           status: 'BOOKED',
@@ -433,6 +435,7 @@ describe('GenieClient', () => {
       };
       respond(response({ booking: newBooking }, 201), guestsRes);
       expect(await client.book(offer)).toEqual({
+        type: 'LL',
         id: hm.id,
         name: hm.name,
         park: mk,
@@ -443,6 +446,7 @@ describe('GenieClient', () => {
           ...g,
           entitlementId: newBooking.entitlements[i].id,
         })),
+        bookingId: 'ent-' + mickey.id,
       });
       expectFetch(
         '/ea-vas/api/v1/products/flex/bookings',
@@ -461,8 +465,6 @@ describe('GenieClient', () => {
   });
 
   describe('cancelBooking()', () => {
-    const booking = bookings[0];
-
     it('cancel booking', async () => {
       respond(response({}));
       await client.cancelBooking(booking.guests);
@@ -490,18 +492,28 @@ describe('GenieClient', () => {
             kind: 'PARK_PASS',
           },
           ...bookings.map(b => ({
-            type: 'FASTPASS',
-            kind: b.choices ? 'FLEX' : 'OTHER',
-            displayStartDate: b.start.date,
-            displayStartTime: b.start.time,
-            displayEndDate: b.end.date,
-            displayEndTime: b.end.time,
-            facility: entId(b.choices ? hm : b),
-            guests: b.guests.map(g => ({
-              id: xid(g),
-              entitlementId: g.entitlementId,
-              redemptionsRemaining: g.redemptions,
-            })),
+            ...(b.type === 'LL'
+              ? {
+                  type: 'FASTPASS',
+                  kind: b.choices ? 'FLEX' : 'OTHER',
+                  facility: entId(b.choices ? hm : b),
+                  displayStartDate: b.start.date,
+                  displayStartTime: b.start.time,
+                  displayEndDate: b.end.date,
+                  displayEndTime: b.end.time,
+                  guests: b.guests.map(g => ({
+                    id: xid(g),
+                    entitlementId: g.entitlementId,
+                    redemptionsRemaining: g.redemptions,
+                  })),
+                }
+              : {
+                  type: 'DINING',
+                  id: b.bookingId,
+                  guests: b.guests.map(g => ({ id: xid(g) })),
+                  asset: '90006947;entityType=table-service',
+                  startDateTime: `${b.start.date}T${b.start.time}-0400`,
+                }),
             cancellable: b.cancellable,
             multipleExperiences: !!b.choices,
             assets: b.choices
@@ -522,6 +534,13 @@ describe('GenieClient', () => {
           })),
         ],
         assets: {
+          '90006947;entityType=table-service': {
+            name: 'Liberty Tree Tavern Lunch',
+            facility: '90001819;entityType=restaurant',
+          },
+          '90001819;entityType=restaurant': {
+            location: entId(mk, 'theme-park'),
+          },
           ...Object.fromEntries(
             [...bookings, ...bookings.map(b => b.choices || [])]
               .flat()
@@ -574,14 +593,16 @@ describe('GenieClient', () => {
     });
 
     it('includes park data', async () => {
-      const bs = {
+      const bs: LightningLane = {
+        type: 'LL',
         id: '16491297',
         name: 'The Barnstormer',
         park: mk,
         start: { date: undefined, time: undefined },
         end: { date: undefined, time: undefined },
         cancellable: false,
-        guests: [],
+        guests: [{ ...mickey, entitlementId: 'bs_01' }],
+        bookingId: 'bs_01',
       };
       const bookings = [bs];
       respond(createBookingsResponse(bookings));
@@ -625,13 +646,13 @@ describe('BookingStack', () => {
 
   describe('update()', () => {
     it('updates most recent booking', () => {
-      stack.update([bookings[2]]);
-      expect(stack.isRebookable(bookings[2])).toBe(true);
+      stack.update([bookings[3]]);
+      expect(stack.isRebookable(bookings[3])).toBe(true);
       stack.update(bookings);
       expect(stack.isRebookable(bookings[1])).toBe(true);
       expect(stack.isRebookable(bookings[0])).toBe(false);
-      expect(stack.isRebookable(bookings[2])).toBe(false);
       expect(stack.isRebookable(bookings[3])).toBe(false);
+      expect(stack.isRebookable(bookings[4])).toBe(false);
     });
   });
 });

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { Booking, BookingGuest } from '@/api/genie';
+import { Booking, EntitledGuest } from '@/api/genie';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { DEFAULT_THEME } from '@/contexts/Theme';
 import Button from '../Button';
@@ -9,15 +9,17 @@ import Page from '../Page';
 import BookingDetails from './BookingDetails';
 import BookingListing from './BookingListing';
 
-export default function BookingPanel({ onClose }: { onClose: () => void }) {
+export default function YourDayPanel({ onClose }: { onClose: () => void }) {
   const client = useGenieClient();
   const theme = DEFAULT_THEME;
   const [bookings, setBookings] = useState<Booking[]>();
   const [booking, setBooking] = useState<Booking>();
   const [opened, setOpened] = useState(false);
 
-  function closeDetails(newGuests: BookingGuest[]) {
+  function closeDetails(newGuests: EntitledGuest[] | void) {
     if (!booking) return;
+    setBooking(undefined);
+    if (!newGuests) return;
     setBookings(bookings => {
       if (!bookings) return;
       if (newGuests.length > 0) {
@@ -27,7 +29,6 @@ export default function BookingPanel({ onClose }: { onClose: () => void }) {
       }
       return bookings;
     });
-    setBooking(undefined);
   }
 
   useEffect(() => {
@@ -58,7 +59,7 @@ export default function BookingPanel({ onClose }: { onClose: () => void }) {
         className={{ inner: `bg-black bg-opacity-75` }}
       />
       <Page
-        heading="Your Lightning Lanes"
+        heading="Your Day"
         buttons={<Button onClick={close}>Close</Button>}
         className={`top-auto ${
           opened ? 'h-[60%]' : 'h-0'
@@ -69,7 +70,7 @@ export default function BookingPanel({ onClose }: { onClose: () => void }) {
             {(bookings || []).map(booking => (
               <li
                 className="py-3 first:border-0 border-t-4 border-gray-300"
-                key={booking.guests[0]?.entitlementId}
+                key={booking.bookingId}
               >
                 <BookingListing
                   booking={booking}

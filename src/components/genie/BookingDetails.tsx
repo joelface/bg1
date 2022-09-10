@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Booking, BookingGuest, Park } from '@/api/genie';
+import { Booking, EntitledGuest, Park } from '@/api/genie';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { usePark } from '@/contexts/Park';
 import { useRebooking } from '@/contexts/Rebooking';
@@ -19,18 +19,19 @@ export default function BookingDetails({
   isNew,
 }: {
   booking: Booking;
-  onClose: (newGuests: BookingGuest[]) => void;
+  onClose: (newGuests: EntitledGuest[] | void) => void;
   isRebookable?: boolean;
   isNew?: boolean;
 }) {
   const client = useGenieClient();
-  const { name, park, choices } = booking;
+  const { name, park, choices, type } = booking;
+  const isLL = type === 'LL';
   const currentPark = usePark() || park;
   const rebooking = useRebooking();
-  const [guests, setGuests] = useState(booking.guests);
+  const [guests, setGuests] = useState(isLL ? booking.guests : undefined);
   const [canceling, setCanceling] = useState(false);
 
-  if (canceling) {
+  if (canceling && isLL && guests) {
     return (
       <CancelGuests
         booking={{ ...booking, guests }}
@@ -65,12 +66,11 @@ export default function BookingDetails({
 
   return (
     <Page
-      heading="Your Lightning Lane"
+      heading={isLL ? 'Your Lightning Lane' : 'Your Reservation'}
       theme={theme}
       buttons={
-        isRebookable && (
-          <Button onClick={() => rebooking.begin(booking)}>Rebook</Button>
-        )
+        isRebookable &&
+        isLL && <Button onClick={() => rebooking.begin(booking)}>Rebook</Button>
       }
     >
       {choices ? (
@@ -92,7 +92,10 @@ export default function BookingDetails({
           {[...choicesByPark]
             .filter(([, choices]) => choices.length > 0)
             .map(([park, choices = []]) => (
-              <div key={park.id} className={`mt-4 rounded ${park.theme.bg}`}>
+              <div
+                key={park.id}
+                className={`mt-4 rounded ${park.theme?.bg || ''}`}
+              >
                 <h3 className="mt-0 p-1 text-white text-center">{park.name}</h3>
                 <ul className="list-disc py-2 pl-8 bg-white bg-opacity-90">
                   {choices.map(exp => (
@@ -116,12 +119,15 @@ export default function BookingDetails({
         )}
       </div>
       <GuestList
-        guests={guests}
-        conflicts={Object.fromEntries(
-          guests
-            .filter(g => g.redemptions !== undefined)
-            .map(g => [g.id, `Redemptions left: ${g.redemptions}`])
-        )}
+        guests={guests || booking.guests}
+        conflicts={
+          guests &&
+          Object.fromEntries(
+            guests
+              .filter(g => g.redemptions !== undefined)
+              .map(g => [g.id, `Redemptions left: ${g.redemptions}`])
+          )
+        }
       />
       <FloatingButton onClick={() => onClose(guests)}>
         {isNew ? 'Done' : 'Back'}

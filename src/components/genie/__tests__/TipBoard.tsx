@@ -86,12 +86,12 @@ describe('TipBoard', () => {
     ).getByText('Lightning Lane Booked');
     expect(elemScrollMock).toBeCalledTimes(1);
 
-    click('Your Lightning Lanes');
-    await screen.findByText('Your Lightning Lanes');
+    click('Your Day');
+    await screen.findByText('Your Day');
 
     click('Close');
     await waitFor(() =>
-      expect(screen.queryByText('Your Lightning Lanes')).not.toBeInTheDocument()
+      expect(screen.queryByText('Your Day')).not.toBeInTheDocument()
     );
 
     expect(getExperiences()).toEqual(names([jc, sm, hm]));
@@ -170,10 +170,10 @@ describe('TipBoard', () => {
   it('shows Rebooking pane when rebooking', async () => {
     await renderComponent();
     expect(elemScrollMock).toBeCalledTimes(1);
-    click('Your Lightning Lanes');
-    click((await screen.findAllByText('More'))[2]);
+    click('Your Day');
+    click((await screen.findAllByText('More'))[3]);
     screen.getByText('Your Lightning Lane');
-    screen.getByRole('heading', { name: bookings[2].name });
+    screen.getByRole('heading', { name: bookings[3].name });
     click('Rebook');
 
     expect(elemScrollMock).toBeCalledTimes(2);
@@ -204,6 +204,7 @@ describe('TipBoard', () => {
     });
     const newBooking = {
       ...sm,
+      type: 'LL' as const,
       start: { date: TODAY, time: '12:45:00' },
       end: { date: TODAY, time: '13:45:00' },
       cancellable: true,
@@ -211,6 +212,7 @@ describe('TipBoard', () => {
         { ...mickey, entitlementId: 'sm1125_01' },
         { ...minnie, entitlementId: 'sm1125_02' },
       ],
+      bookingId: 'sm1125_01',
     };
     client.book.mockResolvedValueOnce({ ...newBooking });
 
@@ -221,15 +223,15 @@ describe('TipBoard', () => {
     );
     await loading();
     expect(screen.queryByText('Rebooking')).not.toBeInTheDocument();
-    click('Your Lightning Lanes');
-    screen.getByText('Your Lightning Lanes');
+    click('Your Day');
+    screen.getByText('Your Day');
     click((await screen.findAllByText('More'))[0]);
     screen.getByRole('heading', { name: bookings[0].name });
     expect(screen.queryByText('Rebook')).not.toBeInTheDocument();
 
     click('Back');
-    click(screen.getAllByText('More')[2]);
-    screen.getByRole('heading', { name: bookings[2].name });
+    click(screen.getAllByText('More')[3]);
+    screen.getByRole('heading', { name: bookings[3].name });
 
     click('Rebook');
     screen.getByText('Rebooking');
@@ -244,7 +246,7 @@ describe('TipBoard', () => {
     await loading();
 
     expect(client.cancelBooking).toBeCalledTimes(2);
-    expect(client.cancelBooking).nthCalledWith(1, [bookings[2].guests[1]]);
+    expect(client.cancelBooking).nthCalledWith(1, [bookings[3].guests[1]]);
     expect(client.cancelBooking).nthCalledWith(2, [newBooking.guests[0]]);
     screen.getByText('Your Lightning Lane');
     screen.getByRole('heading', { name: sm.name });

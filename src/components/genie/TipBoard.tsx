@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { Booking, Park, PlusExperience } from '@/api/genie';
+import { LightningLane, Park, PlusExperience } from '@/api/genie';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { ParkProvider } from '@/contexts/Park';
 import { Rebooking, RebookingProvider } from '@/contexts/Rebooking';
@@ -22,7 +22,7 @@ import GeniePlusButton from './GeniePlusButton';
 import RebookingHeader from './RebookingHeader';
 import StandbyTime from './StandbyTime';
 import TimeBanner from './TimeBanner';
-import YLLButton from './YLLButton';
+import YourDayButton from './YourDayButton';
 
 const AUTO_REFRESH_MIN_MS = 60_000;
 const LP_MIN_STANDBY = 30;
@@ -113,7 +113,7 @@ export default function TipBoard() {
   const [, setLastRefresh] = useState(0);
   const [rebooking, setRebooking] = useState<Rebooking>(() => ({
     current: null,
-    begin: (booking: Booking) => {
+    begin: (booking: LightningLane) => {
       setRebooking({ ...rebooking, current: booking });
       setPark(booking.park);
       closeModal();
@@ -244,7 +244,7 @@ export default function TipBoard() {
         theme={park.theme}
         buttons={
           <>
-            <YLLButton onOpen={setModal} onClose={closeModal} />
+            <YourDayButton onOpen={setModal} onClose={closeModal} />
 
             <Select
               options={parkOptions}
