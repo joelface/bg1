@@ -1,13 +1,9 @@
 import { ResortData } from '../genie';
 
-const pdts = (start: number, gap = 150, count = 3) =>
-  [...Array(count).keys()]
-    .map(i => start + i * gap)
-    .map(m =>
-      new Date(new Date().setHours(m / 60, m % 60, 0))
-        .toTimeString()
-        .slice(0, 5)
-    );
+const pdts = (pdts: number[]) =>
+  pdts.map(m =>
+    new Date(new Date().setHours(m / 60, m % 60, 0)).toTimeString().slice(0, 5)
+  );
 
 const data: ResortData = {
   parks: [
@@ -176,7 +172,7 @@ const data: ResortData = {
       name: 'Frozen Ever After',
       geo: [28.3706716, -81.5465556],
       priority: 1.2,
-      pdtMask: 0b1111,
+      pdtMask: 0b1100001,
     },
     80010152: {
       name: 'Journey Into Imagination',
@@ -195,7 +191,7 @@ const data: ResortData = {
       name: "Remy's Ratatouille Adventure",
       geo: [28.3680021, -81.5534178],
       priority: 1.0,
-      pdtMask: 0b1111,
+      pdtMask: 0b1010100,
     },
     107785: {
       name: 'Seas with Nemo & Friends',
@@ -215,7 +211,7 @@ const data: ResortData = {
       name: 'Test Track',
       geo: [28.3733374, -81.5474931],
       priority: 1.1,
-      pdtMask: 0b111,
+      pdtMask: 0b0101010,
     },
     62992: {
       name: 'Turtle Talk With Crush',
@@ -358,10 +354,10 @@ const data: ResortData = {
     },
   },
   pdts: {
-    80007944: pdts(647),
-    80007838: pdts(767, 120, 4),
-    80007998: pdts(647),
-    80007823: pdts(617),
+    80007944: pdts([]),
+    80007838: pdts([707, 767, 827, 887, 947, 1007, 1127]),
+    80007998: pdts([647, 797, 947]),
+    80007823: pdts([617, 767, 917]),
   },
 };
 export default data;
