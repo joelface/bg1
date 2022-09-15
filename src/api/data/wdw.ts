@@ -128,7 +128,7 @@ const data: ResortData = {
       priority: 3.0,
     },
     15850196: {
-      name: 'Meet Mickey @ Town Square Theater',
+      name: 'Meet Mickey & Minnie @ Town Square Theater',
       geo: [28.4167334, -81.5803937],
     },
     18498503: {
