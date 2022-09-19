@@ -35,7 +35,7 @@ function queueOpen() {
 
 const { change } = fireEvent;
 const CONFIRM = 'Confirm Party';
-const JOIN = 'Join Boarding Group';
+const JOIN = 'Join Virtual Queue';
 const REFRESH = 'Refresh';
 
 let hidden = false;

@@ -46,7 +46,7 @@ export default function JoinQueue({
       </div>
       <GuestList guests={guests} />
       <FloatingButton disabled={joinDisabled} onClick={onJoinClick}>
-        Join Boarding Group
+        Join Virtual Queue
       </FloatingButton>
       {flashElem}
     </>
