@@ -491,6 +491,11 @@ describe('GenieClient', () => {
             type: 'FASTPASS',
             kind: 'PARK_PASS',
           },
+          {
+            // This item should be ignored
+            type: 'ACTIVITY',
+            asset: '19432184;entityType=activity-product',
+          },
           ...bookings.map(b => ({
             ...(b.type === 'LL'
               ? {
@@ -541,6 +546,10 @@ describe('GenieClient', () => {
           '90001819;entityType=restaurant': {
             location: entId(mk, 'theme-park'),
           },
+          '19432184;entityType=activity-product': {
+            facility: '19536899;entityType=tour',
+          },
+          '19536899;entityType=tour': {},
           ...Object.fromEntries(
             [...bookings, ...bookings.map(b => b.choices || [])]
               .flat()

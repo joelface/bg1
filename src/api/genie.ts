@@ -224,7 +224,7 @@ interface Asset {
     };
   };
   facility: string;
-  location: string;
+  location?: string;
 }
 
 interface FastPassItem {
@@ -265,7 +265,7 @@ interface Profile {
 
 interface Itinerary {
   assets: { [id: string]: Asset };
-  items: (FastPassItem | ReservationItem | object)[];
+  items: (FastPassItem | ReservationItem | { type: undefined })[];
   profiles: { [id: string]: Profile };
 }
 
@@ -524,6 +524,7 @@ export class GenieClient {
       },
       userId: false,
     })) as Itinerary;
+
     const getGuest = (g: ReservationItem['guests'][0]) => {
       const { name, avatarId, type } = profiles[g.id];
       const id = idNum(g.id);
@@ -534,90 +535,96 @@ export class GenieClient {
         ...(type === 'transactional' && { transactional: true }),
       };
     };
-    const bookings = items
-      .filter(
-        (item): item is FastPassItem | ReservationItem =>
-          'type' in item &&
-          ((item.type === 'FASTPASS' && FP_KINDS.has(item.kind)) ||
-            RES_TYPES.has(item.type))
-      )
-      .map(item => {
-        if (item.type !== 'FASTPASS') {
-          const activityAsset = assets[item.asset];
-          const facilityAsset = assets[activityAsset.facility];
-          const parkIdStr = facilityAsset.location;
-          const park = this.parkMap[idNum(parkIdStr)] || {
-            id: parkIdStr,
-            name: assets[parkIdStr].name,
-          };
-          const res: Reservation = {
-            type: 'RES',
-            id: idNum(item.asset),
-            park,
-            name: activityAsset.name,
-            start: dateTimeStrings(new Date(item.startDateTime)),
-            end: undefined,
-            cancellable: false,
-            guests: item.guests
-              .map(getGuest)
-              .sort(
-                (a, b) =>
-                  +(b.id === this._primaryGuestId) -
-                    +(a.id === this._primaryGuestId) ||
-                  +!b.transactional - +!a.transactional ||
-                  a.name.localeCompare(b.name)
-              ),
-            bookingId: item.id,
-          };
-          return res;
-        }
 
-        const expAsset = assets[item.facility];
-        const parkId = idNum(expAsset.location);
-        let booking: LightningLane = {
-          type: 'LL',
-          ...this.getExperience(idNum(item.facility), parkId, expAsset.name),
-          start: {
-            date: item.displayStartDate,
-            time: item.displayStartTime,
-          },
-          end: {
-            date: item.displayEndDate,
-            time: item.displayEndTime,
-          },
-          cancellable: item.cancellable,
-          guests: item.guests.map(g => {
-            return {
-              ...getGuest(g),
-              entitlementId: g.entitlementId,
-              ...(g.redemptionsRemaining !== undefined && {
-                redemptions: g.redemptionsRemaining,
-              }),
-            };
-          }),
-          bookingId: item.guests[0]?.entitlementId,
-        };
-        if (item.multipleExperiences) {
-          const origAsset = item.assets.find(a => a.original);
-          if (origAsset) {
-            booking = {
-              ...booking,
-              ...this.getExperience(
-                idNum(origAsset.content),
-                idNum(assets[origAsset.content].location)
-              ),
-            };
-          }
-          booking.choices = item.assets
-            .filter(a => !a.excluded && !a.original)
-            .map(({ content }) => {
-              const { name, location } = assets[content];
-              return this.getExperience(idNum(content), idNum(location), name);
-            })
-            .sort((a, b) => a.name.localeCompare(b.name));
+    const getReservation = (item: ReservationItem) => {
+      const activityAsset = assets[item.asset];
+      const facilityAsset = assets[activityAsset.facility];
+      const parkIdStr = facilityAsset.location;
+      if (!parkIdStr) return;
+      const park = this.parkMap[idNum(parkIdStr)] || {
+        id: parkIdStr,
+        name: assets[parkIdStr].name,
+      };
+      const res: Reservation = {
+        type: 'RES',
+        id: idNum(item.asset),
+        park,
+        name: activityAsset.name,
+        start: dateTimeStrings(new Date(item.startDateTime)),
+        end: undefined,
+        cancellable: false,
+        guests: item.guests
+          .map(getGuest)
+          .sort(
+            (a, b) =>
+              +(b.id === this._primaryGuestId) -
+                +(a.id === this._primaryGuestId) ||
+              +!b.transactional - +!a.transactional ||
+              a.name.localeCompare(b.name)
+          ),
+        bookingId: item.id,
+      };
+      return res;
+    };
+
+    const getLightningLane = (item: FastPassItem) => {
+      if (!FP_KINDS.has(item.kind)) return;
+      const expAsset = assets[item.facility];
+      const parkId = idNum((expAsset as Required<Asset>).location);
+      let booking: LightningLane = {
+        type: 'LL',
+        ...this.getExperience(idNum(item.facility), parkId, expAsset.name),
+        start: {
+          date: item.displayStartDate,
+          time: item.displayStartTime,
+        },
+        end: {
+          date: item.displayEndDate,
+          time: item.displayEndTime,
+        },
+        cancellable: item.cancellable,
+        guests: item.guests.map(g => {
+          return {
+            ...getGuest(g),
+            entitlementId: g.entitlementId,
+            ...(g.redemptionsRemaining !== undefined && {
+              redemptions: g.redemptionsRemaining,
+            }),
+          };
+        }),
+        bookingId: item.guests[0]?.entitlementId,
+      };
+      if (item.multipleExperiences) {
+        const origAsset = item.assets.find(a => a.original);
+        if (origAsset) {
+          booking = {
+            ...booking,
+            ...this.getExperience(
+              idNum(origAsset.content),
+              idNum((assets[origAsset.content] as Required<Asset>).location)
+            ),
+          };
         }
-        return booking;
-      });
+        booking.choices = item.assets
+          .filter(a => !a.excluded && !a.original)
+          .map(({ content }) => {
+            const { name, location } = assets[content] as Required<Asset>;
+            return this.getExperience(idNum(content), idNum(location), name);
+          })
+          .sort((a, b) => a.name.localeCompare(b.name));
+      }
+      return booking;
+    };
+
+    const bookings = items
+      .map(item => {
+        if (item.type === 'FASTPASS') {
+          return getLightningLane(item);
+        } else if (item.type && RES_TYPES.has(item.type)) {
+          return getReservation(item);
+        }
+      })
+      .filter((booking): booking is Booking => !!booking);
     this.bookingStack.update(bookings);
     return bookings;
   }
