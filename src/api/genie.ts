@@ -536,6 +536,9 @@ export class GenieClient {
       };
     };
 
+    const earliestResDT = new Date(now);
+    earliestResDT.setMinutes(earliestResDT.getMinutes() - 30);
+
     const getReservation = (item: ReservationItem) => {
       const activityAsset = assets[item.asset];
       const facilityAsset = assets[activityAsset.facility];
@@ -545,12 +548,14 @@ export class GenieClient {
         id: parkIdStr,
         name: assets[parkIdStr].name,
       };
+      const start = new Date(item.startDateTime);
+      if (start < earliestResDT) return;
       const res: Reservation = {
         type: 'RES',
         id: idNum(item.asset),
         park,
         name: activityAsset.name,
-        start: dateTimeStrings(new Date(item.startDateTime)),
+        start: dateTimeStrings(start),
         end: undefined,
         cancellable: false,
         guests: item.guests

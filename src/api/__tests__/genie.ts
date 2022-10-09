@@ -11,6 +11,7 @@ import {
   pluto,
   booking,
   bookings,
+  lttRes,
 } from '@/__fixtures__/genie';
 import {
   Booking,
@@ -596,9 +597,17 @@ describe('GenieClient', () => {
     afterAll(() => jest.useRealTimers());
 
     it('returns current bookings', async () => {
-      setTime('12:40');
+      setTime('12:45');
       respond(bookingsRes);
       expect(await client.bookings()).toEqual(bookings);
+    });
+
+    it('excludes non-LL reservations >30 minutes old', async () => {
+      setTime('12:46');
+      respond(bookingsRes);
+      expect(await client.bookings()).toEqual(
+        bookings.filter(b => b !== lttRes)
+      );
     });
 
     it('includes park data', async () => {
