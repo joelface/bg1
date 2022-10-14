@@ -1,13 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { LightningLane, Park, PlusExperience } from '@/api/genie';
+import { LightningLane, Park } from '@/api/genie';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { ParkProvider } from '@/contexts/Park';
 import { Rebooking, RebookingProvider } from '@/contexts/Rebooking';
 import { useTheme } from '@/contexts/Theme';
 import { dateTimeStrings, displayTime } from '@/datetime';
-import useCoords, { Coords } from '@/hooks/useCoords';
-import useDataLoader from '@/hooks/useDataLoader';
+import useExperiences, { Experience } from '@/hooks/useExperiences';
 import DropIcon from '@/icons/DropIcon';
 import LightningIcon from '@/icons/LightningIcon';
 import RefreshIcon from '@/icons/RefreshIcon';
@@ -24,64 +23,7 @@ import StandbyTime from './StandbyTime';
 import TimeBanner from './TimeBanner';
 import YourDayButton from './YourDayButton';
 
-const AUTO_REFRESH_MIN_MS = 60_000;
-const LP_MIN_STANDBY = 30;
-const LP_MAX_LL_WAIT = 60;
 const PARK_KEY = 'bg1.genie.tipBoard.park';
-const STARRED_KEY = 'bg1.genie.tipBoard.starred';
-
-type Experience = PlusExperience & { lp: boolean };
-
-type ExperienceSorter = (
-  a: Experience,
-  b: Experience,
-  coords?: Coords
-) => number;
-
-const sortByLP: ExperienceSorter = (a, b) => +b.lp - +a.lp;
-
-const sortByPriority: ExperienceSorter = (a, b) =>
-  (a.priority || Infinity) - (b.priority || Infinity);
-
-const sortByStandby: ExperienceSorter = (a, b) =>
-  (b.standby.waitTime || -1) - (a.standby.waitTime || -1);
-
-const sortBySoonest: ExperienceSorter = (a, b) =>
-  (a.flex.nextAvailableTime || '').localeCompare(
-    b.flex.nextAvailableTime || ''
-  );
-
-const sortByName: ExperienceSorter = (a, b) =>
-  a.name.toLowerCase().localeCompare(b.name.toLowerCase());
-
-const distance = (a: Coords, b: Coords) =>
-  Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2));
-
-const sortByNearby: ExperienceSorter = (a, b, coords) =>
-  coords ? distance(a.geo, coords) - distance(b.geo, coords) : 0;
-
-function inPark(park: Park, coords: Coords) {
-  const { n, s, e, w } = park.geo;
-  const [lat, lon] = coords;
-  return lat < n && lat > s && lon < e && lon > w;
-}
-
-function timeToMinutes(time: string) {
-  const [h, m] = time.split(':').map(Number);
-  return h * 60 + m;
-}
-
-const sorters: Record<string, ExperienceSorter> = {
-  priority: (a, b) =>
-    sortByLP(a, b) ||
-    sortByPriority(a, b) ||
-    sortByStandby(a, b) ||
-    sortBySoonest(a, b),
-  standby: (a, b) => sortByStandby(a, b) || sortBySoonest(a, b),
-  soonest: (a, b) => sortBySoonest(a, b) || sortByStandby(a, b),
-  nearby: (a, b, coords) => sortByNearby(a, b, coords),
-  aToZ: () => 0,
-};
 
 const sortOptions = [
   { value: 'priority', text: 'Priority' },
@@ -104,13 +46,17 @@ export default function TipBoard() {
       parks[0]
     );
   });
-  const [experiences, setExperiences] = useState<Experience[]>([]);
-  const [nextBookTime, setNextBookTime] = useState<string>();
+  const [sortType, sort] = useState<SortType>('priority');
+  const {
+    experiences,
+    nextBookTime,
+    refresh,
+    toggleStar,
+    isLoading,
+    loaderElem,
+  } = useExperiences({ park, sortType });
   const [modal, setModal] = useState<React.ReactNode>();
   const closeModal = () => setModal(undefined);
-  const [sortType, sort] = useState<SortType>('priority');
-  const { loadData, loaderElem, isLoading } = useDataLoader();
-  const [, setLastRefresh] = useState(0);
   const [rebooking, setRebooking] = useState<Rebooking>(() => ({
     current: null,
     begin: (booking: LightningLane) => {
@@ -126,64 +72,6 @@ export default function TipBoard() {
     },
   }));
   const pageElem = useRef<HTMLDivElement>(null);
-  const [starred, setStarred] = useState(() => {
-    let starred = [];
-    try {
-      starred = JSON.parse(localStorage.getItem(STARRED_KEY) || '[]');
-    } catch (error) {
-      console.error(error);
-    }
-    return new Set<string>(starred);
-  });
-  const [coords, updateCoords] = useCoords(loadData);
-
-  useEffect(() => {
-    if (sortType === 'nearby') updateCoords();
-  }, [sortType, updateCoords]);
-
-  const refresh = useCallback(
-    (force: unknown = true) => {
-      setLastRefresh(lastRefresh => {
-        if (!force && Date.now() - lastRefresh < AUTO_REFRESH_MIN_MS) {
-          return lastRefresh;
-        }
-        loadData(async () => {
-          sort(sortType => {
-            if (sortType === 'nearby') updateCoords();
-            return sortType;
-          });
-          const { plus, nextBookTime } = await client.experiences(park);
-          setNextBookTime(nextBookTime);
-          const nowMinutes = timeToMinutes(dateTimeStrings().time);
-          setExperiences(
-            plus.map(exp => {
-              const standby = exp.standby.waitTime || 0;
-              const returnTime = exp.flex.nextAvailableTime;
-              if (!returnTime) return { ...exp, lp: false };
-              const minutesUntilReturn = timeToMinutes(returnTime) - nowMinutes;
-              return {
-                ...exp,
-                lp:
-                  standby >= LP_MIN_STANDBY &&
-                  minutesUntilReturn <=
-                    Math.min(
-                      LP_MAX_LL_WAIT,
-                      ((4 - Math.trunc(exp.priority || 4)) / 3) * standby
-                    ),
-              };
-            })
-          );
-        });
-        return Date.now();
-      });
-    },
-    [client, park, loadData, updateCoords]
-  );
-
-  useEffect(() => {
-    setExperiences([]);
-    refresh();
-  }, [refresh]);
 
   useEffect(() => {
     if (isLoading || modal) return;
@@ -206,19 +94,6 @@ export default function TipBoard() {
       JSON.stringify({ id: park.id, date: dateTimeStrings().date })
     );
   }, [park]);
-
-  function toggleStar(event: React.MouseEvent<HTMLButtonElement>) {
-    const btn = event.currentTarget;
-    const id = btn.getAttribute('data-id');
-    if (!id) return;
-    if (starred.has(id)) {
-      starred.delete(id);
-    } else {
-      starred.add(id);
-    }
-    localStorage.setItem(STARRED_KEY, JSON.stringify([...starred]));
-    setStarred(new Set([...starred]));
-  }
 
   const parkOptions = useMemo(
     () =>
@@ -274,79 +149,63 @@ export default function TipBoard() {
             dropTime={dropTime}
           />
           <ul>
-            {experiences
-              .sort(
-                (a, b) =>
-                  +starred.has(b.id) - +starred.has(a.id) ||
-                  +b.flex.available - +a.flex.available ||
-                  sorters[
-                    sortType === 'nearby' && !(coords && inPark(park, coords))
-                      ? 'priority'
-                      : sortType
-                  ](a, b, coords) ||
-                  sortByName(a, b)
-              )
-              .map(exp => (
-                <li
-                  className="pb-3 first:border-0 border-t-4 border-gray-300"
-                  key={exp.id + (starred.has(exp.id) ? '*' : '')}
-                >
-                  <div className="flex items-center gap-x-2 mt-2">
-                    <StarButton
-                      experience={exp}
-                      starred={starred}
-                      onClick={toggleStar}
+            {experiences.map(exp => (
+              <li
+                className="pb-3 first:border-0 border-t-4 border-gray-300"
+                key={exp.id + (exp.starred ? '*' : '')}
+              >
+                <div className="flex items-center gap-x-2 mt-2">
+                  <StarButton experience={exp} toggleStar={toggleStar} />
+                  <h2 className="flex-1 mt-0 text-lg leading-tight truncate">
+                    {exp.name}
+                  </h2>
+                  {exp.lp ? (
+                    <InfoButton
+                      name="Lightning Pick"
+                      icon={LightningIcon}
+                      onClick={() =>
+                        setModal(<LightningPickModal onClose={closeModal} />)
+                      }
                     />
-                    <h2 className="flex-1 mt-0 text-lg leading-tight truncate">
-                      {exp.name}
-                    </h2>
-                    {exp.lp ? (
-                      <InfoButton
-                        name="Lightning Pick"
-                        icon={LightningIcon}
-                        onClick={() =>
-                          setModal(<LightningPickModal onClose={closeModal} />)
-                        }
-                      />
-                    ) : dropTime && exp.drop ? (
-                      <InfoButton
-                        name="Upcoming Drop"
-                        icon={DropIcon}
-                        onClick={() =>
-                          setModal(
-                            <DropTimeModal
-                              dropTime={dropTime}
-                              onClose={closeModal}
-                            />
-                          )
-                        }
-                      />
-                    ) : null}
-                  </div>
-                  {exp.flex.preexistingPlan && (
-                    <div className="mt-2 border-2 border-green-600 rounded p-1 text-sm uppercase font-semibold text-center text-green-600 bg-green-100">
-                      Lightning Lane Booked
-                    </div>
-                  )}
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    <StandbyTime experience={exp} />
-                    <GeniePlusButton
-                      experience={exp}
-                      onClick={experience =>
+                  ) : dropTime && exp.drop ? (
+                    <InfoButton
+                      name="Upcoming Drop"
+                      icon={DropIcon}
+                      onClick={() =>
                         setModal(
-                          <BookExperience
-                            experience={experience}
-                            onClose={() => {
-                              closeModal();
-                              refresh(false);
-                            }}
+                          <DropTimeModal
+                            dropTime={dropTime}
+                            onClose={closeModal}
                           />
                         )
                       }
                     />
+                  ) : null}
+                </div>
+                {exp.flex.preexistingPlan && (
+                  <div className="mt-2 border-2 border-green-600 rounded p-1 text-sm uppercase font-semibold text-center text-green-600 bg-green-100">
+                    Lightning Lane Booked
                   </div>
-                </li>
-              ))}
+                )}
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  <StandbyTime experience={exp} />
+                  <GeniePlusButton
+                    experience={exp}
+                    onClick={experience =>
+                      setModal(
+                        <BookExperience
+                          experience={experience}
+                          onClose={() => {
+                            closeModal();
+                            refresh(false);
+                          }}
+                        />
+                      )
+                    }
+                  />
+                </div>
+              </li>
+            ))}
           </ul>
           {!isLoading && (
             <div className="mt-12 text-center">
@@ -384,24 +243,19 @@ function InfoButton({
 
 function StarButton({
   experience,
-  starred,
-  onClick,
+  toggleStar,
 }: {
-  experience: PlusExperience;
-  starred: Set<string>;
-  onClick: React.MouseEventHandler;
+  experience: Experience;
+  toggleStar: ReturnType<typeof useExperiences>['toggleStar'];
 }) {
   const theme = useTheme();
   return (
     <button
-      data-id={experience.id}
       title="Favorite"
       className="-m-2 p-2"
-      onClick={onClick}
+      onClick={() => toggleStar(experience)}
     >
-      <StarIcon
-        className={starred.has(experience.id) ? theme.text : 'text-gray-300'}
-      />
+      <StarIcon className={experience.starred ? theme.text : 'text-gray-300'} />
     </button>
   );
 }
