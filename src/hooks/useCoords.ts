@@ -15,7 +15,11 @@ export default function useCoords(
     loadData(async () => {
       try {
         const { coords } = await geolocate(DEFAULT_OPTIONS);
-        setCoords([coords.latitude, coords.longitude]);
+        setCoords(prev =>
+          prev && coords.latitude === prev[0] && coords.longitude === prev[1]
+            ? prev
+            : [coords.latitude, coords.longitude]
+        );
       } catch {
         setCoords(undefined);
       }
