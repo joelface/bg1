@@ -38,6 +38,7 @@ describe('BookingDetails', () => {
 
   it('renders booking details', () => {
     const { container } = renderComponent();
+    expect(screen.getByText('Your Lightning Lane').tagName).toBe('H1');
     expect(container).toHaveTextContent('11:25 AM - 12:25 PM');
     screen.getByText(mickey.name);
     screen.getByText(minnie.name);
@@ -89,5 +90,12 @@ describe('BookingDetails', () => {
     expect(
       screen.queryByRole('button', { name: 'Cancel' })
     ).not.toBeInTheDocument();
+  });
+
+  it('specifies DAS in heading', () => {
+    booking.subtype = 'DAS';
+    renderComponent();
+    expect(screen.getByText('Your DAS Return Time').tagName).toBe('H1');
+    booking.subtype = 'G+';
   });
 });

@@ -186,6 +186,7 @@ export interface EntitledGuest extends Guest {
 
 interface BaseBooking {
   type: string;
+  subtype: string;
   id: string;
   name: string;
   start: Partial<DateTime>;
@@ -198,6 +199,7 @@ interface BaseBooking {
 
 export interface LightningLane extends BaseBooking {
   type: 'LL';
+  subtype: 'G+' | 'ILL' | 'MULTI' | 'DAS' | 'OTHER';
   park: Park;
   end: Partial<DateTime>;
   guests: EntitledGuest[];
@@ -205,6 +207,7 @@ export interface LightningLane extends BaseBooking {
 
 export interface Reservation extends BaseBooking {
   type: 'RES';
+  subtype: 'DINING' | 'ACTIVITY';
   park: Partial<Park> & Pick<Park, 'id' | 'name'>;
   start: DateTime;
   end: undefined;
@@ -230,7 +233,7 @@ interface Asset {
 interface FastPassItem {
   id: string;
   type: 'FASTPASS';
-  kind: 'FLEX' | 'OTHER' | 'STANDARD';
+  kind: 'FLEX' | 'OTHER' | 'STANDARD' | 'DAS' | 'FDS';
   facility: string;
   assets: { content: string; excluded: boolean; original: boolean }[];
   startDateTime?: string;
@@ -284,7 +287,7 @@ export class RequestError extends Error {
 }
 
 const RES_TYPES = new Set(['ACTIVITY', 'DINING']);
-const FP_KINDS = new Set(['FLEX', 'OTHER', 'STANDARD']);
+const FP_KINDS = new Set(['FLEX', 'OTHER', 'STANDARD', 'DAS', 'FDS']);
 
 const idNum = (id: string) => id.split(';')[0];
 
@@ -472,6 +475,7 @@ export class GenieClient {
     this.bookings(); // Load bookings to refresh booking stack
     return {
       type: 'LL',
+      subtype: 'G+',
       ...this.getExperience(experienceId, parkId),
       bookingId: entitlements[0]?.id,
       start: splitDateTime(startDateTime),
@@ -552,6 +556,7 @@ export class GenieClient {
       if (start < earliestResDT) return;
       const res: Reservation = {
         type: 'RES',
+        subtype: item.type,
         id: idNum(item.asset),
         park,
         name: activityAsset.name,
@@ -576,8 +581,16 @@ export class GenieClient {
       if (!FP_KINDS.has(item.kind)) return;
       const expAsset = assets[item.facility];
       const parkId = idNum((expAsset as Required<Asset>).location);
+      const kindToSubtype = {
+        FLEX: 'G+',
+        STANDARD: 'ILL',
+        DAS: 'DAS',
+        FDS: 'DAS',
+        OTHER: 'OTHER',
+      } as const;
       let booking: LightningLane = {
         type: 'LL',
+        subtype: item.multipleExperiences ? 'MULTI' : kindToSubtype[item.kind],
         ...this.getExperience(idNum(item.facility), parkId, expAsset.name),
         start: {
           date: item.displayStartDate,
@@ -587,7 +600,7 @@ export class GenieClient {
           date: item.displayEndDate,
           time: item.displayEndTime,
         },
-        cancellable: item.cancellable,
+        cancellable: item.cancellable && item.kind === 'FLEX',
         guests: item.guests.map(g => {
           return {
             ...getGuest(g),

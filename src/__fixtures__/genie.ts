@@ -98,6 +98,7 @@ export const offer: Offer = {
 
 export const booking: LightningLane = {
   type: 'LL',
+  subtype: 'G+',
   id: hm.id,
   name: hm.name,
   park: hm.park,
@@ -114,6 +115,7 @@ export const booking: LightningLane = {
 
 export const multiExp: LightningLane = {
   type: 'LL',
+  subtype: 'MULTI',
   id: jc.id,
   name: jc.name,
   park: jc.park,
@@ -131,6 +133,7 @@ export const multiExp: LightningLane = {
 
 export const allDayExp: LightningLane = {
   type: 'LL',
+  subtype: 'OTHER',
   id: sm.id,
   name: sm.name,
   park: sm.park,
@@ -143,6 +146,7 @@ export const allDayExp: LightningLane = {
 
 export const lttRes: Reservation = {
   type: 'RES',
+  subtype: 'DINING',
   id: '90006947',
   name: 'Liberty Tree Tavern Lunch',
   park: mk,
@@ -159,6 +163,7 @@ export const bookings: Booking[] = [
   lttRes,
   {
     type: 'LL',
+    subtype: 'G+',
     id: jc.id,
     name: jc.name,
     park: jc.park,

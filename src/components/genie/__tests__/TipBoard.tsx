@@ -205,6 +205,7 @@ describe('TipBoard', () => {
     const newBooking = {
       ...sm,
       type: 'LL' as const,
+      subtype: 'G+' as const,
       start: { date: TODAY, time: '12:45:00' },
       end: { date: TODAY, time: '13:45:00' },
       cancellable: true,

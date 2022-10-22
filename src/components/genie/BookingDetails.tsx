@@ -66,7 +66,14 @@ export default function BookingDetails({
 
   return (
     <Page
-      heading={isLL ? 'Your Lightning Lane' : 'Your Reservation'}
+      heading={
+        'Your ' +
+        (isLL
+          ? booking.subtype === 'DAS'
+            ? 'DAS Return Time'
+            : 'Lightning Lane'
+          : 'Reservation')
+      }
       theme={theme}
       buttons={
         isRebookable &&

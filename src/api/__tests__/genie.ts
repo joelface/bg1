@@ -437,6 +437,7 @@ describe('GenieClient', () => {
       respond(response({ booking: newBooking }, 201), guestsRes);
       expect(await client.book(offer)).toEqual({
         type: 'LL',
+        subtype: 'G+',
         id: hm.id,
         name: hm.name,
         park: mk,
@@ -485,6 +486,13 @@ describe('GenieClient', () => {
     const xid = (guest: { id: string }) => guest.id + ';type=xid';
 
     function createBookingsResponse(bookings: Booking[]) {
+      const subtypeToKind = {
+        'G+': 'FLEX',
+        ILL: 'STANDARD',
+        DAS: 'DAS',
+        MULTI: 'OTHER',
+        OTHER: 'OTHER',
+      };
       return response({
         items: [
           {
@@ -501,7 +509,7 @@ describe('GenieClient', () => {
             ...(b.type === 'LL'
               ? {
                   type: 'FASTPASS',
-                  kind: b.choices ? 'FLEX' : 'OTHER',
+                  kind: subtypeToKind[b.subtype],
                   facility: entId(b.choices ? hm : b),
                   displayStartDate: b.start.date,
                   displayStartTime: b.start.time,
@@ -613,6 +621,7 @@ describe('GenieClient', () => {
     it('includes park data', async () => {
       const bs: LightningLane = {
         type: 'LL',
+        subtype: 'G+',
         id: '16491297',
         name: 'The Barnstormer',
         park: mk,
