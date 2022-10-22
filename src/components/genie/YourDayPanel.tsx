@@ -81,9 +81,9 @@ export default function YourDayPanel({ onClose }: { onClose: () => void }) {
                   }
                   badge={
                     client.isRebookable(booking) && (
-                      <div
+                      <span
                         title="Rebookable"
-                        className={`w-2.5 h-2.5 rounded-full ${theme.bg}`}
+                        className={`inline-block w-2.5 h-2.5 rounded-full ${theme.bg}`}
                       />
                     )
                   }
