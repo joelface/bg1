@@ -137,7 +137,7 @@ export const allDayExp: LightningLane = {
   start: { date: undefined, time: undefined },
   end: { date: undefined, time: undefined },
   cancellable: false,
-  guests: [{ ...pluto, entitlementId: 'sm_01', redemptions: 1 }],
+  guests: [{ ...pluto, entitlementId: 'sm_01', redemptions: 2 }],
   bookingId: 'sm_01',
 };
 

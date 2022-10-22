@@ -124,7 +124,7 @@ export default function BookingDetails({
           guests &&
           Object.fromEntries(
             guests
-              .filter(g => g.redemptions !== undefined)
+              .filter(g => (g.redemptions ?? 1) !== 1)
               .map(g => [g.id, `Redemptions left: ${g.redemptions}`])
           )
         }

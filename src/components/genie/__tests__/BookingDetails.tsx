@@ -75,9 +75,7 @@ describe('BookingDetails', () => {
         .map(li => li.textContent)
         .slice(0, 4)
     ).toEqual([sdd.name, hm.name, jc.name, sm.name]);
-    expect(screen.getAllByText('Redemptions left: 1')).toHaveLength(
-      multiExp.guests.length
-    );
+    expect(screen.queryByText('Redemptions left: 1')).not.toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Cancel' })
     ).not.toBeInTheDocument();
@@ -87,7 +85,7 @@ describe('BookingDetails', () => {
     renderComponent(allDayExp);
     screen.getByText(allDayExp.name);
     screen.getByText('Park Open - Park Close');
-    screen.getByText('Redemptions left: 1');
+    screen.getByText('Redemptions left: 2');
     expect(
       screen.queryByRole('button', { name: 'Cancel' })
     ).not.toBeInTheDocument();
