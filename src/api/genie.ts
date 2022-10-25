@@ -192,6 +192,7 @@ interface BaseBooking {
   start: Partial<DateTime>;
   end: Partial<DateTime> | undefined;
   cancellable: boolean;
+  rebookable: boolean;
   guests: Guest[];
   choices?: Pick<Experience, 'id' | 'name' | 'park'>[];
   bookingId: string;
@@ -481,6 +482,7 @@ export class GenieClient {
       start: splitDateTime(startDateTime),
       end: splitDateTime(endDateTime),
       cancellable: true,
+      rebookable: true,
       guests: entitlements.map(e => {
         const g = this.guestCache.get(e.guestId);
         return {
@@ -563,6 +565,7 @@ export class GenieClient {
         start: dateTimeStrings(start),
         end: undefined,
         cancellable: false,
+        rebookable: false,
         guests: item.guests
           .map(getGuest)
           .sort(
@@ -601,6 +604,7 @@ export class GenieClient {
           time: item.displayEndTime,
         },
         cancellable: item.cancellable && item.kind === 'FLEX',
+        rebookable: false,
         guests: item.guests.map(g => {
           return {
             ...getGuest(g),
@@ -645,10 +649,6 @@ export class GenieClient {
       .filter((booking): booking is Booking => !!booking);
     this.bookingStack.update(bookings);
     return bookings;
-  }
-
-  isRebookable(booking: Booking): boolean {
-    return this.bookingStack.isRebookable(booking);
   }
 
   nextDropTime(park: Pick<Park, 'id'>): string | undefined {
@@ -744,13 +744,6 @@ export class BookingStack {
     this.mostRecent = new Map(Object.entries(mostRecent));
   }
 
-  isRebookable(booking: Booking): boolean {
-    return (
-      booking.cancellable &&
-      booking.guests.every(g => this.mostRecent.get(g.id) === g.entitlementId)
-    );
-  }
-
   update(bookings: Booking[]): void {
     const mostRecent = new Map<string, string>();
     const oldEntIds = new Set(this.entitlementIds);
@@ -776,5 +769,10 @@ export class BookingStack {
         } as BookingStackData)
       );
     }
+    bookings.forEach(b => {
+      b.rebookable =
+        b.cancellable &&
+        b.guests.every(g => this.mostRecent.get(g.id) === g.entitlementId);
+    });
   }
 }

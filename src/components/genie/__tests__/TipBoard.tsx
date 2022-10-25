@@ -209,6 +209,7 @@ describe('TipBoard', () => {
       start: { date: TODAY, time: '12:45:00' },
       end: { date: TODAY, time: '13:45:00' },
       cancellable: true,
+      rebookable: true,
       guests: [
         { ...mickey, entitlementId: 'sm1125_01' },
         { ...minnie, entitlementId: 'sm1125_02' },

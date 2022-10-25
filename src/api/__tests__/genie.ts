@@ -106,13 +106,6 @@ describe('GenieClient', () => {
     onUnauthorized.mockReset();
   });
 
-  describe('isRebookable()', () => {
-    it('returns true if booking is rebookable', () => {
-      expect(client.isRebookable(bookings[3])).toBe(true);
-      expect(client.isRebookable(bookings[1])).toBe(false);
-    });
-  });
-
   describe('primaryGuestId()', () => {
     it('returns primary guest ID', async () => {
       respond(guestsRes);
@@ -402,84 +395,6 @@ describe('GenieClient', () => {
     });
   });
 
-  describe('book()', () => {
-    it('books Lightning Lanes', async () => {
-      const guests = [mickey, minnie];
-      const offer = {
-        id: 'offer1',
-        start: { date: TODAY, time: '18:00:00' },
-        end: { date: TODAY, time: '19:00:00' },
-        changeStatus: 'NONE',
-      };
-      const entitlement = (guest: { id: string }) => ({
-        id: 'ent-' + guest.id,
-        guestId: guest.id,
-        usageDetails: {
-          status: 'BOOKED',
-          redeemable: true,
-          modifiable: true,
-        },
-      });
-      const newBooking = {
-        id: 'NEW_BOOKING',
-        entitlements: guests.map(g => entitlement(g)),
-        startDateTime: `${offer.start.date}T${offer.start.time}`,
-        endDateTime: `${offer.end.date}T${offer.end.time}`,
-        assignmentDetails: {
-          product: 'INDIVIDUAL',
-          reason: 'OTHER',
-        },
-        singleExperienceDetails: {
-          experienceId: hm.id,
-          parkId: mk.id,
-        },
-      };
-      respond(response({ booking: newBooking }, 201), guestsRes);
-      expect(await client.book(offer)).toEqual({
-        type: 'LL',
-        subtype: 'G+',
-        id: hm.id,
-        name: hm.name,
-        park: mk,
-        start: offer.start,
-        end: offer.end,
-        cancellable: true,
-        guests: guests.map((g, i) => ({
-          ...g,
-          entitlementId: newBooking.entitlements[i].id,
-        })),
-        bookingId: 'ent-' + mickey.id,
-      });
-      expectFetch(
-        '/ea-vas/api/v1/products/flex/bookings',
-        {
-          method: 'POST',
-          data: { offerId: offer.id },
-        },
-        false
-      );
-    });
-
-    it('throws RequestError on failure', async () => {
-      respond(response({}, 410));
-      await expect(client.book({ id: 'offer1' })).rejects.toThrow(RequestError);
-    });
-  });
-
-  describe('cancelBooking()', () => {
-    it('cancel booking', async () => {
-      respond(response({}));
-      await client.cancelBooking(booking.guests);
-      expectFetch(
-        `/ea-vas/api/v1/entitlements/${booking.guests
-          .map(g => g.entitlementId)
-          .join(',')}`,
-        { method: 'DELETE' },
-        false
-      );
-    });
-  });
-
   describe('bookings()', () => {
     const entId = ({ id }: { id: string }, type = 'Attraction') =>
       `${id};entityType=${type}`;
@@ -628,12 +543,92 @@ describe('GenieClient', () => {
         start: { date: undefined, time: undefined },
         end: { date: undefined, time: undefined },
         cancellable: false,
+        rebookable: false,
         guests: [{ ...mickey, entitlementId: 'bs_01' }],
         bookingId: 'bs_01',
       };
       const bookings = [bs];
       respond(createBookingsResponse(bookings));
       expect(await client.bookings()).toEqual([{ ...bs, name: 'Barnstormer' }]);
+    });
+  });
+
+  describe('book()', () => {
+    it('books Lightning Lanes', async () => {
+      const guests = [mickey, minnie];
+      const offer = {
+        id: 'offer1',
+        start: { date: TODAY, time: '18:00:00' },
+        end: { date: TODAY, time: '19:00:00' },
+        changeStatus: 'NONE',
+      };
+      const entitlement = (guest: { id: string }) => ({
+        id: 'ent-' + guest.id,
+        guestId: guest.id,
+        usageDetails: {
+          status: 'BOOKED',
+          redeemable: true,
+          modifiable: true,
+        },
+      });
+      const newBooking = {
+        id: 'NEW_BOOKING',
+        entitlements: guests.map(g => entitlement(g)),
+        startDateTime: `${offer.start.date}T${offer.start.time}`,
+        endDateTime: `${offer.end.date}T${offer.end.time}`,
+        assignmentDetails: {
+          product: 'INDIVIDUAL',
+          reason: 'OTHER',
+        },
+        singleExperienceDetails: {
+          experienceId: hm.id,
+          parkId: mk.id,
+        },
+      };
+      respond(response({ booking: newBooking }, 201), guestsRes);
+      expect(await client.book(offer)).toEqual({
+        type: 'LL',
+        subtype: 'G+',
+        id: hm.id,
+        name: hm.name,
+        park: mk,
+        start: offer.start,
+        end: offer.end,
+        cancellable: true,
+        rebookable: true,
+        guests: guests.map((g, i) => ({
+          ...g,
+          entitlementId: newBooking.entitlements[i].id,
+        })),
+        bookingId: 'ent-' + mickey.id,
+      });
+      expectFetch(
+        '/ea-vas/api/v1/products/flex/bookings',
+        {
+          method: 'POST',
+          data: { offerId: offer.id },
+        },
+        false
+      );
+    });
+
+    it('throws RequestError on failure', async () => {
+      respond(response({}, 410));
+      await expect(client.book({ id: 'offer1' })).rejects.toThrow(RequestError);
+    });
+  });
+
+  describe('cancelBooking()', () => {
+    it('cancel booking', async () => {
+      respond(response({}));
+      await client.cancelBooking(booking.guests);
+      expectFetch(
+        `/ea-vas/api/v1/entitlements/${booking.guests
+          .map(g => g.entitlementId)
+          .join(',')}`,
+        { method: 'DELETE' },
+        false
+      );
     });
   });
 
@@ -674,12 +669,12 @@ describe('BookingStack', () => {
   describe('update()', () => {
     it('updates most recent booking', () => {
       stack.update([bookings[3]]);
-      expect(stack.isRebookable(bookings[3])).toBe(true);
+      expect(bookings[3].rebookable).toBe(true);
       stack.update(bookings);
-      expect(stack.isRebookable(bookings[1])).toBe(true);
-      expect(stack.isRebookable(bookings[0])).toBe(false);
-      expect(stack.isRebookable(bookings[3])).toBe(false);
-      expect(stack.isRebookable(bookings[4])).toBe(false);
+      expect(bookings[1].rebookable).toBe(true);
+      expect(bookings[0].rebookable).toBe(false);
+      expect(bookings[3].rebookable).toBe(false);
+      expect(bookings[4].rebookable).toBe(false);
     });
   });
 });

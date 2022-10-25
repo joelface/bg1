@@ -15,12 +15,10 @@ import CancelGuests from './CancelGuests';
 export default function BookingDetails({
   booking,
   onClose,
-  isRebookable,
   isNew,
 }: {
   booking: Booking;
   onClose: (newGuests: EntitledGuest[] | void) => void;
-  isRebookable?: boolean;
   isNew?: boolean;
 }) {
   const client = useGenieClient();
@@ -76,7 +74,7 @@ export default function BookingDetails({
       }
       theme={theme}
       buttons={
-        isRebookable &&
+        booking.rebookable &&
         isLL && <Button onClick={() => rebooking.begin(booking)}>Rebook</Button>
       }
     >

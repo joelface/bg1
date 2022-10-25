@@ -105,6 +105,7 @@ export const booking: LightningLane = {
   start: { date: TODAY, time: '11:25:00' },
   end: { date: TODAY, time: '12:25:00' },
   cancellable: true,
+  rebookable: false,
   guests: [
     { ...mickey, entitlementId: 'hm1125_01' },
     { ...minnie, entitlementId: 'hm1125_02' },
@@ -122,6 +123,7 @@ export const multiExp: LightningLane = {
   start: { date: TODAY, time: '15:15:00' },
   end: { date: TODAY, time: undefined },
   cancellable: false,
+  rebookable: false,
   guests: [
     { ...mickey, entitlementId: 're1515_01', redemptions: 1 },
     { ...minnie, entitlementId: 're1515_02', redemptions: 1 },
@@ -140,6 +142,7 @@ export const allDayExp: LightningLane = {
   start: { date: undefined, time: undefined },
   end: { date: undefined, time: undefined },
   cancellable: false,
+  rebookable: false,
   guests: [{ ...pluto, entitlementId: 'sm_01', redemptions: 2 }],
   bookingId: 'sm_01',
 };
@@ -153,6 +156,7 @@ export const lttRes: Reservation = {
   start: { date: TODAY, time: '12:15:00' },
   end: undefined,
   cancellable: false,
+  rebookable: false,
   guests: [mickey, minnie],
   bookingId: '38943;type=DINING',
 };
@@ -170,6 +174,7 @@ export const bookings: Booking[] = [
     start: { date: TODAY, time: '14:00:00' },
     end: { date: TODAY, time: '15:00:00' },
     cancellable: true,
+    rebookable: true,
     guests: [
       { ...mickey, entitlementId: 'jc1400_01' },
       { ...minnie, entitlementId: 'jc1400_02' },
@@ -180,7 +185,7 @@ export const bookings: Booking[] = [
 ];
 
 const stack = new BookingStack(false);
-stack.update([bookings[1]]);
+stack.update([booking]);
 stack.update(bookings);
 
 export const client = new GenieClient({

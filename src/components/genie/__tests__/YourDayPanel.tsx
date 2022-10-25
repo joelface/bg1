@@ -21,9 +21,7 @@ describe('YourDayPanel', () => {
       const inLI = within(lis[i]);
       inLI.getByText(booking.choices ? 'Multiple Experiences' : booking.name);
       inLI.getByText(returnTime(booking));
-      expect(!!inLI.queryByTitle('Rebookable')).toBe(
-        client.isRebookable(booking)
-      );
+      expect(!!inLI.queryByTitle('Rebookable')).toBe(booking.rebookable);
     });
 
     click(screen.getAllByText('More')[0]);

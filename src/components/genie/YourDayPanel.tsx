@@ -42,13 +42,7 @@ export default function YourDayPanel({ onClose }: { onClose: () => void }) {
   }
 
   if (booking) {
-    return (
-      <BookingDetails
-        booking={booking}
-        onClose={closeDetails}
-        isRebookable={client.isRebookable(booking)}
-      />
-    );
+    return <BookingDetails booking={booking} onClose={closeDetails} />;
   }
 
   return (
@@ -80,7 +74,7 @@ export default function YourDayPanel({ onClose }: { onClose: () => void }) {
                     </Button>
                   }
                   badge={
-                    client.isRebookable(booking) && (
+                    booking.rebookable && (
                       <span
                         title="Rebookable"
                         className={`inline-block w-2.5 h-2.5 rounded-full ${theme.bg}`}
