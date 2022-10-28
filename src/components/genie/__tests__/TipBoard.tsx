@@ -22,6 +22,7 @@ import {
   sm,
   mickey,
   minnie,
+  booking,
   bookings,
   sdd,
 } from '@/__fixtures__/genie';
@@ -171,9 +172,9 @@ describe('TipBoard', () => {
     await renderComponent();
     expect(elemScrollMock).toBeCalledTimes(1);
     click('Your Day');
-    click((await screen.findAllByText('More'))[3]);
+    click((await screen.findAllByText('More'))[1]);
     screen.getByText('Your Lightning Lane');
-    screen.getByRole('heading', { name: bookings[3].name });
+    screen.getByRole('heading', { name: booking.name });
     click('Rebook');
 
     expect(elemScrollMock).toBeCalledTimes(2);
@@ -232,8 +233,8 @@ describe('TipBoard', () => {
     expect(screen.queryByText('Rebook')).not.toBeInTheDocument();
 
     click('Back');
-    click(screen.getAllByText('More')[3]);
-    screen.getByRole('heading', { name: bookings[3].name });
+    click(screen.getAllByText('More')[1]);
+    screen.getByRole('heading', { name: booking.name });
 
     click('Rebook');
     screen.getByText('Rebooking');
@@ -248,7 +249,7 @@ describe('TipBoard', () => {
     await loading();
 
     expect(client.cancelBooking).toBeCalledTimes(2);
-    expect(client.cancelBooking).nthCalledWith(1, [bookings[3].guests[1]]);
+    expect(client.cancelBooking).nthCalledWith(1, booking.guests.slice(1));
     expect(client.cancelBooking).nthCalledWith(2, [newBooking.guests[0]]);
     screen.getByText('Your Lightning Lane');
     screen.getByRole('heading', { name: sm.name });

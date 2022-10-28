@@ -105,7 +105,7 @@ export const booking: LightningLane = {
   start: { date: TODAY, time: '11:25:00' },
   end: { date: TODAY, time: '12:25:00' },
   cancellable: true,
-  rebookable: false,
+  rebookable: true,
   guests: [
     { ...mickey, entitlementId: 'hm1125_01' },
     { ...minnie, entitlementId: 'hm1125_02' },
@@ -174,7 +174,7 @@ export const bookings: Booking[] = [
     start: { date: TODAY, time: '14:00:00' },
     end: { date: TODAY, time: '15:00:00' },
     cancellable: true,
-    rebookable: true,
+    rebookable: false,
     guests: [
       { ...mickey, entitlementId: 'jc1400_01' },
       { ...minnie, entitlementId: 'jc1400_02' },
@@ -185,7 +185,7 @@ export const bookings: Booking[] = [
 ];
 
 const stack = new BookingStack(false);
-stack.update([booking]);
+stack.update([bookings[3]]);
 stack.update(bookings);
 
 export const client = new GenieClient({
