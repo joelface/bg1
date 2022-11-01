@@ -513,6 +513,7 @@ export class GenieClient {
   async bookings(): Promise<Booking[]> {
     const { swid } = this.authStore.getData();
     const now = new Date(Date.now());
+    const today = dateTimeStrings(now).date;
     const itineraryApiName = RESORT_TO_ITINERARY_API_NAME[this.resort];
     const {
       items = [],
@@ -525,7 +526,7 @@ export class GenieClient {
         fields: 'items,profiles,assets',
         'guest-locators': swid + ';type=swid',
         'guest-locator-groups': 'MY_FAMILY',
-        'start-date': dateTimeStrings(now).date,
+        'start-date': today,
         'end-date': dateTimeStrings(
           new Date(now.getTime()).setDate(now.getDate() + 1)
         ).date,
@@ -649,7 +650,10 @@ export class GenieClient {
           return getReservation(item);
         }
       })
-      .filter((booking): booking is Booking => !!booking);
+      .filter(
+        (booking): booking is Booking =>
+          !!booking && (booking.start.date || today) === today
+      );
     this.tracker.update(bookings, this);
     return bookings;
   }

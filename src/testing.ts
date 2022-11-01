@@ -11,6 +11,7 @@ import {
 export * from '@testing-library/react';
 
 export const TODAY = '2021-10-01';
+export const TOMORROW = '2021-10-02';
 
 function getByTextOrTitle(container: HTMLElement, label: string) {
   const c = within(container);

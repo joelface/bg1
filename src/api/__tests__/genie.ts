@@ -1,5 +1,5 @@
 import { fetchJson } from '@/fetch';
-import { setTime, TODAY, waitFor } from '@/testing';
+import { setTime, TODAY, TOMORROW, waitFor } from '@/testing';
 import {
   client,
   tracker,
@@ -424,6 +424,19 @@ describe('GenieClient', () => {
             type: 'ACTIVITY',
             asset: '19432184;entityType=activity-product',
           },
+          {
+            // This item should be ignored
+            type: 'FASTPASS',
+            kind: 'FDS',
+            facility: entId(hm),
+            cancellable: true,
+            multipleExperiences: false,
+            displayStartDate: TOMORROW,
+            displayStartTime: '10:00:00',
+            displayEndDate: TOMORROW,
+            displayEndTime: '11:00:00',
+            guests: [{ id: xid(mickey), entitlementId: 'hm1000_01' }],
+          },
           ...bookings.map(b => ({
             ...(b.type === 'LL'
               ? {
@@ -479,7 +492,7 @@ describe('GenieClient', () => {
           },
           '19536899;entityType=tour': {},
           ...Object.fromEntries(
-            [...bookings, ...bookings.map(b => b.choices || [])]
+            [booking, ...bookings, ...bookings.map(b => b.choices || [])]
               .flat()
               .map(b => [
                 entId(b),
