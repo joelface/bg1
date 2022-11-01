@@ -1,6 +1,8 @@
 import { fetchJson } from '@/fetch';
 import { setTime, TODAY, waitFor } from '@/testing';
 import {
+  client,
+  tracker,
   hm,
   jc,
   sm,
@@ -15,7 +17,7 @@ import {
 } from '@/__fixtures__/genie';
 import {
   Booking,
-  BookingStack,
+  BookingTracker,
   GenieClient,
   Guest,
   isGenieOrigin,
@@ -89,6 +91,7 @@ describe('GenieClient', () => {
     origin: 'https://disneyworld.disney.go.com',
     authStore,
     data: wdw,
+    tracker,
   });
   const onUnauthorized = jest.fn();
   client.onUnauthorized = onUnauthorized;
@@ -155,6 +158,7 @@ describe('GenieClient', () => {
         geo,
         priority,
         drop: true,
+        booked: false,
       };
       const getExpData = async () => client.experiences(mk);
       respond(...Array(4).fill(res));
@@ -662,19 +666,31 @@ describe('GenieClient', () => {
   });
 });
 
-describe('BookingStack', () => {
+describe('BookingTracker', () => {
   localStorage.clear();
-  const stack = new BookingStack();
+  const tracker = new BookingTracker();
 
   describe('update()', () => {
-    it('updates most recent booking', () => {
-      stack.update([bookings[3]]);
+    it('updates tracking data', async () => {
+      tracker.update([bookings[3]], client);
       expect(bookings[3].rebookable).toBe(true);
-      stack.update(bookings);
-      expect(bookings[1].rebookable).toBe(true);
+      await tracker.update(bookings, client);
+      expect(booking.rebookable).toBe(true);
       expect(bookings[0].rebookable).toBe(false);
       expect(bookings[3].rebookable).toBe(false);
       expect(bookings[4].rebookable).toBe(false);
+      expect(tracker.booked(booking)).toBe(false);
+      expect(tracker.booked(bookings[3])).toBe(true);
+
+      client.guests.mockResolvedValueOnce({
+        eligible: [],
+        ineligible: [
+          { ...mickey, ineligibleReason: 'EXPERIENCE_LIMIT_REACHED' },
+        ],
+      });
+      await tracker.update([bookings[3]], client);
+      expect(tracker.booked(booking)).toBe(true);
+      expect(tracker.booked(bookings[3])).toBe(true);
     });
   });
 });

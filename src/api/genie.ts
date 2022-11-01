@@ -43,6 +43,7 @@ export interface Experience {
     displayPrice: string;
   };
   priority?: number;
+  booked?: boolean;
   drop?: boolean;
 }
 
@@ -303,7 +304,7 @@ export class GenieClient {
     string,
     { name: string; characterId: string }
   >();
-  protected bookingStack: BookingStack;
+  protected tracker: Public<BookingTracker>;
   protected listeners: Record<EventName, Set<EventListener>> = {
     bookingChange: new Set(),
   };
@@ -321,12 +322,13 @@ export class GenieClient {
     origin: GenieClient['origin'];
     authStore: GenieClient['authStore'];
     data: GenieClient['data'];
+    tracker?: GenieClient['tracker'];
   }) {
     this.origin = args.origin;
     this.authStore = args.authStore;
     this.data = args.data;
     this.parkMap = Object.fromEntries(this.parks.map(p => [p.id, p]));
-    this.bookingStack = new BookingStack();
+    this.tracker = args.tracker || new BookingTracker();
   }
 
   get resort() {
@@ -366,6 +368,7 @@ export class GenieClient {
             ...exp,
             ...expData,
             park,
+            booked: this.tracker.booked(exp),
             drop: !!(pdtBit & pdtMask),
           };
           return e;
@@ -473,7 +476,7 @@ export class GenieClient {
       data: { offerId: offer.id },
       key: 'booking',
     });
-    this.bookings(); // Load bookings to refresh booking stack
+    this.updateTracker();
     return {
       type: 'LL',
       subtype: 'G+',
@@ -647,9 +650,11 @@ export class GenieClient {
         }
       })
       .filter((booking): booking is Booking => !!booking);
-    this.bookingStack.update(bookings);
+    this.tracker.update(bookings, this);
     return bookings;
   }
+
+  updateTracker = this.bookings;
 
   nextDropTime(park: Pick<Park, 'id'>): string | undefined {
     const now = dateTimeStrings().time.slice(0, 5);
@@ -726,32 +731,56 @@ export class GenieClient {
 
 export const BOOKINGS_KEY = 'bg1.genie.bookings';
 
-interface BookingStackData {
+interface BookingTrackerData {
+  date: string;
   entitlementIds: string[];
   mostRecent: { [guestId: string]: string };
+  expToPark: { [expId: string]: string };
+  bookedExpIds: string[];
 }
 
-export class BookingStack {
+export class BookingTracker {
+  protected date: string;
   protected entitlementIds: string[] = [];
-  protected mostRecent: Map<string, string> = new Map();
+  protected mostRecent = new Map<string, string>(); // { userId: entId }
+  protected expToPark = new Map<string, string>(); // { expId: parkId }
+  protected bookedExpIds = new Set<string>();
 
-  constructor(loadFromStorage = true) {
-    if (!loadFromStorage) return;
-    const { entitlementIds = [], mostRecent = {} } = JSON.parse(
+  constructor() {
+    const {
+      date = dateTimeStrings().date,
+      entitlementIds = [],
+      mostRecent = {},
+      expToPark: expToPark = {},
+      bookedExpIds = [],
+    }: BookingTrackerData = JSON.parse(
       localStorage.getItem(BOOKINGS_KEY) || '{}'
-    ) as BookingStackData;
+    );
+    this.date = date;
     this.entitlementIds = entitlementIds;
     this.mostRecent = new Map(Object.entries(mostRecent));
+    this.expToPark = new Map(Object.entries(expToPark));
+    this.bookedExpIds = new Set(bookedExpIds);
+    this.checkDate();
   }
 
-  update(bookings: Booking[]): void {
+  /**
+   * Returns true if experience was previously booked and can't be rebooked
+   */
+  booked(experience: Pick<Experience, 'id'>) {
+    return this.bookedExpIds.has(experience.id);
+  }
+
+  async update(bookings: Booking[], client: GenieClient): Promise<void> {
+    this.checkDate();
+    const cancellableLLs = bookings.filter(
+      (b: Booking): b is LightningLane => b.type === 'LL' && b.cancellable
+    );
     const mostRecent = new Map<string, string>();
     const oldEntIds = new Set(this.entitlementIds);
-    this.entitlementIds = bookings
-      .filter((b: Booking): b is LightningLane => b.cancellable)
-      .map(booking =>
-        booking.guests.map(({ id, entitlementId }) => {
-          this.entitlementIds.push(entitlementId);
+    this.entitlementIds = cancellableLLs
+      .map(b =>
+        b.guests.map(({ id, entitlementId }) => {
           if (!oldEntIds.has(entitlementId)) {
             mostRecent.set(id, mostRecent.has(id) ? '' : entitlementId);
           }
@@ -760,19 +789,46 @@ export class BookingStack {
       )
       .flat(1);
     this.mostRecent = new Map([...this.mostRecent, ...mostRecent]);
-    if (mostRecent.size > 0) {
-      localStorage.setItem(
-        BOOKINGS_KEY,
-        JSON.stringify({
-          entitlementIds: this.entitlementIds,
-          mostRecent: Object.fromEntries(this.mostRecent),
-        } as BookingStackData)
-      );
+    const mostRecentEntIds = new Set(this.mostRecent.values());
+    for (const b of cancellableLLs) {
+      if (b.guests.some(g => !mostRecentEntIds.has(g.entitlementId))) {
+        this.bookedExpIds.add(b.id);
+      }
     }
-    bookings.forEach(b => {
+    const oldExpToPark = this.expToPark;
+    this.expToPark = new Map(cancellableLLs.map(b => [b.id, b.park.id]));
+    for (const [id, parkId] of oldExpToPark) {
+      if (this.expToPark.has(id)) continue;
+      const { ineligible } = await client.guests({ id, park: { id: parkId } });
+      const limitReached = ineligible.some(
+        g => g.ineligibleReason === 'EXPERIENCE_LIMIT_REACHED'
+      );
+      this.bookedExpIds[limitReached ? 'add' : 'delete'](id);
+    }
+    localStorage.setItem(
+      BOOKINGS_KEY,
+      JSON.stringify({
+        date: this.date,
+        entitlementIds: this.entitlementIds,
+        mostRecent: Object.fromEntries(this.mostRecent),
+        expToPark: Object.fromEntries(this.expToPark),
+        bookedExpIds: [...this.bookedExpIds],
+      } as BookingTrackerData)
+    );
+    for (const b of bookings) {
       b.rebookable =
         b.cancellable &&
         b.guests.every(g => this.mostRecent.get(g.id) === g.entitlementId);
-    });
+    }
+  }
+
+  protected checkDate() {
+    const today = dateTimeStrings().date;
+    if (this.date === today) return;
+    this.date = today;
+    this.entitlementIds = [];
+    this.mostRecent = new Map();
+    this.expToPark = new Map();
+    this.bookedExpIds = new Set();
   }
 }

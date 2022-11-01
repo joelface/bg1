@@ -1,6 +1,5 @@
 import {
   Booking,
-  BookingStack,
   GenieClient,
   LightningLane,
   Offer,
@@ -8,6 +7,7 @@ import {
   Reservation,
 } from '@/api/genie';
 import data from '@/api/data/wdw';
+import { Experience } from '@/hooks/useExperiences';
 import { TODAY } from '@/testing';
 
 data.pdts[80007944] = ['11:30', '14:30', '17:30'];
@@ -184,10 +184,16 @@ export const bookings: Booking[] = [
   multiExp,
 ];
 
-const stack = new BookingStack(false);
-stack.update([bookings[3]]);
-stack.update(bookings);
-
+export const tracker = {
+  booked: (exp: Experience) => exp.id === booking.id,
+  update: async (bookings: Booking[]) => {
+    bookings.forEach(b => {
+      b.rebookable =
+        b.type === 'LL' &&
+        b.guests[0].entitlementId === booking.guests[0].entitlementId;
+    });
+  },
+};
 export const client = new GenieClient({
   origin: 'https://disneyworld.disney.go.com',
   authStore: {
@@ -196,6 +202,7 @@ export const client = new GenieClient({
     deleteData: () => null,
   },
   data,
+  tracker,
 }) as jest.Mocked<GenieClient>;
 
 jest.spyOn(client, 'guests').mockResolvedValue({
@@ -211,3 +218,4 @@ jest
   .spyOn(client, 'experiences')
   .mockResolvedValue({ plus: [hm, sm, jc], nextBookTime: '11:00:00' });
 jest.spyOn(client, 'nextDropTime').mockReturnValue('11:30');
+jest.spyOn(client, 'updateTracker').mockResolvedValue([]);

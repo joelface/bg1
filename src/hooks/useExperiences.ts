@@ -85,13 +85,24 @@ export default function useExperiences({
   const [sorted, setSorted] = useState(true);
   const starred = useRef(new Set<string>());
 
-  const refresh = useCallback((force: unknown = true) => {
-    setRefreshState(state =>
-      force || Date.now() - state.lastRefresh >= AUTO_REFRESH_MIN_MS
-        ? { refreshing: true, lastRefresh: state.lastRefresh }
-        : state
-    );
-  }, []);
+  useEffect(() => {
+    client.updateTracker();
+  }, [client]);
+
+  const refresh = useCallback(
+    (force: unknown = true) => {
+      setRefreshState(state => {
+        if (!force) {
+          if (Date.now() - state.lastRefresh < AUTO_REFRESH_MIN_MS) {
+            return state;
+          }
+          client.updateTracker();
+        }
+        return { refreshing: true, lastRefresh: state.lastRefresh };
+      });
+    },
+    [client]
+  );
 
   useEffect(() => refresh(true), [park, refresh]);
 

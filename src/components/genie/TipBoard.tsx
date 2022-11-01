@@ -35,6 +35,8 @@ const sortOptions = [
 
 type SortType = typeof sortOptions[number]['value'];
 
+const isBooked = (exp: Experience) => exp.booked && !exp.starred;
+
 export default function TipBoard() {
   const client = useGenieClient();
   const { parks } = client;
@@ -108,6 +110,65 @@ export default function TipBoard() {
   const startTime = experiences?.[0]?.flex.enrollmentStartTime;
   const dropTime = client.nextDropTime(park);
 
+  const expListItem = (exp: Experience) => (
+    <li
+      className="pb-3 first:border-0 border-t-4 border-gray-300"
+      key={exp.id + (exp.starred ? '*' : '')}
+    >
+      <div className="flex items-center gap-x-2 mt-2">
+        <StarButton experience={exp} toggleStar={toggleStar} />
+        <h3 className="flex-1 mt-0 text-lg font-semibold leading-tight truncate">
+          {exp.name}
+        </h3>
+        {exp.lp ? (
+          <InfoButton
+            name="Lightning Pick"
+            icon={LightningIcon}
+            onClick={() =>
+              setModal(<LightningPickModal onClose={closeModal} />)
+            }
+          />
+        ) : dropTime && exp.drop ? (
+          <InfoButton
+            name="Upcoming Drop"
+            icon={DropIcon}
+            onClick={() =>
+              setModal(
+                <DropTimeModal dropTime={dropTime} onClose={closeModal} />
+              )
+            }
+          />
+        ) : null}
+      </div>
+      {exp.flex.preexistingPlan && (
+        <div className="mt-2 border-2 border-green-600 rounded p-1 text-sm uppercase font-semibold text-center text-green-600 bg-green-100">
+          Lightning Lane Booked
+        </div>
+      )}
+      <div className="flex flex-wrap gap-1.5 mt-2">
+        <StandbyTime experience={exp} />
+        <GeniePlusButton
+          experience={exp}
+          onClick={experience =>
+            setModal(
+              <BookExperience
+                experience={experience}
+                onClose={() => {
+                  closeModal();
+                  refresh(false);
+                }}
+              />
+            )
+          }
+        />
+      </div>
+    </li>
+  );
+
+  const unbooked = experiences.filter(exp => !isBooked(exp));
+  const booked = experiences
+    .filter(isBooked)
+    .sort((a, b) => a.name.localeCompare(b.name));
   return (
     <RebookingProvider value={rebooking}>
       <Page
@@ -148,65 +209,18 @@ export default function TipBoard() {
             bookTime={startTime || nextBookTime}
             dropTime={dropTime}
           />
-          <ul>
-            {experiences.map(exp => (
-              <li
-                className="pb-3 first:border-0 border-t-4 border-gray-300"
-                key={exp.id + (exp.starred ? '*' : '')}
+          <ul data-testid="unbooked">{unbooked.map(expListItem)}</ul>
+          {booked.length > 0 && (
+            <>
+              <h2
+                className={`-mx-3 px-3 py-1 text-sm uppercase text-center ${park.theme.bg} text-white`}
               >
-                <div className="flex items-center gap-x-2 mt-2">
-                  <StarButton experience={exp} toggleStar={toggleStar} />
-                  <h2 className="flex-1 mt-0 text-lg leading-tight truncate">
-                    {exp.name}
-                  </h2>
-                  {exp.lp ? (
-                    <InfoButton
-                      name="Lightning Pick"
-                      icon={LightningIcon}
-                      onClick={() =>
-                        setModal(<LightningPickModal onClose={closeModal} />)
-                      }
-                    />
-                  ) : dropTime && exp.drop ? (
-                    <InfoButton
-                      name="Upcoming Drop"
-                      icon={DropIcon}
-                      onClick={() =>
-                        setModal(
-                          <DropTimeModal
-                            dropTime={dropTime}
-                            onClose={closeModal}
-                          />
-                        )
-                      }
-                    />
-                  ) : null}
-                </div>
-                {exp.flex.preexistingPlan && (
-                  <div className="mt-2 border-2 border-green-600 rounded p-1 text-sm uppercase font-semibold text-center text-green-600 bg-green-100">
-                    Lightning Lane Booked
-                  </div>
-                )}
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                  <StandbyTime experience={exp} />
-                  <GeniePlusButton
-                    experience={exp}
-                    onClick={experience =>
-                      setModal(
-                        <BookExperience
-                          experience={experience}
-                          onClose={() => {
-                            closeModal();
-                            refresh(false);
-                          }}
-                        />
-                      )
-                    }
-                  />
-                </div>
-              </li>
-            ))}
-          </ul>
+                Previously Booked
+              </h2>
+              <ul data-testid="booked">{booked.map(expListItem)}</ul>
+            </>
+          )}
+
           {!isLoading && (
             <div className="mt-12 text-center">
               <LogoutButton />

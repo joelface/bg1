@@ -38,10 +38,14 @@ const toggleVisibility = () => {
   document.dispatchEvent(new Event('visibilitychange'));
 };
 
-const getExperiences = () =>
-  screen
-    .getAllByRole('listitem')
-    .map(li => within(li).getByRole('heading').textContent);
+const getExperiences = (testId = 'unbooked') => {
+  const list = screen.queryByTestId(testId);
+  return list
+    ? within(list)
+        .getAllByRole('listitem')
+        .map(li => within(li).getByRole('heading').textContent)
+    : null;
+};
 
 const sortBy = (sortType: string) => {
   click('Sort By');
@@ -319,5 +323,19 @@ describe('TipBoard', () => {
       await loading();
       expect(getExperiences()).toEqual(names([jc, sm, hm]));
     });
+  });
+
+  it('shows previously booked LLs in separate list if not favorited', async () => {
+    jc.booked = true;
+    await renderComponent();
+    expect(getExperiences()).toEqual(names([sm, hm]));
+    screen.getByText('Previously Booked');
+    expect(getExperiences('booked')).toEqual(names([jc]));
+
+    click(screen.getAllByTitle('Favorite')[2]);
+    expect(screen.queryByText('Previously Booked')).not.toBeInTheDocument();
+    expect(getExperiences('booked')).toBe(null);
+    expect(getExperiences()).toEqual(names([jc, sm, hm]));
+    delete jc.booked;
   });
 });
