@@ -104,9 +104,12 @@ export default function useExperiences({
     [client]
   );
 
-  useEffect(() => refresh(true), [park, refresh]);
+  useLayoutEffect(() => {
+    setExperiences([]);
+    refresh(true);
+  }, [park, refresh]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!refreshing) return;
     setRefreshState({ refreshing: false, lastRefresh: Date.now() });
     loadData(async () => {
