@@ -265,7 +265,7 @@ function StarButton({
   const theme = useTheme();
   return (
     <button
-      title="Favorite"
+      title={`${experience.starred ? 'Unfavorite' : 'Favorite'}`}
       className="-m-2 p-2"
       onClick={() => toggleStar(experience)}
     >

@@ -291,6 +291,7 @@ describe('TipBoard', () => {
     expect(getExperiences()).toEqual(names([jc, sm, hm]));
     click(screen.getAllByTitle('Favorite')[2]);
     expect(getExperiences()).toEqual(names([hm, jc, sm]));
+    expect(screen.getByTitle('Unfavorite'));
   });
 
   it('shows lightning picks at top, but below starred rides', async () => {
