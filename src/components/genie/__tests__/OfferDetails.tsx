@@ -7,10 +7,8 @@ const onBook = jest.fn();
 
 describe('OfferDetails', () => {
   it('renders offer details', () => {
-    const { container } = render(
-      <OfferDetails offer={offer} onBook={onBook} />
-    );
-    expect(container).toHaveTextContent('11:25 AM - 12:25 PM');
+    render(<OfferDetails offer={offer} onBook={onBook} />);
+    screen.getByText('11:25 AM - 12:25 PM');
     click('Book Lightning Lane');
     expect(onBook).toBeCalledTimes(1);
   });

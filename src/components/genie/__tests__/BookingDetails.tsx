@@ -37,9 +37,9 @@ describe('BookingDetails', () => {
   });
 
   it('renders booking details', () => {
-    const { container } = renderComponent();
+    renderComponent();
     expect(screen.getByText('Your Lightning Lane').tagName).toBe('H1');
-    expect(container).toHaveTextContent('11:25 AM - 12:25 PM');
+    screen.getByText('11:25 AM - 12:25 PM');
     screen.getByText(mickey.name);
     screen.getByText(minnie.name);
     screen.getByText(pluto.name);
@@ -59,11 +59,9 @@ describe('BookingDetails', () => {
   });
 
   it('shows Multiple Experiences LL details', async () => {
-    const { container } = renderComponent(multiExp);
+    renderComponent(multiExp);
     screen.getByText('Multiple Experiences');
-    expect(container).toHaveTextContent(
-      `${displayTime(multiExp.start.time || '')} - Park Close`
-    );
+    screen.getByText(`${displayTime(multiExp.start.time || '')} - Park Close`);
     expect(
       screen
         .getAllByRole('heading', { level: 3 })
