@@ -214,6 +214,7 @@ export interface Reservation extends BaseBooking {
   start: DateTime;
   end: undefined;
   cancellable: false;
+  rebookable: false;
 }
 
 export type Booking = LightningLane | Reservation;

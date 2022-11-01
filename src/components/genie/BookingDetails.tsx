@@ -74,8 +74,9 @@ export default function BookingDetails({
       }
       theme={theme}
       buttons={
-        booking.rebookable &&
-        isLL && <Button onClick={() => rebooking.begin(booking)}>Rebook</Button>
+        booking.rebookable && (
+          <Button onClick={() => rebooking.begin(booking)}>Rebook</Button>
+        )
       }
     >
       {choices ? (
