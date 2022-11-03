@@ -32,9 +32,13 @@ export default function BGResult({
 
   return (
     <>
-      {boardingGroup ? (
+      {boardingGroup !== null ? (
         <>
-          <h2 className="mt-5 text-xl">Boarding Group: {boardingGroup}</h2>
+          <h2 className="mt-5 text-xl">Congratulations! 🎉</h2>
+          <p>You joined the virtual queue!</p>
+          <p className="text-lg font-semibold">
+            Boarding Group: {boardingGroup}
+          </p>
           <GuestList guests={joinedGuests} />
 
           {Object.keys(conflicts).length > 0 && (
