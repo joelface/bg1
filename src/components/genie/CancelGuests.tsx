@@ -53,7 +53,7 @@ export default function CancelGuests({
           <span className="ml-3">Select All</span>
         </label>
       </div>
-      {cancelingNone ? null : (
+      {!cancelingNone && (
         <div className="mb-4">
           <h3>Cancel These Guests</h3>
           <GuestList
@@ -69,7 +69,7 @@ export default function CancelGuests({
           />
         </div>
       )}
-      {cancelingAll ? null : (
+      {!cancelingAll && (
         <div>
           <h3>Select Guests to Cancel</h3>
           <GuestList

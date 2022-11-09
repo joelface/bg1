@@ -21,11 +21,11 @@ export default function BGResult({
   const { boardingGroup, conflicts } = result;
   const joinedGuests = guests.filter(g => !(g.id in conflicts));
   const failedGuests = guests.filter(g => g.id in conflicts);
-  const [doneHidden, setDoneHidden] = useState(true);
+  const [doneShown, setDoneShown] = useState(false);
 
   useEffect(() => {
     setTimeout(
-      () => setDoneHidden(false),
+      () => setDoneShown(true),
       DONE_BTN_HIDDEN_MS[boardingGroup ? 'success' : 'failure']
     );
   }, [boardingGroup]);
@@ -60,9 +60,7 @@ export default function BGResult({
           <GuestList guests={failedGuests} conflicts={conflicts} />
         </>
       )}
-      {doneHidden ? null : (
-        <FloatingButton onClick={onDone}>Done</FloatingButton>
-      )}
+      {doneShown && <FloatingButton onClick={onDone}>Done</FloatingButton>}
     </>
   );
 }
