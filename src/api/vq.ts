@@ -35,19 +35,21 @@ type GetQueuesResponse = ApiQueue[];
 
 interface BaseGuest {
   avatarImageUrl?: string;
-  isPrimaryGuest?: boolean;
-  isPreselected?: boolean;
 }
 
 export interface Guest extends BaseGuest {
   id: string;
   name: string;
+  primary: boolean;
+  preselected: boolean;
 }
 
 interface ApiGuest extends BaseGuest {
   guestId: string;
   firstName: string;
   lastName: string;
+  isPrimaryGuest?: boolean;
+  isPreselected?: boolean;
 }
 
 export interface Position {
@@ -113,8 +115,8 @@ type VQResource = VQRequest['resource'] | 'getQueues';
 export const sortGuests = (guests: Guest[]): Guest[] =>
   guests.sort(
     (a, b) =>
-      +!a.isPrimaryGuest - +!b.isPrimaryGuest ||
-      +!a.isPreselected - +!b.isPreselected ||
+      +b.primary - +a.primary ||
+      +b.preselected - +a.preselected ||
       a.name.localeCompare(b.name)
   );
 
@@ -168,11 +170,22 @@ export class VQClient {
       data: { queueId: queue.id },
     });
     return sortGuests(
-      data.guests.map(({ guestId, firstName, lastName, ...guest }) => ({
-        ...guest,
-        id: guestId,
-        name: `${firstName} ${lastName}`.trim(),
-      }))
+      data.guests.map(
+        ({
+          guestId,
+          firstName,
+          lastName,
+          isPrimaryGuest,
+          isPreselected,
+          ...rest
+        }) => ({
+          ...rest,
+          id: guestId,
+          name: `${firstName} ${lastName}`.trim(),
+          primary: !!isPrimaryGuest,
+          preselected: !!isPreselected,
+        })
+      )
     );
   }
 

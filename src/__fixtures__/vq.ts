@@ -36,28 +36,28 @@ export const mickey: Guest = {
   id: 'mickey',
   name: 'Mickey Mouse',
   avatarImageUrl: 'https://example.com/mickey.png',
-  isPrimaryGuest: true,
-  isPreselected: true,
+  primary: true,
+  preselected: true,
 };
 export const minnie: Guest = {
   id: 'minnie',
   name: 'Minnie Mouse',
   avatarImageUrl: 'https://example.com/minnie.png',
-  // isPrimaryGuest: false,
-  isPreselected: true,
+  primary: false,
+  preselected: true,
 };
 export const fifi: Guest = {
   id: 'fifi',
   name: 'Fifi',
   avatarImageUrl: 'https://example.com/fifi.png',
-  // isPrimaryGuest: false,
-  isPreselected: false,
+  primary: false,
+  preselected: false,
 };
 export const pluto: Guest = {
   id: 'pluto',
   name: 'Pluto',
   avatarImageUrl: 'https://example.com/pluto.png',
-  // isPrimaryGuest: false,
-  isPreselected: false,
+  primary: false,
+  preselected: false,
 };
 export const guests = [mickey, minnie, fifi, pluto];

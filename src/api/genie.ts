@@ -83,6 +83,7 @@ interface GuestEligibility {
 export interface Guest extends GuestEligibility {
   id: string;
   name: string;
+  primary?: boolean;
   avatarImageUrl?: string;
   transactional?: boolean;
 }

@@ -117,10 +117,19 @@ describe('VQClient', () => {
   });
 
   const guestsRes = response({
-    guests: guests.map(({ id: guestId, name, ...g }) => {
-      const [firstName, lastName = ''] = name.split(' ');
-      return { ...g, guestId, firstName, lastName };
-    }),
+    guests: guests
+      .map(({ id, name, primary, preselected, ...rest }) => {
+        const [firstName, lastName = ''] = name.split(' ');
+        return {
+          guestId: id,
+          firstName,
+          lastName,
+          isPrimaryGuest: primary,
+          isPreselected: preselected,
+          ...rest,
+        };
+      })
+      .reverse(),
   });
 
   describe('getLinkedGuests()', () => {

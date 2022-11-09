@@ -76,7 +76,7 @@ export default function BGClient() {
       const guests = await client.getLinkedGuests(queue);
       if (!canceled) {
         setGuests(guests);
-        setParty(new Set(guests.filter(g => g.isPreselected)));
+        setParty(new Set(guests.filter(g => g.preselected)));
       }
     })();
     return () => {
