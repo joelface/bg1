@@ -76,7 +76,8 @@ interface GuestEligibility {
     | 'GENIE_PLUS_NEEDED'
     | 'EXPERIENCE_LIMIT_REACHED'
     | 'TOO_EARLY'
-    | 'TOO_EARLY_FOR_PARK_HOPPING';
+    | 'TOO_EARLY_FOR_PARK_HOPPING'
+    | 'NOT_IN_PARTY';
   eligibleAfter?: string;
 }
 
@@ -302,6 +303,7 @@ export class GenieClient {
   protected authStore: Public<AuthStore>;
   protected data: ResortData;
   protected parkMap: { [id: string]: Park };
+  protected partyIds = new Set<string>();
   protected guestCache = new Map<
     string,
     { name: string; characterId: string }
@@ -339,6 +341,10 @@ export class GenieClient {
 
   get parks() {
     return this.data.parks;
+  }
+
+  setPartyIds(partyIds: string[]) {
+    this.partyIds = new Set(partyIds);
   }
 
   async experiences(park: Park): Promise<{
@@ -406,6 +412,8 @@ export class GenieClient {
         );
       }
       if (a.ineligibleReason === b.ineligibleReason) return cmp;
+      if (a.ineligibleReason === 'NOT_IN_PARTY') return 1;
+      if (b.ineligibleReason === 'NOT_IN_PARTY') return -1;
       if (a.ineligibleReason === 'EXPERIENCE_LIMIT_REACHED') return -1;
       if (b.ineligibleReason === 'EXPERIENCE_LIMIT_REACHED') return 1;
       return cmp;
@@ -695,6 +703,10 @@ export class GenieClient {
       }
     }
     const avatarImageUrl = avatarUrl(characterId);
+    if (this.partyIds.size > 0 && !this.partyIds.has(id)) {
+      rest.ineligibleReason = 'NOT_IN_PARTY';
+      delete rest.eligibleAfter;
+    }
     return { ...rest, id, name, avatarImageUrl };
   };
 

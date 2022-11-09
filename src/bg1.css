@@ -27,7 +27,8 @@
     @apply bg-white text-black;
   }
 
-  input[type='checkbox'] {
+  input[type='checkbox'],
+  input[type='radio'] {
     @apply w-5 h-5;
   }
 

@@ -18,6 +18,7 @@ import Page from '../Page';
 import Select from '../Select';
 import BookExperience from './BookExperience';
 import GeniePlusButton from './GeniePlusButton';
+import PartySelector, { useSelectedParty } from './PartySelector';
 import RebookingHeader from './RebookingHeader';
 import StandbyTime from './StandbyTime';
 import TimeBanner from './TimeBanner';
@@ -38,6 +39,7 @@ type SortType = typeof sortOptions[number]['value'];
 const isBooked = (exp: Experience) => exp.booked && !exp.starred;
 
 export default function TipBoard() {
+  useSelectedParty();
   const client = useGenieClient();
   const { parks } = client;
   const [park, setPark] = useState(() => {
@@ -222,7 +224,13 @@ export default function TipBoard() {
           )}
 
           {!isLoading && (
-            <div className="mt-12 text-center">
+            <div className="mt-12 flex justify-center gap-x-3">
+              <Button
+                type="small"
+                onClick={() => setModal(<PartySelector onClose={closeModal} />)}
+              >
+                Party
+              </Button>
               <LogoutButton />
             </div>
           )}

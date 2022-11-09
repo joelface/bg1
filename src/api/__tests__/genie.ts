@@ -189,6 +189,18 @@ describe('GenieClient', () => {
     });
   });
 
+  describe('setPartyIds()', () => {
+    it('sets booking party', async () => {
+      client.setPartyIds([mickey.id, pluto.id]);
+      respond(guestsRes);
+      const { eligible, ineligible } = await client.guests();
+      expect(eligible.map(g => g.id)).toEqual([mickey.id, pluto.id]);
+      expect(ineligible.map(g => g.id)).toEqual([donald.id, minnie.id]);
+      ineligible.forEach(g => expect(g.ineligibleReason).toBe('NOT_IN_PARTY'));
+      client.setPartyIds([]);
+    });
+  });
+
   describe('guests()', () => {
     const guestsUrl = '/ea-vas/api/v1/guests';
 
