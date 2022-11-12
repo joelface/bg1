@@ -50,16 +50,21 @@ const data: ResortData = {
     18249927: {
       name: 'Haunted Mansion Holiday',
       geo: [33.811616, -117.9218924],
-      priority: 2.0,
+      priority: 2.1,
     },
     353355: {
       name: 'Indiana Jones Adventure',
       geo: [33.8114097, -117.9204077],
-      priority: 2.1,
+      priority: 2.0,
     },
     367492: {
       name: "it's a small world",
       geo: [33.8144167, -117.9181268],
+    },
+    18237232: {
+      name: "it's a small world Holiday",
+      geo: [33.8144167, -117.9181268],
+      priority: 2.4,
     },
     353377: {
       name: 'Matterhorn Bobsleds',
