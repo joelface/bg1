@@ -84,7 +84,9 @@ export default function PartySelector({ onClose }: { onClose: () => void }) {
         <Mode auto={false}>Only book for selected guests</Mode>
       </ul>
 
-      {auto ? null : partyGuests && nonpartyGuests ? (
+      {auto ? null : guests?.length === 0 ? (
+        <p className="text-red-700">No guests to select</p>
+      ) : partyGuests && nonpartyGuests ? (
         <>
           {partyGuests.length > 0 && (
             <>

@@ -56,4 +56,17 @@ describe('PartySelector', () => {
     expect(client.setPartyIds).toBeCalledTimes(3);
     expect(onClose).toBeCalledTimes(3);
   });
+
+  it('shows "No guests to select" if no guests loaded', async () => {
+    client.guests.mockResolvedValueOnce({ eligible: [], ineligible: [] });
+    render(
+      <ClientProvider value={client}>
+        <PartySelector onClose={onClose} />
+        <PartyLoader />
+      </ClientProvider>
+    );
+    click('Only book for selected guests');
+    await loading();
+    screen.getByText('No guests to select');
+  });
 });
