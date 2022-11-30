@@ -1,12 +1,10 @@
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 
-import { Park, PlusExperience } from '@/api/genie';
+import {
+  Park,
+  Experience as BaseExp,
+  PlusExperience as BasePlusExp,
+} from '@/api/genie';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { dateTimeStrings } from '@/datetime';
 import useCoords, { Coords } from './useCoords';
@@ -17,31 +15,46 @@ const LP_MIN_STANDBY = 30;
 const LP_MAX_LL_WAIT = 60;
 const STARRED_KEY = 'bg1.genie.tipBoard.starred';
 
-export type Experience = PlusExperience & { lp: boolean; starred: boolean };
+interface ExperienceExtras {
+  lp?: boolean;
+  starred?: boolean;
+}
+
+export type Experience = BaseExp & ExperienceExtras;
+export type PlusExperience = BasePlusExp & ExperienceExtras;
 
 type Sorter = (a: Experience, b: Experience, coords?: Coords) => number;
 
-const sortByLP: Sorter = (a, b) => +b.lp - +a.lp;
+const sortByLP: Sorter = (a, b) => +!a.lp - +!b.lp;
 
 const sortByPriority: Sorter = (a, b) =>
   (a.priority || Infinity) - (b.priority || Infinity);
+
+const sortBySort: Sorter = (a, b) =>
+  (a.sort || Infinity) - (b.sort || Infinity);
 
 const sortByStandby: Sorter = (a, b) =>
   (b.standby.waitTime || -1) - (a.standby.waitTime || -1);
 
 const sortBySoonest: Sorter = (a, b) =>
-  (a.flex.nextAvailableTime || '').localeCompare(
-    b.flex.nextAvailableTime || ''
+  (a?.flex?.nextAvailableTime || '').localeCompare(
+    b?.flex?.nextAvailableTime || ''
   );
 
 const sortByName: Sorter = (a, b) =>
   a.name.toLowerCase().localeCompare(b.name.toLowerCase());
 
+const sortByLand: Sorter = (a, b) => a.land.sort - b.land.sort;
+
 const distance = (a: Coords, b: Coords) =>
   Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2));
 
-const sortByNearby: Sorter = (a, b, coords) =>
-  coords ? distance(a.geo, coords) - distance(b.geo, coords) : 0;
+const sortByNearby: Sorter = (a, b, coords) => {
+  if (a.geo === b.geo) return 0;
+  if (!a.geo) return 1;
+  if (!b.geo) return -1;
+  return coords ? distance(a.geo, coords) - distance(b.geo, coords) : 0;
+};
 
 function inPark(park: Park, coords: Coords) {
   const { n, s, e, w } = park.geo;
@@ -64,26 +77,36 @@ const sorters = {
   soonest: ((a, b) => sortBySoonest(a, b) || sortByStandby(a, b)) as Sorter,
   nearby: ((a, b, coords) => sortByNearby(a, b, coords)) as Sorter,
   aToZ: (() => 0) as Sorter,
+  land: ((a, b) => sortByLand(a, b) || sortBySort(a, b)) as Sorter,
 } as const;
 
-export default function useExperiences({
+export default function useExperiences<
+  P extends boolean = false,
+  E extends Experience = P extends true ? PlusExperience : Experience
+>({
   park,
   sortType,
+  plusOnly,
 }: {
   park: Park;
   sortType: keyof typeof sorters;
-}) {
+  plusOnly: P;
+}): {
+  experiences: E[];
+  refresh: (force?: unknown) => void;
+  toggleStar: (exp: E) => void;
+  isLoading: boolean;
+  loaderElem: React.ReactNode;
+} {
   const client = useGenieClient();
   const { loadData, loaderElem, isLoading } = useDataLoader();
   const [coords, updateCoords] = useCoords(loadData);
   const [experiences, setExperiences] = useState<Experience[]>([]);
-  const [nextBookTime, setNextBookTime] = useState<string>();
   const [{ refreshing }, setRefreshState] = useState({
     refreshing: false,
     lastRefresh: 0,
   });
-  const [sorted, setSorted] = useState(true);
-  const starred = useRef(new Set<string>());
+  const [starred, setStarred] = useState(new Set<string>());
 
   useEffect(() => {
     client.updateTracker();
@@ -114,13 +137,12 @@ export default function useExperiences({
     setRefreshState({ refreshing: false, lastRefresh: Date.now() });
     loadData(async () => {
       if (sortType === 'nearby') updateCoords();
-      const { plus, nextBookTime } = await client.experiences(park);
-      setNextBookTime(nextBookTime);
+      const exps = await client.experiences(park);
       const nowMinutes = timeToMinutes(dateTimeStrings().time);
       setExperiences(
-        plus.map(exp => {
+        exps.map(exp => {
           const standby = exp.standby.waitTime || 0;
-          const returnTime = exp.flex.nextAvailableTime;
+          const returnTime = exp?.flex?.nextAvailableTime;
           return {
             ...exp,
             lp:
@@ -131,44 +153,24 @@ export default function useExperiences({
                   LP_MAX_LL_WAIT,
                   ((4 - Math.trunc(exp.priority || 4)) / 3) * standby
                 ),
-            starred: starred.current.has(exp.id),
+            starred: starred.has(exp.id),
           };
         })
       );
-      setSorted(false);
     });
-  }, [client, loadData, park, refreshing, sortType, updateCoords]);
+  }, [client, loadData, park, refreshing, sortType, starred, updateCoords]);
 
   useEffect(() => {
     if (sortType === 'nearby') updateCoords();
   }, [sortType, updateCoords]);
 
-  useEffect(() => setSorted(false), [coords, sortType]);
-
-  useLayoutEffect(() => {
-    if (sorted) return;
-    setExperiences(exps => [
-      ...exps.sort(
-        (a, b) =>
-          +b.starred - +a.starred ||
-          +b.flex.available - +a.flex.available ||
-          sorters[
-            sortType === 'nearby' && !(coords && inPark(park, coords))
-              ? 'priority'
-              : sortType
-          ](a, b, coords) ||
-          sortByName(a, b)
-      ),
-    ]);
-    setSorted(true);
-  }, [sorted, park, coords, sortType]);
-
   useEffect(() => {
     try {
       const ids = JSON.parse(localStorage.getItem(STARRED_KEY) || '[]');
-      starred.current = new Set<string>(ids);
+      const starred = new Set<string>(ids);
+      setStarred(starred);
       setExperiences(exps =>
-        exps.map(exp => ({ ...exp, starred: starred.current.has(exp.id) }))
+        exps.map(exp => ({ ...exp, starred: starred.has(exp.id) }))
       );
     } catch (error) {
       console.error(error);
@@ -179,17 +181,35 @@ export default function useExperiences({
     const { id } = exp;
     exp.starred = !exp.starred;
     if (exp.starred) {
-      starred.current.add(id);
+      starred.add(id);
     } else {
-      starred.current.delete(id);
+      starred.delete(id);
     }
-    localStorage.setItem(STARRED_KEY, JSON.stringify([...starred.current]));
-    setSorted(false);
+    setStarred(new Set(starred));
+    localStorage.setItem(STARRED_KEY, JSON.stringify([...starred]));
   }
 
   return {
-    experiences,
-    nextBookTime,
+    experiences: experiences
+      .filter(
+        (exp): exp is E =>
+          (!plusOnly || !!exp.flex) &&
+          (plusOnly ||
+            exp.standby.available ||
+            exp.standby.unavailableReason === 'TEMPORARILY_DOWN')
+      )
+      .sort(
+        (a, b) =>
+          (plusOnly &&
+            (+!a.starred - +!b.starred ||
+              Number(b?.flex?.available) - Number(a?.flex?.available))) ||
+          sorters[
+            sortType === 'nearby' && !(coords && inPark(park, coords))
+              ? 'priority'
+              : sortType
+          ](a, b, coords) ||
+          sortByName(a, b)
+      ),
     refresh,
     toggleStar,
     isLoading,

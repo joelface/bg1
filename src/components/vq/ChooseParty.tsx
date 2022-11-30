@@ -18,7 +18,7 @@ export default function ChooseParty({
     <>
       <div className="mt-5">
         <h2 className="inline mr-3 text-xl">Choose Your Party</h2>
-        <LogoutButton />
+        <LogoutButton type="small" />
       </div>
       {!guests ? (
         <p>Loading guests…</p>

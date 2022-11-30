@@ -163,16 +163,14 @@ describe('GenieClient', () => {
       const getExpData = async () => client.experiences(mk);
       respond(...Array(4).fill(res));
       setTime('10:00');
-      expect(await getExpData()).toEqual({
-        plus: [smExp],
-        nextBookTime: '11:00:00',
-      });
+      expect(await getExpData()).toEqual([smExp]);
+      expect(client.nextBookTime).toBe('11:00:00');
       expectFetch(
         `/tipboard-vas/api/v1/parks/${encodeURIComponent(mk.id)}/experiences`,
         { params: { eligibilityGuestIds: guests.map(g => g.id).join(',') } }
       );
 
-      const exps = { plus: [smExp], nextBookTime };
+      const exps = [smExp];
       setTime('13:00');
       expect(await getExpData()).toEqual(exps);
 
@@ -180,10 +178,7 @@ describe('GenieClient', () => {
       expect(await getExpData()).toEqual(exps);
 
       setTime('18:00');
-      expect(await getExpData()).toEqual({
-        plus: [{ ...smExp, drop: false }],
-        nextBookTime,
-      });
+      expect(await getExpData()).toEqual([{ ...smExp, drop: false }]);
 
       jest.useRealTimers();
     });

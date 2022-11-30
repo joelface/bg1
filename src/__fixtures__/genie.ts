@@ -40,17 +40,28 @@ export const hm: PlusExperience = {
   id: '80010208',
   name: 'Haunted Mansion',
   park: mk,
+  land: {
+    name: 'Liberty Square',
+    sort: 4,
+    theme: { bg: 'bg-indigo-600', text: 'text-indigo-700' },
+  },
   geo: [28.4208771, -81.5830102],
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 30 },
   flex: { available: true, nextAvailableTime: '14:30:00' },
   priority: 2.3,
+  sort: 1,
 };
 
 export const jc: PlusExperience = {
   id: '80010153',
   name: 'Jungle Cruise',
   park: mk,
+  land: {
+    name: 'Adventureland',
+    sort: 1,
+    theme: { bg: 'bg-green-600', text: 'text-green-700' },
+  },
   geo: [28.4180339, -81.5834548],
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 45 },
@@ -60,17 +71,24 @@ export const jc: PlusExperience = {
     preexistingPlan: true,
   },
   priority: 1.1,
+  sort: 1,
 };
 
 export const sm: PlusExperience = {
   id: '80010192',
   name: 'Splash Mountain',
   park: mk,
+  land: {
+    name: 'Frontierland',
+    sort: 3,
+    theme: { bg: 'bg-yellow-600', text: 'text-yellow-700' },
+  },
   geo: [28.4196223, -81.584991],
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 60 },
   flex: { available: true, nextAvailableTime: '12:45:00' },
   priority: 2.0,
+  sort: 2,
   drop: true,
 };
 
@@ -78,6 +96,11 @@ export const sdd: PlusExperience = {
   id: 'sdd',
   name: 'Slinky Dog Dash',
   park: hs,
+  land: {
+    name: 'Toy Story Land',
+    sort: 2,
+    theme: { bg: 'bg-red-600', text: 'text-red-700' },
+  },
   geo: [28.3562472, -81.5628474],
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 75 },
@@ -204,6 +227,7 @@ export const client = new GenieClient({
   data,
   tracker,
 }) as jest.Mocked<GenieClient>;
+client.nextBookTime = '11:00:00';
 
 jest.spyOn(client, 'guests').mockResolvedValue({
   eligible: [mickey, minnie, pluto],
@@ -214,8 +238,6 @@ jest.spyOn(client, 'cancelOffer').mockResolvedValue(undefined);
 jest.spyOn(client, 'book').mockResolvedValue({ ...booking });
 jest.spyOn(client, 'cancelBooking').mockResolvedValue(undefined);
 jest.spyOn(client, 'bookings').mockResolvedValue([...bookings]);
-jest
-  .spyOn(client, 'experiences')
-  .mockResolvedValue({ plus: [hm, sm, jc], nextBookTime: '11:00:00' });
+jest.spyOn(client, 'experiences').mockResolvedValue([hm, sm, jc]);
 jest.spyOn(client, 'nextDropTime').mockReturnValue('11:30');
 jest.spyOn(client, 'updateTracker').mockResolvedValue([]);

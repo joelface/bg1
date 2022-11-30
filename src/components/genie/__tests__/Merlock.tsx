@@ -26,7 +26,7 @@ import {
   bookings,
   sdd,
 } from '@/__fixtures__/genie';
-import TipBoard from '../TipBoard';
+import Merlock from '../Merlock';
 
 jest.mock('@/ping');
 
@@ -66,21 +66,21 @@ const names = (exps: { name: string }[]) => exps.map(({ name }) => name);
 const renderComponent = async () => {
   const view = render(
     <ClientProvider value={client}>
-      <TipBoard />
+      <Merlock />
     </ClientProvider>
   );
   await loading();
   return view;
 };
 
-describe('TipBoard', () => {
+describe('Merlock', () => {
   beforeEach(() => {
     setTime('09:00');
     elemScrollMock.mockClear();
     localStorage.clear();
   });
 
-  it('renders TipBoard`', async () => {
+  it('renders component', async () => {
     await renderComponent();
 
     expect(client.experiences).lastCalledWith(
@@ -89,7 +89,7 @@ describe('TipBoard', () => {
     within(
       (await screen.findByText(jc.name)).closest('li') as HTMLElement
     ).getByText('Lightning Lane Booked');
-    expect(elemScrollMock).toBeCalledTimes(1);
+    expect(elemScrollMock).toBeCalledTimes(2);
 
     click('Your Day');
     await screen.findByText('Your Day');
@@ -106,9 +106,9 @@ describe('TipBoard', () => {
     sortBy('Nearby');
     await loading();
     expect(getExperiences()).toEqual(names([sm, hm, jc]));
-    expect(elemScrollMock).toBeCalledTimes(5);
+    expect(elemScrollMock).toBeCalledTimes(6);
 
-    client.experiences.mockResolvedValueOnce({ plus: [sdd] });
+    client.experiences.mockResolvedValueOnce([sdd]);
     elemScrollMock.mockClear();
     await changePark(hs);
     screen.getByText(sdd.name);
@@ -132,7 +132,7 @@ describe('TipBoard', () => {
       toggleVisibility();
     });
     await loading();
-    click('Refresh Tip Board');
+    click('Refresh Times');
     await loading();
 
     expect(screen.getByText('Book:')).toHaveTextContent('Book: 11:00 AM');
@@ -141,13 +141,27 @@ describe('TipBoard', () => {
     const dropBtn = screen.getByTitle('Upcoming Drop (more info)');
     within(dropBtn.closest('li') as HTMLElement).getByText(sm.name);
     click(dropBtn);
-    const dropHeading = screen.getByText('Upcoming Drop');
+    const dropHeading = screen.getByRole('heading', { name: 'Upcoming Drop' });
     click('Close');
     expect(dropHeading).not.toBeInTheDocument();
+
+    click('Times');
+    screen.getByRole('heading', { name: 'Times', level: 1 });
+    expect(screen.queryByText('Nearby')).not.toBeInTheDocument();
+    screen.getByText(jc.land.name);
+    click('Settings');
+    screen.getByText('Select Party');
+    screen.getByText('Log Out');
+    click('Close');
+    click('Genie+');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      'Genie+'
+    );
+    screen.getByText('Nearby');
   });
 
   it('sorts list properly', async () => {
-    client.experiences.mockResolvedValueOnce({ plus: [jc, hm] });
+    client.experiences.mockResolvedValueOnce([jc, hm]);
     const {
       priority,
       flex: { nextAvailableTime },
@@ -174,18 +188,18 @@ describe('TipBoard', () => {
 
   it('shows Rebooking pane when rebooking', async () => {
     await renderComponent();
-    expect(elemScrollMock).toBeCalledTimes(1);
+    expect(elemScrollMock).toBeCalledTimes(2);
     click('Your Day');
     click((await screen.findAllByText('More'))[1]);
     screen.getByText('Your Lightning Lane');
     screen.getByRole('heading', { name: booking.name });
     click('Rebook');
 
-    expect(elemScrollMock).toBeCalledTimes(2);
+    expect(elemScrollMock).toBeCalledTimes(3);
     screen.getByText('Rebooking');
     click('Keep');
     expect(screen.queryByText('Rebooking')).not.toBeInTheDocument();
-    expect(elemScrollMock).toBeCalledTimes(3);
+    expect(elemScrollMock).toBeCalledTimes(4);
   });
 
   it('allows most recent reservation to be rebooked', async () => {
@@ -225,7 +239,7 @@ describe('TipBoard', () => {
 
     render(
       <ClientProvider value={client}>
-        <TipBoard />
+        <Merlock />
       </ClientProvider>
     );
     await loading();
@@ -284,9 +298,11 @@ describe('TipBoard', () => {
   });
 
   it('pins attraction to top if favorited', async () => {
-    client.experiences.mockResolvedValueOnce({
-      plus: [jc, sm, { ...hm, flex: { available: false } }],
-    });
+    client.experiences.mockResolvedValueOnce([
+      jc,
+      sm,
+      { ...hm, flex: { available: false } },
+    ]);
     await renderComponent();
     expect(getExperiences()).toEqual(names([jc, sm, hm]));
     click(screen.getAllByTitle('Favorite')[2]);
@@ -306,7 +322,7 @@ describe('TipBoard', () => {
     expect(getExperiences()).toEqual(names([hm, sm, jc]));
 
     click('Lightning Pick (more info)');
-    const lpHeading = screen.getByText('Lightning Pick');
+    const lpHeading = screen.getByRole('heading', { name: 'Lightning Pick' });
     click('Close');
     expect(lpHeading).not.toBeInTheDocument();
   });
@@ -320,7 +336,7 @@ describe('TipBoard', () => {
     expect(getExperiences()).toEqual(names([sm, hm, jc]));
 
     await withCoords([0, 0], async () => {
-      click('Refresh Tip Board');
+      click('Refresh Times');
       await loading();
       expect(getExperiences()).toEqual(names([jc, sm, hm]));
     });

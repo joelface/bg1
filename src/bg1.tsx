@@ -4,9 +4,9 @@ import { AuthStore } from './api/auth/store';
 import { GenieClient, isGenieOrigin } from './api/genie';
 import { VQClient, isVirtualQueueOrigin } from './api/vq';
 import App from './components/App';
-import TipBoard from './components/genie/TipBoard';
+import Merlock from './components/genie/Merlock';
 import BGClient from './components/vq/BGClient';
-import { Client, ClientProvider } from './contexts/Client';
+import { Client } from './contexts/Client';
 import { setDefaultTimeZone } from './datetime';
 
 const authStore = new AuthStore('bg1.auth');
@@ -14,16 +14,13 @@ if (isVirtualQueueOrigin(origin)) {
   renderApp(new VQClient({ origin, authStore }), BGClient);
 } else if (isGenieOrigin(origin)) {
   GenieClient.load({ origin, authStore }).then(client =>
-    renderApp(client, TipBoard)
+    renderApp(client, Merlock)
   );
 } else {
   location.href = 'https://joelface.github.io/bg1/start.html';
 }
 
-async function renderApp<T extends Client>(
-  apiClient: T,
-  ClientUI: React.FunctionComponent
-) {
+async function renderApp(apiClient: Client, ClientUI: React.FunctionComponent) {
   setDefaultTimeZone(
     {
       WDW: 'America/New_York',
@@ -34,11 +31,9 @@ async function renderApp<T extends Client>(
   addViewportMeta();
   disableDoubleTapZoom();
   createReactRoot().render(
-    <ClientProvider value={apiClient}>
-      <App authStore={authStore}>
-        <ClientUI />
-      </App>
-    </ClientProvider>
+    <App client={apiClient} authStore={authStore}>
+      <ClientUI />
+    </App>
   );
 }
 

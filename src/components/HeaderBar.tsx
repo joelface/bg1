@@ -18,7 +18,7 @@ export default function HeaderBar({
       return Children.map(node.props.children, changeButtonColors);
     }
     return cloneElement(node as ReturnType<typeof Button>, {
-      className: `bg-[#ffffffe6] ${text} ${node.props.className || ''}`,
+      className: `bg-white bg-opacity-90 ${text} ${node.props.className || ''}`,
     });
   }
 

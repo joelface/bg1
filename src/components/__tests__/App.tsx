@@ -1,7 +1,6 @@
 import { act, click, render, screen } from '@/testing';
 import { AuthData } from '@/api/auth/client';
 import { ReauthNeeded } from '@/api/auth/store';
-import { ClientProvider } from '@/contexts/Client';
 import { DISCLAIMER_ACCEPTED_KEY } from '@/hooks/useDisclaimer';
 import App from '../App';
 
@@ -31,9 +30,9 @@ const client = {
 };
 const renderComponent = () =>
   render(
-    <ClientProvider value={client}>
-      <App authStore={authStore}>client loaded</App>
-    </ClientProvider>
+    <App client={client} authStore={authStore}>
+      client loaded
+    </App>
   );
 
 describe('App', () => {

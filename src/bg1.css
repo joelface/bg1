@@ -8,7 +8,7 @@
   }
 
   body {
-    @apply fixed inset-0 overflow-auto;
+    @apply fixed inset-0 overflow-auto underline-offset-2;
   }
 
   p {
@@ -35,10 +35,6 @@
   button,
   select {
     @apply select-none;
-  }
-
-  button > svg {
-    @apply my-1;
   }
 
   b,

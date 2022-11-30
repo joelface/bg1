@@ -249,9 +249,9 @@ describe('BookExperience', () => {
   });
 
   it('flashes error message when enrollment not open or enrollment check fails', async () => {
-    client.experiences.mockResolvedValueOnce({
-      plus: [{ ...hm, flex: { available: false } }],
-    });
+    client.experiences.mockResolvedValueOnce([
+      { ...hm, flex: { available: false } },
+    ]);
     await renderComponent(false);
     click('Check Availability');
     await loading();

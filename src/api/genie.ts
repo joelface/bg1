@@ -19,19 +19,22 @@ export function isGenieOrigin(origin: string): origin is Origin {
   return origin in ORIGIN_TO_RESORT;
 }
 
+export type ExperienceType = 'ATTRACTION' | 'ENTERTAINMENT' | 'CHARACTER';
+
 export interface Experience {
   id: string;
   name: string;
   park: Park;
-  geo: readonly [number, number];
-  type: 'ATTRACTION' | 'ENTERTAINMENT';
+  land: Land;
+  geo?: readonly [number, number];
+  type: ExperienceType;
   standby: {
     available: boolean;
     unavailableReason?: 'TEMPORARILY_DOWN' | 'NOT_STANDBY_ENABLED';
     waitTime?: number;
     displayNextShowTime?: string;
   };
-  additionalShowTimes?: string[];
+  displayAdditionalShowTimes?: string[];
   flex?: {
     available: boolean;
     nextAvailableTime?: string;
@@ -43,6 +46,7 @@ export interface Experience {
     displayPrice: string;
   };
   priority?: number;
+  sort?: number;
   booked?: boolean;
   drop?: boolean;
 }
@@ -53,7 +57,6 @@ type ApiExperience = Omit<
   Experience,
   'name' | 'park' | 'priority' | 'geo' | 'drop'
 >;
-type ApiPlusExperience = ApiExperience & Required<Pick<Experience, 'flex'>>;
 
 interface ExperiencesResponse {
   availableExperiences: ApiExperience[];
@@ -141,14 +144,23 @@ export interface Park {
   theme: { bg: string; text: string };
 }
 
+export interface Land {
+  name: string;
+  sort: number;
+  theme: { bg: string; text: string };
+}
+
 export interface ResortData {
   parks: Park[];
   experiences: {
     [id: string]: {
       name: string;
-      geo: readonly [number, number];
+      land: Land;
+      geo?: readonly [number, number];
       pdtMask?: number;
+      type?: ExperienceType;
       priority?: number;
+      sort?: number;
     };
   };
   pdts: { [id: string]: string[] };
@@ -298,6 +310,7 @@ const idNum = (id: string) => id.split(';')[0];
 
 export class GenieClient {
   readonly maxPartySize = 12;
+  nextBookTime: string | undefined;
   onUnauthorized = () => undefined;
   protected origin: Origin;
   protected authStore: Public<AuthStore>;
@@ -347,10 +360,7 @@ export class GenieClient {
     this.partyIds = new Set(partyIds);
   }
 
-  async experiences(park: Park): Promise<{
-    plus: PlusExperience[];
-    nextBookTime?: string;
-  }> {
+  async experiences(park: Park): Promise<Experience[]> {
     await this.primaryGuestId(); // prime the guest cache
     const res: ExperiencesResponse = await this.request({
       path: `/tipboard-vas/api/v1/parks/${encodeURIComponent(
@@ -358,31 +368,24 @@ export class GenieClient {
       )}/experiences`,
       params: { eligibilityGuestIds: [...this.guestCache.keys()].join(',') },
     });
-    const nextBookTime = (res.eligibility?.flexEligibilityWindows || []).sort(
+    this.nextBookTime = (res.eligibility?.flexEligibilityWindows || []).sort(
       (a, b) => a.time.time.localeCompare(b.time.time)
     )[0]?.time.time;
     const pdt = this.nextDropTime(park);
     const pdtIdx = (this.data.pdts[park.id] || []).indexOf(pdt || '');
     const pdtBit = 1 << pdtIdx;
-    return {
-      plus: res.availableExperiences
-        .filter(
-          (exp): exp is ApiPlusExperience =>
-            !!exp.flex && exp.id in this.data.experiences
-        )
-        .map(exp => {
-          const { pdtMask = 0, ...expData } = this.data.experiences[exp.id];
-          const e: PlusExperience = {
-            ...exp,
-            ...expData,
-            park,
-            booked: this.tracker.booked(exp),
-            drop: !!(pdtBit & pdtMask),
-          };
-          return e;
-        }),
-      nextBookTime,
-    };
+    return res.availableExperiences
+      .filter((exp): exp is ApiExperience => exp.id in this.data.experiences)
+      .map(exp => {
+        const { pdtMask = 0, ...expData } = this.data.experiences[exp.id];
+        return {
+          ...exp,
+          ...expData,
+          park,
+          booked: this.tracker.booked(exp),
+          drop: !!(pdtBit & pdtMask),
+        };
+      });
   }
 
   async guests(experience?: {

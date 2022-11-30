@@ -75,9 +75,9 @@ export default function BookExperience({
 
   function checkAvailability() {
     loadData(async flash => {
-      const { plus } = await client.experiences(experience.park);
-      const exp = plus.find(exp => exp.id === experience.id);
-      if (exp?.flex.available) {
+      const exps = await client.experiences(experience.park);
+      const exp = exps.find(exp => exp.id === experience.id);
+      if (exp?.flex?.available) {
         setPrebooking(false);
         setOffer(undefined);
       } else {
