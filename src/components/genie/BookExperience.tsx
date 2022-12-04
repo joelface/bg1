@@ -119,11 +119,16 @@ export default function BookExperience({
             setParty(party => {
               if (!party) return party;
               const oldSelected = new Set(party.selected);
-              setOffer(offer =>
-                offer === null || selected.some(g => !oldSelected.has(g))
-                  ? undefined
-                  : offer
-              );
+              setPrebooking(prebooking => {
+                if (!prebooking) {
+                  setOffer(offer =>
+                    offer === null || selected.some(g => !oldSelected.has(g))
+                      ? undefined
+                      : offer
+                  );
+                }
+                return prebooking;
+              });
               return { ...party, selected };
             }),
         });

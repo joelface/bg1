@@ -148,6 +148,15 @@ describe('BookExperience', () => {
     screen.getByText('10:05 AM - 11:05 AM');
   });
 
+  it("doesn't request offer when party modified before enrollment opens", async () => {
+    client.offer.mockClear();
+    await renderComponent(false);
+    click('Edit');
+    click(mickey.name);
+    click('Confirm Party');
+    expect(client.offer).not.toBeCalled();
+  });
+
   it('cancels offer and calls onClose when Cancel button clicked', async () => {
     await renderComponent();
     screen.getByText('Arrive by:');
