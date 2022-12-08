@@ -1,4 +1,4 @@
-const BUILD_ID = '17e2767256f';
+const BUILD_ID = '181874e5af6';
 
 export interface AuthData {
   swid: string;

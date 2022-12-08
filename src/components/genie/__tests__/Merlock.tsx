@@ -263,15 +263,15 @@ describe('Merlock', () => {
     click(mickey.name);
     click('Confirm Party');
     click('Rebook Lightning Lane');
-
+    await waitFor(() => {
+      expect(screen.queryByText('Rebooking')).not.toBeInTheDocument();
+    });
     await loading();
-
     expect(client.cancelBooking).toBeCalledTimes(2);
     expect(client.cancelBooking).nthCalledWith(1, booking.guests.slice(1));
     expect(client.cancelBooking).nthCalledWith(2, [newBooking.guests[0]]);
     screen.getByText('Your Lightning Lane');
     screen.getByRole('heading', { name: sm.name });
-    expect(screen.queryByText('Rebooking')).not.toBeInTheDocument();
   });
 
   it('saves selected park until tomorrow', async () => {

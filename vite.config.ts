@@ -32,9 +32,7 @@ export default defineConfig({
       },
     },
   },
-  optimizeDeps: {
-    include: ['preact/compat', 'preact/compat/client'],
-  },
+  optimizeDeps: { include: [] },
   esbuild: { jsxInject: `import * as React from 'react'` },
   server,
   preview: server,
