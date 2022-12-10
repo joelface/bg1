@@ -28,7 +28,6 @@ export default function GeniePlusList({
   const theme = useTheme();
 
   const exp = experiences[0];
-  const startTime = exp && exp.flex.enrollmentStartTime;
   const dropTime = exp && client.nextDropTime(exp.park);
 
   const showLightningPickModal = () =>
@@ -94,10 +93,7 @@ export default function GeniePlusList({
   return (
     <>
       <RebookingHeader />
-      <TimeBanner
-        bookTime={startTime || client.nextBookTime}
-        dropTime={dropTime}
-      />
+      <TimeBanner bookTime={client.nextBookTime} dropTime={dropTime} />
       <ul data-testid="unexperienced">{unexperienced.map(expListItem)}</ul>
       {experienced.length > 0 && (
         <>
