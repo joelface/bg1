@@ -152,6 +152,8 @@ export default function BookExperience({
               // them that the offer has changed
               if (offer) newOffer.changed = false;
               setOffer(newOffer);
+            } else {
+              setOffer(offer => offer ?? null);
             }
           } catch (error) {
             if (!event) setOffer(null);
