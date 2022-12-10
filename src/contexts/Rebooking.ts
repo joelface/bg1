@@ -3,13 +3,13 @@ import { createContext, useContext } from 'react';
 import { LightningLane } from '@/api/genie';
 
 export interface Rebooking {
-  current: LightningLane | null;
+  current: LightningLane | undefined;
   begin: (booking: LightningLane) => void;
   end: (canceled?: boolean) => void;
 }
 
 export const RebookingContext = createContext<Rebooking>({
-  current: null,
+  current: undefined,
   begin: () => null,
   end: () => null,
 });

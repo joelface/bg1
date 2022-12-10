@@ -38,7 +38,7 @@ const toggleVisibility = () => {
   document.dispatchEvent(new Event('visibilitychange'));
 };
 
-const getExperiences = (testId = 'unbooked') => {
+const getExperiences = (testId = 'unexperienced') => {
   const list = screen.queryByTestId(testId);
   return list
     ? within(list)
@@ -122,7 +122,7 @@ describe('Merlock', () => {
     click('2:30 PM');
     await loading();
     screen.getByText('Your Party');
-    click('Cancel');
+    click('Back');
 
     client.experiences.mockClear();
 
@@ -193,12 +193,12 @@ describe('Merlock', () => {
     click((await screen.findAllByText('More'))[1]);
     screen.getByText('Your Lightning Lane');
     screen.getByRole('heading', { name: booking.name });
-    click('Rebook');
+    click('Modify');
 
     expect(elemScrollMock).toBeCalledTimes(3);
-    screen.getByText('Rebooking');
+    screen.getByText('Modifying Reservation');
     click('Keep');
-    expect(screen.queryByText('Rebooking')).not.toBeInTheDocument();
+    expect(screen.queryByText('Modifying Reservation')).not.toBeInTheDocument();
     expect(elemScrollMock).toBeCalledTimes(4);
   });
 
@@ -220,6 +220,7 @@ describe('Merlock', () => {
         eligible: [mickey, minnie],
         ineligible: [],
       },
+      experience: sm,
     });
     const newBooking = {
       ...sm,
@@ -228,7 +229,7 @@ describe('Merlock', () => {
       start: { date: TODAY, time: '12:45:00' },
       end: { date: TODAY, time: '13:45:00' },
       cancellable: true,
-      rebookable: true,
+      modifiable: true,
       guests: [
         { ...mickey, entitlementId: 'sm1125_01' },
         { ...minnie, entitlementId: 'sm1125_02' },
@@ -243,33 +244,34 @@ describe('Merlock', () => {
       </ClientProvider>
     );
     await loading();
-    expect(screen.queryByText('Rebooking')).not.toBeInTheDocument();
+    expect(screen.queryByText('Modifying Reservation')).not.toBeInTheDocument();
     click('Your Day');
     screen.getByText('Your Day');
     click((await screen.findAllByText('More'))[0]);
     screen.getByRole('heading', { name: bookings[0].name });
-    expect(screen.queryByText('Rebook')).not.toBeInTheDocument();
+    expect(screen.queryByText('Modify')).not.toBeInTheDocument();
 
     click('Back');
     click(screen.getAllByText('More')[1]);
     screen.getByRole('heading', { name: booking.name });
 
-    click('Rebook');
-    screen.getByText('Rebooking');
+    click('Modify');
+    screen.getByText('Modifying Reservation');
 
     click('12:45 PM');
     await loading();
     click('Edit');
     click(mickey.name);
     click('Confirm Party');
-    click('Rebook Lightning Lane');
+    click('Modify Lightning Lane');
     await waitFor(() => {
-      expect(screen.queryByText('Rebooking')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Modifying Reservation')
+      ).not.toBeInTheDocument();
     });
     await loading();
-    expect(client.cancelBooking).toBeCalledTimes(2);
-    expect(client.cancelBooking).nthCalledWith(1, booking.guests.slice(1));
-    expect(client.cancelBooking).nthCalledWith(2, [newBooking.guests[0]]);
+    expect(client.cancelBooking).toBeCalledTimes(1);
+    expect(client.cancelBooking).lastCalledWith([newBooking.guests[0]]);
     screen.getByText('Your Lightning Lane');
     screen.getByRole('heading', { name: sm.name });
   });
@@ -342,17 +344,19 @@ describe('Merlock', () => {
     });
   });
 
-  it('shows previously booked LLs in separate list if not favorited', async () => {
-    jc.booked = true;
+  it('shows previously experienced LLs in separate list if not favorited', async () => {
+    jc.experienced = true;
     await renderComponent();
     expect(getExperiences()).toEqual(names([sm, hm]));
-    screen.getByText('Previously Booked');
-    expect(getExperiences('booked')).toEqual(names([jc]));
+    screen.getByText('Previously Experienced');
+    expect(getExperiences('experienced')).toEqual(names([jc]));
 
     click(screen.getAllByTitle('Favorite')[2]);
-    expect(screen.queryByText('Previously Booked')).not.toBeInTheDocument();
-    expect(getExperiences('booked')).toBe(null);
+    expect(
+      screen.queryByText('Previously Experienced')
+    ).not.toBeInTheDocument();
+    expect(getExperiences('experienced')).toBe(null);
     expect(getExperiences()).toEqual(names([jc, sm, hm]));
-    delete jc.booked;
+    delete jc.experienced;
   });
 });

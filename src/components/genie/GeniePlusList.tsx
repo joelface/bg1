@@ -15,7 +15,7 @@ import RebookingHeader from './RebookingHeader';
 import StandbyTime from './StandbyTime';
 import TimeBanner from './TimeBanner';
 
-const isBooked = (exp: PlusExperience) => exp.booked && !exp.starred;
+const isExperienced = (exp: PlusExperience) => exp.experienced && !exp.starred;
 
 export default function GeniePlusList({
   experiences,
@@ -87,9 +87,9 @@ export default function GeniePlusList({
     </li>
   );
 
-  const unbooked = experiences.filter(exp => !isBooked(exp));
-  const booked = experiences
-    .filter(isBooked)
+  const unexperienced = experiences.filter(exp => !isExperienced(exp));
+  const experienced = experiences
+    .filter(isExperienced)
     .sort((a, b) => a.name.localeCompare(b.name));
   return (
     <>
@@ -98,15 +98,15 @@ export default function GeniePlusList({
         bookTime={startTime || client.nextBookTime}
         dropTime={dropTime}
       />
-      <ul data-testid="unbooked">{unbooked.map(expListItem)}</ul>
-      {booked.length > 0 && (
+      <ul data-testid="unexperienced">{unexperienced.map(expListItem)}</ul>
+      {experienced.length > 0 && (
         <>
           <h2
             className={`-mx-3 px-3 py-1 text-sm uppercase text-center ${theme.bg} text-white`}
           >
-            Previously Booked
+            Previously Experienced
           </h2>
-          <ul data-testid="booked">{booked.map(expListItem)}</ul>
+          <ul data-testid="experienced">{experienced.map(expListItem)}</ul>
         </>
       )}
       <Legend>

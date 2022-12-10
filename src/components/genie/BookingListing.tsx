@@ -4,17 +4,14 @@ import { returnTime } from '@/datetime';
 export default function BookingListing({
   booking,
   button,
-  badge,
 }: {
   booking: Booking;
   button?: React.ReactNode;
-  badge?: React.ReactNode;
 }) {
   return (
     <div className="flex items-center gap-x-3">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-x-2 text-gray-500 text-sm font-semibold uppercase">
-          {badge}
           {booking.subtype === 'DAS' && (
             <>
               <span className={`px-1 rounded bg-gray-400 text-white`}>DAS</span>{' '}

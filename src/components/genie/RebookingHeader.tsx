@@ -13,7 +13,7 @@ export default function RebookingHeader() {
         <div
           className={`pb-1 ${theme.bg} text-white text-sm font-semibold uppercase text-center`}
         >
-          Rebooking
+          Modifying Reservation
         </div>
         <div className="mt-2 px-3">
           <BookingListing

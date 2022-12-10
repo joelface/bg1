@@ -1,6 +1,5 @@
 import { Offer } from '@/api/genie';
 import { useRebooking } from '@/contexts/Rebooking';
-import Warning from '../Warning';
 import ReturnTime from './ReturnTime';
 import YourParty from './YourParty';
 
@@ -15,9 +14,6 @@ export default function OfferDetails({
 
   return (
     <>
-      {rebooking.current && (
-        <Warning>Rebooking resets the two hour timer</Warning>
-      )}
       <ReturnTime {...offer} />
       {offer.changed && (
         <div className="text-sm">
@@ -25,7 +21,7 @@ export default function OfferDetails({
         </div>
       )}
       <YourParty
-        buttonText={`${rebooking.current ? 'Rebook' : 'Book'} Lightning Lane`}
+        buttonText={`${rebooking.current ? 'Modify' : 'Book'} Lightning Lane`}
         onSubmit={onBook}
       />
     </>

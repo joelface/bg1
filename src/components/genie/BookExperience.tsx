@@ -44,20 +44,12 @@ export default function BookExperience({
 
     await loadData(
       async () => {
-        const selectedIds = new Set(party.selected.map(g => g.id));
-
-        if (rebooking.current) {
-          await client.cancelBooking(
-            rebooking.current.guests.filter(g => selectedIds.has(g.id))
-          );
-        }
-
         try {
-          booking = await client.book(offer);
+          booking = await client.book(offer, rebooking.current, party.selected);
         } finally {
           rebooking.end();
         }
-
+        const selectedIds = new Set(party.selected.map(g => g.id));
         const guestsToCancel = booking.guests.filter(
           g => !selectedIds.has(g.id)
         );
@@ -94,24 +86,9 @@ export default function BookExperience({
   const loadParty = useCallback(() => {
     loadData(async () => {
       try {
-        let guests = await client.guests(experience);
-        const oldBooking = rebooking.current;
-        if (oldBooking) {
-          const oldGuestIds = new Set(oldBooking.guests.map(g => g.id));
-          const ineligible = [...guests.eligible, ...guests.ineligible].filter(
-            g =>
-              oldGuestIds.has(g.id) &&
-              !(
-                g.ineligibleReason === 'TOO_EARLY' ||
-                (g.ineligibleReason === 'EXPERIENCE_LIMIT_REACHED' &&
-                  experience.id === oldBooking.id)
-              )
-          );
-          guests =
-            ineligible.length > 0
-              ? { eligible: [], ineligible }
-              : { eligible: oldBooking.guests, ineligible: [] };
-        }
+        const guests = rebooking.current
+          ? { eligible: rebooking.current.guests, ineligible: [] }
+          : await client.guests(experience);
         setParty({
           ...guests,
           selected: guests.eligible.slice(0, client.maxPartySize),
@@ -154,10 +131,11 @@ export default function BookExperience({
       loadData(
         async () => {
           try {
-            const newOffer = await client.offer({
+            const newOffer = await client.offer(
               experience,
-              guests: party.selected,
-            });
+              party.selected,
+              rebooking.current
+            );
             const { ineligible } = newOffer.guests;
             if (ineligible.length > 0) {
               const ineligibleIds = new Set(ineligible.map(g => g.id));
@@ -183,7 +161,7 @@ export default function BookExperience({
         { 410: offer ? 'No reservations available' : '' }
       );
     },
-    [client, experience, party, offer, loadData]
+    [client, experience, party, offer, rebooking, loadData]
   );
 
   useEffect(() => {
@@ -205,7 +183,7 @@ export default function BookExperience({
         <>
           <YourDayButton />
           {party && (prebooking || offer || noGuestsFound) && (
-            <Button onClick={cancel}>Cancel</Button>
+            <Button onClick={cancel}>Back</Button>
           )}
           {!prebooking && offer !== undefined && (
             <Button onClick={refreshOffer} title="Refresh Offer">

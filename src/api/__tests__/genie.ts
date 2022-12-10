@@ -158,7 +158,7 @@ describe('GenieClient', () => {
         geo,
         priority,
         drop: true,
-        booked: false,
+        experienced: false,
       };
       const getExpData = async () => client.experiences(mk);
       respond(...Array(4).fill(res));
@@ -331,7 +331,7 @@ describe('GenieClient', () => {
           201
         )
       );
-      expect(await client.offer({ experience: hm, guests })).toEqual({
+      expect(await client.offer(hm, guests)).toEqual({
         id: offer.id,
         start: { date: offer.date, time: offer.startTime },
         end: { date: offer.date, time: offer.endTime },
@@ -341,6 +341,7 @@ describe('GenieClient', () => {
           eligible: [mickey, minnie],
           ineligible: [],
         },
+        experience: hm,
       });
       expectFetch(
         '/ea-vas/api/v2/products/flex/offers',
@@ -373,7 +374,7 @@ describe('GenieClient', () => {
           201
         )
       );
-      expect(await client.offer({ experience: hm, guests })).toEqual({
+      expect(await client.offer(hm, guests)).toEqual({
         id: offer.id,
         start: { date: offer.date, time: offer.startTime },
         end: { date: offer.date, time: offer.endTime },
@@ -386,6 +387,7 @@ describe('GenieClient', () => {
             ineligibleReason: 'TOO_EARLY_FOR_PARK_HOPPING',
           })),
         },
+        experience: hm,
       });
     });
   });
@@ -457,6 +459,7 @@ describe('GenieClient', () => {
                   guests: b.guests.map(g => ({
                     id: xid(g),
                     entitlementId: g.entitlementId,
+                    bookingId: g.bookingId,
                     redemptionsRemaining: g.redemptions,
                   })),
                 }
@@ -468,6 +471,7 @@ describe('GenieClient', () => {
                   startDateTime: `${b.start.date}T${b.start.time}-0400`,
                 }),
             cancellable: b.cancellable,
+            modifiable: b.modifiable,
             multipleExperiences: !!b.choices,
             assets: b.choices
               ? [
@@ -567,8 +571,8 @@ describe('GenieClient', () => {
         start: { date: undefined, time: undefined },
         end: { date: undefined, time: undefined },
         cancellable: false,
-        rebookable: false,
-        guests: [{ ...mickey, entitlementId: 'bs_01' }],
+        modifiable: false,
+        guests: [{ ...mickey, entitlementId: 'bs_01', bookingId: 'bs_bid_01' }],
         bookingId: 'bs_01',
       };
       const bookings = [bs];
@@ -578,14 +582,17 @@ describe('GenieClient', () => {
   });
 
   describe('book()', () => {
+    const guests = [mickey, minnie];
+    const offer = {
+      id: 'offer1',
+      start: { date: TODAY, time: '18:00:00' },
+      end: { date: TODAY, time: '19:00:00' },
+      changeStatus: 'NONE',
+      guests: { eligible: guests, ineligible: [] },
+      experience: hm,
+    };
+
     it('books Lightning Lanes', async () => {
-      const guests = [mickey, minnie];
-      const offer = {
-        id: 'offer1',
-        start: { date: TODAY, time: '18:00:00' },
-        end: { date: TODAY, time: '19:00:00' },
-        changeStatus: 'NONE',
-      };
       const entitlement = (guest: { id: string }) => ({
         id: 'ent-' + guest.id,
         guestId: guest.id,
@@ -619,7 +626,7 @@ describe('GenieClient', () => {
         start: offer.start,
         end: offer.end,
         cancellable: true,
-        rebookable: true,
+        modifiable: true,
         guests: guests.map((g, i) => ({
           ...g,
           entitlementId: newBooking.entitlements[i].id,
@@ -638,7 +645,7 @@ describe('GenieClient', () => {
 
     it('throws RequestError on failure', async () => {
       respond(response({}, 410));
-      await expect(client.book({ id: 'offer1' })).rejects.toThrow(RequestError);
+      await expect(client.book(offer)).rejects.toThrow(RequestError);
     });
   });
 
@@ -692,15 +699,10 @@ describe('BookingTracker', () => {
 
   describe('update()', () => {
     it('updates tracking data', async () => {
-      tracker.update([bookings[3]], client);
-      expect(bookings[3].rebookable).toBe(true);
+      await tracker.update([bookings[3]], client);
       await tracker.update(bookings, client);
-      expect(booking.rebookable).toBe(true);
-      expect(bookings[0].rebookable).toBe(false);
-      expect(bookings[3].rebookable).toBe(false);
-      expect(bookings[4].rebookable).toBe(false);
-      expect(tracker.booked(booking)).toBe(false);
-      expect(tracker.booked(bookings[3])).toBe(true);
+      expect(tracker.experienced(booking)).toBe(false);
+      expect(tracker.experienced(bookings[3])).toBe(true);
 
       client.guests.mockResolvedValueOnce({
         eligible: [],
@@ -709,8 +711,8 @@ describe('BookingTracker', () => {
         ],
       });
       await tracker.update([bookings[3]], client);
-      expect(tracker.booked(booking)).toBe(true);
-      expect(tracker.booked(bookings[3])).toBe(true);
+      expect(tracker.experienced(booking)).toBe(true);
+      expect(tracker.experienced(bookings[3])).toBe(true);
     });
   });
 });

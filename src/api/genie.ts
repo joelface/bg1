@@ -47,7 +47,7 @@ export interface Experience {
   };
   priority?: number;
   sort?: number;
-  booked?: boolean;
+  experienced?: boolean;
   drop?: boolean;
 }
 
@@ -134,6 +134,7 @@ export interface Offer {
     eligible: Guest[];
     ineligible: Guest[];
   };
+  experience: Pick<PlusExperience, 'id'>;
 }
 
 export interface Park {
@@ -167,7 +168,7 @@ export interface ResortData {
 }
 
 export interface NewBookingResponse {
-  id: 'NEW_BOOKING';
+  id: 'NEW_BOOKING' | 'MODIFIED_BOOKING';
   assignmentDetails: {
     product: 'INDIVIDUAL';
     reason: 'OTHER';
@@ -196,6 +197,7 @@ interface DateTime {
 
 export interface EntitledGuest extends Guest {
   entitlementId: string;
+  bookingId?: string;
   redemptions?: number;
 }
 
@@ -207,7 +209,7 @@ interface BaseBooking {
   start: Partial<DateTime>;
   end: Partial<DateTime> | undefined;
   cancellable: boolean;
-  rebookable: boolean;
+  modifiable: boolean;
   guests: Guest[];
   choices?: Pick<Experience, 'id' | 'name' | 'park'>[];
   bookingId: string;
@@ -228,7 +230,7 @@ export interface Reservation extends BaseBooking {
   start: DateTime;
   end: undefined;
   cancellable: false;
-  rebookable: false;
+  modifiable: false;
 }
 
 export type Booking = LightningLane | Reservation;
@@ -260,9 +262,11 @@ interface FastPassItem {
   displayEndDate?: string;
   displayEndTime?: string;
   cancellable: boolean;
+  modifiable: boolean;
   multipleExperiences: boolean;
   guests: {
     id: string;
+    bookingId: string;
     entitlementId: string;
     redemptionsRemaining?: number;
   }[];
@@ -382,7 +386,7 @@ export class GenieClient {
           ...exp,
           ...expData,
           park,
-          booked: this.tracker.booked(exp),
+          experienced: this.tracker.experienced(exp),
           drop: !!(pdtBit & pdtMask),
         };
       });
@@ -429,25 +433,31 @@ export class GenieClient {
     return this._primaryGuestId;
   }
 
-  async offer({
-    experience,
-    guests,
-  }: {
+  async offer(
     experience: Pick<PlusExperience, 'id' | 'flex'> & {
       park: Pick<Park, 'id'>;
-    };
-    guests: Pick<Guest, 'id'>[];
-  }): Promise<Offer> {
+    },
+    guests: Pick<Guest, 'id'>[],
+    bookingToModify?: LightningLane
+  ): Promise<Offer> {
     const res: OfferResponse = await this.request({
-      path: '/ea-vas/api/v2/products/flex/offers',
+      path: bookingToModify
+        ? '/ea-vas/api/v1/products/modifications/flex/offers'
+        : '/ea-vas/api/v2/products/flex/offers',
       method: 'POST',
       data: {
-        guestIds: guests.map(g => g.id),
+        guestIds: (bookingToModify?.guests ?? guests).map(g => g.id),
         ineligibleGuests: [],
         primaryGuestId: await this.primaryGuestId(experience),
         parkId: experience.park.id,
         experienceId: experience.id,
         selectedTime: experience.flex.nextAvailableTime,
+        ...(bookingToModify
+          ? {
+              modificationType:
+                experience.id === bookingToModify.id ? 'TIME' : 'EXPERIENCE',
+            }
+          : {}),
       },
       userId: false,
     });
@@ -462,6 +472,7 @@ export class GenieClient {
         eligible: (res.eligibleGuests || []).map(this.convertGuest),
         ineligible: (res.ineligibleGuests || []).map(this.convertGuest),
       },
+      experience,
     };
   }
 
@@ -476,17 +487,45 @@ export class GenieClient {
     });
   }
 
-  async book(offer: Pick<Offer, 'id'>): Promise<LightningLane> {
+  async book(
+    offer: Pick<Offer, 'id' | 'guests' | 'experience'>,
+    bookingToModify?: LightningLane,
+    guestsToModify?: Pick<Guest, 'id'>[]
+  ): Promise<LightningLane> {
+    const guestIdsToModify = new Set(
+      (guestsToModify ?? offer.guests.eligible).map(g => g.id)
+    );
     const {
       singleExperienceDetails: { experienceId, parkId },
       entitlements,
       startDateTime,
       endDateTime,
     }: NewBookingResponse = await this.request({
-      path: `/ea-vas/api/v1/products/flex/bookings`,
+      path: bookingToModify
+        ? '/ea-vas/api/v1/products/modifications/flex/bookings'
+        : '/ea-vas/api/v1/products/flex/bookings',
       method: 'POST',
       userId: false,
-      data: { offerId: offer.id },
+      data: {
+        offerId: offer.id,
+        ...(bookingToModify
+          ? {
+              modificationType:
+                bookingToModify.id === offer.experience.id
+                  ? 'TIME'
+                  : 'EXPERIENCE',
+              existingEntitlements: bookingToModify.guests
+                .filter(g => guestIdsToModify.has(g.id))
+                .map(g => ({
+                  entitlementId: g.entitlementId,
+                  entitlementBookingId: g.bookingId,
+                })),
+              guestIdsToExclude: bookingToModify.guests
+                .filter(g => !guestIdsToModify.has(g.id))
+                .map(g => g.id),
+            }
+          : {}),
+      },
       key: 'booking',
     });
     this.updateTracker();
@@ -498,7 +537,7 @@ export class GenieClient {
       start: splitDateTime(startDateTime),
       end: splitDateTime(endDateTime),
       cancellable: true,
-      rebookable: true,
+      modifiable: true,
       guests: entitlements.map(e => {
         const g = this.guestCache.get(e.guestId);
         return {
@@ -582,7 +621,7 @@ export class GenieClient {
         start: dateTimeStrings(start),
         end: undefined,
         cancellable: false,
-        rebookable: false,
+        modifiable: false,
         guests: item.guests
           .map(getGuest)
           .sort(
@@ -608,6 +647,7 @@ export class GenieClient {
         FDS: 'DAS',
         OTHER: 'OTHER',
       } as const;
+      const isFlex = item.kind === 'FLEX';
       let booking: LightningLane = {
         type: 'LL',
         subtype: item.multipleExperiences ? 'MULTI' : kindToSubtype[item.kind],
@@ -620,12 +660,13 @@ export class GenieClient {
           date: item.displayEndDate,
           time: item.displayEndTime,
         },
-        cancellable: item.cancellable && item.kind === 'FLEX',
-        rebookable: false,
+        cancellable: item.cancellable && isFlex,
+        modifiable: item.modifiable && isFlex,
         guests: item.guests.map(g => {
           return {
             ...getGuest(g),
             entitlementId: g.entitlementId,
+            bookingId: g.bookingId,
             ...(g.redemptionsRemaining !== undefined && {
               redemptions: g.redemptionsRemaining,
             }),
@@ -754,42 +795,34 @@ export const BOOKINGS_KEY = 'bg1.genie.bookings';
 
 interface BookingTrackerData {
   date: string;
-  entitlementIds: string[];
-  mostRecent: { [guestId: string]: string };
-  expToPark: { [expId: string]: string };
-  bookedExpIds: string[];
+  expIds: string[];
+  experiencedExpIds: string[];
 }
 
 export class BookingTracker {
   protected date: string;
-  protected entitlementIds: string[] = [];
-  protected mostRecent = new Map<string, string>(); // { userId: entId }
-  protected expToPark = new Map<string, string>(); // { expId: parkId }
-  protected bookedExpIds = new Set<string>();
+  protected expIds = new Set<string>();
+  protected experiencedExpIds = new Set<string>();
 
   constructor() {
     const {
       date = dateTimeStrings().date,
-      entitlementIds = [],
-      mostRecent = {},
-      expToPark: expToPark = {},
-      bookedExpIds = [],
+      expIds: expIds = [],
+      experiencedExpIds = [],
     }: BookingTrackerData = JSON.parse(
       localStorage.getItem(BOOKINGS_KEY) || '{}'
     );
     this.date = date;
-    this.entitlementIds = entitlementIds;
-    this.mostRecent = new Map(Object.entries(mostRecent));
-    this.expToPark = new Map(Object.entries(expToPark));
-    this.bookedExpIds = new Set(bookedExpIds);
+    this.expIds = new Set(expIds);
+    this.experiencedExpIds = new Set(experiencedExpIds);
     this.checkDate();
   }
 
   /**
-   * Returns true if experience was previously booked and can't be rebooked
+   * Returns true if experienced or expired
    */
-  booked(experience: Pick<Experience, 'id'>) {
-    return this.bookedExpIds.has(experience.id);
+  experienced(experience: Pick<Experience, 'id'>) {
+    return this.experiencedExpIds.has(experience.id);
   }
 
   async update(bookings: Booking[], client: GenieClient): Promise<void> {
@@ -797,59 +830,34 @@ export class BookingTracker {
     const cancellableLLs = bookings.filter(
       (b: Booking): b is LightningLane => b.type === 'LL' && b.cancellable
     );
-    const mostRecent = new Map<string, string>();
-    const oldEntIds = new Set(this.entitlementIds);
-    this.entitlementIds = cancellableLLs
-      .map(b =>
-        b.guests.map(({ id, entitlementId }) => {
-          if (!oldEntIds.has(entitlementId)) {
-            mostRecent.set(id, mostRecent.has(id) ? '' : entitlementId);
-          }
-          return entitlementId;
-        })
-      )
-      .flat(1);
-    this.mostRecent = new Map([...this.mostRecent, ...mostRecent]);
-    const mostRecentEntIds = new Set(this.mostRecent.values());
-    for (const b of cancellableLLs) {
-      if (b.guests.some(g => !mostRecentEntIds.has(g.entitlementId))) {
-        this.bookedExpIds.add(b.id);
-      }
+    for (const b of cancellableLLs.filter(b => !b.modifiable)) {
+      this.experiencedExpIds.add(b.id);
     }
-    const oldExpToPark = this.expToPark;
-    this.expToPark = new Map(cancellableLLs.map(b => [b.id, b.park.id]));
-    for (const [id, parkId] of oldExpToPark) {
-      if (this.expToPark.has(id)) continue;
-      const { ineligible } = await client.guests({ id, park: { id: parkId } });
+    const oldExpIds = this.expIds;
+    this.expIds = new Set(cancellableLLs.map(b => b.id));
+    for (const id of oldExpIds) {
+      if (this.expIds.has(id)) continue;
+      const { ineligible } = await client.guests({ id, park: { id: '0' } });
       const limitReached = ineligible.some(
         g => g.ineligibleReason === 'EXPERIENCE_LIMIT_REACHED'
       );
-      this.bookedExpIds[limitReached ? 'add' : 'delete'](id);
+      this.experiencedExpIds[limitReached ? 'add' : 'delete'](id);
     }
     localStorage.setItem(
       BOOKINGS_KEY,
       JSON.stringify({
         date: this.date,
-        entitlementIds: this.entitlementIds,
-        mostRecent: Object.fromEntries(this.mostRecent),
-        expToPark: Object.fromEntries(this.expToPark),
-        bookedExpIds: [...this.bookedExpIds],
+        expIds: [...this.expIds],
+        experiencedExpIds: [...this.experiencedExpIds],
       } as BookingTrackerData)
     );
-    for (const b of bookings) {
-      b.rebookable =
-        b.cancellable &&
-        b.guests.every(g => this.mostRecent.get(g.id) === g.entitlementId);
-    }
   }
 
   protected checkDate() {
     const today = dateTimeStrings().date;
     if (this.date === today) return;
     this.date = today;
-    this.entitlementIds = [];
-    this.mostRecent = new Map();
-    this.expToPark = new Map();
-    this.bookedExpIds = new Set();
+    this.expIds = new Set();
+    this.experiencedExpIds = new Set();
   }
 }

@@ -1,13 +1,11 @@
 import { RequestError } from '@/api/genie';
 import { ClientProvider } from '@/contexts/Client';
-import { RebookingProvider } from '@/contexts/Rebooking';
 import { ping } from '@/ping';
 import { click, loading, render, screen, setTime, TODAY } from '@/testing';
 import {
   client,
   offer,
   hm,
-  jc,
   booking,
   mickey,
   minnie,
@@ -120,6 +118,7 @@ describe('BookExperience', () => {
       eligible: [mickey, minnie, pluto],
       ineligible: [],
     },
+    experience: hm,
   };
 
   it('refreshes offer when Refresh Offer button clicked', async () => {
@@ -157,10 +156,10 @@ describe('BookExperience', () => {
     expect(client.offer).not.toBeCalled();
   });
 
-  it('cancels offer and calls onClose when Cancel button clicked', async () => {
+  it('cancels offer and calls onClose when Back button clicked', async () => {
     await renderComponent();
     screen.getByText('Arrive by:');
-    click('Cancel');
+    click('Back');
     expect(onClose).toBeCalledTimes(1);
     expect(client.cancelOffer).toBeCalledTimes(1);
   });
@@ -169,7 +168,7 @@ describe('BookExperience', () => {
     client.guests.mockResolvedValueOnce({ eligible: [], ineligible: [] });
     await renderComponent();
     screen.getByText('No Guests Found');
-    screen.getByText('Cancel');
+    screen.getByText('Back');
     expect(screen.queryByTitle('Refresh Offer')).not.toBeInTheDocument();
   });
 
@@ -183,7 +182,7 @@ describe('BookExperience', () => {
     expect(screen.getByText(donald.name)).toHaveTextContent(
       donald.ineligibleReason.replace(/_/g, ' ')
     );
-    expect(screen.queryByText('Cancel')).not.toBeInTheDocument();
+    expect(screen.getByText('Back')).toHaveClass('w-full');
     expect(screen.queryByTitle('Refresh Offer')).not.toBeInTheDocument();
   });
 
@@ -195,56 +194,13 @@ describe('BookExperience', () => {
     expect(client.offer).toBeCalledTimes(1);
     screen.getByText('No Reservations Available');
     screen.getByTitle('Refresh Offer');
-    expect(screen.queryByText('Cancel')).not.toBeInTheDocument();
+    expect(screen.getByText('Back')).toHaveClass('w-full');
 
     click('Edit');
     click(minnie.name);
     click('Confirm Party');
     await loading();
     expect(client.offer).toBeCalledTimes(2);
-  });
-
-  it('shows "Unable to Rebook" if any guest has conflict while rebooking', async () => {
-    const { guests } = booking;
-    client.guests.mockResolvedValueOnce({
-      eligible: [booking.guests[0]],
-      ineligible: [
-        {
-          ...guests[1],
-          ineligibleReason: 'TOO_EARLY',
-          eligibleAfter: '13:00:00',
-        },
-        {
-          ...guests[2],
-          ineligibleReason: 'EXPERIENCE_LIMIT_REACHED',
-        },
-      ],
-    });
-    render(
-      <ClientProvider value={client}>
-        <RebookingProvider
-          value={{ current: booking, begin: () => null, end: () => null }}
-        >
-          <BookExperience
-            experience={{
-              ...jc,
-              flex: { available: true, enrollmentStartTime: '07:00:00' },
-            }}
-            onClose={onClose}
-          />
-        </RebookingProvider>
-      </ClientProvider>
-    );
-    await loading();
-    screen.getByText('Unable to Rebook');
-    expect(screen.getByText(guests[0].name)).toHaveTextContent(
-      'ELIGIBLE FOR NEW BOOKING'
-    );
-    expect(screen.getByText(guests[2].name)).toHaveTextContent(
-      'EXPERIENCE LIMIT REACHED'
-    );
-    screen.getByText(guests[2].name);
-    expect(screen.queryByText(guests[1].name)).not.toBeInTheDocument();
   });
 
   it('flashes error message when booking fails', async () => {
@@ -278,10 +234,11 @@ describe('BookExperience', () => {
     client.guests.mockResolvedValueOnce({ eligible, ineligible: [] });
     await renderComponent();
     expect(client.offer).toBeCalledTimes(1);
+
     expect(client.offer).lastCalledWith(
-      expect.objectContaining({
-        guests: eligible.slice(0, client.maxPartySize),
-      })
+      { ...hm, flex: { available: true, enrollmentStartTime: '07:00:00' } },
+      eligible.slice(0, client.maxPartySize),
+      undefined
     );
   });
 });

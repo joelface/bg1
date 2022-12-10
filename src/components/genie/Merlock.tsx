@@ -128,7 +128,7 @@ export default function Merlock() {
     });
   const [modal, showModal] = useState<React.ReactNode>();
   const [rebooking, setRebooking] = useState<Rebooking>(() => ({
-    current: null,
+    current: undefined,
     begin: (booking: LightningLane) => {
       setRebooking({ ...rebooking, current: booking });
       screen.change('Genie+');
@@ -137,7 +137,7 @@ export default function Merlock() {
     },
     end: (canceled = false) => {
       setRebooking(rebooking =>
-        rebooking.current ? { ...rebooking, current: null } : rebooking
+        rebooking.current ? { ...rebooking, current: undefined } : rebooking
       );
       if (canceled) showModal(null);
     },
