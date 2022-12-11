@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { Guest, LightningLane, Offer, PlusExperience } from '@/api/genie';
 import { useGenieClient } from '@/contexts/GenieClient';
-import { Party, PartyProvider } from '@/contexts/Party';
+import { EMPTY_PARTY, Party, PartyProvider } from '@/contexts/Party';
 import { useRebooking } from '@/contexts/Rebooking';
 import useDataLoader from '@/hooks/useDataLoader';
 import RefreshIcon from '@/icons/RefreshIcon';
@@ -110,12 +110,7 @@ export default function BookExperience({
             }),
         });
       } catch (error) {
-        setParty({
-          eligible: [],
-          ineligible: [],
-          selected: [],
-          setSelected: () => null,
-        });
+        setParty(EMPTY_PARTY);
         throw error;
       }
     });
@@ -198,16 +193,7 @@ export default function BookExperience({
       <RebookingHeader />
       <h2>{experience.name}</h2>
       <div>{experience.park.name}</div>
-      <PartyProvider
-        value={
-          party || {
-            eligible: [],
-            ineligible: [],
-            selected: [],
-            setSelected: () => null,
-          }
-        }
-      >
+      <PartyProvider value={party ?? EMPTY_PARTY}>
         {party?.eligible.length === 0 ? (
           noGuestsFound ? (
             <NoGuestsFound onRefresh={loadParty} />
