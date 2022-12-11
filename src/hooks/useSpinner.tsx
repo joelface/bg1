@@ -18,6 +18,7 @@ export default function useSpinner(): [
         await callback();
       } finally {
         await awaken;
+        await sleep(0);
         setSpinCount(count => count - 1);
       }
     },
