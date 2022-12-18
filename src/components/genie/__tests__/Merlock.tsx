@@ -88,7 +88,7 @@ describe('Merlock', () => {
     );
     within(
       (await screen.findByText(jc.name)).closest('li') as HTMLElement
-    ).getByText('Lightning Lane Booked');
+    ).getByTitle('Booked (more info)');
     expect(elemScrollMock).toBeCalledTimes(2);
 
     click('Your Day');

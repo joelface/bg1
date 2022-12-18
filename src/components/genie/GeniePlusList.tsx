@@ -2,6 +2,7 @@ import { useGenieClient } from '@/contexts/GenieClient';
 import { useTheme } from '@/contexts/Theme';
 import { displayTime } from '@/datetime';
 import { PlusExperience } from '@/hooks/useExperiences';
+import CheckmarkIcon from '@/icons/CheckmarkIcon';
 import DropIcon from '@/icons/DropIcon';
 import LightningIcon from '@/icons/LightningIcon';
 import StarIcon from '@/icons/StarIcon';
@@ -36,6 +37,8 @@ export default function GeniePlusList({
     showModal(
       <DropTimeModal dropTime={dropTime} onClose={() => showModal(null)} />
     );
+  const showBookedModal = () =>
+    showModal(<BookedModal onClose={() => showModal(null)} />);
 
   const expListItem = (exp: PlusExperience) => (
     <li
@@ -60,12 +63,14 @@ export default function GeniePlusList({
             onClick={showDropTimeModal}
           />
         ) : null}
+        {exp.flex.preexistingPlan && (
+          <InfoButton
+            name="Booked"
+            icon={CheckmarkIcon}
+            onClick={showBookedModal}
+          />
+        )}
       </div>
-      {exp.flex.preexistingPlan && (
-        <div className="mt-2 border-2 border-green-600 rounded p-1 text-sm uppercase font-semibold text-center text-green-600 bg-green-100">
-          Lightning Lane Booked
-        </div>
-      )}
       <div className="flex flex-wrap gap-1.5 mt-2">
         <StandbyTime experience={exp} />
         <GeniePlusButton
@@ -115,6 +120,11 @@ export default function GeniePlusList({
           sym={<DropIcon className={theme.text} />}
           def="Upcoming Drop"
           onInfo={showDropTimeModal}
+        />
+        <Symbol
+          sym={<CheckmarkIcon className={theme.text} />}
+          def="Booked"
+          onInfo={showBookedModal}
         />
       </Legend>
     </>
@@ -194,6 +204,16 @@ function DropTimeModal({
         drop of additional Lightning Lane inventory, with earlier return times
         than what's currently being offered. Availability varies but is always
         limited, so be sure you're ready to book when the drop time arrives!
+      </p>
+    </Modal>
+  );
+}
+
+function BookedModal(props: { onClose: () => void }) {
+  return (
+    <Modal heading="Booked" {...props}>
+      <p>
+        You currently have a Lightning Lane reservation for this attraction.
       </p>
     </Modal>
   );
