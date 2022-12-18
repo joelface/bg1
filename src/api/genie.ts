@@ -830,8 +830,8 @@ export class BookingTracker {
     const cancellableLLs = bookings.filter(
       (b: Booking): b is LightningLane => b.type === 'LL' && b.cancellable
     );
-    for (const b of cancellableLLs.filter(b => !b.modifiable)) {
-      this.experiencedExpIds.add(b.id);
+    for (const b of cancellableLLs) {
+      this.experiencedExpIds[b.modifiable ? 'delete' : 'add'](b.id);
     }
     const oldExpIds = this.expIds;
     this.expIds = new Set(cancellableLLs.map(b => b.id));
