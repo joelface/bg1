@@ -9,6 +9,7 @@ import {
 
 import { LightningLane, Park } from '@/api/genie';
 import { useGenieClient } from '@/contexts/GenieClient';
+import { ModalProvider } from '@/contexts/Modal';
 import { ParkProvider } from '@/contexts/Park';
 import { Rebooking, RebookingProvider } from '@/contexts/Rebooking';
 import { dateTimeStrings } from '@/datetime';
@@ -45,7 +46,6 @@ type ScreenName = 'Genie+' | 'Times';
 export interface ScreenProps<E extends Experience = Experience> {
   experiences: E[];
   refresh: (force?: boolean) => void;
-  showModal: (modal: JSX.Element | null) => void;
   toggleStar: (exp: E) => void;
 }
 
@@ -126,22 +126,26 @@ export default function Merlock() {
       sortType: screen.sortType ?? sortType,
       plusOnly: !!screen.plusOnly,
     });
-  const [modal, showModal] = useState<React.ReactNode>();
-  const [rebooking, setRebooking] = useState<Rebooking>(() => ({
+  const [modal, setModal] = useState({
+    elem: null as React.ReactNode,
+    show: (elem: React.ReactNode) => setModal({ ...modal, elem }),
+    close: () => setModal(modal => ({ ...modal, elem: null })),
+  });
+  const [rebooking, setRebooking] = useState<Rebooking>({
     current: undefined,
     begin: (booking: LightningLane) => {
       setRebooking({ ...rebooking, current: booking });
       screen.change('Genie+');
       setPark(booking.park);
-      showModal(null);
+      modal.close();
     },
     end: (canceled = false) => {
       setRebooking(rebooking =>
         rebooking.current ? { ...rebooking, current: undefined } : rebooking
       );
-      if (canceled) showModal(null);
+      if (canceled) modal.close();
     },
-  }));
+  });
   const pageElem = useRef<HTMLDivElement>(null);
   const scrollPos = useRef<Partial<{ [screenName in ScreenName]: number }>>({});
 
@@ -212,7 +216,7 @@ export default function Merlock() {
               title="Park"
             />
 
-            <YourDayButton onOpen={showModal} onClose={() => showModal(null)} />
+            <YourDayButton onOpen={modal.show} onClose={modal.close} />
 
             <Button onClick={refresh} title="Refresh Times">
               <RefreshIcon />
@@ -221,16 +225,20 @@ export default function Merlock() {
         }
         containerRef={pageElem}
       >
-        <div aria-hidden={!!modal} className={`${hidden && 'invisible'} mb-14`}>
-          <screen.component
-            experiences={experiences as PlusExperience[]}
-            refresh={refresh}
-            toggleStar={toggleStar}
-            showModal={showModal}
-          />
-        </div>
-        {!modal && loaderElem}
-        <ParkProvider value={park}>{modal}</ParkProvider>
+        <ModalProvider value={modal}>
+          <div
+            aria-hidden={!!modal.elem}
+            className={`${hidden && 'invisible'} mb-14`}
+          >
+            <screen.component
+              experiences={experiences as PlusExperience[]}
+              refresh={refresh}
+              toggleStar={toggleStar}
+            />
+          </div>
+          {!modal.elem && loaderElem}
+          <ParkProvider value={park}>{modal.elem}</ParkProvider>
+        </ModalProvider>
         <div
           className={`fixed bottom-0 left-0 w-full ${park.theme.bg} text-white font-semibold`}
         >
@@ -241,9 +249,7 @@ export default function Merlock() {
             </ScreenContext.Provider>
             <button
               className="absolute top-0 right-0 h-full px-3"
-              onClick={() =>
-                showModal(<Settings onClose={() => showModal(null)} />)
-              }
+              onClick={() => modal.show(<Settings onClose={modal.close} />)}
               title="Settings"
             >
               <SettingsIcon />

@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import data from '@/api/data/wdw';
 import { Experience, ExperienceType } from '@/api/genie';
+import { ModalProvider } from '@/contexts/Modal';
 import { click, render, screen, within } from '@/testing';
 import TimesGuide from '../TimesGuide';
 
@@ -66,16 +67,21 @@ const tiana = exp('17505397', { type: 'CHARACTER', waitTime: 45 });
 const experiences = [dd, potc, tiki, btmr, tiana, uts];
 
 function TimesGuideTest() {
-  const [modal, showModal] = useState<JSX.Element | null>(null);
+  const [modal, setModal] = useState({
+    elem: null as React.ReactNode,
+    show: (elem: React.ReactNode) => setModal({ ...modal, elem }),
+    close: () => modal.show(null),
+  });
   return (
-    modal ?? (
-      <TimesGuide
-        experiences={experiences}
-        showModal={showModal}
-        refresh={() => null}
-        toggleStar={() => null}
-      />
-    )
+    <ModalProvider value={modal}>
+      {modal.elem ?? (
+        <TimesGuide
+          experiences={experiences}
+          refresh={() => null}
+          toggleStar={() => null}
+        />
+      )}
+    </ModalProvider>
   );
 }
 

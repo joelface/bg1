@@ -1,27 +1,14 @@
 import { Land } from '@/api/genie';
+import { useModal } from '@/contexts/Modal';
 import { Experience } from '@/hooks/useExperiences';
 import Modal from '../Modal';
 import Legend, { Symbol } from './Legend';
 import { ScreenProps } from './Merlock';
 
-export default function TimesGuide({ experiences, showModal }: ScreenProps) {
-  const showExpInfo = (exp: Experience) => {
-    showModal(
-      <Modal heading={exp.name} onClose={() => showModal(null)}>
-        <h3 className="w-[75vw] mt-2 text-gray-500 text-sm font-semibold uppercase">
-          Upcoming {exp.type === 'CHARACTER' ? 'Appearances' : 'Shows'}
-        </h3>
-        <ul className="list-disc mt-2 pl-6">
-          {!!exp.standby.displayNextShowTime && (
-            <li>{exp.standby.displayNextShowTime}</li>
-          )}
-          {exp.displayAdditionalShowTimes?.map(time => (
-            <li key={time}>{time}</li>
-          ))}
-        </ul>
-      </Modal>
-    );
-  };
+export default function TimesGuide({ experiences }: ScreenProps) {
+  const modal = useModal();
+  const showExpInfo = (exp: Experience) =>
+    modal.show(<ExperienceInfoModal exp={exp} />);
 
   const expsByLand = new Map<Land, Record<Experience['type'], Experience[]>>();
   experiences.forEach(exp => {
@@ -134,3 +121,19 @@ function ExperienceList({
     </div>
   );
 }
+
+const ExperienceInfoModal = ({ exp }: { exp: Experience }) => (
+  <Modal heading={exp.name}>
+    <h3 className="w-[75vw] mt-2 text-gray-500 text-sm font-semibold uppercase">
+      Upcoming {exp.type === 'CHARACTER' ? 'Appearances' : 'Shows'}
+    </h3>
+    <ul className="list-disc mt-2 pl-6">
+      {!!exp.standby.displayNextShowTime && (
+        <li>{exp.standby.displayNextShowTime}</li>
+      )}
+      {exp.displayAdditionalShowTimes?.map(time => (
+        <li key={time}>{time}</li>
+      ))}
+    </ul>
+  </Modal>
+);
