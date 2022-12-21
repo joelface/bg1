@@ -1,5 +1,6 @@
 import path from 'path';
 import { defineConfig } from 'vite';
+import prefresh from '@prefresh/vite';
 
 const server = {
   host: '0.0.0.0',
@@ -32,8 +33,9 @@ export default defineConfig({
       },
     },
   },
-  optimizeDeps: { include: [] },
+  optimizeDeps: { include: ['preact', 'preact/hooks', 'preact/compat'] },
   esbuild: { jsxInject: `import * as React from 'react'` },
   server,
   preview: server,
+  plugins: [prefresh()],
 });
