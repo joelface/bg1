@@ -110,7 +110,7 @@ const rafikis = {
 const asia = {
   name: 'Asia',
   sort: 5,
-  theme: { bg: 'bg-yellow-600', text: 'text-yellow-700' },
+  theme: { bg: 'bg-red-600', text: 'text-red-700' },
 };
 const dinoland = {
   name: 'Dinoland USA',
