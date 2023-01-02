@@ -34,7 +34,10 @@ export default defineConfig({
     },
   },
   optimizeDeps: { include: ['preact', 'preact/hooks', 'preact/compat'] },
-  esbuild: { jsxInject: `import * as React from 'react'` },
+  esbuild: {
+    charset: 'ascii',
+    jsxInject: `import * as React from 'react'`,
+  },
   server,
   preview: server,
   plugins: [prefresh()],
