@@ -579,6 +579,21 @@ describe('GenieClient', () => {
       respond(createBookingsResponse(bookings));
       expect(await client.bookings()).toEqual([{ ...bs, name: 'Barnstormer' }]);
     });
+
+    it(`skips itinerary items that can't be parsed`, async () => {
+      const bookingsRes = createBookingsResponse([booking]);
+      bookingsRes.data.items.unshift({
+        type: 'FASTPASS',
+        kind: 'FLEX',
+      });
+      respond(bookingsRes);
+      const spy = jest
+        .spyOn(global.console, 'error')
+        .mockImplementation(() => null);
+      expect(await client.bookings()).toEqual([booking]);
+      expect(spy).toBeCalled();
+      spy.mockRestore();
+    });
   });
 
   describe('book()', () => {

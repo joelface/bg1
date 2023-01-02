@@ -252,7 +252,7 @@ interface Asset {
 interface FastPassItem {
   id: string;
   type: 'FASTPASS';
-  kind: 'FLEX' | 'OTHER' | 'STANDARD' | 'DAS' | 'FDS';
+  kind: string;
   facility: string;
   assets: { content: string; excluded: boolean; original: boolean }[];
   startDateTime?: string;
@@ -308,7 +308,6 @@ export class RequestError extends Error {
 }
 
 const RES_TYPES = new Set(['ACTIVITY', 'DINING']);
-const FP_KINDS = new Set(['FLEX', 'OTHER', 'STANDARD', 'DAS', 'FDS']);
 
 const idNum = (id: string) => id.split(';')[0];
 
@@ -637,20 +636,25 @@ export class GenieClient {
     };
 
     const getLightningLane = (item: FastPassItem) => {
-      if (!FP_KINDS.has(item.kind)) return;
-      const expAsset = assets[item.facility];
-      const parkId = idNum((expAsset as Required<Asset>).location);
-      const kindToSubtype = {
+      const kindToSubtype: {
+        [key: string]: LightningLane['subtype'] | undefined;
+      } = {
         FLEX: 'G+',
         STANDARD: 'ILL',
         DAS: 'DAS',
         FDS: 'DAS',
         OTHER: 'OTHER',
-      } as const;
-      const isFlex = item.kind === 'FLEX';
+      };
+      const subtype = item.multipleExperiences
+        ? 'MULTI'
+        : kindToSubtype[item.kind];
+      if (!subtype) return;
+      const isGeniePlus = subtype === 'G+';
+      const expAsset = assets[item.facility];
+      const parkId = idNum((expAsset as Required<Asset>).location);
       let booking: LightningLane = {
         type: 'LL',
-        subtype: item.multipleExperiences ? 'MULTI' : kindToSubtype[item.kind],
+        subtype,
         ...this.getExperience(idNum(item.facility), parkId, expAsset.name),
         start: {
           date: item.displayStartDate,
@@ -660,8 +664,8 @@ export class GenieClient {
           date: item.displayEndDate,
           time: item.displayEndTime,
         },
-        cancellable: item.cancellable && isFlex,
-        modifiable: item.modifiable && isFlex,
+        cancellable: item.cancellable && isGeniePlus,
+        modifiable: item.modifiable && isGeniePlus,
         guests: item.guests.map(g => {
           return {
             ...getGuest(g),
@@ -698,10 +702,14 @@ export class GenieClient {
 
     const bookings = items
       .map(item => {
-        if (item.type === 'FASTPASS') {
-          return getLightningLane(item);
-        } else if (item.type && RES_TYPES.has(item.type)) {
-          return getReservation(item);
+        try {
+          if (item.type === 'FASTPASS') {
+            return getLightningLane(item);
+          } else if (item.type && RES_TYPES.has(item.type)) {
+            return getReservation(item);
+          }
+        } catch (error) {
+          console.error(error);
         }
       })
       .filter(
