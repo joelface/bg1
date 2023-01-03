@@ -17,9 +17,9 @@ describe('ping()', () => {
       method: 'POST',
     });
 
-    setTime('07:00', 1);
+    setTime('07:00', { days: 1 });
     await ping();
-    setTime('08:00', 1);
+    setTime('08:00', { days: 1 });
     await ping();
     expect(fetchJsonMock).toBeCalledTimes(2);
   });

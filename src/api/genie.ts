@@ -311,6 +311,25 @@ const RES_TYPES = new Set(['ACTIVITY', 'DINING']);
 
 const idNum = (id: string) => id.split(';')[0];
 
+function isModifiable(booking: Booking) {
+  const { date, time } = dateTimeStrings();
+  return (
+    booking.modifiable &&
+    date === booking.end.date &&
+    time <= (booking.end.time ?? '')
+  );
+}
+
+export class ModifyNotAllowed extends Error {
+  name = 'ModifyNotAllowed';
+}
+
+function throwOnNotModifiable(booking?: Booking) {
+  if (booking && !isModifiable(booking)) {
+    throw new ModifyNotAllowed();
+  }
+}
+
 export class GenieClient {
   readonly maxPartySize = 12;
   nextBookTime: string | undefined;
@@ -439,6 +458,7 @@ export class GenieClient {
     guests: Pick<Guest, 'id'>[],
     bookingToModify?: LightningLane
   ): Promise<Offer> {
+    throwOnNotModifiable(bookingToModify);
     const res: OfferResponse = await this.request({
       path: bookingToModify
         ? '/ea-vas/api/v1/products/modifications/flex/offers'
@@ -491,6 +511,7 @@ export class GenieClient {
     bookingToModify?: LightningLane,
     guestsToModify?: Pick<Guest, 'id'>[]
   ): Promise<LightningLane> {
+    throwOnNotModifiable(bookingToModify);
     const guestIdsToModify = new Set(
       (guestsToModify ?? offer.guests.eligible).map(g => g.id)
     );
@@ -678,6 +699,7 @@ export class GenieClient {
         }),
         bookingId: item.guests[0]?.entitlementId,
       };
+      booking.modifiable = isModifiable(booking);
       if (item.multipleExperiences) {
         const origAsset = item.assets.find(a => a.original);
         if (origAsset) {

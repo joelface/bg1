@@ -58,9 +58,16 @@ export async function loading() {
   );
 }
 
-export function setTime(time: string, relativeDays = 0) {
-  let date = new Date(`${TODAY}T${time}-0400`);
-  date = new Date(date.setDate(date.getDate() + relativeDays));
+export function setTime(
+  time: string,
+  relative?: { days?: number; minutes?: number }
+) {
+  relative ??= {};
+  relative.days ??= 0;
+  relative.minutes ??= 0;
+  const date = new Date(`${TODAY}T${time}-0400`);
+  date.setDate(date.getDate() + relative.days);
+  date.setMinutes(date.getMinutes() + relative.minutes);
   jest.useFakeTimers({ now: date });
 }
 

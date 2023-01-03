@@ -293,7 +293,7 @@ describe('Merlock', () => {
     expect(parkIcon()).toBe(hs.icon);
 
     unmount();
-    setTime('00:00', 1);
+    setTime('00:00', { days: 1 });
     ({ unmount } = await renderComponent());
     screen.getByText(hm.name);
     expect(parkIcon()).toBe(mk.icon);

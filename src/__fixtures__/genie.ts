@@ -177,7 +177,7 @@ export const lttRes: Reservation = {
   id: '90006947',
   name: 'Liberty Tree Tavern Lunch',
   park: mk,
-  start: { date: TODAY, time: '12:15:00' },
+  start: { date: TODAY, time: '11:15:00' },
   end: undefined,
   cancellable: false,
   modifiable: false,
