@@ -293,9 +293,6 @@ interface Itinerary {
   profiles: { [id: string]: Profile };
 }
 
-type EventName = 'bookingChange';
-type EventListener = () => void;
-
 export class RequestError extends Error {
   name = 'RequestError';
 
@@ -344,9 +341,6 @@ export class GenieClient {
     { name: string; characterId: string }
   >();
   protected tracker: Public<BookingTracker>;
-  protected listeners: Record<EventName, Set<EventListener>> = {
-    bookingChange: new Set(),
-  };
   protected _primaryGuestId = '';
 
   static async load(
