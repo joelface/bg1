@@ -48,10 +48,10 @@ export function click(labelOrElem: string | HTMLElement) {
   );
 }
 
-export async function loading() {
+export async function loading(ms = 10_000) {
   await screen.findByLabelText('Loading…');
   act(() => {
-    jest.advanceTimersByTime(500);
+    jest.advanceTimersByTime(ms);
   });
   await waitFor(() =>
     expect(screen.queryByLabelText('Loading…')).not.toBeInTheDocument()
