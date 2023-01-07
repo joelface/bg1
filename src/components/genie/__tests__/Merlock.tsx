@@ -186,7 +186,7 @@ describe('Merlock', () => {
     jc.flex.available = true;
   });
 
-  it('shows Rebooking pane when rebooking', async () => {
+  it('shows Rebooking pane when modifying', async () => {
     await renderComponent();
     expect(elemScrollMock).toBeCalledTimes(2);
     click('Your Day');
@@ -202,7 +202,7 @@ describe('Merlock', () => {
     expect(elemScrollMock).toBeCalledTimes(4);
   });
 
-  it('allows most recent reservation to be rebooked', async () => {
+  it('allows modifiable reservation to be modified', async () => {
     client.guests.mockResolvedValueOnce({
       eligible: [],
       ineligible: [

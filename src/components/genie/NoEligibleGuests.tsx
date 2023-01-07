@@ -17,9 +17,9 @@ export default function NoEligibleGuests({ onClose }: { onClose: () => void }) {
       )}
       {rebooking.current ? (
         <>
-          <h3>Unable to Rebook</h3>
+          <h3>Unable to Modify</h3>
           <p>
-            Your current reservation cannot be rebooked to this experience due
+            Your current reservation cannot be modified to this experience due
             to the following conflicts:
           </p>
         </>
