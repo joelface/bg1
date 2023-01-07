@@ -203,25 +203,6 @@ describe('Merlock', () => {
   });
 
   it('allows modifiable reservation to be modified', async () => {
-    client.guests.mockResolvedValueOnce({
-      eligible: [],
-      ineligible: [
-        { ...mickey, ineligibleReason: 'TOO_EARLY' },
-        { ...minnie, ineligibleReason: 'TOO_EARLY' },
-      ],
-    });
-    client.offer.mockResolvedValueOnce({
-      id: 'sm1',
-      start: { date: TODAY, time: '12:45:00' },
-      end: { date: TODAY, time: '13:45:00' },
-      active: true,
-      changed: false,
-      guests: {
-        eligible: [mickey, minnie],
-        ineligible: [],
-      },
-      experience: sm,
-    });
     const newBooking = {
       ...sm,
       type: 'LL' as const,
@@ -264,12 +245,12 @@ describe('Merlock', () => {
     click(mickey.name);
     click('Confirm Party');
     click('Modify Lightning Lane');
+    await loading();
     await waitFor(() => {
       expect(
         screen.queryByText('Modifying Reservation')
       ).not.toBeInTheDocument();
     });
-    await loading();
     expect(client.cancelBooking).toBeCalledTimes(1);
     expect(client.cancelBooking).lastCalledWith([newBooking.guests[0]]);
     screen.getByText('Your Lightning Lane');
