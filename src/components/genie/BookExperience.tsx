@@ -174,8 +174,8 @@ export default function BookExperience({
     return <BookingDetails booking={booking} onClose={onClose} isNew={true} />;
   }
 
-  const noGuestsFound =
-    party?.eligible.length === 0 && party?.ineligible.length === 0;
+  const noEligible = party?.eligible.length === 0;
+  const noGuestsFound = noEligible && party?.ineligible.length === 0;
 
   return (
     <Page
@@ -184,7 +184,7 @@ export default function BookExperience({
       buttons={
         <>
           <YourDayButton />
-          {party && (prebooking || offer || noGuestsFound) && (
+          {party && ((prebooking && !noEligible) || offer || noGuestsFound) && (
             <Button onClick={cancel}>Back</Button>
           )}
           {!prebooking && offer !== undefined && (
@@ -199,7 +199,7 @@ export default function BookExperience({
       <h2>{experience.name}</h2>
       <div>{experience.park.name}</div>
       <PartyProvider value={party ?? EMPTY_PARTY}>
-        {party?.eligible.length === 0 ? (
+        {noEligible ? (
           noGuestsFound ? (
             <NoGuestsFound onRefresh={loadParty} />
           ) : (

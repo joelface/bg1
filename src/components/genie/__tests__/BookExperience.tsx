@@ -177,7 +177,7 @@ describe('BookExperience', () => {
       eligible: [],
       ineligible: [donald],
     });
-    await renderComponent();
+    await renderComponent(false);
     screen.getByText('No Eligible Guests');
     expect(screen.getByText(donald.name)).toHaveTextContent(
       donald.ineligibleReason.replace(/_/g, ' ')
