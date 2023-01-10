@@ -67,7 +67,7 @@ export const jc: PlusExperience = {
   standby: { available: true, waitTime: 45 },
   flex: {
     available: true,
-    nextAvailableTime: '18:00:00',
+    nextAvailableTime: '00:00:00',
     preexistingPlan: true,
   },
   priority: 1.1,

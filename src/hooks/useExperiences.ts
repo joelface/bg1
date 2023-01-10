@@ -37,9 +37,8 @@ const sortByStandby: Sorter = (a, b) =>
   (b.standby.waitTime || -1) - (a.standby.waitTime || -1);
 
 const sortBySoonest: Sorter = (a, b) =>
-  (a?.flex?.nextAvailableTime || '').localeCompare(
-    b?.flex?.nextAvailableTime || ''
-  );
+  timeToMinutes(a?.flex?.nextAvailableTime || '00:00') -
+  timeToMinutes(b?.flex?.nextAvailableTime || '00:00');
 
 const sortByName: Sorter = (a, b) =>
   a.name.toLowerCase().localeCompare(b.name.toLowerCase());
@@ -64,7 +63,8 @@ function inPark(park: Park, coords: Coords) {
 
 function timeToMinutes(time: string) {
   const [h, m] = time.split(':').map(Number);
-  return h * 60 + m;
+  // Treat 7 AM as the beginning of the day
+  return ((h + 17) % 24) * 60 + m;
 }
 
 const sorters = {
