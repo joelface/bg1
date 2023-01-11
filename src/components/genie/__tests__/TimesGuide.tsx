@@ -54,17 +54,22 @@ function exp(
   };
 }
 
-const ddShowTimes = ['12:30 PM', '1:30 PM', '2:30 PM', '3:30 PM'];
+const ddShowTimes = ['2:30 PM', '3:30 PM'];
 const dd = exp('8075', {
   type: 'ENTERTAINMENT',
   showTimes: ddShowTimes,
+});
+const fofShowTime = '3:00 PM';
+const fof = exp('17718925', {
+  type: 'ENTERTAINMENT',
+  showTimes: [fofShowTime],
 });
 const potc = exp('80010177', { waitTime: 30 });
 const tiki = exp('16124144');
 const btmr = exp('80010110', { waitTime: 60 });
 const uts = exp('16767263', { down: true });
 const tiana = exp('17505397', { type: 'CHARACTER', waitTime: 45 });
-const experiences = [dd, potc, tiki, btmr, tiana, uts];
+const experiences = [dd, fof, potc, tiki, btmr, tiana, uts];
 
 function TimesGuideTest() {
   const [modal, setModal] = useState({
@@ -90,7 +95,7 @@ describe('TimesGuide', () => {
     render(<TimesGuideTest />);
     expectTimes({
       'Main Street, USA': {
-        Entertainment: [dd],
+        Entertainment: [dd, fof],
       },
       Adventureland: {
         Attractions: [potc, tiki],
@@ -103,6 +108,10 @@ describe('TimesGuide', () => {
         Characters: [tiana],
       },
     });
+    click(fofShowTime);
+    expect(
+      screen.queryByRole('heading', { name: fof.name, level: 2 })
+    ).not.toBeInTheDocument();
     click(ddShowTimes[0]);
     screen.getByRole('heading', { name: dd.name, level: 2 });
     screen.getByText('Upcoming Shows');

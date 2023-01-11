@@ -94,8 +94,7 @@ function ExperienceList({
                 } font-bold text-center uppercase whitespace-nowrap`}
               >
                 {exp.standby.displayNextShowTime ? (
-                  exp.displayAdditionalShowTimes &&
-                  exp.displayAdditionalShowTimes.length > 1 ? (
+                  (exp.displayAdditionalShowTimes?.length ?? 0) > 0 ? (
                     <button
                       onClick={() => onInfoClick(exp)}
                       className="underline"
