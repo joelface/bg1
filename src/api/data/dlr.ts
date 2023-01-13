@@ -1,48 +1,82 @@
 import { ResortData } from '../genie';
 
+const dl = {
+  id: '330339',
+  name: 'Disneyland',
+  icon: '🏰',
+  geo: {
+    n: 33.8163919,
+    s: 33.8091255,
+    e: -117.9155825,
+    w: -117.9243814,
+  },
+  theme: { bg: 'bg-pink-600', text: 'text-pink-600' },
+};
+const ca = {
+  id: '336894',
+  name: 'California Adventure',
+  icon: '☀️',
+  geo: {
+    n: 33.8091255,
+    s: 33.8037845,
+    e: -117.9155825,
+    w: -117.9243814,
+  },
+  theme: { bg: 'bg-yellow-600', text: 'text-yellow-600' },
+};
+
 // DL Lands
 const mainStreet = {
   name: 'Main Street, USA',
+  park: dl,
   sort: 1,
   theme: { bg: 'bg-red-600', text: 'text-red-700' },
 };
 const adventureland = {
   name: 'Adventureland',
+  park: dl,
   sort: 2,
   theme: { bg: 'bg-lime-600', text: 'text-lime-700' },
 };
 const newOrleans = {
   name: 'New Orleans Square',
+  park: dl,
   sort: 3,
   theme: { bg: 'bg-indigo-600', text: 'text-indigo-700' },
 };
 const critter = {
   name: 'Critter Country',
+  park: dl,
   sort: 4,
   theme: { bg: 'bg-orange-600', text: 'text-orange-700' },
 };
 const starWars = {
   name: "Star Wars: Galaxy's Edge",
+  park: dl,
   sort: 5,
   theme: { bg: 'bg-gray-600', text: 'text-gray-700' },
 };
 const frontierland = {
   name: 'Frontierland',
+  park: dl,
   sort: 6,
   theme: { bg: 'bg-yellow-600', text: 'text-yellow-700' },
 };
 const fantasyland = {
   name: 'Fantasyland',
+  park: dl,
   sort: 7,
   theme: { bg: 'bg-pink-600', text: 'text-pink-700' },
 };
 const toontown = {
   name: "Mickey's Toontown",
+  park: dl,
   sort: 8,
   theme: { bg: 'bg-orange-600', text: 'text-orange-700' },
 };
 const tomorrowland = {
   name: 'Tomorrowland',
+  park: dl,
   sort: 9,
   theme: { bg: 'bg-cyan-600', text: 'text-cyan-700' },
 };
@@ -50,72 +84,55 @@ const tomorrowland = {
 // DCA Lands
 const buenaVista = {
   name: 'Buena Vista Street',
+  park: ca,
   sort: 1,
   theme: { bg: 'bg-orange-600', text: 'text-orange-700' },
 };
 const hollywood = {
   name: 'Hollywood Land',
+  park: ca,
   sort: 2,
   theme: { bg: 'bg-pink-600', text: 'text-pink-700' },
 };
 const avengers = {
   name: 'Avengers Campus',
+  park: ca,
   sort: 3,
   theme: { bg: 'bg-gray-600', text: 'text-gray-700' },
 };
 const cars = {
   name: 'Cars Land',
+  park: ca,
   sort: 4,
   theme: { bg: 'bg-red-600', text: 'text-red-700' },
 };
 const pacific = {
   name: 'Pacific Wharf',
+  park: ca,
   sort: 5,
   theme: { bg: 'bg-cyan-600', text: 'text-cyan-700' },
 };
 const pixar = {
   name: 'Pixar Pier',
+  park: ca,
   sort: 6,
   theme: { bg: 'bg-yellow-600', text: 'text-yellow-700' },
 };
 const grizzly = {
   name: 'Grizzly Peak',
+  park: ca,
   sort: 7,
   theme: { bg: 'bg-[#c4602c]', text: 'text-[#c4602c]' },
 };
 const paradise = {
   name: 'Paradise Gardens Park',
+  park: ca,
   sort: 8,
   theme: { bg: 'bg-lime-600', text: 'text-lime-700' },
 };
 
 const data: ResortData = {
-  parks: [
-    {
-      id: '330339',
-      name: 'Disneyland',
-      icon: '🏰',
-      geo: {
-        n: 33.8163919,
-        s: 33.8091255,
-        e: -117.9155825,
-        w: -117.9243814,
-      },
-      theme: { bg: 'bg-pink-600', text: 'text-pink-600' },
-    },
-    {
-      id: '336894',
-      name: 'California Adventure',
-      icon: '☀️',
-      geo: {
-        n: 33.8091255,
-        s: 33.8037845,
-        e: -117.9155825,
-        w: -117.9243814,
-      },
-      theme: { bg: 'bg-yellow-600', text: 'text-yellow-600' },
-    },
-  ],
+  parks: [dl, ca],
   experiences: {
     // Disneyland
     367495: {

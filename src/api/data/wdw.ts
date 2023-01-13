@@ -4,35 +4,89 @@ const pdts = (pdts: number[]) =>
   pdts.map(m =>
     new Date(new Date().setHours(m / 60, m % 60, 0)).toTimeString().slice(0, 5)
   );
+const mk = {
+  id: '80007944',
+  name: 'Magic Kingdom',
+  icon: '🏰',
+  geo: {
+    n: 28.422,
+    s: 28.415,
+    e: -81.575,
+    w: -81.586,
+  },
+  theme: { bg: 'bg-fuchsia-600', text: 'text-fuchsia-600' },
+};
+const ep = {
+  id: '80007838',
+  name: 'EPCOT',
+  icon: '🌐',
+  geo: {
+    n: 28.377,
+    s: 28.366,
+    e: -81.545,
+    w: -81.555,
+  },
+  theme: { bg: 'bg-indigo-600', text: 'text-indigo-600' },
+};
+const hs = {
+  id: '80007998',
+  name: 'Hollywood Studios',
+  icon: '🎬',
+  geo: {
+    n: 28.362,
+    s: 28.353,
+    e: -81.557,
+    w: -81.564,
+  },
+  theme: { bg: 'bg-orange-600', text: 'text-orange-600' },
+};
+const ak = {
+  id: '80007823',
+  name: 'Animal Kingdom',
+  icon: '🌳',
+  geo: {
+    n: 28.369,
+    s: 28.354,
+    e: -81.585,
+    w: -81.597,
+  },
+  theme: { bg: 'bg-green-600', text: 'text-green-600' },
+};
 
 // MK Lands
 const mainStreet = {
   name: 'Main Street, USA',
+  park: mk,
   sort: 1,
   theme: { bg: 'bg-red-600', text: 'text-red-700' },
 };
 const adventureland = {
   name: 'Adventureland',
+  park: mk,
   sort: 2,
   theme: { bg: 'bg-green-600', text: 'text-green-700' },
 };
 const frontierland = {
   name: 'Frontierland',
+  park: mk,
   sort: 3,
   theme: { bg: 'bg-yellow-600', text: 'text-yellow-700' },
 };
 const libertySquare = {
   name: 'Liberty Square',
+  park: mk,
   sort: 4,
   theme: { bg: 'bg-indigo-600', text: 'text-indigo-700' },
 };
 const fantasyland = {
   name: 'Fantasyland',
+  park: mk,
   sort: 5,
   theme: { bg: 'bg-pink-600', text: 'text-pink-700' },
 };
 const tomorrowland = {
   name: 'Tomorrowland',
+  park: mk,
   sort: 6,
   theme: { bg: 'bg-cyan-600', text: 'text-cyan-700' },
 };
@@ -40,21 +94,25 @@ const tomorrowland = {
 // EPCOT Lands
 const celebration = {
   name: 'World Celebration',
+  park: ep,
   sort: 1,
   theme: { bg: 'bg-indigo-600', text: 'text-indigo-700' },
 };
 const discovery = {
   name: 'World Discovery',
+  park: ep,
   sort: 2,
   theme: { bg: 'bg-red-600', text: 'text-red-700' },
 };
 const nature = {
   name: 'World Nature',
+  park: ep,
   sort: 3,
   theme: { bg: 'bg-green-600', text: 'text-green-700' },
 };
 const showcase = {
   name: 'World Showcase',
+  park: ep,
   sort: 4,
   theme: { bg: 'bg-yellow-600', text: 'text-yellow-700' },
 };
@@ -62,26 +120,31 @@ const showcase = {
 // Hollywood Studios Lands
 const hollywood = {
   name: 'Hollywood & Sunset',
+  park: hs,
   sort: 1,
   theme: { bg: 'bg-orange-600', text: 'text-orange-700' },
 };
 const toyStory = {
   name: 'Toy Story Land',
+  park: hs,
   sort: 2,
   theme: { bg: 'bg-green-600', text: 'text-green-700' },
 };
 const starWars = {
   name: "Star Wars: Galaxy's Edge",
+  park: hs,
   sort: 3,
   theme: { bg: 'bg-gray-600', text: 'text-gray-700' },
 };
 const echoLake = {
   name: 'Echo Lake',
+  park: hs,
   sort: 4,
   theme: { bg: 'bg-indigo-600', text: 'text-indigo-700' },
 };
 const otherStudios = {
   name: 'Miscellaneous',
+  park: hs,
   sort: 5,
   theme: { bg: 'bg-red-600', text: 'text-red-700' },
 };
@@ -89,86 +152,43 @@ const otherStudios = {
 // Animal Kingdom Lands
 const discIsland = {
   name: 'Discovery Island',
+  park: ak,
   sort: 1,
   theme: { bg: 'bg-green-600', text: 'text-green-700' },
 };
 const pandora = {
   name: 'Pandora',
+  park: ak,
   sort: 2,
   theme: { bg: 'bg-cyan-600', text: 'text-cyan-700' },
 };
 const africa = {
   name: 'Africa',
+  park: ak,
   sort: 3,
   theme: { bg: 'bg-yellow-600', text: 'text-yellow-700' },
 };
 const rafikis = {
   name: "Rafiki's Planet Watch",
+  park: ak,
   sort: 4,
   theme: { bg: 'bg-orange-600', text: 'text-orange-700' },
 };
 const asia = {
   name: 'Asia',
+  park: ak,
   sort: 5,
   theme: { bg: 'bg-red-600', text: 'text-red-700' },
 };
 const dinoland = {
   name: 'Dinoland USA',
+  park: ak,
   sort: 6,
   theme: { bg: 'bg-purple-600', text: 'text-purple-700' },
 };
 
 const data: ResortData = {
-  parks: [
-    {
-      id: '80007944',
-      name: 'Magic Kingdom',
-      icon: '🏰',
-      geo: {
-        n: 28.422,
-        s: 28.415,
-        e: -81.575,
-        w: -81.586,
-      },
-      theme: { bg: 'bg-fuchsia-600', text: 'text-fuchsia-600' },
-    },
-    {
-      id: '80007838',
-      name: 'EPCOT',
-      icon: '🌐',
-      geo: {
-        n: 28.377,
-        s: 28.366,
-        e: -81.545,
-        w: -81.555,
-      },
-      theme: { bg: 'bg-indigo-600', text: 'text-indigo-600' },
-    },
-    {
-      id: '80007998',
-      name: 'Hollywood Studios',
-      icon: '🎬',
-      geo: {
-        n: 28.362,
-        s: 28.353,
-        e: -81.557,
-        w: -81.564,
-      },
-      theme: { bg: 'bg-orange-600', text: 'text-orange-600' },
-    },
-    {
-      id: '80007823',
-      name: 'Animal Kingdom',
-      icon: '🌳',
-      geo: {
-        n: 28.369,
-        s: 28.354,
-        e: -81.585,
-        w: -81.597,
-      },
-      theme: { bg: 'bg-green-600', text: 'text-green-600' },
-    },
-  ],
+  parks: [mk, ep, hs, ak],
   experiences: {
     // Magic Kingdom
     80010107: {

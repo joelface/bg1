@@ -147,6 +147,7 @@ export interface Park {
 
 export interface Land {
   name: string;
+  park: Park;
   sort: number;
   theme: { bg: string; text: string };
 }
