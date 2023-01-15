@@ -39,7 +39,7 @@ const sortOptions = [
   { value: 'aToZ', text: 'A to Z' },
 ] as const;
 
-type SortType = typeof sortOptions[number]['value'] | 'land';
+type SortType = (typeof sortOptions)[number]['value'] | 'land';
 
 type ScreenName = 'Genie+' | 'Times';
 

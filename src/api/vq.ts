@@ -7,7 +7,7 @@ const ORIGIN_TO_RESORT = {
 } as const;
 
 export type Origin = keyof typeof ORIGIN_TO_RESORT;
-export type Resort = typeof ORIGIN_TO_RESORT[Origin];
+export type Resort = (typeof ORIGIN_TO_RESORT)[Origin];
 
 export function isVirtualQueueOrigin(origin: string): origin is Origin {
   return origin in ORIGIN_TO_RESORT;
