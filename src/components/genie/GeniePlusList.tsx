@@ -9,6 +9,7 @@ import LightningIcon from '@/icons/LightningIcon';
 import StarIcon from '@/icons/StarIcon';
 import Modal from '../Modal';
 import BookExperience from './BookExperience';
+import { ExperienceList } from './ExperienceList';
 import GeniePlusButton from './GeniePlusButton';
 import Legend, { Symbol } from './Legend';
 import { ScreenProps } from './Merlock';
@@ -38,7 +39,7 @@ export default function GeniePlusList({
 
   const showLightningPickModal = () => modal.show(<LightningPickModal />);
   const showDropTimeModal = () =>
-    modal.show(<DropTimeModal dropTime={dropTime} />);
+    modal.show(<DropTimeModal dropTime={dropTime} park={exp.park} />);
   const showBookedModal = () => modal.show(<BookedModal />);
 
   const expListItem = (exp: PlusExperience) => (
@@ -184,7 +185,15 @@ function LightningPickModal() {
   );
 }
 
-function DropTimeModal({ dropTime }: { dropTime?: string }) {
+function DropTimeModal({
+  dropTime,
+  park,
+}: {
+  dropTime?: string;
+  park: PlusExperience['park'];
+}) {
+  const client = useGenieClient();
+  const { bg } = useTheme();
   return (
     <Modal heading={UPCOMING_DROP}>
       <p>
@@ -200,6 +209,14 @@ function DropTimeModal({ dropTime }: { dropTime?: string }) {
         than what's currently being offered. Availability varies but is always
         limited, so be sure you're ready to book when the drop time arrives!
       </p>
+      {client.upcomingDrops(park).map(drop => (
+        <ExperienceList
+          heading={displayTime(drop.time)}
+          experiences={drop.experiences}
+          bg={bg}
+          key={drop.time}
+        />
+      ))}
     </Modal>
   );
 }

@@ -11,6 +11,7 @@ import GuestList from '../GuestList';
 import Page from '../Page';
 import ReturnTime from './ReturnTime';
 import CancelGuests from './CancelGuests';
+import { ExperienceList } from './ExperienceList';
 
 export default function BookingDetails({
   booking,
@@ -98,17 +99,12 @@ export default function BookingDetails({
           {[...choicesByPark]
             .filter(([, choices]) => choices.length > 0)
             .map(([park, choices = []]) => (
-              <div
+              <ExperienceList
+                heading={park.name}
+                experiences={choices}
+                bg={park.theme?.bg ?? ''}
                 key={park.id}
-                className={`mt-4 rounded ${park.theme?.bg || ''}`}
-              >
-                <h3 className="mt-0 p-1 text-white text-center">{park.name}</h3>
-                <ul className="list-disc py-2 pl-8 bg-white bg-opacity-90">
-                  {choices.map(exp => (
-                    <li key={exp.id}>{exp.name}</li>
-                  ))}
-                </ul>
-              </div>
+              />
             ))}
         </>
       )}

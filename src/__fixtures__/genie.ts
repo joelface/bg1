@@ -10,8 +10,6 @@ import data from '@/api/data/wdw';
 import { Experience } from '@/hooks/useExperiences';
 import { TODAY } from '@/testing';
 
-data.pdts[80007944] = ['11:30', '14:30', '17:30'];
-
 export const [mk, ep, hs, ak] = data.parks;
 
 export const mickey = {

@@ -88,10 +88,18 @@ describe('GenieClient', () => {
     setData: () => null,
     deleteData: jest.fn(),
   };
+  const data = {
+    ...wdw,
+    experiences: { ...wdw.experiences },
+    pdts: { [mk.id]: [690 /* 11:30 */, 870 /* 14:30 */, 1050 /* 17:30 */] },
+  };
+  const smData = data.experiences[sm.id];
+  smData.priority = sm.priority;
+  smData.pdtMask = 0b011;
   const client = new GenieClient({
     origin: 'https://disneyworld.disney.go.com',
     authStore,
-    data: wdw,
+    data,
     tracker,
   });
   const onUnauthorized = jest.fn();
@@ -151,12 +159,9 @@ describe('GenieClient', () => {
           ],
         },
       });
-      const { name, geo, priority } = wdw.experiences['80010192'];
       const smExp: PlusExperience = {
+        ...smData,
         ...sm,
-        name,
-        geo,
-        priority,
         drop: true,
         experienced: false,
       };
@@ -169,14 +174,10 @@ describe('GenieClient', () => {
         { params: { eligibilityGuestIds: guests.map(g => g.id).join(',') } }
       );
 
-      const exps = [smExp];
       setTime('13:00');
-      expect(await getExpData()).toEqual(exps);
+      expect(await getExpData()).toEqual([smExp]);
 
       setTime('15:00');
-      expect(await getExpData()).toEqual(exps);
-
-      setTime('18:00');
       expect(await getExpData()).toEqual([{ ...smExp, drop: false }]);
 
       jest.useRealTimers();

@@ -1,9 +1,5 @@
 import { ResortData } from '../genie';
 
-const pdts = (pdts: number[]) =>
-  pdts.map(m =>
-    new Date(new Date().setHours(m / 60, m % 60, 0)).toTimeString().slice(0, 5)
-  );
 const mk = {
   id: '80007944',
   name: 'Magic Kingdom',
@@ -207,7 +203,6 @@ const data: ResortData = {
       land: frontierland,
       geo: [28.4197486, -81.5845092],
       priority: 2.1,
-      pdtMask: 0b111,
       sort: 1,
     },
     80010114: {
@@ -390,7 +385,6 @@ const data: ResortData = {
       geo: [28.4196223, -81.584991],
       priority: 2.2,
       sort: 2,
-      pdtMask: 0b111,
     },
     80010196: {
       name: 'Swiss Family Treehouse',
@@ -720,7 +714,6 @@ const data: ResortData = {
       land: asia,
       geo: [28.3592076, -81.5883195],
       priority: 3.2,
-      pdtMask: 0b111,
     },
     80010157: {
       name: 'Kilimanjaro Safaris',
@@ -754,10 +747,10 @@ const data: ResortData = {
     },
   },
   pdts: {
-    80007944: pdts([]),
-    80007838: pdts([707, 767, 827, 887, 947, 1007, 1127]),
-    80007998: pdts([797, 947]),
-    80007823: pdts([617, 767, 917]),
+    [mk.id]: [],
+    [ep.id]: [707, 767, 827, 887, 947, 1007, 1127],
+    [hs.id]: [797, 947],
+    [ak.id]: [617, 767, 917],
   },
 };
 export default data;

@@ -165,7 +165,7 @@ export interface ResortData {
       sort?: number;
     };
   };
-  pdts: { [id: string]: string[] };
+  pdts: { [id: string]: number[] };
 }
 
 export interface NewBookingResponse {
@@ -334,8 +334,14 @@ export class GenieClient {
   onUnauthorized = () => undefined;
   protected origin: Origin;
   protected authStore: Public<AuthStore>;
-  protected data: ResortData;
-  protected parkMap: { [id: string]: Park };
+  protected expData: ResortData['experiences'];
+  protected parkMap: Map<string, Park>;
+  protected drops: {
+    [parkId: string]: {
+      time: string;
+      expIds: string[];
+    }[];
+  } = {};
   protected partyIds = new Set<string>();
   protected guestCache = new Map<
     string,
@@ -348,21 +354,36 @@ export class GenieClient {
     args: Omit<ConstructorParameters<typeof GenieClient>[0], 'data'>
   ) {
     const resort = ORIGIN_TO_RESORT[args.origin].toLowerCase();
-    const data = (await import(`./data/${resort}.ts`)).default;
+    const data: ResortData = (await import(`./data/${resort}.ts`)).default;
     return new GenieClient({ ...args, data });
   }
 
   constructor(args: {
     origin: GenieClient['origin'];
     authStore: GenieClient['authStore'];
-    data: GenieClient['data'];
+    data: ResortData;
     tracker?: GenieClient['tracker'];
   }) {
     this.origin = args.origin;
     this.authStore = args.authStore;
-    this.data = args.data;
-    this.parkMap = Object.fromEntries(this.parks.map(p => [p.id, p]));
+    this.parkMap = new Map(args.data.parks.map(p => [p.id, p]));
     this.tracker = args.tracker || new BookingTracker();
+    for (const [id, times] of Object.entries(args.data.pdts ?? {})) {
+      this.drops[id] = times.map(m => ({
+        time: new Date(new Date().setHours(m / 60, m % 60, 0))
+          .toTimeString()
+          .slice(0, 5),
+        expIds: [],
+      }));
+    }
+    this.expData = { ...args.data.experiences };
+    for (const [id, exp] of Object.entries(args.data.experiences)) {
+      if (!exp.pdtMask) continue;
+      const { id: parkId } = exp.land.park;
+      for (const [i, drop] of this.drops?.[parkId]?.entries() ?? []) {
+        if (exp.pdtMask & (1 << i)) drop.expIds.push(id);
+      }
+    }
   }
 
   get resort() {
@@ -370,7 +391,7 @@ export class GenieClient {
   }
 
   get parks() {
-    return this.data.parks;
+    return [...this.parkMap.values()];
   }
 
   setPartyIds(partyIds: string[]) {
@@ -388,21 +409,16 @@ export class GenieClient {
     this.nextBookTime = (res.eligibility?.flexEligibilityWindows || []).sort(
       (a, b) => a.time.time.localeCompare(b.time.time)
     )[0]?.time.time;
-    const pdt = this.nextDropTime(park);
-    const pdtIdx = (this.data.pdts[park.id] || []).indexOf(pdt || '');
-    const pdtBit = 1 << pdtIdx;
+    const { expIds = [] } = this.nextDrop(park) ?? {};
     return res.availableExperiences
-      .filter((exp): exp is ApiExperience => exp.id in this.data.experiences)
-      .map(exp => {
-        const { pdtMask = 0, ...expData } = this.data.experiences[exp.id];
-        return {
-          ...exp,
-          ...expData,
-          park,
-          experienced: this.tracker.experienced(exp),
-          drop: !!(pdtBit & pdtMask),
-        };
-      });
+      .filter((exp): exp is ApiExperience => exp.id in this.expData)
+      .map(exp => ({
+        ...exp,
+        ...this.expData[exp.id],
+        park,
+        experienced: this.tracker.experienced(exp),
+        drop: expIds.includes(exp.id),
+      }));
   }
 
   async guests(experience?: {
@@ -621,7 +637,7 @@ export class GenieClient {
       const facilityAsset = assets[activityAsset.facility];
       const parkIdStr = facilityAsset.location;
       if (!parkIdStr) return;
-      const park = this.parkMap[idNum(parkIdStr)] || {
+      const park = this.parkMap.get(idNum(parkIdStr)) || {
         id: parkIdStr,
         name: assets[parkIdStr].name,
       };
@@ -739,9 +755,26 @@ export class GenieClient {
 
   updateTracker = this.bookings;
 
-  nextDropTime(park: Pick<Park, 'id'>): string | undefined {
+  upcomingDrops(park: Pick<Park, 'id'>): {
+    time: string;
+    experiences: { id: string; name: string }[];
+  }[] {
     const now = dateTimeStrings().time.slice(0, 5);
-    return this.data.pdts?.[park.id]?.find(pdt => pdt >= now);
+    return (this.drops?.[park.id] ?? [])
+      .filter(({ time }) => time >= now)
+      .map(({ time, expIds }) => ({
+        time,
+        experiences: expIds
+          .map(id => ({
+            id,
+            name: this.expData[id].name,
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name)),
+      }));
+  }
+
+  nextDropTime(park: Pick<Park, 'id'>): string | undefined {
+    return this.nextDrop(park)?.time;
   }
 
   logOut(): void {
@@ -749,11 +782,16 @@ export class GenieClient {
     this.onUnauthorized();
   }
 
+  protected nextDrop(park: Pick<Park, 'id'>) {
+    const now = dateTimeStrings().time.slice(0, 5);
+    return this.drops?.[park.id]?.find(({ time }) => time >= now);
+  }
+
   protected getExperience(id: string, parkId: string, name?: string) {
     return {
       id,
-      name: (this.data.experiences[id]?.name || name) as string,
-      park: this.parkMap[parkId],
+      name: (this.expData[id]?.name || name) as string,
+      park: this.parkMap.get(parkId) as Park,
     };
   }
 
