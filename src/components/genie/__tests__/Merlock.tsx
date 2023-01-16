@@ -54,7 +54,7 @@ const sortBy = (sortType: string) => {
 };
 
 const changePark = async (park: Park) => {
-  click('Park');
+  click(screen.getByTestId('park-select'));
   click(park.name);
   await loading();
 };
@@ -259,24 +259,23 @@ describe('Merlock', () => {
 
   it('saves selected park until tomorrow', async () => {
     const parkIcon = () =>
-      (screen.getByTitle('Park') as HTMLButtonElement).textContent;
+      (screen.getByTestId('park-select') as HTMLButtonElement).textContent;
 
-    setTime('12:00');
     let { unmount } = await renderComponent();
-    screen.getByText(hm.name);
+    screen.getByTitle(`Park: ${mk.name}`);
     expect(parkIcon()).toBe(mk.icon);
 
     await changePark(hs);
     unmount();
     setTime('23:59:59');
     ({ unmount } = await renderComponent());
-    screen.getByText(hm.name);
+    screen.getByTitle(`Park: ${hs.name}`);
     expect(parkIcon()).toBe(hs.icon);
 
     unmount();
     setTime('00:00', { days: 1 });
     ({ unmount } = await renderComponent());
-    screen.getByText(hm.name);
+    screen.getByTitle(`Park: ${mk.name}`);
     expect(parkIcon()).toBe(mk.icon);
   });
 

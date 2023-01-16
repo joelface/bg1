@@ -80,6 +80,8 @@ const sorters = {
   land: ((a, b) => sortByLand(a, b) || sortBySort(a, b)) as Sorter,
 } as const;
 
+export type SortType = keyof typeof sorters;
+
 export default function useExperiences<
   P extends boolean = false,
   E extends Experience = P extends true ? PlusExperience : Experience
@@ -89,7 +91,7 @@ export default function useExperiences<
   plusOnly,
 }: {
   park: Park;
-  sortType: keyof typeof sorters;
+  sortType: SortType;
   plusOnly: P;
 }): {
   experiences: E[];

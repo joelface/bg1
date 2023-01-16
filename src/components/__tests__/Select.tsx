@@ -3,36 +3,45 @@ import { useState } from 'react';
 import { mk, ep, hs, ak } from '@/__fixtures__/genie';
 import { click, render, screen } from '@/testing';
 
-import Select, { Option } from '../Select';
+import Select from '../Select';
 
-const options = [mk, ep, hs, ak].map(p => ({
-  value: p.id,
-  text: p.name,
-  icon: p.icon,
-}));
+const parkOptions = new Map(
+  [mk, ep, hs, ak].map(p => [
+    p.id,
+    {
+      text: p.name,
+      icon: p.icon,
+    },
+  ])
+);
 
 function Selector({
   options,
   defaultValue,
 }: {
-  options: Option[];
+  options: Map<string, { text: string; icon?: string }>;
   defaultValue: string;
 }) {
   const [value, setValue] = useState(defaultValue);
   return (
-    <Select options={options} value={value} onChange={setValue} title="Park" />
+    <Select
+      options={options}
+      selected={value}
+      onChange={setValue}
+      title="Park"
+    />
   );
 }
 
 describe('Select', () => {
   it('only shows icon in button', async () => {
-    render(<Selector options={options} defaultValue={hs.id} />);
-    const btn = screen.getByTitle('Park');
+    render(<Selector options={parkOptions} defaultValue={hs.id} />);
+    const btn = screen.getByTitle(`Park: ${hs.name}`);
     expect(btn).toHaveTextContent(hs.icon);
 
     click(btn);
     expect(screen.getAllByRole('listitem').map(li => li.textContent)).toEqual(
-      options.map(opt => ` ${opt.icon} ${opt.text}`)
+      [...parkOptions.values()].map(opt => ` ${opt.icon} ${opt.text}`)
     );
     expect(
       screen
@@ -58,7 +67,9 @@ describe('Select', () => {
   it('shows text in button if no icon', async () => {
     render(
       <Selector
-        options={options.map(opt => ({ value: opt.value, text: opt.text }))}
+        options={
+          new Map([...parkOptions].map(([k, { text }]) => [k, { text }]))
+        }
         defaultValue={ak.id}
       />
     );

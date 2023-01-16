@@ -6,24 +6,24 @@ import Overlay from './Overlay';
 
 const RADIO_NAME = '_SELECT_RADIO_BUTTON_';
 
-export interface Option<V extends string = string> {
-  value: V;
+export interface Option<V> {
   text: string;
   icon?: React.ReactNode;
+  value?: V;
 }
 
-type Props<V extends string> = Omit<
+type Props<K, V> = Omit<
   Parameters<typeof Button>[0],
-  'children' | 'value' | 'onChange'
+  'children' | 'selected' | 'onChange'
 > & {
-  options: readonly Option<V>[];
-  value: V;
+  options: Map<K, Option<V>>;
+  selected: K;
   onChange: (value: V) => void;
   iconOnly?: boolean;
 };
 
-export default function Select<V extends string>(props: Props<V>) {
-  const { options, value, onChange, ...buttonProps } = props;
+export default function Select<K extends string, V = K>(props: Props<K, V>) {
+  const { options, selected, title, onChange, ...buttonProps } = props;
   const [showingList, showList] = useState(false);
   const [minTextWidth, setMinTextWidth] = useState(0);
   const btnTextRef = useRef<HTMLSpanElement>(null);
@@ -32,14 +32,14 @@ export default function Select<V extends string>(props: Props<V>) {
   // We don't want the button width to change every time a different option
   // is selected, so we have to find the largest width of all the options.
   useLayoutEffect(() => {
-    if (options[0]?.icon) return;
+    if (options.values().next().value?.icon) return;
     const textElem = btnTextRef.current;
     const textNode = textElem?.firstChild;
     if (!textNode) return;
     const currentText = textNode.nodeValue;
     if (!currentText) return;
     let textWidth = 0;
-    for (const opt of options) {
+    for (const opt of options.values()) {
       textNode.nodeValue = opt.text;
       textWidth = Math.max(textElem.offsetWidth, textWidth);
     }
@@ -62,15 +62,25 @@ export default function Select<V extends string>(props: Props<V>) {
 
   const changeValue = () => {
     const input = selectedInput();
-    if (input) onChange(input.value as V);
+    if (input) {
+      const k = input.value as K;
+      const opt = options.get(k);
+      if (opt) onChange(opt.value ?? (k as unknown as V));
+    }
     showList(false);
   };
-  const { icon, text } = options.find(opt => opt.value === value) || options[0];
+  const opt = options.get(selected);
+  if (!opt) return null;
+  const { icon, text } = opt;
   let arrowPressed = false;
 
   return (
     <>
-      <Button {...buttonProps} onClick={() => showList(true)}>
+      <Button
+        {...buttonProps}
+        title={icon ? `${title}: ${opt.text}` : title}
+        onClick={() => showList(true)}
+      >
         {icon ? (
           icon
         ) : (
@@ -88,13 +98,14 @@ export default function Select<V extends string>(props: Props<V>) {
             outer: 'bg-black bg-opacity-75',
             inner: 'flex items-center justify-center h-full',
           }}
-          onClick={event => {
-            const target = event.target as Element;
-            if (!listRef.current?.contains(target)) return showList(false);
-            if (target.tagName === 'INPUT' && !arrowPressed) {
-              return changeValue();
-            }
+          onChange={() => {
+            if (!arrowPressed) changeValue();
             arrowPressed = false;
+          }}
+          onClick={event => {
+            if (!listRef.current?.contains(event.target as Element)) {
+              showList(false);
+            }
           }}
           onKeyDown={({ key }) => {
             if (['Enter', ' '].includes(key)) {
@@ -109,18 +120,18 @@ export default function Select<V extends string>(props: Props<V>) {
             className="overflow-auto min-w-[50%] max-h-[90%] rounded-lg bg-white text-black"
             ref={listRef}
           >
-            {options.map(opt => {
+            {[...options].map(([k, opt]) => {
               return (
                 <li
                   className="border-t-2 first:border-0 border-gray-300"
-                  key={opt.value}
+                  key={opt.text}
                 >
                   <label className="flex flex-row items-center px-4 py-3">
                     <input
                       type="radio"
                       name={RADIO_NAME}
-                      defaultChecked={opt.value === value}
-                      value={opt.value}
+                      value={k}
+                      defaultChecked={k === selected}
                       className="w-4 h-4 mr-2.5"
                     />{' '}
                     {opt.icon && (

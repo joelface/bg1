@@ -7,7 +7,7 @@ import {
   useState,
 } from 'react';
 
-import { LightningLane, Park } from '@/api/genie';
+import { LightningLane } from '@/api/genie';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { ModalProvider } from '@/contexts/Modal';
 import { ParkProvider } from '@/contexts/Park';
@@ -16,6 +16,7 @@ import { dateTimeStrings } from '@/datetime';
 import useExperiences, {
   Experience,
   PlusExperience,
+  SortType,
 } from '@/hooks/useExperiences';
 import ClockIcon from '@/icons/ClockIcon';
 import LightningIcon from '@/icons/LightningIcon';
@@ -31,15 +32,13 @@ import YourDayButton from './YourDayButton';
 
 const PARK_KEY = 'bg1.genie.tipBoard.park';
 
-const sortOptions = [
-  { value: 'priority', text: 'Priority' },
-  { value: 'nearby', text: 'Nearby' },
-  { value: 'standby', text: 'Standby' },
-  { value: 'soonest', text: 'Soonest' },
-  { value: 'aToZ', text: 'A to Z' },
-] as const;
-
-type SortType = (typeof sortOptions)[number]['value'] | 'land';
+const sortOptions = new Map<SortType, { text: string }>([
+  ['priority', { text: 'Priority' }],
+  ['nearby', { text: 'Nearby' }],
+  ['standby', { text: 'Standby' }],
+  ['soonest', { text: 'Soonest' }],
+  ['aToZ', { text: 'A to Z' }],
+]);
 
 type ScreenName = 'Genie+' | 'Times';
 
@@ -185,11 +184,16 @@ export default function Merlock() {
 
   const parkOptions = useMemo(
     () =>
-      parks.map(p => ({
-        value: p.id,
-        icon: p.icon,
-        text: p.name,
-      })),
+      new Map(
+        parks.map(park => [
+          park.id,
+          {
+            value: park,
+            icon: park.icon,
+            text: park.name,
+          },
+        ])
+      ),
     [parks]
   );
 
@@ -203,7 +207,7 @@ export default function Merlock() {
             {screen.sortType === undefined && (
               <Select
                 options={sortOptions}
-                value={sortType}
+                selected={sortType}
                 onChange={sort}
                 title="Sort By"
               />
@@ -211,9 +215,10 @@ export default function Merlock() {
 
             <Select
               options={parkOptions}
-              value={park.id}
-              onChange={id => setPark(parks.find(p => p.id === id) as Park)}
+              selected={park.id}
+              onChange={setPark}
               title="Park"
+              data-testid="park-select"
             />
 
             <YourDayButton onOpen={modal.show} onClose={modal.close} />
