@@ -31,6 +31,7 @@ import TimesGuide from './TimesGuide';
 import YourDayButton from './YourDayButton';
 
 const PARK_KEY = 'bg1.genie.tipBoard.park';
+const SCREEN_KEY = 'bg1.merlock.screen';
 
 const sortOptions = new Map<SortType, { text: string }>([
   ['priority', { text: 'Priority' }],
@@ -75,18 +76,14 @@ const screens: { [key in ScreenName]: ScreenDef | ScreenDef<true> } = {
   },
 };
 
-const DEFAULT_SCREEN = {
-  name: 'Genie+',
-  ...screens['Genie+'],
-} as const;
-
 interface Screen extends ScreenDef<any, any> {
   name: ScreenName;
   change: (screenName: ScreenName) => void;
 }
 
 const ScreenContext = createContext<Screen>({
-  ...DEFAULT_SCREEN,
+  ...screens['Genie+'],
+  name: 'Genie+',
   change: () => undefined,
 });
 
@@ -100,23 +97,31 @@ export default function Merlock() {
       parks[0]
     );
   });
-  const [screen, setScreen] = useState<Screen>(() => ({
-    ...DEFAULT_SCREEN,
-    change: (screenName: ScreenName) => {
-      setScreen(screen => {
-        if (screenName !== screen.name) {
-          setHidden(true);
-          scrollPos.current[screen.name] = pageElem.current?.scrollTop ?? 0;
-          screen = {
-            ...screens[screenName],
-            name: screenName,
-            change: screen.change,
-          };
-        }
-        return screen;
-      });
-    },
-  }));
+  const [screen, setScreen] = useState<Screen>(() => {
+    const name: ScreenName =
+      ({ 'Genie+': 'Genie+', Times: 'Times' } as const)[
+        String(localStorage.getItem(SCREEN_KEY))
+      ] ?? 'Genie+';
+    return {
+      ...screens[name],
+      name,
+      change: (screenName: ScreenName) => {
+        setScreen(screen => {
+          if (screenName !== screen.name) {
+            setHidden(true);
+            scrollPos.current[screen.name] = pageElem.current?.scrollTop ?? 0;
+            screen = {
+              ...screens[screenName],
+              name: screenName,
+              change: screen.change,
+            };
+            localStorage.setItem('bg1.merlock.screen', screenName);
+          }
+          return screen;
+        });
+      },
+    };
+  });
   const [hidden, setHidden] = useState(true);
   const [sortType, sort] = useState<SortType>('priority');
   const { experiences, refresh, toggleStar, isLoading, loaderElem } =

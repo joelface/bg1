@@ -279,6 +279,16 @@ describe('Merlock', () => {
     expect(parkIcon()).toBe(mk.icon);
   });
 
+  it('saves active screen', async () => {
+    const { unmount } = await renderComponent();
+    click('Times');
+    unmount();
+    await renderComponent();
+    expect(screen.getByRole('button', { name: 'Times' })).toHaveClass(
+      'border-white'
+    );
+  });
+
   it('pins attraction to top if favorited', async () => {
     client.experiences.mockResolvedValueOnce([
       jc,
