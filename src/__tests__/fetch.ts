@@ -21,7 +21,7 @@ function mockFetch(body: any, headers: { [name: string]: string } = {}) {
 const url = 'https://example.com/';
 const signal = expect.any(AbortSignal);
 const init = {
-  headers: { 'User-Agent': 'Mozilla/5.0' },
+  headers: {},
   cache: 'no-store',
   credentials: 'omit',
   referrer: '',

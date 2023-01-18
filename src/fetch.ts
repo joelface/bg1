@@ -19,7 +19,6 @@ export async function fetchJson(
   init.credentials ||= 'omit';
   init.cache ||= 'no-store';
   init.headers = {
-    'User-Agent': 'Mozilla/5.0',
     ...(init.headers || {}),
   };
   if (params && Object.keys(params).length > 0) {
