@@ -7,7 +7,6 @@ import { useRebooking } from '@/contexts/Rebooking';
 import useDataLoader from '@/hooks/useDataLoader';
 import RefreshIcon from '@/icons/RefreshIcon';
 import { ping } from '@/ping';
-import { sleep } from '@/sleep';
 import Button from '../Button';
 import Page from '../Page';
 import BookingDetails from './BookingDetails';
@@ -18,9 +17,6 @@ import NoGuestsFound from './NoGuestsFound';
 import NoReservationsAvailable from './NoReservationsAvailable';
 import RebookingHeader from './RebookingHeader';
 import YourDayButton from './YourDayButton';
-
-const MAX_BOOK_DELAY_MS = 2000;
-const limitUnintendedBehavior = () => sleep(Math.random() * MAX_BOOK_DELAY_MS);
 
 export default function BookExperience({
   experience,
@@ -48,7 +44,6 @@ export default function BookExperience({
 
     await loadData(
       async () => {
-        await limitUnintendedBehavior();
         try {
           booking = await client.book(offer, rebooking.current, party.selected);
         } finally {

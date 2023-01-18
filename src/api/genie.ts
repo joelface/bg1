@@ -478,7 +478,9 @@ export class GenieClient {
       data: {
         guestIds: (bookingToModify?.guests ?? guests).map(g => g.id),
         ineligibleGuests: [],
-        primaryGuestId: await this.primaryGuestId(experience),
+        primaryGuestId: guests
+          .map(g => g.id)
+          .sort((a, b) => a.localeCompare(b))[0],
         parkId: experience.park.id,
         experienceId: experience.id,
         selectedTime: experience.flex.nextAvailableTime,
