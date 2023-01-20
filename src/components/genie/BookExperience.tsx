@@ -179,7 +179,7 @@ export default function BookExperience({
       buttons={
         <>
           <YourDayButton />
-          {party && ((prebooking && !noEligible) || offer || noGuestsFound) && (
+          {((party && (offer || noGuestsFound)) || prebooking) && (
             <Button onClick={cancel}>Back</Button>
           )}
           {!prebooking && offer !== undefined && (
@@ -194,19 +194,17 @@ export default function BookExperience({
       <h2>{experience.name}</h2>
       <div>{experience.park.name}</div>
       <PartyProvider value={party ?? EMPTY_PARTY}>
-        {noEligible ? (
-          noGuestsFound ? (
-            <NoGuestsFound onRefresh={loadParty} />
-          ) : (
-            <NoEligibleGuests onClose={onClose} />
-          )
-        ) : !party || offer === undefined ? (
-          <div />
-        ) : prebooking ? (
+        {prebooking && party ? (
           <Prebooking
-            startTime={experience.flex.enrollmentStartTime}
+            startTime={experience.flex.enrollmentStartTime || '07:00:00'}
             onRefresh={checkAvailability}
           />
+        ) : noGuestsFound ? (
+          <NoGuestsFound onRefresh={loadParty} />
+        ) : noEligible ? (
+          <NoEligibleGuests onClose={onClose} />
+        ) : !party || offer === undefined ? (
+          <div />
         ) : offer === null ? (
           <NoReservationsAvailable onClose={onClose} />
         ) : (

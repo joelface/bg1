@@ -66,19 +66,28 @@ export default function YourParty({
       {eligible.length > maxPartySize && selected.length === maxPartySize && (
         <Warning>Party size restricted</Warning>
       )}
-      <div className="mt-4">
-        <h3 className="inline mt-0">Your Party</h3>
-        <span>
-          <Button
-            type="small"
-            onClick={() => setParty(new Set(selected))}
-            className="ml-3"
-          >
-            Edit
-          </Button>
-        </span>
-      </div>
-      <GuestList guests={selected} />
+      {eligible.length > 0 ? (
+        <>
+          <div className="mt-4">
+            <h3 className="inline mt-0">Your Party</h3>
+            <span>
+              <Button
+                type="small"
+                onClick={() => setParty(new Set(selected))}
+                className="ml-3"
+              >
+                Edit
+              </Button>
+            </span>
+          </div>
+          <GuestList guests={selected} />
+        </>
+      ) : (
+        <>
+          <h3>Ineligible Guests</h3>
+          <IneligibleGuestList />
+        </>
+      )}
       <FloatingButton onClick={onSubmit}>{buttonText}</FloatingButton>
     </>
   );

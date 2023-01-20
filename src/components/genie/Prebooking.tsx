@@ -14,7 +14,6 @@ export default function Prebooking({
       {startTime && (
         <TimeBoard resort="WDW" time={startTime} label="Booking start" />
       )}
-      <h3 className="mt-4">Not Available Yet</h3>
       {startTime ? (
         <p>
           At{' '}

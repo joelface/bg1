@@ -61,7 +61,6 @@ describe('BookExperience', () => {
 
   it('performs successful booking', async () => {
     await renderComponent(false);
-    screen.getByText('Not Available Yet');
     click('Check Availability');
     await loading();
     screen.getByText('11:25 AM - 12:25 PM');
@@ -164,6 +163,24 @@ describe('BookExperience', () => {
     expect(client.cancelOffer).toBeCalledTimes(1);
   });
 
+  it('shows prebooking screen even if no eligible guests', async () => {
+    client.guests.mockResolvedValueOnce({
+      eligible: [],
+      ineligible: [
+        { ...mickey, ineligibleReason: 'INVALID_PARK_ADMISSION' },
+        { ...minnie, ineligibleReason: 'INVALID_PARK_ADMISSION' },
+      ],
+    });
+    await renderComponent(false);
+    screen.getByText('07:00:00');
+    screen.getByText('Ineligible Guests');
+    screen.getByText(mickey.name);
+    screen.getByText(minnie.name);
+    expect(screen.getAllByText('INVALID PARK ADMISSION')).toHaveLength(2);
+    screen.getByRole('button', { name: 'Check Availability' });
+    screen.getByRole('button', { name: 'Back' });
+  });
+
   it('shows "No Guests Found" when no guests loaded', async () => {
     client.guests.mockResolvedValueOnce({ eligible: [], ineligible: [] });
     await renderComponent();
@@ -177,7 +194,7 @@ describe('BookExperience', () => {
       eligible: [],
       ineligible: [donald],
     });
-    await renderComponent(false);
+    await renderComponent();
     screen.getByText('No Eligible Guests');
     expect(screen.getByText(donald.name)).toHaveTextContent(
       donald.ineligibleReason.replace(/_/g, ' ')
