@@ -406,6 +406,10 @@ const data: ResortData = {
       priority: 2.0,
       sort: 1,
     },
+    18614009: {
+      name: 'Hurry Home - Lunar New Year Celebration',
+      land: paradise,
+    },
     353303: {
       name: 'Incredicoaster',
       land: pixar,
@@ -432,6 +436,11 @@ const data: ResortData = {
       land: paradise,
       sort: 2,
     },
+    18343088: {
+      name: "Luigi's Rollickin' Roadsters",
+      land: cars,
+      sort: 2,
+    },
     18848246: {
       name: "Luigi's Joy to the Whirl",
       land: cars,
@@ -445,6 +454,15 @@ const data: ResortData = {
       name: "Mater's Jingle Jamboree",
       land: cars,
       sort: 3,
+    },
+    16514431: {
+      name: "Mater's Junkyard Jamboree",
+      land: cars,
+      sort: 3,
+    },
+    19259687: {
+      name: "Mickey's Mix Magic with Fireworks",
+      land: mainStreet,
     },
     19299875: {
       name: "Mickey's PhilharMagic",
@@ -504,6 +522,10 @@ const data: ResortData = {
       land: avengers,
       geo: [33.8067598, -117.91849],
       sort: 2,
+    },
+    401479: {
+      name: 'World of Color',
+      land: paradise,
     },
     18492231: {
       name: 'World of Color - Season of Light',

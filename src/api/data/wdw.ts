@@ -331,6 +331,13 @@ const data: ResortData = {
       land: tomorrowland,
       type: 'CHARACTER',
     },
+    16874126: {
+      name: "Meet Ariel (Ariel's Grotto)",
+      land: fantasyland,
+      geo: [28.4208803, -81.5796853],
+      type: 'CHARACTER',
+      priority: 2.4,
+    },
     15850196: {
       name: 'Meet Mickey & Minnie (Town Square Theater)',
       land: mainStreet,
@@ -344,6 +351,16 @@ const data: ResortData = {
       geo: [28.4199771, -81.5808316],
       type: 'CHARACTER',
       priority: 3.0,
+    },
+    387133: {
+      name: "Meet Donald/Goofy (Pete's Silly Side Show)",
+      land: fantasyland,
+      type: 'CHARACTER',
+    },
+    15743682: {
+      name: "Meet Minnie/Daisy (Pete's Silly Side Show)",
+      land: fantasyland,
+      type: 'CHARACTER',
     },
     17505397: {
       name: 'Meet Tiana (Princess Fairytale Hall)',
@@ -411,6 +428,10 @@ const data: ResortData = {
       name: 'Alberta Bound',
       land: showcase,
     },
+    80010200: {
+      name: 'American Adventure',
+      land: showcase,
+    },
     19463785: {
       name: 'Beauty & the Beast Sing-Along',
       land: showcase,
@@ -458,6 +479,10 @@ const data: ResortData = {
       geo: [28.372896, -81.5512292],
       sort: 2,
     },
+    19516307: {
+      name: 'Julia Scheeser & Band',
+      land: showcase,
+    },
     80010161: {
       name: 'Living with the Land',
       land: nature,
@@ -488,6 +513,10 @@ const data: ResortData = {
       geo: [28.3739368, -81.5526389],
       priority: 4.0,
       sort: 3,
+    },
+    18780200: {
+      name: 'Raffy',
+      land: showcase,
     },
     80010180: {
       name: 'Reflections of China',
