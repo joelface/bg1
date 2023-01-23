@@ -336,7 +336,7 @@ const data: ResortData = {
       land: fantasyland,
       geo: [28.4208803, -81.5796853],
       type: 'CHARACTER',
-      priority: 2.4,
+      priority: 1.3,
     },
     15850196: {
       name: 'Meet Mickey & Minnie (Town Square Theater)',
