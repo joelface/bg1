@@ -76,8 +76,8 @@ if (!HTMLElement.prototype.scroll) {
 }
 export const elemScrollMock = jest.spyOn(HTMLElement.prototype, 'scroll');
 
-const MK_BTMRR_COORDS = [28.4197486, -81.5845092] as const;
-let globalCoords: readonly [number, number] | undefined = MK_BTMRR_COORDS;
+const MK_DUMBO_COORDS = [28.4206047, -81.5789092] as const;
+let globalCoords: readonly [number, number] | undefined = MK_DUMBO_COORDS;
 Object.defineProperty(navigator, 'geolocation', {
   value: {
     getCurrentPosition(onSuccess: any, onError: any) {

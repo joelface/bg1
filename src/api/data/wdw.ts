@@ -396,13 +396,6 @@ const data: ResortData = {
       priority: 2.0,
       sort: 1,
     },
-    80010192: {
-      name: 'Splash Mountain',
-      land: frontierland,
-      geo: [28.4196223, -81.584991],
-      priority: 2.2,
-      sort: 2,
-    },
     80010196: {
       name: 'Swiss Family Treehouse',
       land: adventureland,

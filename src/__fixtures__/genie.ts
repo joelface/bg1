@@ -61,14 +61,14 @@ export const jc: PlusExperience = {
 };
 
 export const sm: PlusExperience = {
-  ...data.experiences['80010192'],
-  id: '80010192',
+  ...data.experiences['80010190'],
+  id: '80010190',
   park: mk,
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 60 },
   flex: { available: true, nextAvailableTime: '12:45:00' },
   priority: 2.0,
-  sort: 2,
+  sort: 1,
   drop: true,
 };
 
