@@ -9,18 +9,30 @@ import BGClient from './components/vq/BGClient';
 import { Client } from './contexts/Client';
 import { setDefaultTimeZone } from './datetime';
 
-const authStore = new AuthStore('bg1.auth');
-if (isVirtualQueueOrigin(origin)) {
-  renderApp(new VQClient({ origin, authStore }), BGClient);
-} else if (isGenieOrigin(origin)) {
-  GenieClient.load({ origin, authStore }).then(client =>
-    renderApp(client, Merlock)
-  );
-} else {
-  location.href = 'https://joelface.github.io/bg1/start.html';
+main();
+
+function main() {
+  if (!document.body) {
+    setTimeout(main, 100);
+    return;
+  }
+  const authStore = new AuthStore('bg1.auth');
+  if (isVirtualQueueOrigin(origin)) {
+    renderApp(new VQClient({ origin, authStore }), BGClient, authStore);
+  } else if (isGenieOrigin(origin)) {
+    GenieClient.load({ origin, authStore }).then(client =>
+      renderApp(client, Merlock, authStore)
+    );
+  } else {
+    location.href = 'https://joelface.github.io/bg1/start.html';
+  }
 }
 
-async function renderApp(apiClient: Client, ClientUI: React.FunctionComponent) {
+async function renderApp(
+  apiClient: Client,
+  ClientUI: React.FunctionComponent,
+  authStore: AuthStore
+) {
   setDefaultTimeZone(
     {
       WDW: 'America/New_York',
