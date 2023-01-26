@@ -120,15 +120,6 @@ describe('GenieClient', () => {
     setTime('10:00');
   });
 
-  describe('primaryGuestId()', () => {
-    it('returns primary guest ID', async () => {
-      respond(guestsRes);
-      expect(await client.primaryGuestId(hm)).toBe(mickey.id);
-      expect(await client.primaryGuestId(hm)).toBe(mickey.id);
-      expect(fetchJsonMock).toBeCalledTimes(1);
-    });
-  });
-
   describe('load()', () => {
     it('loads Genie client', async () => {
       const client = await GenieClient.load({
@@ -167,12 +158,17 @@ describe('GenieClient', () => {
         experienced: false,
       };
       const getExpData = async () => client.experiences(mk);
-      respond(...Array(4).fill(res));
+      respond(guestsRes, ...Array(4).fill(res));
       expect(await getExpData()).toEqual([smExp]);
       expect(client.nextBookTime).toBe('11:00:00');
+      expectFetch('/ea-vas/api/v1/guests', {
+        params: { productType: 'FLEX', experienceId: '0', parkId: '0' },
+      });
       expectFetch(
         `/tipboard-vas/api/v1/parks/${encodeURIComponent(mk.id)}/experiences`,
-        { params: { eligibilityGuestIds: guests.map(g => g.id).join(',') } }
+        { params: { eligibilityGuestIds: guests.map(g => g.id).join(',') } },
+        true,
+        2
       );
 
       setTime('13:00');

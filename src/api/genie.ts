@@ -350,7 +350,7 @@ export class GenieClient {
     { name: string; characterId: string }
   >();
   protected tracker: Public<BookingTracker>;
-  protected _primaryGuestId = '';
+  protected primaryGuestId = '';
 
   static async load(
     args: Omit<ConstructorParameters<typeof GenieClient>[0], 'data'>
@@ -401,7 +401,7 @@ export class GenieClient {
   }
 
   async experiences(park: Park): Promise<Experience[]> {
-    await this.primaryGuestId(); // prime the guest cache
+    await this.primeGuestCache();
     const res: ExperiencesResponse = await this.request({
       path: `/tipboard-vas/api/v1/parks/${encodeURIComponent(
         park.id
@@ -436,7 +436,7 @@ export class GenieClient {
         parkId: experience.park.id,
       },
     });
-    this._primaryGuestId = res.primaryGuestId;
+    this.primaryGuestId = res.primaryGuestId;
     const ineligible = res.ineligibleGuests.map(this.convertGuest);
     const eligible = res.guests
       .map(this.convertGuest)
@@ -457,11 +457,6 @@ export class GenieClient {
       return cmp;
     });
     return { eligible, ineligible };
-  }
-
-  async primaryGuestId(args?: Parameters<GenieClient['guests']>[0]) {
-    if (!this._primaryGuestId) await this.guests(args);
-    return this._primaryGuestId;
   }
 
   async offer(
@@ -661,8 +656,8 @@ export class GenieClient {
           .map(getGuest)
           .sort(
             (a, b) =>
-              +(b.id === this._primaryGuestId) -
-                +(a.id === this._primaryGuestId) ||
+              +(b.id === this.primaryGuestId) -
+                +(a.id === this.primaryGuestId) ||
               +!b.transactional - +!a.transactional ||
               a.name.localeCompare(b.name)
           ),
@@ -823,6 +818,12 @@ export class GenieClient {
     }
     return { ...rest, id, name, avatarImageUrl };
   };
+
+  protected async primeGuestCache() {
+    if (this.primaryGuestId !== '') return;
+    this.primaryGuestId = '.';
+    await this.guests();
+  }
 
   protected cacheGuest(id: string, name: string, characterId: string) {
     this.guestCache.set(id, { name, characterId });
