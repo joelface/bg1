@@ -72,7 +72,7 @@ const toontown = {
   name: "Mickey's Toontown",
   park: dl,
   sort: 8,
-  theme: { bg: 'bg-orange-600', text: 'text-orange-700' },
+  theme: { bg: 'bg-purple-600', text: 'text-purple-700' },
 };
 const tomorrowland = {
   name: 'Tomorrowland',
