@@ -273,6 +273,11 @@ const data: ResortData = {
       land: fantasyland,
       type: 'CHARACTER',
     },
+    411821333: {
+      name: "Mickey and Minnie's Runaway Railway",
+      land: toontown,
+      geo: [33.8154852, -117.9183938],
+    },
     19193459: {
       name: 'Millennium Falcon: Smugglers Run',
       land: starWars,
@@ -523,8 +528,16 @@ const data: ResortData = {
       geo: [33.8067598, -117.91849],
       sort: 2,
     },
+    411805943: {
+      name: 'Wondrous Journeys with Fireworks',
+      land: mainStreet,
+    },
     401479: {
       name: 'World of Color',
+      land: paradise,
+    },
+    411805933: {
+      name: 'World of Color - ONE',
       land: paradise,
     },
     18492231: {
