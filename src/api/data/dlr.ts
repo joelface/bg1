@@ -466,7 +466,7 @@ const data: ResortData = {
       sort: 3,
     },
     19259687: {
-      name: "Mickey's Mix Magic with Fireworks",
+      name: "Mickey's Mix Magic (Fireworks)",
       land: mainStreet,
     },
     19299875: {
@@ -529,7 +529,11 @@ const data: ResortData = {
       sort: 2,
     },
     411805943: {
-      name: 'Wondrous Journeys with Fireworks',
+      name: 'Wondrous Journeys (Fireworks)',
+      land: mainStreet,
+    },
+    411805942: {
+      name: 'Wondrous Journeys (Projections)',
       land: mainStreet,
     },
     401479: {
