@@ -424,6 +424,7 @@ const data: ResortData = {
     80010200: {
       name: 'American Adventure',
       land: showcase,
+      type: 'ENTERTAINMENT',
     },
     19463785: {
       name: 'Beauty & the Beast Sing-Along',
