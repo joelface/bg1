@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import ClockIcon from '@/icons/ClockIcon';
 import Button from '../Button';
-import YourDayPanel from './YourDayPanel';
+import YourDay from './screens/YourDay';
 
 type Props = {
   onOpen?: (elem: React.ReactElement) => void;
@@ -17,7 +17,7 @@ export default function YourDayButton({ onOpen, onClose, ...props }: Props) {
     <>
       <Button
         {...props}
-        onClick={() => open(<YourDayPanel onClose={close} />)}
+        onClick={() => open(<YourDay onClose={close} />)}
         title="Your Day"
       >
         <ClockIcon />

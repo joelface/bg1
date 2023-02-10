@@ -4,7 +4,7 @@ import { AuthStore } from './api/auth/store';
 import { GenieClient, isGenieOrigin } from './api/genie';
 import { VQClient, isVirtualQueueOrigin } from './api/vq';
 import App from './components/App';
-import Merlock from './components/genie/Merlock';
+import Merlock from './components/genie/screens/Home';
 import BGClient from './components/vq/BGClient';
 import { Client } from './contexts/Client';
 import { setDefaultTimeZone } from './datetime';

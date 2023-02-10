@@ -1,6 +1,7 @@
 import {
   Booking,
   ExpData,
+  Experience,
   GenieClient,
   LightningLane,
   Offer,
@@ -8,7 +9,6 @@ import {
   Reservation,
 } from '@/api/genie';
 import data from '@/api/data/wdw';
-import { Experience } from '@/hooks/useExperiences';
 import { TODAY } from '@/testing';
 
 export const [mk, ep, hs, ak] = data.parks;
@@ -116,9 +116,9 @@ export const booking: LightningLane = {
 export const multiExp: LightningLane = {
   type: 'LL',
   subtype: 'MULTI',
-  id: jc.id,
-  name: jc.name,
-  park: jc.park,
+  id: sdd.id,
+  name: sdd.name,
+  park: sdd.park,
   start: { date: TODAY, time: '15:15:00' },
   end: { date: TODAY, time: undefined },
   cancellable: false,

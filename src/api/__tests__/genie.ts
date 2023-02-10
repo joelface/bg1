@@ -4,7 +4,6 @@ import {
   client,
   tracker,
   hm,
-  jc,
   sm,
   mk,
   mickey,
@@ -484,7 +483,7 @@ describe('GenieClient', () => {
             assets: b.choices
               ? [
                   {
-                    content: entId(jc),
+                    content: entId(b),
                     excluded: false,
                     original: true,
                   },

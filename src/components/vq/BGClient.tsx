@@ -4,12 +4,12 @@ import { Guest, Queue, JoinQueueResult } from '@/api/vq';
 import { useVQClient } from '@/contexts/VQClient';
 import useFlash from '@/hooks/useFlash';
 import { ping } from '@/ping';
-import Page from '../Page';
+import Screen from '../Screen';
 import TimeBoard from '../TimeBoard';
-import BGResult from './BGResult';
-import ChooseParty from './ChooseParty';
+import BGResult from './screens/BGResult';
+import ChooseParty from './screens/ChooseParty';
 import HowToEnter from './HowToEnter';
-import JoinQueue from './JoinQueue';
+import JoinQueue from './screens/JoinQueue';
 import QueueHeading from './QueueHeading';
 import FloatingButton from '../FloatingButton';
 
@@ -121,7 +121,7 @@ export default function BGClient() {
 
   if (queues?.length === 0) {
     return (
-      <Page heading="No Active Queues">
+      <Screen heading="No Active Queues">
         <p>
           You can't join any virtual queues just yet. Check back within an hour
           of the queue opening time, or tap the Refresh button to check again.
@@ -130,7 +130,7 @@ export default function BGClient() {
           Refresh
         </FloatingButton>
         {flashElem}
-      </Page>
+      </Screen>
     );
   }
 
@@ -154,7 +154,7 @@ export default function BGClient() {
 
   const screens = {
     ChooseParty: (
-      <Page heading={heading} containerRef={pageElem}>
+      <Screen heading={heading} containerRef={pageElem}>
         <HowToEnter queue={queue} />
         {timeBoard}
         <ChooseParty
@@ -164,26 +164,26 @@ export default function BGClient() {
           onConfirm={() => show('JoinQueue')}
         />
         {flashElem}
-      </Page>
+      </Screen>
     ),
     JoinQueue: (
-      <Page heading={heading}>
+      <Screen heading={heading}>
         {timeBoard}
         <JoinQueue
           guests={partyGuests}
           onEdit={() => show('ChooseParty')}
           joinQueue={joinQueue}
         />
-      </Page>
+      </Screen>
     ),
     BGResult: (
-      <Page heading={heading}>
+      <Screen heading={heading}>
         <BGResult
           guests={partyGuests}
           result={joinResult}
           onDone={() => show('ChooseParty')}
         />
-      </Page>
+      </Screen>
     ),
   };
 

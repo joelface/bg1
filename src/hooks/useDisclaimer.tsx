@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import FloatingButton from '@/components/FloatingButton';
-import Page from '@/components/Page';
+import Screen from '@/components/Screen';
 
 export const DISCLAIMER_ACCEPTED_KEY = 'bg1.disclaimer.accepted';
 
@@ -21,7 +21,7 @@ export default function useDisclaimer() {
 
 function Disclaimer({ onAccept }: { onAccept: () => void }) {
   return (
-    <Page heading="Warning!" theme={theme}>
+    <Screen heading="Warning!" theme={theme}>
       <p>
         Use at your own risk. BG1 is highly experimental, for demonstration
         purposes only, and provided &quot;as is&quot; without warranty of any
@@ -30,6 +30,6 @@ function Disclaimer({ onAccept }: { onAccept: () => void }) {
         intended experience, always use the official Disney app.
       </p>
       <FloatingButton onClick={onAccept}>Accept</FloatingButton>
-    </Page>
+    </Screen>
   );
 }
