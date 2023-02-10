@@ -115,7 +115,7 @@ export default function Merlock() {
               name: screenName,
               change: screen.change,
             };
-            localStorage.setItem('bg1.merlock.screen', screenName);
+            localStorage.setItem(SCREEN_KEY, screenName);
           }
           return screen;
         });
