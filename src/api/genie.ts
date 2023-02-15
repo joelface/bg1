@@ -749,7 +749,7 @@ export class GenieClient {
       })
       .filter(
         (booking): booking is Booking =>
-          !!booking && (booking.start.date || today) === today
+          !!booking && (booking.start.date || today) <= today
       );
     this.tracker.update(bookings, this);
     return bookings;
