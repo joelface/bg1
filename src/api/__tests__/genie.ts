@@ -18,6 +18,7 @@ import {
 import {
   Booking,
   BookingTracker,
+  ExpData,
   GenieClient,
   Guest,
   isGenieOrigin,
@@ -93,7 +94,7 @@ describe('GenieClient', () => {
     experiences: { ...wdw.experiences },
     pdts: { [mk.id]: [690 /* 11:30 */, 870 /* 14:30 */, 1050 /* 17:30 */] },
   };
-  const smData = data.experiences[sm.id];
+  const smData = data.experiences[sm.id] as ExpData;
   smData.priority = sm.priority;
   smData.pdtMask = 0b011;
   const client = new GenieClient({
@@ -151,7 +152,7 @@ describe('GenieClient', () => {
     it('returns experience info', async () => {
       const nextBookTime = '11:00:00';
       const res = response({
-        availableExperiences: [sm],
+        availableExperiences: [sm, { id: 'not_a_real_id' }],
         eligibility: {
           flexEligibilityWindows: [
             { time: { time: '13:30:00' } },

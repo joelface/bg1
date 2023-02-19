@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import data from '@/api/data/wdw';
-import { Experience, ExperienceType } from '@/api/genie';
+import { ExpData, Experience, ExperienceType } from '@/api/genie';
 import { ModalProvider } from '@/contexts/Modal';
 import { click, render, screen, within } from '@/testing';
 import TimesGuide from '../TimesGuide';
@@ -40,7 +40,7 @@ function exp(
   } = {}
 ): Experience {
   return {
-    ...data.experiences[id],
+    ...(data.experiences[id] as ExpData),
     id,
     park: mk,
     type: args.type || 'ATTRACTION',

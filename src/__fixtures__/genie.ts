@@ -1,5 +1,6 @@
 import {
   Booking,
+  ExpData,
   GenieClient,
   LightningLane,
   Offer,
@@ -35,7 +36,7 @@ export const donald = {
 };
 
 export const hm: PlusExperience = {
-  ...data.experiences['80010208'],
+  ...(data.experiences['80010208'] as ExpData),
   id: '80010208',
   park: mk,
   type: 'ATTRACTION',
@@ -46,7 +47,7 @@ export const hm: PlusExperience = {
 };
 
 export const jc: PlusExperience = {
-  ...data.experiences['80010153'],
+  ...(data.experiences['80010153'] as ExpData),
   id: '80010153',
   park: mk,
   type: 'ATTRACTION',
@@ -61,7 +62,7 @@ export const jc: PlusExperience = {
 };
 
 export const sm: PlusExperience = {
-  ...data.experiences['80010190'],
+  ...(data.experiences['80010190'] as ExpData),
   id: '80010190',
   park: mk,
   type: 'ATTRACTION',
@@ -73,7 +74,7 @@ export const sm: PlusExperience = {
 };
 
 export const sdd: PlusExperience = {
-  ...data.experiences['18904138'],
+  ...(data.experiences['18904138'] as ExpData),
   id: '18904138',
   park: hs,
   type: 'ATTRACTION',

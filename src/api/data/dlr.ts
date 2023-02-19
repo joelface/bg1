@@ -548,6 +548,7 @@ const data: ResortData = {
       name: 'World of Color - Season of Light',
       land: paradise,
     },
+    18407713: null,
   },
   pdts: {},
 };

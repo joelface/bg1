@@ -152,18 +152,20 @@ export interface Land {
   theme: { bg: string; text: string };
 }
 
+export interface ExpData {
+  name: string;
+  land: Land;
+  geo?: readonly [number, number];
+  pdtMask?: number;
+  type?: ExperienceType;
+  priority?: number;
+  sort?: number;
+}
+
 export interface ResortData {
   parks: Park[];
   experiences: {
-    [id: string]: {
-      name: string;
-      land: Land;
-      geo?: readonly [number, number];
-      pdtMask?: number;
-      type?: ExperienceType;
-      priority?: number;
-      sort?: number;
-    };
+    [id: string]: ExpData | null | undefined;
   };
   pdts: { [id: string]: number[] };
 }
@@ -378,7 +380,7 @@ export class GenieClient {
     }
     this.expData = { ...args.data.experiences };
     for (const [id, exp] of Object.entries(args.data.experiences)) {
-      if (!exp.pdtMask) continue;
+      if (!exp?.pdtMask) continue;
       const { id: parkId } = exp.land.park;
       for (const [i, drop] of this.drops?.[parkId]?.entries() ?? []) {
         if (exp.pdtMask & (1 << i)) drop.expIds.push(id);
@@ -411,10 +413,10 @@ export class GenieClient {
     )[0]?.time.time;
     const { expIds = [] } = this.nextDrop(park) ?? {};
     return res.availableExperiences
-      .filter((exp): exp is ApiExperience => exp.id in this.expData)
+      .filter(exp => !!this.expData[exp.id])
       .map(exp => ({
         ...exp,
-        ...this.expData[exp.id],
+        ...(this.expData[exp.id] as ExpData),
         park,
         experienced: this.tracker.experienced(exp),
         drop: expIds.includes(exp.id),
@@ -769,8 +771,11 @@ export class GenieClient {
         experiences: expIds
           .map(id => ({
             id,
-            name: this.expData[id].name,
+            name: this.expData[id]?.name,
           }))
+          .filter(
+            (exp): exp is { id: string; name: string } => exp.name !== undefined
+          )
           .sort((a, b) => a.name.localeCompare(b.name)),
       }));
   }
