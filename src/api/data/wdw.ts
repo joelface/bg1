@@ -239,6 +239,11 @@ const data: ResortData = {
       geo: [28.4206047, -81.5789092],
       sort: 6,
     },
+    16767276: {
+      name: 'Enchanted Tales with Belle',
+      land: fantasyland,
+      geo: [28.4207354, -81.5807867],
+    },
     16124144: {
       name: 'Enchanted Tiki Room',
       land: adventureland,
@@ -656,6 +661,11 @@ const data: ResortData = {
       geo: [28.3557799, -81.5588696],
       priority: 4.0,
       sort: 1,
+    },
+    18189394: {
+      name: 'Meet Chewbacca (Launch Bay)',
+      land: otherStudios,
+      type: 'CHARACTER',
     },
     19263736: {
       name: 'Rise of the Resistance',
