@@ -243,6 +243,7 @@ const data: ResortData = {
       name: 'Enchanted Tales with Belle',
       land: fantasyland,
       geo: [28.4207354, -81.5807867],
+      priority: 2.3,
     },
     16124144: {
       name: 'Enchanted Tiki Room',
@@ -261,21 +262,21 @@ const data: ResortData = {
       name: 'Haunted Mansion',
       land: libertySquare,
       geo: [28.4208771, -81.5830102],
-      priority: 2.3,
+      priority: 2.2,
       sort: 1,
     },
     80010149: {
       name: "it's a small world",
       land: fantasyland,
       geo: [28.4205055, -81.582156],
-      priority: 3.6,
+      priority: 3.5,
       sort: 4,
     },
     80010153: {
       name: 'Jungle Cruise',
       land: adventureland,
       geo: [28.4180339, -81.5834548],
-      priority: 1.1,
+      priority: 1.2,
       sort: 1,
     },
     80010160: {
@@ -298,7 +299,7 @@ const data: ResortData = {
       name: 'Many Adventures of Winnie the Pooh',
       land: fantasyland,
       geo: [28.4202297, -81.5801966],
-      priority: 3.2,
+      priority: 3.1,
       sort: 3,
     },
     80010170: {
@@ -316,14 +317,14 @@ const data: ResortData = {
       name: "Peter Pan's Flight",
       land: fantasyland,
       geo: [28.4203332, -81.5818676],
-      priority: 1.2,
+      priority: 1.1,
       sort: 2,
     },
     80010177: {
       name: 'Pirates of the Caribbean',
       land: adventureland,
       geo: [28.4180994, -81.5842719],
-      priority: 3.4,
+      priority: 3.2,
       sort: 2,
     },
     80010117: {
@@ -348,7 +349,7 @@ const data: ResortData = {
       land: mainStreet,
       geo: [28.4167334, -81.5803937],
       type: 'CHARACTER',
-      priority: 3.1,
+      priority: 3.4,
     },
     18498503: {
       name: 'Meet Cinderella (Princess Fairytale Hall)',
@@ -372,7 +373,7 @@ const data: ResortData = {
       land: fantasyland,
       geo: [28.4199771, -81.5808316],
       type: 'CHARACTER',
-      priority: 3.5,
+      priority: 3.6,
     },
     19579538: {
       name: "Mickey's Celebration Cavalcade",
