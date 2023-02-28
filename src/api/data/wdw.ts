@@ -10,7 +10,7 @@ const mk = {
     e: -81.575,
     w: -81.586,
   },
-  theme: { bg: 'bg-fuchsia-600', text: 'text-fuchsia-600' },
+  theme: { bg: 'bg-blue-500', text: 'text-blue-500' },
 };
 const ep = {
   id: '80007838',
@@ -22,7 +22,7 @@ const ep = {
     e: -81.545,
     w: -81.555,
   },
-  theme: { bg: 'bg-indigo-600', text: 'text-indigo-600' },
+  theme: { bg: 'bg-yellow-500', text: 'text-yellow-500' },
 };
 const hs = {
   id: '80007998',
@@ -34,7 +34,7 @@ const hs = {
     e: -81.557,
     w: -81.564,
   },
-  theme: { bg: 'bg-orange-600', text: 'text-orange-600' },
+  theme: { bg: 'bg-red-500', text: 'text-red-500' },
 };
 const ak = {
   id: '80007823',
