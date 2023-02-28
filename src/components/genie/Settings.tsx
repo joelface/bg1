@@ -24,7 +24,7 @@ export default function Settings({ onClose }: { onClose: () => void }) {
       <ul className="mt-4">
         <MenuItem
           button={<Button onClick={() => show('party')}>Select Party</Button>}
-          desc="BG1's automatic party selection works great for most people, but manually specifying your party may be useful for larger groups or other special situations."
+          desc="BG01's automatic party selection works great for most people, but manually specifying your party may be useful for larger groups or other special situations."
         />
         <MenuItem
           button={<LogoutButton />}

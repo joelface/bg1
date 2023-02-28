@@ -861,7 +861,7 @@ export class GenieClient {
   }
 }
 
-export const BOOKINGS_KEY = 'bg1.genie.bookings';
+export const BOOKINGS_KEY = 'bg01.genie.bookings';
 
 interface BookingTrackerData {
   date: string;

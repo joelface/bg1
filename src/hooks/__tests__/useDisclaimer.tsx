@@ -13,11 +13,11 @@ describe('useDisclaimer()', () => {
     screen.getByText('Warning!');
     click('Accept');
     expect(container).toBeEmptyDOMElement();
-    expect(localStorage.getItem('bg1.disclaimer.accepted')).toBe('1');
+    expect(localStorage.getItem('bg01.disclaimer.accepted')).toBe('1');
   });
 
-  it('is accepted when bg1.disclaimer.accepted is set', () => {
-    localStorage.setItem('bg1.disclaimer.accepted', '1');
+  it('is accepted when bg01.disclaimer.accepted is set', () => {
+    localStorage.setItem('bg01.disclaimer.accepted', '1');
     const { container } = render(<Disclaimer />);
     expect(container).toBeEmptyDOMElement();
   });

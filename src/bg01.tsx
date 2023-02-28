@@ -16,7 +16,7 @@ function main() {
     setTimeout(main, 100);
     return;
   }
-  const authStore = new AuthStore('bg1.auth');
+  const authStore = new AuthStore('bg01.auth');
   if (isVirtualQueueOrigin(origin)) {
     renderApp(new VQClient({ origin, authStore }), BGClient, authStore);
   } else if (isGenieOrigin(origin)) {

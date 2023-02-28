@@ -30,8 +30,8 @@ import Settings from './Settings';
 import TimesGuide from './TimesGuide';
 import YourDayButton from './YourDayButton';
 
-const PARK_KEY = 'bg1.genie.tipBoard.park';
-const SCREEN_KEY = 'bg1.merlock.screen';
+const PARK_KEY = 'bg01.genie.tipBoard.park';
+const SCREEN_KEY = 'bg01.merlock.screen';
 
 const sortOptions = new Map<SortType, { text: string }>([
   ['priority', { text: 'Priority' }],
@@ -115,7 +115,7 @@ export default function Merlock() {
               name: screenName,
               change: screen.change,
             };
-            localStorage.setItem('bg1.merlock.screen', screenName);
+            localStorage.setItem('bg01.merlock.screen', screenName);
           }
           return screen;
         });

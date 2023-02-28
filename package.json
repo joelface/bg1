@@ -1,9 +1,9 @@
 {
-  "name": "bg1",
+  "name": "bg01",
   "version": "0.2.0",
   "description": "An unofficial, experimental boarding group client",
   "license": "GPL-3.0-only",
-  "repository": "github:joelface/bg1",
+  "repository": "github:kabb5/bg01",
   "dependencies": {
     "preact": "^10.11.3"
   },

@@ -12,7 +12,7 @@ const server = {
 };
 
 export default defineConfig({
-  base: '/bg1/',
+  base: '/bg01/',
   root: 'src',
   resolve: {
     alias: {
@@ -25,7 +25,7 @@ export default defineConfig({
     outDir: '../dist',
     emptyOutDir: false,
     rollupOptions: {
-      input: ['src/bg1.tsx', 'src/bg1.css'],
+      input: ['src/bg01.tsx', 'src/bg01.css'],
       output: {
         entryFileNames: '[name].js',
         chunkFileNames: '[name].js',

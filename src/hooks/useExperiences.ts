@@ -13,7 +13,7 @@ import useDataLoader from './useDataLoader';
 const AUTO_REFRESH_MIN_MS = 60_000;
 const LP_MIN_STANDBY = 30;
 const LP_MAX_LL_WAIT = 60;
-const STARRED_KEY = 'bg1.genie.tipBoard.starred';
+const STARRED_KEY = 'bg01.genie.tipBoard.starred';
 
 interface ExperienceExtras {
   lp?: boolean;

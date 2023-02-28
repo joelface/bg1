@@ -8,7 +8,7 @@ import FloatingButton from '../FloatingButton';
 import GuestList from '../GuestList';
 import Page from '../Page';
 
-const PARTY_IDS_KEY = 'bg1.genie.partyIds';
+const PARTY_IDS_KEY = 'bg01.genie.partyIds';
 
 export function loadPartyIds() {
   const partyIds = JSON.parse(localStorage.getItem(PARTY_IDS_KEY) || '[]');
