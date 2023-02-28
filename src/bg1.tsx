@@ -24,7 +24,7 @@ function main() {
       renderApp(client, Merlock, authStore)
     );
   } else {
-    location.href = 'https://joelface.github.io/bg1/start.html';
+    location.href = 'https://kabb5.github.io/bg01/start.html';
   }
 }
 
@@ -39,7 +39,7 @@ async function renderApp(
       DLR: 'America/Los_Angeles',
     }[apiClient.resort]
   );
-  document.title = 'BG1';
+  document.title = 'BG01';
   addViewportMeta();
   disableDoubleTapZoom();
   createReactRoot().render(
