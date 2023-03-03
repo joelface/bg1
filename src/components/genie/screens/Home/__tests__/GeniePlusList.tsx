@@ -114,10 +114,10 @@ describe('GeniePlusList', () => {
     expect(getExperiences()).toEqual(names([bz, sm, jc]));
     expect(getExperiences('experienced')).toEqual(names([db, hm]));
 
-    click('Unfavorite');
+    click('Remove from Favorites');
     expect(getExperiences()).toEqual(names([sm, jc]));
 
-    click(screen.getAllByTitle('Favorite')[4]);
+    click(screen.getAllByTitle('Add to Favorites')[4]);
     expect(getExperiences()).toEqual(names([hm, sm, jc]));
 
     click(displayTime(sm.flex.nextAvailableTime as string));
