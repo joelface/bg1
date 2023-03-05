@@ -1,15 +1,16 @@
-import { useState } from 'react';
-
 import data from '@/api/data/wdw';
 import { ExpData, Experience, ExperienceType } from '@/api/genie';
-import { ModalProvider } from '@/contexts/Modal';
-import { click, render, screen, within } from '@/testing';
+import { ExperiencesProvider } from '@/contexts/Experiences';
+import { Nav } from '@/contexts/Nav';
+import { click, render, screen, see, within } from '@/testing';
 
 import TimesGuide from '../TimesGuide';
 
+jest.mock('@/contexts/GenieClient');
+
 function expectTimes(def: { [key: string]: { [key: string]: Experience[] } }) {
   for (const [land, subdef] of Object.entries(def)) {
-    screen.getByRole('heading', { name: land });
+    see(land, 'heading');
     for (const [expType, exps] of Object.entries(subdef)) {
       const c = within(screen.getByTestId(`${land}-${expType}`));
       c.getByRole('heading', { name: expType });
@@ -71,30 +72,25 @@ const btmr = exp('80010110', { waitTime: 60 });
 const uts = exp('16767263', { down: true });
 const tiana = exp('17505397', { type: 'CHARACTER', waitTime: 45 });
 const experiences = [dd, fof, potc, tiki, btmr, tiana, uts];
-
-function TimesGuideTest() {
-  const [modal, setModal] = useState({
-    elem: null as React.ReactNode,
-    show: (elem: React.ReactNode) => setModal({ ...modal, elem }),
-    close: () => modal.show(null),
-  });
-  return (
-    <ModalProvider value={modal}>
-      {modal.elem ?? (
-        <TimesGuide
-          park={mk}
-          experiences={experiences}
-          refresh={() => null}
-          toggleStar={() => null}
-        />
-      )}
-    </ModalProvider>
-  );
-}
+const refreshExperiences = jest.fn();
 
 describe('TimesGuide', () => {
-  it('renders times guide', () => {
-    render(<TimesGuideTest />);
+  it('renders times guide', async () => {
+    render(
+      <ExperiencesProvider
+        value={{
+          experiences,
+          refreshExperiences,
+          park: mk,
+          setPark: jest.fn(),
+          loaderElem: null,
+        }}
+      >
+        <Nav>
+          <TimesGuide contentRef={{ current: null }} />
+        </Nav>
+      </ExperiencesProvider>
+    );
     expectTimes({
       'Main Street, USA': {
         Entertainment: [dd, fof],
@@ -114,9 +110,11 @@ describe('TimesGuide', () => {
     expect(
       screen.queryByRole('heading', { name: fof.name, level: 2 })
     ).not.toBeInTheDocument();
+
     click(ddShowTimes[0]);
-    screen.getByRole('heading', { name: dd.name, level: 2 });
-    screen.getByText('Upcoming Shows');
+    await see.screen('Experience Info');
+    see(dd.name, 'heading', { level: 2 });
+    see('Upcoming Shows');
     expect(
       screen.getAllByRole('listitem').map(elem => elem.textContent)
     ).toEqual(ddShowTimes);

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { AuthStore } from '@/api/auth/store';
 import { Client, ClientProvider } from '@/contexts/Client';
 import useDisclaimer from '@/hooks/useDisclaimer';
+import onVisible from '@/onVisible';
 
 import LoginForm from './LoginForm';
 
@@ -13,7 +14,7 @@ export default function App({
 }: {
   client: Client;
   authStore: Public<AuthStore>;
-  children: React.ReactNode;
+  children: JSX.Element;
 }) {
   const [screenName, show] = useState<keyof typeof screens>('Blank');
   const disclaimer = useDisclaimer();
@@ -23,8 +24,8 @@ export default function App({
   }, [client]);
 
   useEffect(() => {
-    function checkAuthData() {
-      if (document.hidden || screenName === 'LoginForm') return;
+    function checkAuth() {
+      if (screenName === 'LoginForm') return;
       try {
         authStore.getData();
         show('Client');
@@ -32,12 +33,8 @@ export default function App({
         return show('LoginForm');
       }
     }
-
-    checkAuthData();
-    document.addEventListener('visibilitychange', checkAuthData);
-    return () => {
-      document.removeEventListener('visibilitychange', checkAuthData);
-    };
+    checkAuth();
+    return onVisible(checkAuth);
   }, [authStore, screenName]);
 
   const screens = {

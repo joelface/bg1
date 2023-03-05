@@ -1,19 +1,22 @@
 import { booking } from '@/__fixtures__/genie';
-import { returnTime } from '@/datetime';
-import { render, screen } from '@/testing';
+import { displayTime } from '@/datetime';
+import { render, see, setTime } from '@/testing';
 
 import BookingListing from '../BookingListing';
+
+setTime('09:00');
 
 describe('BookingListing', () => {
   it('renders listing', () => {
     render(<BookingListing booking={booking} />);
-    expect(screen.getByText(booking.name)).toBeInTheDocument();
-    expect(screen.getByText(returnTime(booking))).toBeInTheDocument();
-    expect(screen.queryByText('DAS')).not.toBeInTheDocument();
+    see(booking.name);
+    see(displayTime(booking.start.time as string));
+    see(displayTime(booking.end.time as string));
+    see.no('DAS');
   });
 
   it('shows DAS badge', () => {
     render(<BookingListing booking={{ ...booking, subtype: 'DAS' }} />);
-    expect(screen.getByText('DAS')).toBeInTheDocument();
+    see('DAS');
   });
 });

@@ -1,8 +1,13 @@
-import Modal from '@/components/Modal';
+import { useEffect, useRef, useState } from 'react';
+
+import { PlusExperience as BasePlusExp } from '@/api/genie';
+import Screen from '@/components/Screen';
+import Tab from '@/components/Tab';
+import { useExperiences } from '@/contexts/Experiences';
 import { useGenieClient } from '@/contexts/GenieClient';
-import { useModal } from '@/contexts/Modal';
-import { useTheme } from '@/contexts/Theme';
-import { displayTime } from '@/datetime';
+import { useNav } from '@/contexts/Nav';
+import { ThemeProvider, useTheme } from '@/contexts/Theme';
+import { dateTimeStrings, displayTime, timeToMinutes } from '@/datetime';
 import CheckmarkIcon from '@/icons/CheckmarkIcon';
 import DropIcon from '@/icons/DropIcon';
 import LightningIcon from '@/icons/LightningIcon';
@@ -10,37 +15,74 @@ import StarIcon from '@/icons/StarIcon';
 
 import { ExperienceList } from '../../ExperienceList';
 import RebookingHeader from '../../RebookingHeader';
-import BookExperience from '../BookExperience';
-import { PlusExperience, ScreenProps } from '../Home';
+import YourDayButton from '../../YourDayButton';
+import { HomeTabProps } from '../Home';
 import { useSelectedParty } from '../PartySelector';
+import RefreshButton from '../RefreshButton';
 import GeniePlusButton from './GeniePlusButton';
 import Legend, { Symbol } from './Legend';
+import ParkSelect from './ParkSelect';
 import StandbyTime from './StandbyTime';
 import TimeBanner from './TimeBanner';
+import useSort from './useSort';
 
+const LP_MIN_STANDBY = 30;
+const LP_MAX_LL_WAIT = 60;
+export const STARRED_KEY = 'bg1.genie.tipBoard.starred';
 const LIGHTNING_PICK = 'Lightning Pick';
 const UPCOMING_DROP = 'Upcoming Drop';
 const BOOKED = 'Booked';
 
+export interface PlusExperience extends BasePlusExp {
+  lp: boolean;
+  starred: boolean;
+}
+
 const isExperienced = (exp: PlusExperience) => exp.experienced && !exp.starred;
 
-export default function GeniePlusList({
-  park,
-  experiences,
-  refresh,
-  toggleStar,
-}: ScreenProps<PlusExperience>) {
+export default function GeniePlusList({ contentRef }: HomeTabProps) {
   useSelectedParty();
+  const { goTo } = useNav();
   const client = useGenieClient();
-  const modal = useModal();
+  const { experiences, refreshExperiences, park, loaderElem } =
+    useExperiences();
+  const { sorter, SortSelect } = useSort();
   const theme = useTheme();
+  const [starred, setStarred] = useState<Set<string>>(() => {
+    const ids = JSON.parse(localStorage.getItem(STARRED_KEY) || '[]');
+    return new Set(Array.isArray(ids) ? ids : []);
+  });
+  const firstUpdate = useRef(true);
+
+  useEffect(() => {
+    if (firstUpdate.current) {
+      firstUpdate.current = false;
+    } else {
+      contentRef.current?.scroll(0, 0);
+    }
+  }, [SortSelect, contentRef]);
+
+  function toggleStar({ id }: { id: string }) {
+    setStarred(starred => {
+      starred = new Set(starred);
+      if (starred.has(id)) {
+        starred.delete(id);
+      } else {
+        starred.add(id);
+      }
+      localStorage.setItem(STARRED_KEY, JSON.stringify([...starred]));
+      return starred;
+    });
+  }
 
   const dropTime = client.nextDropTime(park);
 
-  const showLightningPickModal = () => modal.show(<LightningPickModal />);
-  const showDropTimeModal = () =>
-    modal.show(<DropTimeModal dropTime={dropTime} park={park} />);
-  const showBookedModal = () => modal.show(<BookedModal />);
+  const showDesc = (desc: JSX.Element) =>
+    goTo(<ThemeProvider value={park.theme}>{desc}</ThemeProvider>);
+  const showLightningPickDesc = () => showDesc(<LightningPickDesc />);
+  const showDropTimeDesc = () =>
+    showDesc(<DropTimeDesc dropTime={dropTime} park={park} />);
+  const showBookedDesc = () => showDesc(<BookedDesc />);
 
   const expListItem = (exp: PlusExperience) => (
     <li
@@ -56,49 +98,70 @@ export default function GeniePlusList({
           <InfoButton
             name={LIGHTNING_PICK}
             icon={LightningIcon}
-            onClick={showLightningPickModal}
+            onClick={showLightningPickDesc}
           />
         ) : dropTime && exp.drop ? (
           <InfoButton
             name={UPCOMING_DROP}
             icon={DropIcon}
-            onClick={showDropTimeModal}
+            onClick={showDropTimeDesc}
           />
         ) : null}
         {exp.flex.preexistingPlan && (
           <InfoButton
             name={BOOKED}
             icon={CheckmarkIcon}
-            onClick={showBookedModal}
+            onClick={showBookedDesc}
           />
         )}
       </div>
       <div className="flex flex-wrap gap-1.5 mt-2">
         <StandbyTime experience={exp} />
-        <GeniePlusButton
-          experience={exp}
-          onClick={experience =>
-            modal.show(
-              <BookExperience
-                experience={experience}
-                onClose={() => {
-                  modal.close();
-                  refresh(false);
-                }}
-              />
-            )
-          }
-        />
+        <GeniePlusButton experience={exp} />
       </div>
     </li>
   );
 
-  const unexperienced = experiences.filter(exp => !isExperienced(exp));
-  const experienced = experiences
+  const nowMinutes = timeToMinutes(dateTimeStrings().time);
+  const plusExps = experiences
+    .filter((exp): exp is BasePlusExp => !!exp.flex)
+    .map(exp => {
+      const standby = exp.standby.waitTime || 0;
+      const returnTime = exp?.flex?.nextAvailableTime;
+      return {
+        ...exp,
+        lp:
+          !!returnTime &&
+          standby >= LP_MIN_STANDBY &&
+          timeToMinutes(returnTime) - nowMinutes <=
+            Math.min(
+              LP_MAX_LL_WAIT,
+              ((4 - Math.trunc(exp.priority || 4)) / 3) * standby
+            ),
+        starred: starred.has(exp.id),
+      };
+    })
+    .sort(
+      (a, b) => +!a.starred - +!b.starred || +!a.lp - +!b.lp || sorter(a, b)
+    );
+  const unexperienced = plusExps.filter(exp => !isExperienced(exp));
+  const experienced = plusExps
     .filter(isExperienced)
     .sort((a, b) => a.name.localeCompare(b.name));
+
   return (
-    <>
+    <Tab
+      heading="Genie+"
+      buttons={
+        <>
+          <SortSelect />
+          <ParkSelect />
+          <YourDayButton />
+          <RefreshButton name="Experiences" onClick={refreshExperiences} />
+        </>
+      }
+      contentRef={contentRef}
+    >
       <RebookingHeader />
       <TimeBanner bookTime={client.nextBookTime} dropTime={dropTime} />
       <ul data-testid="unexperienced">{unexperienced.map(expListItem)}</ul>
@@ -112,24 +175,27 @@ export default function GeniePlusList({
           <ul data-testid="experienced">{experienced.map(expListItem)}</ul>
         </>
       )}
-      <Legend>
-        <Symbol
-          sym={<LightningIcon className={theme.text} />}
-          def={LIGHTNING_PICK}
-          onInfo={showLightningPickModal}
-        />
-        <Symbol
-          sym={<DropIcon className={theme.text} />}
-          def={UPCOMING_DROP}
-          onInfo={showDropTimeModal}
-        />
-        <Symbol
-          sym={<CheckmarkIcon className={theme.text} />}
-          def={BOOKED}
-          onInfo={showBookedModal}
-        />
-      </Legend>
-    </>
+      {plusExps.length > 0 && (
+        <Legend>
+          <Symbol
+            sym={<LightningIcon className={theme.text} />}
+            def={LIGHTNING_PICK}
+            onInfo={showLightningPickDesc}
+          />
+          <Symbol
+            sym={<DropIcon className={theme.text} />}
+            def={UPCOMING_DROP}
+            onInfo={showDropTimeDesc}
+          />
+          <Symbol
+            sym={<CheckmarkIcon className={theme.text} />}
+            def={BOOKED}
+            onInfo={showBookedDesc}
+          />
+        </Legend>
+      )}
+      {loaderElem}
+    </Tab>
   );
 }
 
@@ -173,19 +239,19 @@ function StarButton({
   );
 }
 
-function LightningPickModal() {
+function LightningPickDesc() {
   return (
-    <Modal heading={LIGHTNING_PICK}>
+    <Screen heading={LIGHTNING_PICK}>
       <p>
-        When an attraction with a long wait has a Lightning Lane return time in
-        the near future, it's highlighted as a Lightning Pick. Book these quick
-        before they're gone!
+        When an attraction with a long standby wait has a Lightning Lane return
+        time in the near future, it's highlighted as a Lightning Pick. Book
+        these quick before they're gone!
       </p>
-    </Modal>
+    </Screen>
   );
 }
 
-function DropTimeModal({
+function DropTimeDesc({
   dropTime,
   park,
 }: {
@@ -195,7 +261,7 @@ function DropTimeModal({
   const client = useGenieClient();
   const { bg } = useTheme();
   return (
-    <Modal heading={UPCOMING_DROP}>
+    <Screen heading={UPCOMING_DROP}>
       <p>
         This attraction may be part of the{' '}
         {dropTime ? (
@@ -217,16 +283,16 @@ function DropTimeModal({
           key={drop.time}
         />
       ))}
-    </Modal>
+    </Screen>
   );
 }
 
-function BookedModal() {
+function BookedDesc() {
   return (
-    <Modal heading={BOOKED}>
+    <Screen heading={BOOKED}>
       <p>
         You currently have a Lightning Lane reservation for this attraction.
       </p>
-    </Modal>
+    </Screen>
   );
 }

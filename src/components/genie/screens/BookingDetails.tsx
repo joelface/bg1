@@ -2,10 +2,10 @@ import { useState } from 'react';
 
 import { Booking, EntitledGuest, Park } from '@/api/genie';
 import Button from '@/components/Button';
-import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
 import Screen from '@/components/Screen';
 import { useGenieClient } from '@/contexts/GenieClient';
+import { useNav } from '@/contexts/Nav';
 import { useRebooking } from '@/contexts/Rebooking';
 import { DEFAULT_THEME } from '@/contexts/Theme';
 
@@ -16,44 +16,28 @@ import CancelGuests from './CancelGuests';
 export default function BookingDetails({
   booking,
   onClose,
-  isNew,
 }: {
   booking: Booking;
-  onClose: (newGuests: EntitledGuest[] | void) => void;
-  isNew?: boolean;
+  onClose?: (newGuests: EntitledGuest[]) => void;
 }) {
+  const { goTo, goBack } = useNav();
   const client = useGenieClient();
   const { name, park, choices, type } = booking;
   const isLL = type === 'LL';
   const rebooking = useRebooking();
   const [guests, setGuests] = useState(isLL ? booking.guests : undefined);
-  const [canceling, setCanceling] = useState(false);
-
-  if (canceling && isLL && guests) {
-    return (
-      <CancelGuests
-        booking={{ ...booking, guests }}
-        onClose={newGuests => {
-          setCanceling(false);
-          if (newGuests.length > 0) {
-            setGuests(newGuests);
-          } else {
-            onClose(newGuests);
-          }
-        }}
-      />
-    );
-  }
 
   const choicesByPark = new Map([
-    [park, []],
+    [park as Park, []],
     ...client.parks.map(
       park => [park, []] as [Park, Required<typeof booking>['choices']]
     ),
   ]);
   for (const exp of choices || []) choicesByPark.get(exp.park)?.push(exp);
 
-  const parkChoices = [...choicesByPark.keys()];
+  const parkChoices = [...choicesByPark]
+    .filter(([, exps]) => exps.length > 0)
+    .map(([park]) => park);
   const theme = (
     !choices
       ? park
@@ -97,11 +81,11 @@ export default function BookingDetails({
           </p>
           {[...choicesByPark]
             .filter(([, choices]) => choices.length > 0)
-            .map(([park, choices = []]) => (
+            .map(([park, choices]) => (
               <ExperienceList
                 heading={park.name}
                 experiences={choices}
-                bg={park.theme?.bg ?? ''}
+                bg={park.theme.bg}
                 key={park.id}
               />
             ))}
@@ -109,10 +93,24 @@ export default function BookingDetails({
       )}
       <div className="flex mt-4">
         <h3 className="inline mt-0">Your Party</h3>
-        {booking.cancellable && (
+        {booking.cancellable && guests && (
           <Button
             type="small"
-            onClick={() => setCanceling(true)}
+            onClick={() => {
+              goTo(
+                <CancelGuests
+                  booking={{ ...booking, guests }}
+                  onClose={guests => {
+                    if (onClose) onClose(guests);
+                    if (guests.length > 0) {
+                      setGuests(guests);
+                    } else {
+                      goBack();
+                    }
+                  }}
+                />
+              );
+            }}
             className="ml-3"
           >
             Cancel
@@ -130,9 +128,6 @@ export default function BookingDetails({
           )
         }
       />
-      <FloatingButton onClick={() => onClose(guests)}>
-        {isNew ? 'Done' : 'Back'}
-      </FloatingButton>
     </Screen>
   );
 }

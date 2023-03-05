@@ -1,5 +1,6 @@
 import { offer } from '@/__fixtures__/genie';
-import { click, render, screen, setTime } from '@/testing';
+import { displayTime } from '@/datetime';
+import { click, render, see, setTime } from '@/testing';
 
 import OfferDetails from '../OfferDetails';
 
@@ -9,7 +10,8 @@ const onBook = jest.fn();
 describe('OfferDetails', () => {
   it('renders offer details', () => {
     render(<OfferDetails offer={offer} onBook={onBook} />);
-    screen.getByText('11:25 AM - 12:25 PM');
+    see(displayTime(offer.start.time));
+    see(displayTime(offer.end.time));
     click('Book Lightning Lane');
     expect(onBook).toBeCalledTimes(1);
   });
@@ -18,6 +20,6 @@ describe('OfferDetails', () => {
     render(
       <OfferDetails offer={{ ...offer, changed: true }} onBook={onBook} />
     );
-    screen.getByText('Return time has been changed');
+    see('Return time has been changed');
   });
 });

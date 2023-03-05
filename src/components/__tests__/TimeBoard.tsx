@@ -1,4 +1,4 @@
-import { act, render, screen } from '@/testing';
+import { act, render, screen, see } from '@/testing';
 
 import TimeBoard, { TIME_IS_IDS } from '../TimeBoard';
 
@@ -36,15 +36,15 @@ describe('TimeBoard', () => {
     act(() => {
       jest.advanceTimersByTime(5000);
     });
-    expect(screen.queryByText(unsyncedMsg)).not.toBeInTheDocument();
+    see.no(unsyncedMsg);
   });
 
   it('shows unsynced if syncing fails', async () => {
     renderComponent();
-    expect(screen.queryByText(unsyncedMsg)).not.toBeInTheDocument();
+    see.no(unsyncedMsg);
     act(() => {
       jest.advanceTimersByTime(5000);
     });
-    expect(await screen.findByText(unsyncedMsg)).toBeInTheDocument();
+    see(unsyncedMsg);
   });
 });

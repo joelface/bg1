@@ -5,15 +5,21 @@ import { Guest, Guests } from '@/api/genie';
 export interface Party extends Guests {
   selected: Guest[];
   setSelected: (guests: Guest[]) => void;
+  experience: {
+    name: string;
+    park: { name: string; theme: { bg: string; text: string } };
+  };
 }
 
-export const EMPTY_PARTY = {
+export const PartyContext = createContext<Party>({
   eligible: [],
   ineligible: [],
   selected: [],
   setSelected: () => null,
-};
-
-export const PartyContext = createContext<Party>(EMPTY_PARTY);
+  experience: {
+    name: '',
+    park: { name: '', theme: { bg: '', text: '' } },
+  },
+});
 export const PartyProvider = PartyContext.Provider;
 export const useParty = () => useContext(PartyContext);

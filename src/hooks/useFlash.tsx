@@ -22,7 +22,7 @@ export default function useFlash(): [React.ReactNode, typeof flash] {
         : timeoutId;
     });
   }, []);
-  const flashElem = <Flash message={message} type={type} />;
+  const flashElem = message ? <Flash message={message} type={type} /> : null;
   return [flashElem, flash];
 }
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { fifi, guests, mickey, minnie, pluto } from '@/__fixtures__/vq';
-import { click, render, screen, within } from '@/testing';
+import { click, render, screen, see, within } from '@/testing';
 
 import GuestList from '../GuestList';
 
@@ -28,7 +28,7 @@ describe('GuestList', () => {
           g.avatarImageUrl
         );
       } else {
-        expect(within(li).getByText(g.name[0])).toBeInTheDocument();
+        within(li).getByText(g.name[0]);
       }
     });
     expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
@@ -68,11 +68,9 @@ describe('GuestList', () => {
         }}
       />
     );
-    expect(screen.getByText(mickey.name)).toHaveTextContent('NO PARK PASS');
-    expect(screen.getByText(minnie.name)).toHaveTextContent(/^Minnie Mouse$/);
-    expect(screen.getByText(pluto.name)).toHaveTextContent(
-      'REDEEM LIMIT REACHED'
-    );
-    expect(screen.getByText(fifi.name)).toHaveTextContent(/^Fifi$/);
+    expect(see(mickey.name)).toHaveTextContent('NO PARK PASS');
+    expect(see(minnie.name)).toHaveTextContent(/^Minnie Mouse$/);
+    expect(see(pluto.name)).toHaveTextContent('REDEEM LIMIT REACHED');
+    expect(see(fifi.name)).toHaveTextContent(/^Fifi$/);
   });
 });

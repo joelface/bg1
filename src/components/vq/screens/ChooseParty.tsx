@@ -1,38 +1,69 @@
-import { Guest } from '@/api/vq';
+import { useEffect, useState } from 'react';
+
+import { Guest, Queue } from '@/api/vq';
 import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
-import LogoutButton from '@/components/LogoutButton';
+import Screen from '@/components/Screen';
+import { useNav } from '@/contexts/Nav';
+import { useVQClient } from '@/contexts/VQClient';
+import useDataLoader from '@/hooks/useDataLoader';
 
-export default function ChooseParty({
-  guests,
-  party,
-  onToggle,
-  onConfirm,
-}: {
-  guests?: Guest[];
-  party: Set<Guest>;
-  onToggle: (guest: Guest) => void;
-  onConfirm: () => void;
-}) {
+import StartTime from '../StartTime';
+import JoinQueue from './JoinQueue';
+
+export default function ChooseParty({ queue }: { queue: Queue }) {
+  const { goTo } = useNav();
+  const client = useVQClient();
+  const { loadData, loaderElem, flash } = useDataLoader();
+  const [guests, setGuests] = useState<Guest[]>([]);
+  const [party, setParty] = useState<Set<Guest>>(new Set());
+
+  useEffect(() => {
+    loadData(async () => {
+      const guests = await client.getLinkedGuests(queue);
+      setGuests(guests);
+      setParty(new Set(guests.filter(g => g.preselected)));
+    });
+  }, [queue, client, loadData]);
+
+  function toggleGuest(guest: Guest) {
+    const newParty = new Set(party);
+    newParty[newParty.has(guest) ? 'delete' : 'add'](guest);
+    const maxPartySize = Number(queue?.maxPartySize);
+    if (maxPartySize > 0 && newParty.size > maxPartySize) {
+      flash(`Maximum party size: ${maxPartySize}`);
+    } else {
+      setParty(newParty);
+      flash('');
+    }
+  }
+
   return (
-    <>
-      <div className="mt-5">
-        <h2 className="inline mr-3 text-xl">Choose Your Party</h2>
-        <LogoutButton type="small" />
-      </div>
-      {!guests ? (
-        <p>Loading guests…</p>
-      ) : guests.length > 0 ? (
+    <Screen heading="Choose Your Party">
+      <h2>{queue.name}</h2>
+      {queue.howToEnterMessage.split('\n\n').map((graf, i) => (
+        <p key={i}>{graf}</p>
+      ))}
+      <StartTime queue={queue} screen={ChooseParty} />
+      <h3>Choose Your Party</h3>
+      {guests.length > 0 ? (
         <GuestList
           guests={guests}
-          selectable={{ isSelected: g => party.has(g), onToggle }}
+          selectable={{
+            isSelected: g => party.has(g),
+            onToggle: toggleGuest,
+          }}
         />
       ) : (
         <p>No guests available</p>
       )}
-      <FloatingButton disabled={party.size === 0} onClick={onConfirm}>
+      <FloatingButton
+        disabled={party.size === 0}
+        onClick={() => goTo(<JoinQueue queue={queue} guests={[...party]} />)}
+      >
         Confirm Party
       </FloatingButton>
-    </>
+      {loaderElem}
+    </Screen>
   );
 }

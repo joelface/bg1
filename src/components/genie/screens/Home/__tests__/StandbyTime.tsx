@@ -1,4 +1,4 @@
-import { render, screen } from '@/testing';
+import { render, see } from '@/testing';
 
 import StandbyTime from '../StandbyTime';
 
@@ -12,7 +12,7 @@ describe('StandbyTime', () => {
         }}
       />
     );
-    screen.getByText('45 min');
+    see('45 min');
   });
 
   it('shows no wait', () => {
@@ -21,7 +21,7 @@ describe('StandbyTime', () => {
         experience={{ type: 'ATTRACTION', standby: { available: true } }}
       />
     );
-    screen.getByText('now');
+    see('now');
   });
 
   it('shows ride down', () => {
@@ -30,7 +30,7 @@ describe('StandbyTime', () => {
         experience={{ type: 'ATTRACTION', standby: { available: false } }}
       />
     );
-    screen.getByText('down');
+    see('down');
   });
 
   it('shows next show time', () => {
@@ -42,7 +42,7 @@ describe('StandbyTime', () => {
         }}
       />
     );
-    screen.getByText('3:00 PM');
+    see('3:00 PM');
   });
 
   it('shows no next show', () => {
@@ -54,6 +54,6 @@ describe('StandbyTime', () => {
         }}
       />
     );
-    screen.getByText('none');
+    see('none');
   });
 });

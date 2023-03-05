@@ -1,4 +1,5 @@
 import { Offer } from '@/api/genie';
+import FloatingButton from '@/components/FloatingButton';
 import { useRebooking } from '@/contexts/Rebooking';
 
 import ReturnTime from '../../ReturnTime';
@@ -22,8 +23,11 @@ export default function OfferDetails({
         </div>
       )}
       <PartyList
-        buttonText={`${rebooking.current ? 'Modify' : 'Book'} Lightning Lane`}
-        onSubmit={onBook}
+        button={
+          <FloatingButton onClick={onBook}>{`${
+            rebooking.current ? 'Modify' : 'Book'
+          } Lightning Lane`}</FloatingButton>
+        }
       />
     </>
   );

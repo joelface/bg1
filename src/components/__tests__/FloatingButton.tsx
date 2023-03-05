@@ -1,9 +1,11 @@
-import { click, render, screen } from '@/testing';
+import { click, render, see } from '@/testing';
 
 import FloatingButton from '../FloatingButton';
 
 let clicked = false;
-const onClick = () => (clicked = true);
+const onClick = () => {
+  clicked = true;
+};
 const label = 'Click Me';
 
 describe('FloatingButton', () => {
@@ -23,6 +25,6 @@ describe('FloatingButton', () => {
         {label}
       </FloatingButton>
     );
-    expect(screen.getByText(label)).toBeDisabled();
+    expect(see(label)).toBeDisabled();
   });
 });

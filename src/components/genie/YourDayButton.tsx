@@ -1,29 +1,18 @@
-import { useState } from 'react';
-
+import { useNav } from '@/contexts/Nav';
 import ClockIcon from '@/icons/ClockIcon';
 
 import Button from '../Button';
 import YourDay from './screens/YourDay';
 
-type Props = {
-  onOpen?: (elem: React.ReactElement) => void;
-  onClose?: () => void;
-} & Omit<Parameters<typeof Button>[0], 'onClick' | 'title'>;
+type Props = Omit<Parameters<typeof Button>[0], 'onClick' | 'title'>;
 
-export default function YourDayButton({ onOpen, onClose, ...props }: Props) {
-  const [panel, setPanel] = useState<React.ReactElement>();
-  const open = onOpen || setPanel;
-  const close = onClose || (() => setPanel(undefined));
+export default function YourDayButton({ ...props }: Props) {
+  const { goTo } = useNav();
   return (
     <>
-      <Button
-        {...props}
-        onClick={() => open(<YourDay onClose={close} />)}
-        title="Your Day"
-      >
+      <Button {...props} onClick={() => goTo(<YourDay />)} title="Your Day">
         <ClockIcon />
       </Button>
-      {panel}
     </>
   );
 }

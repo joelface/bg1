@@ -9,7 +9,8 @@ import {
   PlusExperience,
   Reservation,
 } from '@/api/genie';
-import { TODAY } from '@/testing';
+
+const TODAY = '2021-10-01';
 
 export const [mk, ep, hs, ak] = data.parks;
 
@@ -41,7 +42,7 @@ export const hm: PlusExperience = {
   park: mk,
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 30 },
-  flex: { available: true, nextAvailableTime: '14:30:00' },
+  flex: { available: true, nextAvailableTime: '11:15:00' },
   priority: 2.3,
   sort: 1,
 };
@@ -67,7 +68,7 @@ export const sm: PlusExperience = {
   park: mk,
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 60 },
-  flex: { available: true, nextAvailableTime: '12:45:00' },
+  flex: { available: true, nextAvailableTime: '10:40:00' },
   priority: 2.0,
   sort: 1,
   drop: true,
@@ -138,7 +139,7 @@ export const allDayExp: LightningLane = {
   id: sm.id,
   name: sm.name,
   park: sm.park,
-  start: { date: undefined, time: undefined },
+  start: { date: TODAY, time: undefined },
   end: { date: undefined, time: undefined },
   cancellable: false,
   modifiable: false,
@@ -199,6 +200,8 @@ export const client = new GenieClient({
 }) as jest.Mocked<GenieClient>;
 client.nextBookTime = '11:00:00';
 
+const dropExps = [sm, hm].map(({ id, name }) => ({ id, name }));
+
 jest.spyOn(client, 'guests').mockResolvedValue({
   eligible: [mickey, minnie, pluto],
   ineligible: [donald],
@@ -210,4 +213,8 @@ jest.spyOn(client, 'cancelBooking').mockResolvedValue(undefined);
 jest.spyOn(client, 'bookings').mockResolvedValue([...bookings]);
 jest.spyOn(client, 'experiences').mockResolvedValue([hm, sm, jc]);
 jest.spyOn(client, 'nextDropTime').mockReturnValue('11:30');
-jest.spyOn(client, 'updateTracker').mockResolvedValue([]);
+jest.spyOn(client, 'upcomingDrops').mockReturnValue([
+  { time: '11:30', experiences: dropExps },
+  { time: '13:30', experiences: dropExps },
+]);
+jest.spyOn(client, 'setPartyIds');

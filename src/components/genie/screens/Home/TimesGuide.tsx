@@ -1,29 +1,63 @@
-import { Land } from '@/api/genie';
-import Modal from '@/components/Modal';
-import { useModal } from '@/contexts/Modal';
+import { Experience, Land } from '@/api/genie';
+import Screen from '@/components/Screen';
+import Tab from '@/components/Tab';
+import { useExperiences } from '@/contexts/Experiences';
+import { useNav } from '@/contexts/Nav';
+import { ThemeProvider } from '@/contexts/Theme';
 
-import { Experience, ScreenProps } from '../Home';
+import YourDayButton from '../../YourDayButton';
+import { HomeTabProps } from '../Home';
+import RefreshButton from '../RefreshButton';
 import Legend, { Symbol } from './Legend';
+import ParkSelect from './ParkSelect';
 
-export default function TimesGuide({ experiences }: ScreenProps) {
-  const modal = useModal();
+export default function TimesGuide({ contentRef }: HomeTabProps) {
+  const { goTo } = useNav();
+  const { experiences, refreshExperiences, park, loaderElem } =
+    useExperiences();
   const showExpInfo = (exp: Experience) =>
-    modal.show(<ExperienceInfoModal exp={exp} />);
+    goTo(
+      <ThemeProvider value={park.theme}>
+        <ExperienceInfo exp={exp} />
+      </ThemeProvider>
+    );
 
   const expsByLand = new Map<Land, Record<Experience['type'], Experience[]>>();
-  experiences.forEach(exp => {
-    if (!expsByLand.has(exp.land)) {
-      expsByLand.set(exp.land, {
-        ATTRACTION: [],
-        ENTERTAINMENT: [],
-        CHARACTER: [],
-      });
-    }
-    expsByLand.get(exp.land)?.[exp.type]?.push(exp);
-  });
+  experiences
+    .filter(
+      exp =>
+        exp.standby.available ||
+        exp.standby.unavailableReason === 'TEMPORARILY_DOWN'
+    )
+    .sort(
+      (a, b) =>
+        a.land.sort - b.land.sort ||
+        (a.sort || Infinity) - (b.sort || Infinity) ||
+        a.name.localeCompare(b.name)
+    )
+    .forEach(exp => {
+      if (!expsByLand.has(exp.land)) {
+        expsByLand.set(exp.land, {
+          ATTRACTION: [],
+          ENTERTAINMENT: [],
+          CHARACTER: [],
+        });
+      }
+      expsByLand.get(exp.land)?.[exp.type]?.push(exp);
+    });
 
   return (
-    <>
+    <Tab
+      heading="Times Guide"
+      buttons={
+        <>
+          <ParkSelect />
+          <YourDayButton />
+          <RefreshButton name="Times" onClick={refreshExperiences} />
+        </>
+      }
+      contentRef={contentRef}
+    >
       {[...expsByLand].map(([land, expsByType]) => (
         <div key={land.name}>
           <h2
@@ -53,11 +87,14 @@ export default function TimesGuide({ experiences }: ScreenProps) {
           </div>
         </div>
       ))}
-      <Legend>
-        <Symbol sym="*" def="No listed wait/show time" />
-        <Symbol sym="❌" def="Temporarily down" />
-      </Legend>
-    </>
+      {experiences.length > 0 && (
+        <Legend>
+          <Symbol sym="*" def="No listed wait/show time" />
+          <Symbol sym="❌" def="Temporarily down" />
+        </Legend>
+      )}
+      {loaderElem}
+    </Tab>
   );
 }
 
@@ -121,11 +158,11 @@ function ExperienceList({
   );
 }
 
-const ExperienceInfoModal = ({ exp }: { exp: Experience }) => (
-  <Modal heading={exp.name}>
-    <h3 className="w-[75vw] mt-2 text-gray-500 text-sm font-semibold uppercase">
-      Upcoming {exp.type === 'CHARACTER' ? 'Appearances' : 'Shows'}
-    </h3>
+const ExperienceInfo = ({ exp }: { exp: Experience }) => (
+  <Screen heading="Experience Info">
+    <h2>{exp.name}</h2>
+    <div>{exp.park.name}</div>
+    <h3>Upcoming {exp.type === 'CHARACTER' ? 'Appearances' : 'Shows'}</h3>
     <ul className="list-disc mt-2 pl-6">
       {!!exp.standby.displayNextShowTime && (
         <li>{exp.standby.displayNextShowTime}</li>
@@ -134,5 +171,5 @@ const ExperienceInfoModal = ({ exp }: { exp: Experience }) => (
         <li key={time}>{time}</li>
       ))}
     </ul>
-  </Modal>
+  </Screen>
 );

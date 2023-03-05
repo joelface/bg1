@@ -22,23 +22,20 @@ export default function CancelGuests({
   >(new Set());
   const { loadData, loaderElem } = useDataLoader();
 
-  const { guests } = booking;
+  const { name, park, guests } = booking;
   const cancelingNone = guestsToCancel.size === 0;
   const cancelingAll = guestsToCancel.size === guests.length;
 
-  function cancelGuests() {
-    loadData(async () => {
-      if (!cancelingNone) {
-        await client.cancelBooking([...guestsToCancel]);
-      }
-      onClose(guests.filter(g => !guestsToCancel.has(g)));
+  async function cancelGuests() {
+    if (cancelingNone) return;
+    await loadData(async () => {
+      await client.cancelBooking([...guestsToCancel]);
     });
+    onClose(guests.filter(g => !guestsToCancel.has(g)));
   }
 
-  const { name, park } = booking;
-
   return (
-    <Screen heading="Your Lightning Lane" theme={park.theme}>
+    <Screen heading="Cancel Guests" theme={park.theme}>
       <h2>{name}</h2>
       <div>{park.name}</div>
       <ReturnTime {...booking} />
@@ -82,10 +79,8 @@ export default function CancelGuests({
           />
         </div>
       )}
-      <FloatingButton onClick={cancelGuests}>
-        {cancelingNone
-          ? 'Back'
-          : 'Cancel ' + (cancelingAll ? 'Reservation' : 'Guests')}
+      <FloatingButton back disabled={cancelingNone} onClick={cancelGuests}>
+        {'Cancel ' + (cancelingAll ? 'Reservation' : 'Guests')}
       </FloatingButton>
 
       {loaderElem}

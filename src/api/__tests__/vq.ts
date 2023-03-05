@@ -11,7 +11,6 @@ import {
 } from '../vq';
 
 jest.mock('@/fetch');
-const fetchJsonMock = fetchJson as jest.MockedFunction<typeof fetchJson>;
 
 function response(
   data: { [key: string]: unknown },
@@ -22,7 +21,9 @@ function response(
 }
 
 function respond(...responses: ReturnType<typeof response>[]) {
-  for (const res of responses) fetchJsonMock.mockResolvedValueOnce(res);
+  for (const res of responses) {
+    jest.mocked(fetchJson).mockResolvedValueOnce(res);
+  }
 }
 
 function expectFetch(url: string, data?: unknown) {
@@ -36,7 +37,7 @@ function expectFetch(url: string, data?: unknown) {
       },
     });
   }
-  expect(fetchJsonMock.mock.calls[0]).toEqual(fetchArgs);
+  expect(jest.mocked(fetchJson).mock.calls[0]).toEqual(fetchArgs);
 }
 
 describe('isVirtualQueueOrigin()', () => {
@@ -70,7 +71,7 @@ describe('VQClient', () => {
   const getLinkedGuestsUrl = client.url('getLinkedGuests');
 
   beforeEach(() => {
-    fetchJsonMock.mockReset();
+    jest.mocked(fetchJson).mockReset();
   });
 
   describe('resort', () => {

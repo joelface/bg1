@@ -1,4 +1,4 @@
-import { act, click, render, screen } from '@/testing';
+import { act, click, render, see } from '@/testing';
 
 import useFlash, { Flash } from '../useFlash';
 
@@ -7,12 +7,12 @@ jest.useFakeTimers();
 describe('Flash', () => {
   it('shows alert message', () => {
     render(<Flash message="hi" type="alert" />);
-    expect(screen.getByText('hi')).toHaveClass('bg-yellow-200');
+    expect(see('hi')).toHaveClass('bg-yellow-200');
   });
 
   it('shows error message', () => {
     render(<Flash message="oops" type="error" />);
-    expect(screen.getByText('oops')).toHaveClass('bg-red-200');
+    expect(see('oops')).toHaveClass('bg-red-200');
   });
 
   it('renders null when no message', () => {
@@ -35,17 +35,17 @@ function UseFlashExample() {
 describe('useFlash()', () => {
   it('flashes message when triggered', async () => {
     render(<UseFlashExample />);
-    expect(screen.queryByText('hi')).not.toBeInTheDocument();
-    expect(screen.queryByText('oops')).not.toBeInTheDocument();
+    see.no('hi');
+    see.no('oops');
 
     click('Alert');
-    expect(screen.getByText('hi')).toHaveClass('bg-yellow-200');
+    expect(see('hi')).toHaveClass('bg-yellow-200');
 
     click('Error');
-    expect(screen.getByText('oops')).toHaveClass('bg-red-200');
+    expect(see('oops')).toHaveClass('bg-red-200');
     act(() => {
       jest.runOnlyPendingTimers();
     });
-    expect(screen.queryByText('oops')).not.toBeInTheDocument();
+    see.no('oops');
   });
 });

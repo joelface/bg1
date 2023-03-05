@@ -10,16 +10,17 @@ import {
 } from '@/__fixtures__/genie';
 import { RequestError } from '@/api/genie';
 import { ClientProvider } from '@/contexts/Client';
+import { Nav } from '@/contexts/Nav';
+import { RebookingProvider } from '@/contexts/Rebooking';
+import { displayTime } from '@/datetime';
 import { ping } from '@/ping';
-import { TODAY, click, loading, render, screen, setTime } from '@/testing';
+import { TODAY, click, loading, render, screen, see, setTime } from '@/testing';
 
 import BookExperience from '../BookExperience';
 
 jest.mock('@/ping');
-
-const onClose = jest.fn();
-const errorMock = jest.spyOn(console, 'error');
 setTime('09:00');
+const errorMock = jest.spyOn(console, 'error');
 
 const mockClickResponse = async (
   clientMethod: jest.MockedFunction<any>,
@@ -40,20 +41,44 @@ const mockBook = (status: number) =>
 const mockMakeRes = (status: number) =>
   mockClickResponse(client.experiences, 'Check Availability', status);
 
-const renderComponent = async (available = true) => {
+async function clickModify() {
+  click('Modify');
+  await see.screen('Modify Party');
+}
+
+async function clickConfirm() {
+  click('Confirm Party');
+  await see.screen('Lightning Lane');
+}
+
+const hmPrebooking = {
+  ...hm,
+  flex: { available: false, enrollmentStartTime: '07:00:00' },
+};
+
+async function renderComponent({
+  available = true,
+  modify = false,
+}: {
+  available?: boolean;
+  modify?: boolean;
+} = {}) {
+  const rebooking = {
+    current: modify ? booking : undefined,
+    begin: jest.fn(),
+    end: jest.fn(),
+  };
   render(
     <ClientProvider value={client}>
-      <BookExperience
-        experience={{
-          ...hm,
-          flex: { available, enrollmentStartTime: '07:00:00' },
-        }}
-        onClose={onClose}
-      />
+      <RebookingProvider value={rebooking}>
+        <Nav>
+          <BookExperience experience={available ? hm : hmPrebooking} />
+        </Nav>
+      </RebookingProvider>
     </ClientProvider>
   );
   await loading();
-};
+}
 
 describe('BookExperience', () => {
   beforeEach(() => {
@@ -61,27 +86,26 @@ describe('BookExperience', () => {
   });
 
   it('performs successful booking', async () => {
-    await renderComponent(false);
+    await renderComponent({ available: false });
     click('Check Availability');
     await loading();
-    screen.getByText('11:25 AM - 12:25 PM');
-    click('Edit');
-    click(mickey.name);
-    click('Confirm Party');
-    expect(screen.queryByText(mickey.name)).not.toBeInTheDocument();
-    screen.getByText(minnie.name);
+    see(displayTime(offer.start.time));
+    see(displayTime(offer.end.time));
+    await clickModify();
+    click(mickey.name, 'checkbox');
+    await clickConfirm();
+    see.no(mickey.name);
+    see(minnie.name);
     click('Book Lightning Lane');
     await loading();
-    screen.getByText('Your Lightning Lane');
-    screen.getByText(hm.name);
+    see('Your Lightning Lane');
+    see(hm.name);
     expect(ping).toBeCalledTimes(1);
-    click('Done');
     expect(client.guests).toBeCalledTimes(1);
     expect(client.book).toBeCalledTimes(1);
     expect(client.cancelBooking).lastCalledWith(
       booking.guests.filter(g => g.id === mickey.id)
     );
-    expect(onClose).toBeCalledTimes(1);
   });
 
   it('removes offer-ineligible guests from selected party', async () => {
@@ -96,16 +120,12 @@ describe('BookExperience', () => {
       },
     });
     await renderComponent();
-    screen.getByText(minnie.name);
-    expect(screen.queryByText(mickey.name)).not.toBeInTheDocument();
-    click('Edit');
+    see(minnie.name);
+    see.no(mickey.name);
+    await clickModify();
     screen.getByRole('checkbox', { checked: true });
-    expect(screen.getByText(mickey.name)).toHaveTextContent(
-      'TOO EARLY FOR PARK HOPPING'
-    );
-    expect(screen.getByText(pluto.name)).toHaveTextContent(
-      'TOO EARLY FOR PARK HOPPING'
-    );
+    expect(see(mickey.name)).toHaveTextContent('TOO EARLY FOR PARK HOPPING');
+    expect(see(pluto.name)).toHaveTextContent('TOO EARLY FOR PARK HOPPING');
   });
 
   const newOffer = {
@@ -121,47 +141,39 @@ describe('BookExperience', () => {
     experience: hm,
   };
 
-  it('refreshes offer when Refresh Offer button clicked', async () => {
+  it('refreshes offer when Refresh button clicked', async () => {
     await renderComponent();
-    screen.getByText('11:25 AM - 12:25 PM');
+    see(displayTime(offer.start.time));
     client.offer.mockResolvedValueOnce(newOffer);
-    click('Refresh Offer');
+    click('Refresh');
     await loading();
-    screen.getByText('10:05 AM - 11:05 AM');
-    expect(
-      screen.queryByText('Return time has been changed')
-    ).not.toBeInTheDocument();
+    see(displayTime(newOffer.start.time));
+    see.no('Return time has been changed');
   });
 
   it('refreshes offer when someone added to party', async () => {
     await renderComponent();
-    screen.getByText('11:25 AM - 12:25 PM');
+    see(displayTime(offer.start.time));
     client.offer.mockResolvedValueOnce(newOffer);
-    click('Edit');
-    click(mickey.name);
-    click('Confirm Party');
-    click('Edit');
-    click(mickey.name);
-    click('Confirm Party');
+    await clickModify();
+    click(mickey.name, 'checkbox');
+    await clickConfirm();
+    see.no(mickey.name);
+    await clickModify();
+    click(mickey.name, 'checkbox');
+    await clickConfirm();
     await loading();
-    screen.getByText('10:05 AM - 11:05 AM');
+    see(mickey.name);
+    see(displayTime(newOffer.start.time));
   });
 
   it("doesn't request offer when party modified before enrollment opens", async () => {
     client.offer.mockClear();
-    await renderComponent(false);
-    click('Edit');
+    await renderComponent({ available: false });
+    await clickModify();
     click(mickey.name);
-    click('Confirm Party');
+    await clickConfirm();
     expect(client.offer).not.toBeCalled();
-  });
-
-  it('cancels offer and calls onClose when Back button clicked', async () => {
-    await renderComponent();
-    screen.getByText('Arrive by:');
-    click('Back');
-    expect(onClose).toBeCalledTimes(1);
-    expect(client.cancelOffer).toBeCalledTimes(1);
   });
 
   it('shows prebooking screen even if no eligible guests', async () => {
@@ -172,22 +184,23 @@ describe('BookExperience', () => {
         { ...minnie, ineligibleReason: 'INVALID_PARK_ADMISSION' },
       ],
     });
-    await renderComponent(false);
-    screen.getByText('07:00:00');
-    screen.getByText('Ineligible Guests');
-    screen.getByText(mickey.name);
-    screen.getByText(minnie.name);
+    await renderComponent({ available: false });
+    see('07:00:00');
+    see('Ineligible Guests');
+    see(mickey.name);
+    see(minnie.name);
     expect(screen.getAllByText('INVALID PARK ADMISSION')).toHaveLength(2);
-    screen.getByRole('button', { name: 'Check Availability' });
-    screen.getByRole('button', { name: 'Back' });
+    see('Check Availability', 'button');
   });
 
   it('shows "No Guests Found" when no guests loaded', async () => {
     client.guests.mockResolvedValueOnce({ eligible: [], ineligible: [] });
     await renderComponent();
-    screen.getByText('No Guests Found');
-    screen.getByText('Back');
-    expect(screen.queryByTitle('Refresh Offer')).not.toBeInTheDocument();
+    see('No Guests Found');
+
+    click('Refresh');
+    await loading();
+    see(mickey.name);
   });
 
   it('shows "No Eligible Guests" when no eligible guests loaded', async () => {
@@ -196,67 +209,66 @@ describe('BookExperience', () => {
       ineligible: [donald],
     });
     await renderComponent();
-    screen.getByText('No Eligible Guests');
-    expect(screen.getByText(donald.name)).toHaveTextContent(
+    see('No Eligible Guests');
+    expect(see(donald.name)).toHaveTextContent(
       donald.ineligibleReason.replace(/_/g, ' ')
     );
-    expect(screen.getByText('Back')).toHaveClass('w-full');
-    expect(screen.queryByTitle('Refresh Offer')).not.toBeInTheDocument();
   });
 
-  it('shows "No Reservations Available" when no offer', async () => {
+  it('shows "No Reservations Available" when no/invalid offer', async () => {
     client.offer.mockRejectedValueOnce(
       new RequestError({ status: 410, data: {} })
     );
     await renderComponent();
-    expect(client.offer).toBeCalledTimes(1);
-    screen.getByText('No Reservations Available');
-    screen.getByTitle('Refresh Offer');
-    expect(screen.getByText('Back')).toHaveClass('w-full');
+    see('No Reservations Available');
 
-    click('Edit');
-    click(minnie.name);
-    click('Confirm Party');
+    client.offer.mockResolvedValueOnce({ ...offer, active: false });
+    click('Refresh');
     await loading();
-    expect(client.offer).toBeCalledTimes(2);
+    see('No Reservations Available');
   });
 
   it('flashes error message when booking fails', async () => {
     await renderComponent();
     await mockBook(410);
-    screen.getByText('Offer expired');
+    see('Offer expired');
     await mockBook(0);
-    screen.getByText('Network request failed');
+    see('Network request failed');
     await mockBook(-1);
-    screen.getByText('Unknown error occurred');
+    see('Unknown error occurred');
   });
 
   it('flashes error message when enrollment not open or enrollment check fails', async () => {
     client.experiences.mockResolvedValueOnce([
       { ...hm, flex: { available: false } },
     ]);
-    await renderComponent(false);
+    await renderComponent({ available: false });
     click('Check Availability');
     await loading();
-    screen.getByText('Reservations not open yet');
+    see('Reservations not open yet');
     await mockMakeRes(0);
-    screen.getByText('Network request failed');
+    see('Network request failed');
     await mockMakeRes(-1);
-    screen.getByText('Unknown error occurred');
+    see('Unknown error occurred');
   });
 
   it('limits offers to maxPartySize', async () => {
-    const eligible = [...Array(client.maxPartySize + 5).keys()]
-      .map(String)
-      .map(id => ({ id, name: id }));
-    client.guests.mockResolvedValueOnce({ eligible, ineligible: [] });
-    await renderComponent();
-    expect(client.offer).toBeCalledTimes(1);
+    const { maxPartySize } = client;
+    (client as any).maxPartySize = 2;
 
-    expect(client.offer).lastCalledWith(
-      { ...hm, flex: { available: true, enrollmentStartTime: '07:00:00' } },
-      eligible.slice(0, client.maxPartySize),
-      undefined
-    );
+    await renderComponent();
+    expect(client.offer).lastCalledWith(hm, [mickey, minnie], undefined);
+    see('Party size restricted');
+
+    await clickModify();
+    click(pluto.name);
+    see('Maximum party size: 2');
+
+    (client as any).maxPartySize = maxPartySize;
+  });
+
+  it('can modify an existing reservation', async () => {
+    await renderComponent({ modify: true });
+    expect(client.guests).not.toBeCalled();
   });
 });

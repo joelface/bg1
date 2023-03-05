@@ -39,7 +39,7 @@ describe('AuthStore', () => {
     });
 
     it('throws ReauthNeeded when expires today before 5 PM', () => {
-      setData(new Date(`${TODAY} 16:59:59-0400`).getTime());
+      setData(new Date(`${TODAY}T16:59:59-0400`).getTime());
       expect(() => store.getData()).toThrow(ReauthNeeded);
     });
   });

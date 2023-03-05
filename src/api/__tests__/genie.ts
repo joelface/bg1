@@ -176,8 +176,6 @@ describe('GenieClient', () => {
 
       setTime('15:00');
       expect(await getExpData()).toEqual([{ ...smExp, drop: false }]);
-
-      jest.useRealTimers();
     });
   });
 
@@ -350,7 +348,7 @@ describe('GenieClient', () => {
             primaryGuestId: mickey.id,
             parkId: mk.id,
             experienceId: hm.id,
-            selectedTime: '14:30:00',
+            selectedTime: hm.flex.nextAvailableTime,
           },
         },
         false
@@ -393,7 +391,7 @@ describe('GenieClient', () => {
         client.offer(hm, guests, { ...booking, modifiable: false })
       ).rejects.toThrow(ModifyNotAllowed);
 
-      setTime(booking.end.time as string, { minutes: 1 });
+      setTime(booking.end.time as string, 1);
       await expect(client.offer(hm, guests, booking)).rejects.toThrow(
         ModifyNotAllowed
       );
@@ -553,13 +551,13 @@ describe('GenieClient', () => {
     const bookingsRes = createBookingsResponse(bookings);
 
     it('returns current bookings', async () => {
-      setTime(lttRes.start.time, { minutes: 30 });
+      setTime(lttRes.start.time, 30);
       respond(bookingsRes);
       expect(await client.bookings()).toEqual(bookings);
     });
 
     it('excludes non-LL reservations >30 minutes old', async () => {
-      setTime(lttRes.start.time, { minutes: 31 });
+      setTime(lttRes.start.time, 31);
       respond(bookingsRes);
       expect(await client.bookings()).toEqual(
         bookings.filter(b => b !== lttRes)
@@ -567,7 +565,7 @@ describe('GenieClient', () => {
     });
 
     it('overrides API-supplied modifiable property if end of return window', async () => {
-      setTime(booking.end.time as string, { minutes: 1 });
+      setTime(booking.end.time as string, 1);
       respond(bookingsRes);
       const b = (await client.bookings()).filter(b => b.id === booking.id)[0];
       expect(b.modifiable).toBe(false);
@@ -680,7 +678,7 @@ describe('GenieClient', () => {
         client.book(offer, { ...booking, modifiable: false })
       ).rejects.toThrow(ModifyNotAllowed);
 
-      setTime(booking.end.time as string, { minutes: 1 });
+      setTime(booking.end.time as string, 1);
       await expect(client.book(offer, booking)).rejects.toThrow(
         ModifyNotAllowed
       );

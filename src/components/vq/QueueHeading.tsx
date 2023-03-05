@@ -12,11 +12,11 @@ export default function QueueHeading({
 }) {
   queues ||= [];
   const { bg } = useTheme();
-  const className = `block w-full ${bg} text-white text-xl font-semibold`;
+  const className = `block w-full ${bg} text-white text-xl font-semibold truncate`;
   return (
     <>
       {queues.length <= 1 ? (
-        <span className={`${className} px-1 truncate`}>{queue.name}</span>
+        <span className={`${className} px-1`}>{queue.name}</span>
       ) : (
         <select
           className={`${className} pr-1`}

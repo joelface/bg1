@@ -4,24 +4,26 @@ import { setTime } from '@/testing';
 import { ping } from '../ping';
 
 jest.mock('@/fetch');
-const fetchJsonMock = fetchJson as jest.MockedFunction<typeof fetchJson>;
-fetchJsonMock.mockResolvedValue({ status: 204, data: {} });
+jest.mocked(fetchJson).mockResolvedValue({ status: 204, data: {} });
+setTime('07:00');
+
+const ONE_HOUR = 60 * 60_000;
+const ONE_DAY = 24 * ONE_HOUR;
 
 describe('ping()', () => {
   it('pings once per day', async () => {
-    setTime('07:00');
     await ping();
-    setTime('08:00');
+    jest.advanceTimersByTime(ONE_HOUR);
     await ping();
-    expect(fetchJsonMock).toBeCalledTimes(1);
-    expect(fetchJsonMock).lastCalledWith('https://bg1.joelface.com/ping', {
+    expect(fetchJson).toBeCalledTimes(1);
+    expect(fetchJson).lastCalledWith('https://bg1.joelface.com/ping', {
       method: 'POST',
     });
 
-    setTime('07:00', { days: 1 });
+    jest.advanceTimersByTime(ONE_DAY);
     await ping();
-    setTime('08:00', { days: 1 });
+    jest.advanceTimersByTime(ONE_HOUR);
     await ping();
-    expect(fetchJsonMock).toBeCalledTimes(2);
+    expect(fetchJson).toBeCalledTimes(2);
   });
 });

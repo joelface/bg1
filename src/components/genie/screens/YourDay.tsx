@@ -1,87 +1,83 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { Booking, EntitledGuest } from '@/api/genie';
 import Button from '@/components/Button';
-import Overlay from '@/components/Overlay';
 import Screen from '@/components/Screen';
 import { useGenieClient } from '@/contexts/GenieClient';
+import { useNav } from '@/contexts/Nav';
+import useDataLoader from '@/hooks/useDataLoader';
+import RefreshIcon from '@/icons/RefreshIcon';
 
 import BookingListing from '../BookingListing';
 import BookingDetails from './BookingDetails';
 
-export default function YourDay({ onClose }: { onClose: () => void }) {
+export default function YourDay() {
+  const { goTo } = useNav();
   const client = useGenieClient();
+  const { loadData, loaderElem } = useDataLoader();
   const [bookings, setBookings] = useState<Booking[]>();
-  const [booking, setBooking] = useState<Booking>();
-  const [opened, setOpened] = useState(false);
 
-  function closeDetails(newGuests: EntitledGuest[] | void) {
-    if (!booking) return;
-    setBooking(undefined);
-    if (!newGuests) return;
-    setBookings(bookings => {
-      if (!bookings) return;
-      if (newGuests.length > 0) {
-        booking.guests = newGuests;
-      } else {
-        bookings.splice(bookings.indexOf(booking), 1);
-      }
-      return bookings;
+  function showBooking(booking: Booking) {
+    goTo(
+      <BookingDetails
+        booking={booking}
+        onClose={(newGuests: EntitledGuest[] | void) => {
+          if (!newGuests) return;
+          setBookings(bookings => {
+            if (!bookings) return;
+            if (newGuests.length > 0) {
+              booking.guests = newGuests;
+            } else {
+              bookings.splice(bookings.indexOf(booking), 1);
+            }
+            return [...bookings];
+          });
+        }}
+      />
+    );
+  }
+
+  const refresh = useCallback(() => {
+    loadData(async () => {
+      setBookings(await client.bookings());
     });
-  }
+  }, [client, loadData]);
 
-  useEffect(() => {
-    setOpened(true);
-    client.bookings().then(b => setBookings(b));
-  }, [client]);
-
-  function close() {
-    setOpened(false);
-    setTimeout(onClose, 300);
-  }
-
-  if (booking) {
-    return <BookingDetails booking={booking} onClose={closeDetails} />;
-  }
+  useEffect(refresh, [refresh]);
 
   return (
-    <>
-      <Overlay
-        onClick={close}
-        data-testid="panel-shade"
-        className={{ inner: `bg-black bg-opacity-75` }}
-      />
-      <Screen
-        heading="Your Day"
-        buttons={<Button onClick={close}>Close</Button>}
-        className={`top-auto ${
-          opened ? 'h-[60%]' : 'h-0'
-        } duration-200 ease-linear`}
-      >
-        {bookings && bookings.length > 0 ? (
-          <ul>
-            {(bookings || []).map(booking => (
-              <li
-                className="py-3 first:border-0 border-t-4 border-gray-300"
-                key={booking.bookingId}
-              >
-                <BookingListing
-                  booking={booking}
-                  button={
-                    <Button type="small" onClick={() => setBooking(booking)}>
-                      More
-                    </Button>
-                  }
-                />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div className="mt-4 text-sm font-semibold text-center uppercase  text-gray-500">
-            {bookings && 'No current reservations'}
-          </div>
-        )}
-      </Screen>
-    </>
+    <Screen
+      heading="Your Day"
+      buttons={
+        <Button onClick={refresh} title="Refresh Plans">
+          <RefreshIcon />
+        </Button>
+      }
+    >
+      {bookings && bookings.length > 0 ? (
+        <ul>
+          {(bookings || []).map(booking => (
+            <li
+              className="py-3 first:border-0 border-t-4 border-gray-300"
+              key={booking.bookingId}
+            >
+              <BookingListing
+                booking={booking}
+                button={
+                  <Button type="small" onClick={() => showBooking(booking)}>
+                    Info
+                  </Button>
+                }
+              />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="mt-4 text-sm font-semibold text-center uppercase  text-gray-500">
+          {bookings && 'No current reservations'}
+        </div>
+      )}
+      {loaderElem}
+    </Screen>
   );
 }

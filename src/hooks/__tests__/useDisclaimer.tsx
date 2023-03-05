@@ -1,4 +1,4 @@
-import { click, render, screen } from '@/testing';
+import { click, render, see } from '@/testing';
 
 import useDisclaimer from '../useDisclaimer';
 
@@ -11,7 +11,7 @@ describe('useDisclaimer()', () => {
 
   it('is accepted after Accept button clicked', () => {
     const { container } = render(<Disclaimer />);
-    screen.getByText('Warning!');
+    see('Warning!');
     click('Accept');
     expect(container).toBeEmptyDOMElement();
     expect(localStorage.getItem('bg1.disclaimer.accepted')).toBe('1');

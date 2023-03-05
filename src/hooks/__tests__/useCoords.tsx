@@ -1,13 +1,11 @@
-import { click, render, screen, withCoords } from '@/testing';
+import { click, render, see, waitFor, withCoords } from '@/testing';
 
 import useCoords from '../useCoords';
-import useDataLoader from '../useDataLoader';
 
 jest.useFakeTimers();
 
 function App() {
-  const { loadData } = useDataLoader();
-  const [coords, updateCoords] = useCoords(loadData);
+  const [coords, updateCoords] = useCoords();
   return (
     <>
       <div>{coords ? coords.join(',') : 'unknown'}</div>
@@ -28,7 +26,7 @@ describe('useCoords()', () => {
     ] as const) {
       await withCoords(coords, async () => {
         click('Locate');
-        await screen.findByText(coords ? coords.join(',') : 'unknown');
+        await waitFor(() => see(coords ? coords.join(',') : 'unknown'));
       });
     }
   });

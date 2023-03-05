@@ -1,7 +1,6 @@
+import GuestList from '@/components/GuestList';
 import { useParty } from '@/contexts/Party';
 import { displayTime } from '@/datetime';
-
-import GuestList from '../GuestList';
 
 export default function IneligibleGuestList() {
   const { ineligible } = useParty();

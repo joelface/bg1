@@ -1,7 +1,7 @@
 import { AuthData } from '@/api/auth/client';
 import { ReauthNeeded } from '@/api/auth/store';
 import { DISCLAIMER_ACCEPTED_KEY } from '@/hooks/useDisclaimer';
-import { act, click, render, screen } from '@/testing';
+import { act, click, render, see } from '@/testing';
 
 import App from '../App';
 
@@ -29,12 +29,14 @@ const client = {
   logOut: () => null,
   resort: 'WDW' as const,
 };
-const renderComponent = () =>
+
+function renderComponent() {
   render(
     <App client={client} authStore={authStore}>
-      client loaded
+      <>client loaded</>
     </App>
   );
+}
 
 describe('App', () => {
   beforeEach(() => {
@@ -48,12 +50,12 @@ describe('App', () => {
   it('shows Disclaimer if not yet accepted', () => {
     localStorage.removeItem(DISCLAIMER_ACCEPTED_KEY);
     renderComponent();
-    expect(screen.getByText('Warning!')).toBeInTheDocument();
+    see('Warning!');
   });
 
   it('loads client if auth data valid', () => {
     renderComponent();
-    expect(screen.getByText('client loaded')).toBeInTheDocument();
+    see('client loaded');
   });
 
   it('shows LoginForm if auth data expired', () => {
@@ -67,15 +69,15 @@ describe('App', () => {
       accessToken: 'm1nn13',
       expires: new Date(2121, 12, 21, 12, 21, 12),
     });
-    expect(screen.getByText('client loaded')).toBeInTheDocument();
+    see('client loaded');
   });
 
   it('shows LoginForm if client.onAuthorized() called', async () => {
     renderComponent();
-    screen.getByText('client loaded');
+    see('client loaded');
     act(() => {
       client.onUnauthorized();
     });
-    await screen.findByText('Log In');
+    see('Log In');
   });
 });

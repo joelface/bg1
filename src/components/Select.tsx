@@ -95,10 +95,6 @@ export default function Select<K extends string, V = K>(props: Props<K, V>) {
       </Button>
       {showingList && (
         <Overlay
-          className={{
-            outer: 'bg-black bg-opacity-75',
-            inner: 'flex items-center justify-center h-full',
-          }}
           onChange={() => {
             if (!arrowPressed) changeValue();
             arrowPressed = false;

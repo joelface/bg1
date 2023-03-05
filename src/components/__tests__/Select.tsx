@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { ak, ep, hs, mk } from '@/__fixtures__/genie';
-import { click, render, screen } from '@/testing';
+import { click, render, screen, see } from '@/testing';
 
 import Select from '../Select';
 
@@ -36,7 +36,7 @@ function Selector({
 describe('Select', () => {
   it('only shows icon in button', async () => {
     render(<Selector options={parkOptions} defaultValue={hs.id} />);
-    const btn = screen.getByTitle(`Park: ${hs.name}`);
+    const btn = see(`Park: ${hs.name}`);
     expect(btn).toHaveTextContent(hs.icon);
 
     click(btn);
@@ -73,7 +73,7 @@ describe('Select', () => {
         defaultValue={ak.id}
       />
     );
-    const btn = screen.getByTitle('Park');
+    const btn = see('Park');
     expect(btn).toHaveTextContent(ak.name);
 
     click(btn);

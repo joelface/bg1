@@ -1,40 +1,41 @@
 import { useEffect, useState } from 'react';
 
-import { Guest, JoinQueueResult } from '@/api/vq';
+import { Guest, JoinQueueResult, Queue } from '@/api/vq';
 import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
+import Screen from '@/components/Screen';
+import { useNav } from '@/contexts/Nav';
 
-const DONE_BTN_HIDDEN_MS = {
-  success: 5000,
-  failure: 1000,
-};
+import SelectQueue from './SelectQueue';
+
+const DONE_BTN_HIDDEN_MS = 5_000;
 
 export default function BGResult({
+  queue,
   guests,
   result,
-  onDone,
 }: {
+  queue: Queue;
   guests: Guest[];
   result: JoinQueueResult;
-  onDone: () => void;
 }) {
   const { boardingGroup, conflicts } = result;
+  const hasBG = boardingGroup !== null;
   const joinedGuests = guests.filter(g => !(g.id in conflicts));
   const failedGuests = guests.filter(g => g.id in conflicts);
+  const { goBack } = useNav();
   const [doneShown, setDoneShown] = useState(false);
 
   useEffect(() => {
-    setTimeout(
-      () => setDoneShown(true),
-      DONE_BTN_HIDDEN_MS[boardingGroup ? 'success' : 'failure']
-    );
-  }, [boardingGroup]);
+    if (hasBG) setTimeout(() => setDoneShown(true), DONE_BTN_HIDDEN_MS);
+  }, [hasBG]);
 
   return (
-    <>
-      {boardingGroup !== null ? (
+    <Screen heading="Boarding Group">
+      <h2>{queue.name}</h2>
+      {hasBG ? (
         <>
-          <h2 className="mt-5 text-xl">Congratulations! 🎉</h2>
+          <h3>Congratulations! 🎉</h3>
           <p>You joined the virtual queue!</p>
           <p className="text-lg font-semibold">
             Boarding Group: {boardingGroup}
@@ -52,15 +53,19 @@ export default function BGResult({
             Refer to the My Disney Experience app for return time and other
             information.
           </p>
+          {doneShown && (
+            <FloatingButton onClick={() => goBack({ screen: SelectQueue })}>
+              Done
+            </FloatingButton>
+          )}
         </>
       ) : (
         <>
-          <h2 className="mt-5 text-xl">Sorry!</h2>
-          <p>A boarding group could not be obtained.</p>
+          <h3>Sorry!</h3>
+          <p>A boarding group could not be obtained. Go back and try again.</p>
           <GuestList guests={failedGuests} conflicts={conflicts} />
         </>
       )}
-      {doneShown && <FloatingButton onClick={onDone}>Done</FloatingButton>}
-    </>
+    </Screen>
   );
 }

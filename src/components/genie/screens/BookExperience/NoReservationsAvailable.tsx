@@ -1,10 +1,6 @@
 import PartyList from './PartyList';
 
-export default function NoReservationsAvailable({
-  onClose,
-}: {
-  onClose: () => void;
-}) {
+export default function NoReservationsAvailable() {
   return (
     <>
       <h3>No Reservations Available</h3>
@@ -14,7 +10,7 @@ export default function NoReservationsAvailable({
         party to check again. Otherwise, go back to the tip board and select
         another attraction.
       </p>
-      <PartyList buttonText="Back" onSubmit={onClose} />
+      <PartyList />
     </>
   );
 }

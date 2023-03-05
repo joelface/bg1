@@ -5,6 +5,7 @@ import {
   hm,
   hs,
   jc,
+  lttRes,
   mickey,
   minnie,
   mk,
@@ -15,51 +16,68 @@ import {
 } from '@/__fixtures__/genie';
 import { Booking } from '@/api/genie';
 import { ClientProvider } from '@/contexts/Client';
+import { useNav } from '@/contexts/Nav';
+import { RebookingProvider } from '@/contexts/Rebooking';
+import { DEFAULT_THEME } from '@/contexts/Theme';
 import { displayTime } from '@/datetime';
-import { click, render, screen, setTime, waitFor } from '@/testing';
+import { act, click, render, screen, see, setTime, waitFor } from '@/testing';
 
 import BookingDetails from '../BookingDetails';
+import CancelGuests from '../CancelGuests';
 
+jest.mock('@/contexts/Nav');
 setTime('09:00');
-const onClose = jest.fn();
-const renderComponent = (b: Booking = booking) =>
+const rebooking = { begin: jest.fn(), end: jest.fn(), current: undefined };
+
+function renderComponent(b: Booking = booking) {
   render(
     <ClientProvider value={client}>
-      <BookingDetails booking={b} onClose={onClose} />
+      <RebookingProvider value={rebooking}>
+        <BookingDetails booking={b} />
+      </RebookingProvider>
     </ClientProvider>
   );
+}
 
 describe('BookingDetails', () => {
+  const { goTo, goBack } = useNav();
+
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('renders booking details', () => {
+  it('shows LL booking details', async () => {
     renderComponent();
-    expect(screen.getByText('Your Lightning Lane').tagName).toBe('H1');
-    screen.getByText('11:25 AM - 12:25 PM');
-    screen.getByText(mickey.name);
-    screen.getByText(minnie.name);
-    screen.getByText(pluto.name);
-    click('Cancel');
-    screen.getByText('Select Guests to Cancel');
-    click('Back');
-    click('Back');
-    expect(onClose).lastCalledWith(booking.guests);
-  });
+    expect(see('Your Lightning Lane').tagName).toBe('H1');
+    see(displayTime(booking.start.time as string));
+    see(displayTime(booking.end.time as string));
+    see(mickey.name);
+    see(minnie.name);
+    see(pluto.name);
+    click('Modify');
+    expect(rebooking.begin).lastCalledWith(booking);
 
-  it('calls onClose if reservation canceled', async () => {
-    renderComponent();
     click('Cancel');
-    click('Select All');
-    click('Cancel Reservation');
-    await waitFor(() => expect(onClose).lastCalledWith([]));
+    expect(goTo).lastCalledWith(
+      <CancelGuests booking={booking} onClose={expect.any(Function)} />
+    );
+
+    const onClose = jest.mocked(goTo).mock.lastCall?.[0]?.props?.onClose;
+    act(() => onClose([mickey, minnie]));
+    see(mickey.name);
+    see(minnie.name);
+    await waitFor(() => see.no(pluto.name));
+
+    act(() => onClose([]));
+    expect(goBack).toBeCalledTimes(1);
   });
 
   it('shows Multiple Experiences LL details', async () => {
     renderComponent(multiExp);
-    screen.getByText('Multiple Experiences');
-    screen.getByText(`${displayTime(multiExp.start.time || '')} - Park Close`);
+    expect(see('Your Lightning Lane').parentNode).toHaveClass(DEFAULT_THEME.bg);
+    see('Multiple Experiences');
+    see(`${displayTime(multiExp.start.time || '')}`);
+    see('Park Close');
     expect(
       screen
         .getAllByRole('heading', { level: 3 })
@@ -72,26 +90,40 @@ describe('BookingDetails', () => {
         .map(li => li.textContent)
         .slice(0, 4)
     ).toEqual([sdd.name, hm.name, jc.name, sm.name]);
-    expect(screen.queryByText('Redemptions left: 1')).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Cancel' })
-    ).not.toBeInTheDocument();
+    see.no('Redemptions left: 1');
+    see.no('Modify');
+    see.no('Cancel');
+  });
+
+  it('uses park theme for single-park Multiple Experiences LL', async () => {
+    renderComponent({
+      ...multiExp,
+      choices: multiExp.choices?.filter(exp => exp.park === mk),
+    });
+    see('Multiple Experiences');
+    expect(see('Your Lightning Lane').parentNode).toHaveClass(mk.theme.bg);
   });
 
   it('shows all-day experience redemption details', async () => {
     renderComponent(allDayExp);
-    screen.getByText(allDayExp.name);
-    screen.getByText('Park Open - Park Close');
-    screen.getByText('Redemptions left: 2');
-    expect(
-      screen.queryByRole('button', { name: 'Cancel' })
-    ).not.toBeInTheDocument();
+    see(allDayExp.name);
+    see('Park Open');
+    see('Park Close');
+    see('Redemptions left: 2');
+    see.no('Cancel');
   });
 
   it('specifies DAS in heading', () => {
     booking.subtype = 'DAS';
     renderComponent();
-    expect(screen.getByText('Your DAS Return Time').tagName).toBe('H1');
+    expect(see('Your DAS Return Time').tagName).toBe('H1');
     booking.subtype = 'G+';
+  });
+
+  it('shows dining reservation', () => {
+    renderComponent(lttRes);
+    see(lttRes.name);
+    see.no('Cancel');
+    see.no('Modify');
   });
 });

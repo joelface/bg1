@@ -1,5 +1,6 @@
 import { Booking } from '@/api/genie';
-import { returnTime } from '@/datetime';
+
+import ReturnTime from './ReturnTime';
 
 export default function BookingListing({
   booking,
@@ -17,7 +18,7 @@ export default function BookingListing({
               <span className={`px-1 rounded bg-gray-400 text-white`}>DAS</span>{' '}
             </>
           )}
-          {returnTime(booking)}
+          <ReturnTime {...booking} timeOnly />
         </div>
         <div className="text-lg font-semibold leading-tight truncate">
           {booking.choices ? 'Multiple Experiences' : booking.name}

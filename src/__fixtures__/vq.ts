@@ -1,9 +1,10 @@
-import { Guest, Queue } from '@/api/vq';
+import { Guest, Queue, VQClient } from '@/api/vq';
 
 export const rotr: Queue = {
   id: '3720fcab-537c-4b2b-b3b2-37918ac7df8f',
   name: 'Star Wars: Rise of the Resistance',
-  nextScheduledOpenTime: '13:00:00',
+  nextScheduledOpenTime: '07:00:00',
+  nextScheduledPartyCreationOpenTime: '06:00:00',
   isAcceptingJoins: false,
   isAcceptingPartyCreation: true,
   maxPartySize: 3,
@@ -14,6 +15,7 @@ export const mtwr: Queue = {
   id: 'mtwr',
   name: "Mr. Toad's Wild Ride",
   nextScheduledOpenTime: null,
+  nextScheduledPartyCreationOpenTime: null,
   isAcceptingJoins: false,
   isAcceptingPartyCreation: false,
   maxPartySize: 3,
@@ -23,8 +25,9 @@ export const mtwr: Queue = {
 export const santa: Queue = {
   id: 'santa',
   name: 'Meet Santa Claus',
-  nextScheduledOpenTime: '10:00:00',
-  isAcceptingJoins: false,
+  nextScheduledOpenTime: null,
+  nextScheduledPartyCreationOpenTime: null,
+  isAcceptingJoins: true,
   isAcceptingPartyCreation: true,
   maxPartySize: 10,
   howToEnterMessage: '',
@@ -61,3 +64,19 @@ export const pluto: Guest = {
   preselected: false,
 };
 export const guests = [mickey, minnie, fifi, pluto];
+
+export const client = new VQClient({
+  origin: 'https://vqguest-svc-wdw.wdprapps.disney.com',
+  authStore: {
+    getData: () => ({ swid: '', accessToken: '' }),
+    setData: () => null,
+    deleteData: () => null,
+  },
+}) as jest.Mocked<VQClient>;
+jest.spyOn(client, 'getQueues').mockResolvedValue(queues);
+jest.spyOn(client, 'getLinkedGuests').mockResolvedValue(guests);
+jest.spyOn(client, 'joinQueue').mockResolvedValue({
+  boardingGroup: 33,
+  conflicts: {},
+  closed: false,
+});

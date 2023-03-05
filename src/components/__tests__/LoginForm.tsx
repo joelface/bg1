@@ -1,5 +1,5 @@
 import { AuthClient } from '@/api/auth/client';
-import { render, screen } from '@/testing';
+import { render, see } from '@/testing';
 
 import LoginForm from '../LoginForm';
 
@@ -11,7 +11,7 @@ describe('LoginForm', () => {
   it('starts AuthClient', () => {
     const onLogin = jest.fn();
     render(<LoginForm onLogin={onLogin} resort="WDW" />);
-    const iframe = screen.getByTitle('Disney Login Form');
+    const iframe = see('Disney Login Form');
     expect(AuthClientMock).toBeCalledWith(iframe, onLogin, 'WDW');
     expect(AuthClientMock.mock.instances[0].open).toBeCalledTimes(1);
   });

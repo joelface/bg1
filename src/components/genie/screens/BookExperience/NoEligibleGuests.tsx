@@ -1,20 +1,17 @@
-import FloatingButton from '@/components/FloatingButton';
-import { useParty } from '@/contexts/Party';
+import Notice from '@/components/Notice';
+import { useGenieClient } from '@/contexts/GenieClient';
 import { useRebooking } from '@/contexts/Rebooking';
 import { displayTime } from '@/datetime';
 
 import IneligibleGuestList from '../../IneligibleGuestList';
 
-export default function NoEligibleGuests({ onClose }: { onClose: () => void }) {
-  const { ineligible } = useParty();
-  const { eligibleAfter } = ineligible[0] || {};
+export default function NoEligibleGuests() {
+  const client = useGenieClient();
   const rebooking = useRebooking();
   return (
     <>
-      {eligibleAfter && (
-        <div className="mt-4 border-2 border-green-600 rounded p-1 uppercase font-semibold text-center text-green-600 bg-green-100">
-          Eligible at {displayTime(eligibleAfter)}
-        </div>
+      {client.nextBookTime && (
+        <Notice>Eligible at {displayTime(client.nextBookTime)}</Notice>
       )}
       {rebooking.current ? (
         <>
@@ -33,7 +30,6 @@ export default function NoEligibleGuests({ onClose }: { onClose: () => void }) {
         </>
       )}
       <IneligibleGuestList />
-      <FloatingButton onClick={onClose}>Back</FloatingButton>
     </>
   );
 }

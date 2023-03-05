@@ -34,6 +34,22 @@ export function dateTimeStrings(date?: Date | number): DateTimeStrings {
   };
 }
 
+export function displayDate(date: string) {
+  const dt = new Date(date + 'T00:00:00');
+  const monthDay = dt.toLocaleString('en-US', {
+    month: 'long',
+    day: 'numeric',
+  });
+  const today = dateTimeStrings().date;
+  if (date === today) return `Today, ${monthDay}`;
+  const tomorrowDT = new Date(today);
+  tomorrowDT.setDate(tomorrowDT.getDate() + 1);
+  const tomorrow = tomorrowDT.toISOString().split('T')[0];
+  if (date === tomorrow) return `Tomorrow, ${monthDay}`;
+  const weekday = dt.toLocaleString('en-US', { weekday: 'long' });
+  return `${weekday}, ${monthDay}`;
+}
+
 export function displayTime(time: string) {
   const t = time.split(':').slice(0, 2).map(Number);
   const ampm = t[0] >= 12 ? 'PM' : 'AM';
@@ -51,40 +67,15 @@ export function displayTime(time: string) {
 /**
  * Splits ISO 8601 date/time string (YYYY-MM-DDTHH:mm:ss) into separate parts
  */
-export function splitDateTime(dateTime: string): Partial<DateTimeStrings> {
+export function splitDateTime(dateTime: string): DateTimeStrings {
   const [date, time] = dateTime.slice(0, 19).split('T');
   return { date, time };
 }
 
-export function returnTime({
-  start,
-  end,
-}: {
-  start: Partial<DateTimeStrings>;
-  end?: Partial<DateTimeStrings>;
-}): string {
-  if (!end) return returnTimePart(start);
-  const today = dateTimeStrings().date;
-  const rtStart =
-    (start.date || '') < today
-      ? 'Park Open'
-      : returnTimePart(start, 'Park Open');
-  const rtEnd = returnTimePart(end, 'Park Close');
-  return `${rtStart} - ${rtEnd}`;
-}
-
-function returnTimePart(
-  { date, time }: Partial<DateTimeStrings> = {},
-  noTimeText = ''
-) {
-  const now = dateTimeStrings();
-  if (date && date !== now.date) {
-    return (
-      new Date(date + 'T00:00').toLocaleString('en-US', {
-        month: 'short',
-        day: 'numeric',
-      }) + (time ? ', ' + displayTime(time) : '')
-    );
-  }
-  return time ? displayTime(time) : noTimeText;
+/**
+ * Converts time string to number of minutes since 7 AM
+ */
+export function timeToMinutes(time: string) {
+  const [h, m] = time.split(':').map(Number);
+  return ((h + 17) % 24) * 60 + m;
 }

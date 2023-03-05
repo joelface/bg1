@@ -1,18 +1,20 @@
-import { guests } from '@/__fixtures__/vq';
+import { guests, rotr } from '@/__fixtures__/vq';
+import { JoinQueueResult } from '@/api/vq';
 import GuestList from '@/components/GuestList';
-import { act, click, render, screen } from '@/testing';
+import { render, see } from '@/testing';
 
 import BGResult from '../BGResult';
 
 jest.useFakeTimers();
 jest.mock('@/components/GuestList');
-const GuestListMock = GuestList as jest.MockedFunction<typeof GuestList>;
 
-const onDone = jest.fn();
+function renderComponent(result: JoinQueueResult) {
+  render(<BGResult queue={rotr} guests={guests} result={result} />);
+}
 
 describe('BGResult', () => {
   beforeEach(async () => {
-    GuestListMock.mockClear();
+    jest.mocked(GuestList).mockClear();
   });
 
   it('shows boarding group obtained', async () => {
@@ -20,34 +22,22 @@ describe('BGResult', () => {
       pluto: 'NOT_IN_PARK' as const,
       fifi: 'NOT_IN_PARK' as const,
     };
-    render(
-      <BGResult
-        guests={guests}
-        result={{
-          boardingGroup: 89,
-          conflicts,
-          closed: false,
-        }}
-        onDone={onDone}
-      />
-    );
-    screen.getByText('Boarding Group: 89');
 
-    expect(screen.queryByText('Done')).not.toBeInTheDocument();
-    act(() => {
-      jest.advanceTimersByTime(5000);
+    renderComponent({
+      boardingGroup: 89,
+      conflicts,
+      closed: false,
     });
-    click('Done');
-    expect(onDone).toBeCalledTimes(1);
+    see('Boarding Group: 89');
 
-    expect(GuestListMock).nthCalledWith(
+    expect(GuestList).nthCalledWith(
       1,
       {
         guests: guests.slice(0, 2),
       },
       {}
     );
-    expect(GuestListMock).nthCalledWith(
+    expect(GuestList).nthCalledWith(
       2,
       {
         guests: guests.slice(2),
@@ -58,20 +48,8 @@ describe('BGResult', () => {
   });
 
   it('show failure message', async () => {
-    render(
-      <BGResult
-        guests={guests}
-        result={{ boardingGroup: null, conflicts: {}, closed: true }}
-        onDone={onDone}
-      />
-    );
-    expect(screen.getByText('Sorry!')).toBeInTheDocument();
-    expect(GuestListMock).lastCalledWith({ guests: [], conflicts: {} }, {});
-
-    expect(screen.queryByText('Done')).not.toBeInTheDocument();
-    act(() => {
-      jest.advanceTimersByTime(1000);
-    });
-    expect(screen.getByText('Done')).toBeEnabled();
+    renderComponent({ boardingGroup: null, conflicts: {}, closed: true });
+    see('Sorry!');
+    expect(GuestList).lastCalledWith({ guests: [], conflicts: {} }, {});
   });
 });

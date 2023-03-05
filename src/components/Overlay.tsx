@@ -1,21 +1,15 @@
-type Props = Omit<React.HTMLProps<HTMLDivElement>, 'className'> & {
-  className?: string | { outer?: string; inner?: string };
-};
+interface Props extends React.HTMLProps<HTMLDivElement> {
+  color?: string;
+}
 
 export default function Overlay(props: Props) {
-  const { children, className, ...attrs } = props;
-  const classNames = {
-    outer: '',
-    inner: '',
-    ...(typeof className === 'string' ? { inner: className } : className),
-  };
-  if (!classNames.outer.match(/\bz-/)) classNames.outer += ' z-10';
-
+  const { children, color = 'bg-black', className = '', ...attrs } = props;
   return (
-    <div className={`${classNames.outer} fixed inset-0`} {...attrs}>
-      <div className={`${classNames.inner} max-w-2xl min-h-full mx-auto`}>
-        {children}
-      </div>
+    <div
+      className={`fixed inset-0 z-10 flex items-center justify-center p-2 ${color} bg-opacity-75 ${className}`}
+      {...attrs}
+    >
+      {children}
     </div>
   );
 }

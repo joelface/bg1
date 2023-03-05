@@ -1,12 +1,12 @@
 import { mtwr, queues, rotr } from '@/__fixtures__/vq';
-import { fireEvent, render, screen } from '@/testing';
+import { fireEvent, render, screen, see } from '@/testing';
 
 import QueueHeading from '../QueueHeading';
 
 describe('QueueHeading', () => {
   it('does not use <select> for a single queue', () => {
     render(<QueueHeading queue={rotr} />);
-    screen.getByText(rotr.name);
+    see(rotr.name);
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
   });
 

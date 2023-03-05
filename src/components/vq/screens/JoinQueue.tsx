@@ -1,54 +1,51 @@
-import { useState } from 'react';
-
-import { Guest, RequestError } from '@/api/vq';
-import Button from '@/components/Button';
+import { Guest, Queue } from '@/api/vq';
 import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
-import useFlash from '@/hooks/useFlash';
-import { sleep } from '@/sleep';
+import Screen from '@/components/Screen';
+import { useNav } from '@/contexts/Nav';
+import { useVQClient } from '@/contexts/VQClient';
+import useDataLoader from '@/hooks/useDataLoader';
+import { ping } from '@/ping';
 
-const JOIN_BTN_DISABLED_MIN_MS = 999;
+import StartTime from '../StartTime';
+import BGResult from './BGResult';
 
 export default function JoinQueue({
+  queue,
   guests,
-  joinQueue,
-  onEdit,
 }: {
+  queue: Queue;
   guests: Guest[];
-  joinQueue: () => Promise<boolean>;
-  onEdit: () => void;
 }) {
-  const [joinDisabled, setJoinDisabled] = useState<boolean>(false);
-  const [flashElem, flash] = useFlash();
+  const { goTo } = useNav();
+  const client = useVQClient();
+  const { loadData, loaderElem } = useDataLoader();
 
-  async function onJoinClick() {
-    setJoinDisabled(true);
-    flash('');
-    const reenabled = sleep(JOIN_BTN_DISABLED_MIN_MS);
-    try {
-      if (!(await joinQueue())) flash('Queue not open yet');
-    } catch (error) {
-      flash('Error: try again', 'error');
-      if (!(error instanceof RequestError)) console.error(error);
-    } finally {
-      await reenabled;
-      setJoinDisabled(false);
-    }
+  async function joinQueue() {
+    await loadData(
+      async flash => {
+        if (!queue || !(await client.getQueue(queue)).isAcceptingJoins) {
+          flash('Queue not open yet');
+          return;
+        }
+        const result = await client.joinQueue(queue, guests);
+        goTo(<BGResult queue={queue} guests={guests} result={result} />, {
+          replace: true,
+        });
+        if (result.boardingGroup !== null) ping();
+      },
+      { minLoadTime: 999 }
+    );
   }
 
   return (
-    <>
-      <div className="mt-4">
-        <h2 className="inline mr-3 text-xl">Your Party</h2>
-        <Button type="small" onClick={onEdit}>
-          Edit
-        </Button>
-      </div>
+    <Screen heading="Join Virtual Queue">
+      <h2>{queue.name}</h2>
+      <StartTime queue={queue} screen={JoinQueue} />
+      <h3>Your Party</h3>
       <GuestList guests={guests} />
-      <FloatingButton disabled={joinDisabled} onClick={onJoinClick}>
-        Join Virtual Queue
-      </FloatingButton>
-      {flashElem}
-    </>
+      <FloatingButton onClick={joinQueue}>Join Virtual Queue</FloatingButton>
+      {loaderElem}
+    </Screen>
   );
 }

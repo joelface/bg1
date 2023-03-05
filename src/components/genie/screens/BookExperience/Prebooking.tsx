@@ -1,3 +1,4 @@
+import FloatingButton from '@/components/FloatingButton';
 import TimeBoard from '@/components/TimeBoard';
 import { displayTime } from '@/datetime';
 
@@ -12,25 +13,31 @@ export default function Prebooking({
 }) {
   return (
     <>
-      {startTime && (
-        <TimeBoard resort="WDW" time={startTime} label="Booking start" />
-      )}
       {startTime ? (
-        <p>
-          At{' '}
-          <time dateTime={startTime} className="font-semibold">
-            {displayTime(startTime)}
-          </time>
-          , tap the <span className="font-semibold">Check Availability</span>{' '}
-          button below to start booking this Lightning Lane.
-        </p>
+        <>
+          <TimeBoard resort="WDW" time={startTime} label="Booking start" />
+          <p>
+            At{' '}
+            <time dateTime={startTime} className="font-semibold">
+              {displayTime(startTime)}
+            </time>
+            , tap the <span className="font-semibold">Check Availability</span>{' '}
+            button below to start booking this Lightning Lane.
+          </p>
+        </>
       ) : (
         <p>
           Sorry, but you can't make a Lightning Lane reservation for this
           attraction yet.
         </p>
       )}
-      <PartyList buttonText="Check Availability" onSubmit={onRefresh} />
+      <PartyList
+        button={
+          <FloatingButton onClick={onRefresh}>
+            Check Availability
+          </FloatingButton>
+        }
+      />
     </>
   );
 }

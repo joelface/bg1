@@ -1,39 +1,44 @@
-import { DEFAULT_THEME, Theme, ThemeProvider } from '@/contexts/Theme';
+import { Theme, ThemeProvider, useTheme } from '@/contexts/Theme';
 
 import HeaderBar from './HeaderBar';
-import Overlay from './Overlay';
 
-type Props = Omit<Parameters<typeof Overlay>[0], 'className'> & {
+export interface ScreenProps {
   heading: React.ReactNode;
+  children: React.ReactNode;
   buttons?: React.ReactNode;
-  className?: string;
+  footer?: React.ReactNode;
   theme?: Theme;
-  containerRef?: React.Ref<HTMLDivElement>;
-};
+  contentRef?: React.MutableRefObject<HTMLDivElement | null>;
+}
+
+export interface ScreenRef {
+  scroll: (x: number, y: number) => void;
+}
 
 export default function Screen({
   heading,
   buttons,
-  className,
+  footer,
   theme,
-  containerRef,
   children,
-  ...attrs
-}: Props) {
+  contentRef,
+}: ScreenProps) {
+  const defaultTheme = useTheme();
+  theme ??= defaultTheme;
+
   return (
-    <ThemeProvider value={theme || DEFAULT_THEME}>
-      <Overlay
-        className={{
-          outer: `bg-white text-black text-base ${className || ''}`,
-          inner: `flex flex-col max-w-2xl h-full`,
-        }}
-        {...attrs}
-      >
+    <ThemeProvider value={theme}>
+      <div className="fixed inset-0 flex flex-col">
         <HeaderBar title={heading}>{buttons}</HeaderBar>
-        <div ref={containerRef} className="flex-1 overflow-auto px-3 pb-3">
+        <div ref={contentRef} className="flex-1 overflow-auto px-3 pb-3">
           {children}
         </div>
-      </Overlay>
+        {footer && (
+          <div className={`relative ${theme.bg} text-white font-semibold`}>
+            {footer}
+          </div>
+        )}
+      </div>
     </ThemeProvider>
   );
 }

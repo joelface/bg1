@@ -19,6 +19,7 @@ interface BaseQueue {
   isAcceptingJoins: boolean;
   isAcceptingPartyCreation: boolean;
   nextScheduledOpenTime: string | null;
+  nextScheduledPartyCreationOpenTime: string | null;
   maxPartySize: number;
   howToEnterMessage: string;
   categoryContentId: 'attraction' | 'character' | 'special-event';
@@ -154,9 +155,11 @@ export class VQClient {
   }
 
   async getQueues(): Promise<Queue[]> {
-    return (
-      (await fetchJson(this.url('getQueues'))).data.queues as GetQueuesResponse
-    ).map(({ queueId, ...queue }) => ({ ...queue, id: queueId }));
+    const response = await fetchJson(this.url('getQueues'));
+    if (!Array.isArray(response.data?.queues)) throw new RequestError(response);
+    return (response.data.queues as GetQueuesResponse).map(
+      ({ queueId, ...queue }) => ({ ...queue, id: queueId })
+    );
   }
 
   async getQueue(queue: Pick<Queue, 'id'>): Promise<Queue> {

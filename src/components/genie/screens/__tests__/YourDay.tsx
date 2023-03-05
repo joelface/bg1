@@ -1,49 +1,53 @@
 import { bookings, client } from '@/__fixtures__/genie';
 import { ClientProvider } from '@/contexts/Client';
-import { returnTime } from '@/datetime';
-import { click, loading, render, screen, setTime, within } from '@/testing';
+import { useNav } from '@/contexts/Nav';
+import { displayTime } from '@/datetime';
+import { act, click, loading, render, screen, see, within } from '@/testing';
 
 import YourDay from '../YourDay';
 
-setTime('09:00');
-const onClose = jest.fn();
-const renderComponent = () =>
+jest.mock('@/contexts/Nav');
+jest.useFakeTimers({ now: new Date('2021-10-01T09:00:00-0400') });
+
+async function renderComponent() {
   render(
     <ClientProvider value={client}>
-      <YourDay onClose={onClose} />
+      <YourDay />
     </ClientProvider>
   );
+  await loading();
+}
 
 describe('YourDay', () => {
-  it('renders booking panel', async () => {
-    renderComponent();
+  const { goTo } = useNav();
+
+  it('shows reservations', async () => {
+    await renderComponent();
     const lis = await screen.findAllByRole('listitem');
     bookings.forEach((booking, i) => {
       const inLI = within(lis[i]);
       inLI.getByText(booking.choices ? 'Multiple Experiences' : booking.name);
-      inLI.getByText(returnTime(booking));
+      inLI.getByText(
+        booking.start.time ? displayTime(booking.start.time) : 'Park Open'
+      );
+      if (booking.type === 'LL') {
+        inLI.getByText(
+          booking.end?.time ? displayTime(booking.end.time) : 'Park Close'
+        );
+      }
     });
 
-    click(screen.getAllByText('More')[0]);
-    click('Back');
-
-    click(screen.getAllByText('More')[1]);
-    click('Cancel');
-    click('Select All');
-    click('Cancel Reservation');
-    screen.getByText(bookings[1].name);
-    await loading();
-    expect(screen.queryByText(bookings[1].name)).not.toBeInTheDocument();
-
-    click('Close');
-    click(screen.getByTestId('panel-shade'));
-    jest.runOnlyPendingTimers();
-    expect(onClose).toBeCalledTimes(2);
+    click(see.all('Info')[1]);
+    expect(goTo).toBeCalled();
+    const { booking, onClose } = jest.mocked(goTo).mock.calls[0][0].props;
+    expect(booking).toBe(bookings[1]);
+    act(() => onClose([]));
+    see.no(bookings[1].name);
   });
 
-  it('renders empty booking panel', async () => {
+  it('shows "No current reservations" message', async () => {
     client.bookings.mockResolvedValueOnce([]);
-    renderComponent();
-    await screen.findByText('No current reservations');
+    await renderComponent();
+    see('No current reservations');
   });
 });

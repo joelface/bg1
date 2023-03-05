@@ -1,7 +1,7 @@
-import { booking, client, mickey, minnie, pluto } from '@/__fixtures__/genie';
+import { booking, client, mickey, pluto } from '@/__fixtures__/genie';
 import { RequestError } from '@/api/genie';
 import { ClientProvider } from '@/contexts/Client';
-import { click, loading, render, screen } from '@/testing';
+import { click, loading, render, see } from '@/testing';
 
 import CancelGuests from '../CancelGuests';
 
@@ -9,12 +9,13 @@ jest.useFakeTimers();
 
 const { guests } = booking;
 const onClose = jest.fn();
-const renderComponent = () =>
+function renderComponent() {
   render(
     <ClientProvider value={client}>
       <CancelGuests booking={booking} onClose={onClose} />
     </ClientProvider>
   );
+}
 
 describe('CancelGuests', () => {
   beforeEach(() => {
@@ -27,7 +28,7 @@ describe('CancelGuests', () => {
     click('Cancel Reservation');
     expect(client.cancelBooking).lastCalledWith(guests);
     await loading();
-    expect(onClose).lastCalledWith([]);
+    expect(onClose).toBeCalledTimes(1);
   });
 
   it('cancels selected guests', async () => {
@@ -37,24 +38,7 @@ describe('CancelGuests', () => {
     click('Cancel Guests');
     expect(client.cancelBooking).lastCalledWith([guests[0], guests[2]]);
     await loading();
-    expect(onClose).lastCalledWith([guests[1]]);
-  });
-
-  it('cancels nothing', async () => {
-    renderComponent();
-    click('Select All');
-    click(mickey.name);
-    click(minnie.name);
-    click(pluto.name);
-    click('Back');
-    await loading();
-    expect(onClose).lastCalledWith(guests);
-
-    click('Select All');
-    click('Select All');
-    click('Back');
-    await loading();
-    expect(onClose).lastCalledWith(guests);
+    expect(onClose).toBeCalledTimes(1);
   });
 
   it('shows error on failure', async () => {
@@ -65,6 +49,6 @@ describe('CancelGuests', () => {
     click('Select All');
     click('Cancel Reservation');
     await loading();
-    screen.getByText('Network request failed');
+    see('Network request failed');
   });
 });

@@ -2,10 +2,10 @@ import { useClient } from '@/contexts/Client';
 
 import Button from './Button';
 
-export default function LogoutButton({ type }: { type?: 'small' }) {
+export default function LogoutButton(props: Parameters<typeof Button>[0]) {
   const client = useClient();
   return (
-    <Button type={type} onClick={() => client.logOut()}>
+    <Button {...props} onClick={() => client.logOut()}>
       Log Out
     </Button>
   );

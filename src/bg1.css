@@ -4,7 +4,7 @@
 
 @layer base {
   html {
-    @apply touch-manipulation overflow-hidden overscroll-none bg-white text-black;
+    @apply touch-manipulation overflow-hidden bg-white text-black;
   }
 
   html * {
@@ -21,7 +21,7 @@
   }
 
   h2 {
-    @apply mt-3 text-xl leading-snug font-semibold;
+    @apply mt-4 text-xl leading-snug font-semibold;
   }
 
   h3 {
@@ -45,6 +45,10 @@
   b,
   strong {
     @apply font-semibold;
+  }
+
+  th {
+    @apply font-normal;
   }
 }
 

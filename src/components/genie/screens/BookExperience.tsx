@@ -4,7 +4,8 @@ import { Guest, LightningLane, Offer, PlusExperience } from '@/api/genie';
 import Button from '@/components/Button';
 import Screen from '@/components/Screen';
 import { useGenieClient } from '@/contexts/GenieClient';
-import { EMPTY_PARTY, Party, PartyProvider } from '@/contexts/Party';
+import { useNav } from '@/contexts/Nav';
+import { Party, PartyProvider } from '@/contexts/Party';
 import { useRebooking } from '@/contexts/Rebooking';
 import useDataLoader from '@/hooks/useDataLoader';
 import RefreshIcon from '@/icons/RefreshIcon';
@@ -21,11 +22,10 @@ import BookingDetails from './BookingDetails';
 
 export default function BookExperience({
   experience,
-  onClose,
 }: {
   experience: PlusExperience;
-  onClose: () => void;
 }) {
+  const { goTo } = useNav();
   const client = useGenieClient();
   const rebooking = useRebooking();
   const [party, setParty] = useState<Party>();
@@ -36,15 +36,13 @@ export default function BookExperience({
   const [offer, setOffer] = useState<Offer | null | undefined>(
     prebooking ? null : undefined
   );
-  const [booking, setBooking] = useState<LightningLane>();
   const { loadData, loaderElem } = useDataLoader();
 
   async function book() {
     if (!offer || !party) return;
-    let booking: LightningLane | null = null;
-
-    await loadData(
+    loadData(
       async () => {
+        let booking: LightningLane | null = null;
         try {
           booking = await client.book(offer, rebooking.current, party.selected);
         } finally {
@@ -58,12 +56,17 @@ export default function BookExperience({
           await client.cancelBooking(guestsToCancel);
           booking.guests = booking.guests.filter(g => selectedIds.has(g.id));
         }
+        if (booking) {
+          goTo(<BookingDetails booking={booking} />, {
+            replace: true,
+          });
+        }
         ping();
       },
-      { 410: 'Offer expired' }
+      {
+        messages: { 410: 'Offer expired' },
+      }
     );
-
-    if (booking) setBooking(booking);
   }
 
   function checkAvailability() {
@@ -79,41 +82,32 @@ export default function BookExperience({
     });
   }
 
-  function cancel() {
-    if (offer) client.cancelOffer(offer);
-    onClose();
-  }
-
   const loadParty = useCallback(() => {
     loadData(async () => {
-      try {
-        const guests = rebooking.current
-          ? { eligible: rebooking.current.guests, ineligible: [] }
-          : await client.guests(experience);
-        setParty({
-          ...guests,
-          selected: guests.eligible.slice(0, client.maxPartySize),
-          setSelected: (selected: Guest[]) =>
-            setParty(party => {
-              if (!party) return party;
-              const oldSelected = new Set(party.selected);
-              setPrebooking(prebooking => {
-                if (!prebooking) {
-                  setOffer(offer =>
-                    offer === null || selected.some(g => !oldSelected.has(g))
-                      ? undefined
-                      : offer
-                  );
-                }
-                return prebooking;
-              });
-              return { ...party, selected };
-            }),
-        });
-      } catch (error) {
-        setParty(EMPTY_PARTY);
-        throw error;
-      }
+      const guests = rebooking.current
+        ? { eligible: rebooking.current.guests, ineligible: [] }
+        : await client.guests(experience);
+      setParty({
+        ...guests,
+        selected: guests.eligible.slice(0, client.maxPartySize),
+        setSelected: (selected: Guest[]) =>
+          setParty(party => {
+            if (!party) return party;
+            const oldSelected = new Set(party.selected);
+            setPrebooking(prebooking => {
+              if (!prebooking) {
+                setOffer(offer =>
+                  offer === null || selected.some(g => !oldSelected.has(g))
+                    ? undefined
+                    : offer
+                );
+              }
+              return prebooking;
+            });
+            return { ...party, selected };
+          }),
+        experience,
+      });
     });
   }, [client, experience, rebooking, loadData]);
 
@@ -156,7 +150,9 @@ export default function BookExperience({
             throw error;
           }
         },
-        { 410: offer ? 'No reservations available' : '' }
+        {
+          messages: { 410: offer ? 'No reservations available' : '' },
+        }
       );
     },
     [client, experience, party, offer, rebooking, loadData]
@@ -165,10 +161,6 @@ export default function BookExperience({
   useEffect(() => {
     if (offer === undefined) refreshOffer();
   }, [offer, refreshOffer]);
-
-  if (booking) {
-    return <BookingDetails booking={booking} onClose={onClose} isNew={true} />;
-  }
 
   const noEligible = party?.eligible.length === 0;
   const noGuestsFound = noEligible && party?.ineligible.length === 0;
@@ -180,11 +172,17 @@ export default function BookExperience({
       buttons={
         <>
           <YourDayButton />
-          {((party && (offer || noGuestsFound)) || prebooking) && (
-            <Button onClick={cancel}>Back</Button>
-          )}
-          {!prebooking && offer !== undefined && (
-            <Button onClick={refreshOffer} title="Refresh Offer">
+          {!prebooking && (
+            <Button
+              onClick={() => {
+                if (!party || party.selected.length === 0) {
+                  loadParty();
+                } else {
+                  refreshOffer();
+                }
+              }}
+              title="Refresh"
+            >
               <RefreshIcon />
             </Button>
           )}
@@ -194,24 +192,26 @@ export default function BookExperience({
       <RebookingHeader />
       <h2>{experience.name}</h2>
       <div>{experience.park.name}</div>
-      <PartyProvider value={party ?? EMPTY_PARTY}>
-        {prebooking && party ? (
-          <Prebooking
-            startTime={experience.flex.enrollmentStartTime || '07:00:00'}
-            onRefresh={checkAvailability}
-          />
-        ) : noGuestsFound ? (
-          <NoGuestsFound onRefresh={loadParty} />
-        ) : noEligible ? (
-          <NoEligibleGuests onClose={onClose} />
-        ) : !party || offer === undefined ? (
-          <div />
-        ) : offer === null ? (
-          <NoReservationsAvailable onClose={onClose} />
-        ) : (
-          <OfferDetails offer={offer} onBook={book} />
-        )}
-      </PartyProvider>
+      {party && (
+        <PartyProvider value={party}>
+          {prebooking && party ? (
+            <Prebooking
+              startTime={experience.flex.enrollmentStartTime}
+              onRefresh={checkAvailability}
+            />
+          ) : noGuestsFound ? (
+            <NoGuestsFound onRefresh={loadParty} />
+          ) : noEligible ? (
+            <NoEligibleGuests />
+          ) : !party || offer === undefined ? (
+            <div />
+          ) : offer === null ? (
+            <NoReservationsAvailable />
+          ) : (
+            <OfferDetails offer={offer} onBook={book} />
+          )}
+        </PartyProvider>
+      )}
       {loaderElem}
     </Screen>
   );
