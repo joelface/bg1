@@ -784,7 +784,7 @@ const data: ResortData = {
     [mk.id]: [],
     [ep.id]: [707, 767, 827, 887, 947, 1007, 1127],
     [hs.id]: [797, 947],
-    [ak.id]: [617, 767, 917],
+    [ak.id]: [767, 917],
   },
 };
 export default data;
