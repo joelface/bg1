@@ -1,5 +1,6 @@
+import { mtwr, queues, rotr } from '@/__fixtures__/vq';
 import { fireEvent, render, screen } from '@/testing';
-import { rotr, mtwr, queues } from '@/__fixtures__/vq';
+
 import QueueHeading from '../QueueHeading';
 
 describe('QueueHeading', () => {

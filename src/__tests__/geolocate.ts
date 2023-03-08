@@ -1,4 +1,5 @@
 import { withCoords } from '@/testing';
+
 import { geolocate } from '../geolocate';
 
 const gcpMock = jest.spyOn(navigator.geolocation, 'getCurrentPosition');

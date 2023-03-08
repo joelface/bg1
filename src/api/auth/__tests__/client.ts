@@ -1,4 +1,5 @@
 import { waitFor } from '@/testing';
+
 import { AuthClient } from '../client';
 
 const ipm = jest.fn();

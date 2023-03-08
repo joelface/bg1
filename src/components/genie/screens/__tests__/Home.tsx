@@ -1,3 +1,16 @@
+import {
+  booking,
+  bookings,
+  client,
+  hm,
+  hs,
+  jc,
+  mickey,
+  minnie,
+  mk,
+  sdd,
+  sm,
+} from '@/__fixtures__/genie';
 import { Park } from '@/api/genie';
 import { ClientProvider } from '@/contexts/Client';
 import { TODAY } from '@/testing';
@@ -8,24 +21,12 @@ import {
   loading,
   render,
   screen,
-  withCoords,
   setTime,
   waitFor,
+  withCoords,
   within,
 } from '@/testing';
-import {
-  client,
-  mk,
-  hs,
-  hm,
-  jc,
-  sm,
-  mickey,
-  minnie,
-  booking,
-  bookings,
-  sdd,
-} from '@/__fixtures__/genie';
+
 import Merlock from '../Home';
 
 jest.mock('@/ping');

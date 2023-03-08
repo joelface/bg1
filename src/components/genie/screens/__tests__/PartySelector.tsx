@@ -1,6 +1,7 @@
+import { client } from '@/__fixtures__/genie';
 import { ClientProvider } from '@/contexts/Client';
 import { click, loading, render, screen } from '@/testing';
-import { client } from '@/__fixtures__/genie';
+
 import PartySelector, {
   loadPartyIds,
   useSelectedParty,

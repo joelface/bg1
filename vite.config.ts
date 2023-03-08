@@ -1,6 +1,6 @@
+import prefresh from '@prefresh/vite';
 import path from 'path';
 import { defineConfig } from 'vite';
-import prefresh from '@prefresh/vite';
 
 const server = {
   host: '0.0.0.0',

@@ -1,4 +1,5 @@
 import { click, render, screen, withCoords } from '@/testing';
+
 import useCoords from '../useCoords';
 import useDataLoader from '../useDataLoader';
 

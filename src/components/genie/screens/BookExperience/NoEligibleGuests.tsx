@@ -1,7 +1,8 @@
+import FloatingButton from '@/components/FloatingButton';
 import { useParty } from '@/contexts/Party';
 import { useRebooking } from '@/contexts/Rebooking';
 import { displayTime } from '@/datetime';
-import FloatingButton from '@/components/FloatingButton';
+
 import IneligibleGuestList from '../../IneligibleGuestList';
 
 export default function NoEligibleGuests({ onClose }: { onClose: () => void }) {

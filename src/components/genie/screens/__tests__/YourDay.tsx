@@ -1,7 +1,8 @@
+import { bookings, client } from '@/__fixtures__/genie';
 import { ClientProvider } from '@/contexts/Client';
 import { returnTime } from '@/datetime';
 import { click, loading, render, screen, setTime, within } from '@/testing';
-import { client, bookings } from '@/__fixtures__/genie';
+
 import YourDay from '../YourDay';
 
 setTime('09:00');

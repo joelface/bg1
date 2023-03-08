@@ -1,8 +1,9 @@
 import { Land } from '@/api/genie';
-import { useModal } from '@/contexts/Modal';
 import Modal from '@/components/Modal';
-import Legend, { Symbol } from './Legend';
+import { useModal } from '@/contexts/Modal';
+
 import { Experience, ScreenProps } from '../Home';
+import Legend, { Symbol } from './Legend';
 
 export default function TimesGuide({ experiences }: ScreenProps) {
   const modal = useModal();

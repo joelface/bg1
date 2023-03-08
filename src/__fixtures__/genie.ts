@@ -1,3 +1,4 @@
+import data from '@/api/data/wdw';
 import {
   Booking,
   ExpData,
@@ -8,7 +9,6 @@ import {
   PlusExperience,
   Reservation,
 } from '@/api/genie';
-import data from '@/api/data/wdw';
 import { TODAY } from '@/testing';
 
 export const [mk, ep, hs, ak] = data.parks;

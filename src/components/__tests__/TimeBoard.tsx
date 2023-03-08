@@ -1,4 +1,5 @@
 import { act, render, screen } from '@/testing';
+
 import TimeBoard, { TIME_IS_IDS } from '../TimeBoard';
 
 jest.mock('@/datetime', () => {

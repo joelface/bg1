@@ -1,5 +1,6 @@
-import { displayTime } from '@/datetime';
 import TimeBoard from '@/components/TimeBoard';
+import { displayTime } from '@/datetime';
+
 import PartyList from './PartyList';
 
 export default function Prebooking({

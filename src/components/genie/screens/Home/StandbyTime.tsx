@@ -1,4 +1,5 @@
 import { Experience } from '@/api/genie';
+
 import LabeledItem from './LabeledItem';
 
 export default function StandbyTime({

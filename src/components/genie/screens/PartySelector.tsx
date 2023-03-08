@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 
 import { Guest } from '@/api/genie';
-import { useGenieClient } from '@/contexts/GenieClient';
-import { Spinner } from '@/hooks/useSpinner';
 import Button from '@/components/Button';
 import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
 import Screen from '@/components/Screen';
+import { useGenieClient } from '@/contexts/GenieClient';
+import { Spinner } from '@/hooks/useSpinner';
 
 const PARTY_IDS_KEY = 'bg1.genie.partyIds';
 

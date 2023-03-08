@@ -1,5 +1,6 @@
-import { click, render, screen, setTime } from '@/testing';
 import { offer } from '@/__fixtures__/genie';
+import { click, render, screen, setTime } from '@/testing';
+
 import OfferDetails from '../OfferDetails';
 
 setTime('09:00');

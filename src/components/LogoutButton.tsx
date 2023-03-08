@@ -1,4 +1,5 @@
 import { useClient } from '@/contexts/Client';
+
 import Button from './Button';
 
 export default function LogoutButton({ type }: { type?: 'small' }) {

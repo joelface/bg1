@@ -1,4 +1,5 @@
-import { setTime, TODAY } from '@/testing';
+import { TODAY, setTime } from '@/testing';
+
 import { AuthStore, ReauthNeeded } from '../store';
 
 setTime('12:30');

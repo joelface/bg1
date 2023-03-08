@@ -1,17 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Guest, Queue, JoinQueueResult } from '@/api/vq';
+import { Guest, JoinQueueResult, Queue } from '@/api/vq';
 import { useVQClient } from '@/contexts/VQClient';
 import useFlash from '@/hooks/useFlash';
 import { ping } from '@/ping';
+
+import FloatingButton from '../FloatingButton';
 import Screen from '../Screen';
 import TimeBoard from '../TimeBoard';
+import HowToEnter from './HowToEnter';
+import QueueHeading from './QueueHeading';
 import BGResult from './screens/BGResult';
 import ChooseParty from './screens/ChooseParty';
-import HowToEnter from './HowToEnter';
 import JoinQueue from './screens/JoinQueue';
-import QueueHeading from './QueueHeading';
-import FloatingButton from '../FloatingButton';
 
 const isAttraction = (queue: Queue) => queue.categoryContentId === 'attraction';
 

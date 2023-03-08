@@ -18,4 +18,7 @@ module.exports = {
   htmlWhitespaceSensitivity: 'css',
   endOfLine: 'lf',
   embeddedLanguageFormatting: 'auto',
+  importOrder: ['^@/(.+)$', '^\\.\\.?/(.+)$'],
+  importOrderSeparation: true,
+  importOrderSortSpecifiers: true,
 };

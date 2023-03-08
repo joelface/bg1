@@ -1,11 +1,11 @@
 import { useState } from 'react';
 
 import { Guest, RequestError } from '@/api/vq';
-import useFlash from '@/hooks/useFlash';
-import { sleep } from '@/sleep';
+import Button from '@/components/Button';
 import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
-import Button from '@/components/Button';
+import useFlash from '@/hooks/useFlash';
+import { sleep } from '@/sleep';
 
 const JOIN_BTN_DISABLED_MIN_MS = 999;
 

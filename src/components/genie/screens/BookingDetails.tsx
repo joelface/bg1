@@ -1,16 +1,17 @@
 import { useState } from 'react';
 
 import { Booking, EntitledGuest, Park } from '@/api/genie';
-import { useGenieClient } from '@/contexts/GenieClient';
-import { useRebooking } from '@/contexts/Rebooking';
-import { DEFAULT_THEME } from '@/contexts/Theme';
 import Button from '@/components/Button';
 import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
 import Screen from '@/components/Screen';
+import { useGenieClient } from '@/contexts/GenieClient';
+import { useRebooking } from '@/contexts/Rebooking';
+import { DEFAULT_THEME } from '@/contexts/Theme';
+
+import { ExperienceList } from '../ExperienceList';
 import ReturnTime from '../ReturnTime';
 import CancelGuests from './CancelGuests';
-import { ExperienceList } from '../ExperienceList';
 
 export default function BookingDetails({
   booking,

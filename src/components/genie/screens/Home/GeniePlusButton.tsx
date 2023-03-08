@@ -1,6 +1,7 @@
 import { PlusExperience } from '@/api/genie';
-import { displayTime } from '@/datetime';
 import Button from '@/components/Button';
+import { displayTime } from '@/datetime';
+
 import LabeledItem from './LabeledItem';
 
 export default function GeniePlusButton({

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { mk, ep, hs, ak } from '@/__fixtures__/genie';
+import { ak, ep, hs, mk } from '@/__fixtures__/genie';
 import { click, render, screen } from '@/testing';
 
 import Select from '../Select';

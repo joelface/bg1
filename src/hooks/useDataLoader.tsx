@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 
 import { RequestError } from '@/api/genie';
+
 import useFlash from './useFlash';
 import useSpinner from './useSpinner';
 

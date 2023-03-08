@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 
 import { Booking, EntitledGuest } from '@/api/genie';
-import { useGenieClient } from '@/contexts/GenieClient';
 import Button from '@/components/Button';
 import Overlay from '@/components/Overlay';
 import Screen from '@/components/Screen';
-import BookingDetails from './BookingDetails';
+import { useGenieClient } from '@/contexts/GenieClient';
+
 import BookingListing from '../BookingListing';
+import BookingDetails from './BookingDetails';
 
 export default function YourDay({ onClose }: { onClose: () => void }) {
   const client = useGenieClient();

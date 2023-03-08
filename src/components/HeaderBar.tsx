@@ -1,6 +1,7 @@
 import { Children, Fragment, cloneElement, isValidElement } from 'react';
 
 import { useTheme } from '@/contexts/Theme';
+
 import Button from './Button';
 
 export default function HeaderBar({

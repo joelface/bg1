@@ -1,4 +1,5 @@
 import { render, screen, setTime } from '@/testing';
+
 import TimeBanner from '../TimeBanner';
 
 describe('TimeBanner', () => {

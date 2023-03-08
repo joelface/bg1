@@ -1,17 +1,18 @@
+import {
+  booking,
+  client,
+  donald,
+  hm,
+  mickey,
+  minnie,
+  offer,
+  pluto,
+} from '@/__fixtures__/genie';
 import { RequestError } from '@/api/genie';
 import { ClientProvider } from '@/contexts/Client';
 import { ping } from '@/ping';
-import { click, loading, render, screen, setTime, TODAY } from '@/testing';
-import {
-  client,
-  offer,
-  hm,
-  booking,
-  mickey,
-  minnie,
-  donald,
-  pluto,
-} from '@/__fixtures__/genie';
+import { TODAY, click, loading, render, screen, setTime } from '@/testing';
+
 import BookExperience from '../BookExperience';
 
 jest.mock('@/ping');

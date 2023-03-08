@@ -1,4 +1,5 @@
-import { Theme, ThemeProvider, DEFAULT_THEME } from '@/contexts/Theme';
+import { DEFAULT_THEME, Theme, ThemeProvider } from '@/contexts/Theme';
+
 import HeaderBar from './HeaderBar';
 import Overlay from './Overlay';
 

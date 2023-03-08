@@ -1,5 +1,6 @@
 import { fetchJson } from '@/fetch';
 import { setTime } from '@/testing';
+
 import { ping } from '../ping';
 
 jest.mock('@/fetch');

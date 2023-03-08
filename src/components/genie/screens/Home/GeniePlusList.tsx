@@ -1,3 +1,4 @@
+import Modal from '@/components/Modal';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { useModal } from '@/contexts/Modal';
 import { useTheme } from '@/contexts/Theme';
@@ -6,14 +7,14 @@ import CheckmarkIcon from '@/icons/CheckmarkIcon';
 import DropIcon from '@/icons/DropIcon';
 import LightningIcon from '@/icons/LightningIcon';
 import StarIcon from '@/icons/StarIcon';
-import Modal from '@/components/Modal';
-import BookExperience from '../BookExperience';
+
 import { ExperienceList } from '../../ExperienceList';
-import GeniePlusButton from './GeniePlusButton';
-import Legend, { Symbol } from './Legend';
+import RebookingHeader from '../../RebookingHeader';
+import BookExperience from '../BookExperience';
 import { PlusExperience, ScreenProps } from '../Home';
 import { useSelectedParty } from '../PartySelector';
-import RebookingHeader from '../../RebookingHeader';
+import GeniePlusButton from './GeniePlusButton';
+import Legend, { Symbol } from './Legend';
 import StandbyTime from './StandbyTime';
 import TimeBanner from './TimeBanner';
 

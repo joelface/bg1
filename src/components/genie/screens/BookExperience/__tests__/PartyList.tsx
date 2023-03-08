@@ -1,9 +1,10 @@
 import { useState } from 'react';
 
+import { client, donald, mickey, minnie, pluto } from '@/__fixtures__/genie';
 import { ClientProvider } from '@/contexts/Client';
 import { Party, PartyProvider } from '@/contexts/Party';
 import { click, render, screen } from '@/testing';
-import { client, mickey, pluto, minnie, donald } from '@/__fixtures__/genie';
+
 import PartyList from '../PartyList';
 
 const onSubmit = jest.fn();

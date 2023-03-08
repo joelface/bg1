@@ -1,22 +1,23 @@
+import {
+  allDayExp,
+  booking,
+  client,
+  hm,
+  hs,
+  jc,
+  mickey,
+  minnie,
+  mk,
+  multiExp,
+  pluto,
+  sdd,
+  sm,
+} from '@/__fixtures__/genie';
 import { Booking } from '@/api/genie';
 import { ClientProvider } from '@/contexts/Client';
 import { displayTime } from '@/datetime';
 import { click, render, screen, setTime, waitFor } from '@/testing';
-import {
-  client,
-  booking,
-  multiExp,
-  allDayExp,
-  mickey,
-  minnie,
-  pluto,
-  hs,
-  sdd,
-  jc,
-  hm,
-  sm,
-  mk,
-} from '@/__fixtures__/genie';
+
 import BookingDetails from '../BookingDetails';
 
 setTime('09:00');

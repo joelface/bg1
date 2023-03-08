@@ -1,4 +1,5 @@
 import { act, click, render, screen } from '@/testing';
+
 import useFlash, { Flash } from '../useFlash';
 
 jest.useFakeTimers();

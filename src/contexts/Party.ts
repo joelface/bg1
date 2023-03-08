@@ -1,5 +1,6 @@
-import { Guest, Guests } from '@/api/genie';
 import { createContext, useContext } from 'react';
+
+import { Guest, Guests } from '@/api/genie';
 
 export interface Party extends Guests {
   selected: Guest[];

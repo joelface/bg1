@@ -1,4 +1,5 @@
 import { click, render, screen } from '@/testing';
+
 import useDisclaimer from '../useDisclaimer';
 
 const Disclaimer = () => useDisclaimer();

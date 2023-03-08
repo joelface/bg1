@@ -1,12 +1,13 @@
 import { useState } from 'react';
 
-import { useGenieClient } from '@/contexts/GenieClient';
-import { useParty } from '@/contexts/Party';
-import useFlash from '@/hooks/useFlash';
 import Button from '@/components/Button';
 import FloatingButton from '@/components/FloatingButton';
 import GuestList, { Guest } from '@/components/GuestList';
 import Warning from '@/components/Warning';
+import { useGenieClient } from '@/contexts/GenieClient';
+import { useParty } from '@/contexts/Party';
+import useFlash from '@/hooks/useFlash';
+
 import IneligibleGuestList from '../../IneligibleGuestList';
 
 export default function PartyList({

@@ -1,6 +1,7 @@
-import { act, click, render, screen } from '@/testing';
 import { guests } from '@/__fixtures__/vq';
 import GuestList from '@/components/GuestList';
+import { act, click, render, screen } from '@/testing';
+
 import BGResult from '../BGResult';
 
 jest.useFakeTimers();

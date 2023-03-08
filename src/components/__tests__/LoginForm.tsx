@@ -1,5 +1,6 @@
-import { render, screen } from '@/testing';
 import { AuthClient } from '@/api/auth/client';
+import { render, screen } from '@/testing';
+
 import LoginForm from '../LoginForm';
 
 jest.mock('@/api/auth/client');

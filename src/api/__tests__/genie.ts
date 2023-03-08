@@ -1,32 +1,33 @@
-import { fetchJson } from '@/fetch';
-import { setTime, TODAY, TOMORROW, waitFor } from '@/testing';
 import {
-  client,
-  tracker,
-  hm,
-  sm,
-  mk,
-  mickey,
-  minnie,
-  donald,
-  pluto,
   booking,
   bookings,
+  client,
+  donald,
+  hm,
   lttRes,
+  mickey,
+  minnie,
+  mk,
+  pluto,
+  sm,
+  tracker,
 } from '@/__fixtures__/genie';
+import { fetchJson } from '@/fetch';
+import { TODAY, TOMORROW, setTime, waitFor } from '@/testing';
+
+import wdw from '../data/wdw';
 import {
   Booking,
   BookingTracker,
   ExpData,
   GenieClient,
   Guest,
-  isGenieOrigin,
   LightningLane,
   ModifyNotAllowed,
   PlusExperience,
   RequestError,
+  isGenieOrigin,
 } from '../genie';
-import wdw from '../data/wdw';
 
 jest.mock('@/fetch');
 const fetchJsonMock = fetchJson as jest.MockedFunction<typeof fetchJson>;

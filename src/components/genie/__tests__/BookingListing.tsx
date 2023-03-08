@@ -1,6 +1,7 @@
+import { booking } from '@/__fixtures__/genie';
 import { returnTime } from '@/datetime';
 import { render, screen } from '@/testing';
-import { booking } from '@/__fixtures__/genie';
+
 import BookingListing from '../BookingListing';
 
 describe('BookingListing', () => {
