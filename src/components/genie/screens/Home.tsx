@@ -6,8 +6,10 @@ import {
   useExperiencesState,
 } from '@/contexts/Experiences';
 import { useNav } from '@/contexts/Nav';
+import { usePlans } from '@/contexts/Plans';
 import { useRebooking } from '@/contexts/Rebooking';
 import { ThemeProvider } from '@/contexts/Theme';
+import CalendarIcon from '@/icons/CalendarIcon';
 import ClockIcon from '@/icons/ClockIcon';
 import LightningIcon from '@/icons/LightningIcon';
 import onVisible from '@/onVisible';
@@ -15,6 +17,7 @@ import onVisible from '@/onVisible';
 import GeniePlusList from './Home/GeniePlusList';
 import SettingsButton from './Home/SettingsButton';
 import TimesGuide from './Home/TimesGuide';
+import Plans from './Plans';
 
 const AUTO_REFRESH_MIN_MS = 60_000;
 export const DEFAULT_TAB_KEY = 'bg1.genie.merlock.tab';
@@ -37,6 +40,11 @@ const tabs = [
     icon: <ClockIcon />,
     component: TimesGuide,
   },
+  {
+    name: 'Plans',
+    icon: <CalendarIcon />,
+    component: Plans,
+  },
 ];
 
 const footer = <SettingsButton />;
@@ -46,6 +54,7 @@ const Home = withTabs({ tabs, footer }, ({ tab }) => {
   const rebooking = useRebooking();
   const exps = useExperiencesState();
   const { park, setPark, refreshExperiences } = exps;
+  const { refreshPlans } = usePlans();
   const contentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -55,8 +64,9 @@ const Home = withTabs({ tabs, footer }, ({ tab }) => {
   useEffect(() => {
     return onVisible(() => {
       refreshExperiences(AUTO_REFRESH_MIN_MS);
+      refreshPlans(AUTO_REFRESH_MIN_MS);
     });
-  }, [refreshExperiences]);
+  }, [refreshExperiences, refreshPlans]);
 
   useEffect(() => {
     if (!rebooking.current) return;

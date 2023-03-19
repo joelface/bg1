@@ -210,8 +210,8 @@ interface BaseBooking {
   subtype: string;
   id: string;
   name: string;
-  start: Partial<DateTime>;
-  end: Partial<DateTime> | undefined;
+  start: Partial<DateTime> & Pick<DateTime, 'date'>;
+  end?: Partial<DateTime>;
   cancellable: boolean;
   modifiable: boolean;
   guests: Guest[];
@@ -232,7 +232,7 @@ export interface Reservation extends BaseBooking {
   subtype: 'DINING' | 'ACTIVITY';
   park: Partial<Park> & Pick<Park, 'id' | 'name'>;
   start: DateTime;
-  end: undefined;
+  end?: undefined;
   cancellable: false;
   modifiable: false;
 }
@@ -559,7 +559,6 @@ export class GenieClient {
       },
       key: 'booking',
     });
-    this.updateTracker();
     return {
       type: 'LL',
       subtype: 'G+',
@@ -593,7 +592,7 @@ export class GenieClient {
     });
   }
 
-  async bookings(): Promise<Booking[]> {
+  async bookings(maxDays = 14): Promise<Booking[]> {
     const { swid } = this.authStore.getData();
     const now = new Date(Date.now());
     const today = dateTimeStrings(now).date;
@@ -611,7 +610,7 @@ export class GenieClient {
         'guest-locator-groups': 'MY_FAMILY',
         'start-date': today,
         'end-date': dateTimeStrings(
-          new Date(now.getTime()).setDate(now.getDate() + 1)
+          new Date(now.getTime()).setDate(now.getDate() + maxDays + 1)
         ).date,
         'show-friends': 'false',
       },
@@ -650,7 +649,6 @@ export class GenieClient {
         park,
         name: activityAsset.name,
         start: dateTimeStrings(start),
-        end: undefined,
         cancellable: false,
         modifiable: false,
         guests: item.guests
@@ -689,7 +687,7 @@ export class GenieClient {
         subtype,
         ...this.getExperience(idNum(item.facility), parkId, expAsset.name),
         start: {
-          date: item.displayStartDate,
+          date: item.displayStartDate ?? today,
           time: item.displayStartTime,
         },
         end: {
@@ -745,15 +743,11 @@ export class GenieClient {
           console.error(error);
         }
       })
-      .filter(
-        (booking): booking is Booking =>
-          !!booking && (booking.start.date || today) <= today
-      );
+      .filter((booking): booking is Booking => !!booking);
+
     this.tracker.update(bookings, this);
     return bookings;
   }
-
-  updateTracker = this.bookings;
 
   upcomingDrops(park: Pick<Park, 'id'>): {
     time: string;

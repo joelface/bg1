@@ -5,18 +5,20 @@ import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
 import Screen from '@/components/Screen';
 import { useGenieClient } from '@/contexts/GenieClient';
+import { usePlans } from '@/contexts/Plans';
 import useDataLoader from '@/hooks/useDataLoader';
 
 import ReturnTime from '../ReturnTime';
 
 export default function CancelGuests({
   booking,
-  onClose,
+  onCancel,
 }: {
   booking: LightningLane;
-  onClose: (newGuests: LightningLane['guests']) => void;
+  onCancel: (newGuests: LightningLane['guests']) => void;
 }) {
   const client = useGenieClient();
+  const { refreshPlans } = usePlans();
   const [guestsToCancel, setGuestsToCancel] = useState<
     Set<LightningLane['guests'][0]>
   >(new Set());
@@ -30,8 +32,9 @@ export default function CancelGuests({
     if (cancelingNone) return;
     await loadData(async () => {
       await client.cancelBooking([...guestsToCancel]);
+      if (cancelingAll) refreshPlans();
     });
-    onClose(guests.filter(g => !guestsToCancel.has(g)));
+    onCancel(guests.filter(g => !guestsToCancel.has(g)));
   }
 
   return (

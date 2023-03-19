@@ -7,7 +7,6 @@ import {
   revisitTab,
   see,
   setTime,
-  waitFor,
 } from '@/testing';
 
 import Merlock from '../../Merlock';
@@ -40,8 +39,8 @@ describe('Home', () => {
     click(hs.name, 'radio');
     await loading();
     see(`Park: ${hs.name}`);
-    click('Your Day');
-    await waitFor(() => click(see.all('Info')[1]));
+    click('Plans');
+    click(see.all('Info')[1]);
     elemScrollMock.mockClear();
     await see.screen('Your Lightning Lane');
     click('Modify');

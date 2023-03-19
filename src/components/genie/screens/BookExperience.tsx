@@ -6,13 +6,14 @@ import Screen from '@/components/Screen';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { useNav } from '@/contexts/Nav';
 import { Party, PartyProvider } from '@/contexts/Party';
+import { usePlans } from '@/contexts/Plans';
 import { useRebooking } from '@/contexts/Rebooking';
 import useDataLoader from '@/hooks/useDataLoader';
 import RefreshIcon from '@/icons/RefreshIcon';
 import { ping } from '@/ping';
 
+import PlansButton from '../PlansButton';
 import RebookingHeader from '../RebookingHeader';
-import YourDayButton from '../YourDayButton';
 import NoEligibleGuests from './BookExperience/NoEligibleGuests';
 import NoGuestsFound from './BookExperience/NoGuestsFound';
 import NoReservationsAvailable from './BookExperience/NoReservationsAvailable';
@@ -27,6 +28,7 @@ export default function BookExperience({
 }) {
   const { goTo } = useNav();
   const client = useGenieClient();
+  const { refreshPlans } = usePlans();
   const rebooking = useRebooking();
   const [party, setParty] = useState<Party>();
   const [prebooking, setPrebooking] = useState(
@@ -61,6 +63,7 @@ export default function BookExperience({
             replace: true,
           });
         }
+        refreshPlans();
         ping();
       },
       {
@@ -162,6 +165,12 @@ export default function BookExperience({
     if (offer === undefined) refreshOffer();
   }, [offer, refreshOffer]);
 
+  useEffect(() => {
+    return () => {
+      if (offer) client.cancelOffer(offer);
+    };
+  }, [offer, client]);
+
   const noEligible = party?.eligible.length === 0;
   const noGuestsFound = noEligible && party?.ineligible.length === 0;
 
@@ -171,7 +180,7 @@ export default function BookExperience({
       theme={experience.park.theme}
       buttons={
         <>
-          <YourDayButton />
+          <PlansButton />
           {!prebooking && (
             <Button
               onClick={() => {

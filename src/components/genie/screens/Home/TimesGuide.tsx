@@ -5,7 +5,6 @@ import { useExperiences } from '@/contexts/Experiences';
 import { useNav } from '@/contexts/Nav';
 import { ThemeProvider } from '@/contexts/Theme';
 
-import YourDayButton from '../../YourDayButton';
 import { HomeTabProps } from '../Home';
 import RefreshButton from '../RefreshButton';
 import Legend, { Symbol } from './Legend';
@@ -52,7 +51,6 @@ export default function TimesGuide({ contentRef }: HomeTabProps) {
       buttons={
         <>
           <ParkSelect />
-          <YourDayButton />
           <RefreshButton name="Times" onClick={refreshExperiences} />
         </>
       }

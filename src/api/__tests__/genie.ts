@@ -13,7 +13,7 @@ import {
   tracker,
 } from '@/__fixtures__/genie';
 import { fetchJson } from '@/fetch';
-import { TODAY, TOMORROW, setTime, waitFor } from '@/testing';
+import { TODAY, setTime, waitFor } from '@/testing';
 
 import wdw from '../data/wdw';
 import {
@@ -439,19 +439,6 @@ describe('GenieClient', () => {
             type: 'ACTIVITY',
             asset: '19432184;entityType=activity-product',
           },
-          {
-            // This item should be ignored
-            type: 'FASTPASS',
-            kind: 'FDS',
-            facility: entId(hm),
-            cancellable: true,
-            multipleExperiences: false,
-            displayStartDate: TOMORROW,
-            displayStartTime: '10:00:00',
-            displayEndDate: TOMORROW,
-            displayEndTime: '11:00:00',
-            guests: [{ id: xid(mickey), entitlementId: 'hm1000_01' }],
-          },
           ...bookings.map(b => ({
             ...(b.type === 'LL'
               ? {
@@ -550,12 +537,6 @@ describe('GenieClient', () => {
     }
     const bookingsRes = createBookingsResponse(bookings);
 
-    it('returns current bookings', async () => {
-      setTime(lttRes.start.time, 30);
-      respond(bookingsRes);
-      expect(await client.bookings()).toEqual(bookings);
-    });
-
     it('excludes non-LL reservations >30 minutes old', async () => {
       setTime(lttRes.start.time, 31);
       respond(bookingsRes);
@@ -578,7 +559,7 @@ describe('GenieClient', () => {
         id: '16491297',
         name: 'The Barnstormer',
         park: mk,
-        start: { date: undefined, time: undefined },
+        start: { date: TODAY, time: undefined },
         end: { date: undefined, time: undefined },
         cancellable: false,
         modifiable: false,

@@ -59,16 +59,16 @@ describe('BookingDetails', () => {
 
     click('Cancel');
     expect(goTo).lastCalledWith(
-      <CancelGuests booking={booking} onClose={expect.any(Function)} />
+      <CancelGuests booking={booking} onCancel={expect.any(Function)} />
     );
 
-    const onClose = jest.mocked(goTo).mock.lastCall?.[0]?.props?.onClose;
-    act(() => onClose([mickey, minnie]));
+    const onCancel = jest.mocked(goTo).mock.lastCall?.[0]?.props?.onCancel;
+    act(() => onCancel([mickey, minnie]));
     see(mickey.name);
     see(minnie.name);
     await waitFor(() => see.no(pluto.name));
 
-    act(() => onClose([]));
+    act(() => onCancel([]));
     expect(goBack).toBeCalledTimes(1);
   });
 

@@ -15,7 +15,6 @@ import StarIcon from '@/icons/StarIcon';
 
 import { ExperienceList } from '../../ExperienceList';
 import RebookingHeader from '../../RebookingHeader';
-import YourDayButton from '../../YourDayButton';
 import { HomeTabProps } from '../Home';
 import { useSelectedParty } from '../PartySelector';
 import RefreshButton from '../RefreshButton';
@@ -156,7 +155,6 @@ export default function GeniePlusList({ contentRef }: HomeTabProps) {
         <>
           <SortSelect />
           <ParkSelect />
-          <YourDayButton />
           <RefreshButton name="Experiences" onClick={refreshExperiences} />
         </>
       }

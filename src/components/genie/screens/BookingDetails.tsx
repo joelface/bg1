@@ -1,9 +1,10 @@
 import { useState } from 'react';
 
-import { Booking, EntitledGuest, Park } from '@/api/genie';
+import { Booking, Park } from '@/api/genie';
 import Button from '@/components/Button';
 import GuestList from '@/components/GuestList';
 import Screen from '@/components/Screen';
+import { Time } from '@/components/Time';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { useNav } from '@/contexts/Nav';
 import { useRebooking } from '@/contexts/Rebooking';
@@ -13,16 +14,10 @@ import { ExperienceList } from '../ExperienceList';
 import ReturnTime from '../ReturnTime';
 import CancelGuests from './CancelGuests';
 
-export default function BookingDetails({
-  booking,
-  onClose,
-}: {
-  booking: Booking;
-  onClose?: (newGuests: EntitledGuest[]) => void;
-}) {
+export default function BookingDetails({ booking }: { booking: Booking }) {
   const { goTo, goBack } = useNav();
   const client = useGenieClient();
-  const { name, park, choices, type } = booking;
+  const { name, park, choices, type, start } = booking;
   const isLL = type === 'LL';
   const rebooking = useRebooking();
   const [guests, setGuests] = useState(isLL ? booking.guests : undefined);
@@ -38,13 +33,9 @@ export default function BookingDetails({
   const parkChoices = [...choicesByPark]
     .filter(([, exps]) => exps.length > 0)
     .map(([park]) => park);
-  const theme = (
-    !choices
-      ? park
-      : parkChoices.length === 1
-      ? parkChoices[0]
-      : { theme: DEFAULT_THEME }
-  ).theme;
+  const theme =
+    (!choices ? park : parkChoices.length === 1 ? parkChoices[0] : {}).theme ??
+    DEFAULT_THEME;
 
   return (
     <Screen
@@ -63,6 +54,13 @@ export default function BookingDetails({
         )
       }
     >
+      {
+        <div
+          className={`-mx-3 px-2 py-1 text-center ${theme.bg} text-white text-sm font-semibold uppercase`}
+        >
+          <Time date={start.date} />
+        </div>
+      }
       {choices ? (
         <h2>Multiple Experiences</h2>
       ) : (
@@ -100,10 +98,9 @@ export default function BookingDetails({
               goTo(
                 <CancelGuests
                   booking={{ ...booking, guests }}
-                  onClose={guests => {
-                    if (onClose) onClose(guests);
-                    if (guests.length > 0) {
-                      setGuests(guests);
+                  onCancel={remainingGuests => {
+                    if (remainingGuests.length > 0) {
+                      setGuests(remainingGuests);
                     } else {
                       goBack();
                     }

@@ -56,6 +56,46 @@ function TabButton({ name, icon }: TabDef) {
   );
 }
 
+export default function Tab({
+  heading,
+  buttons,
+  children,
+  contentRef,
+}: ScreenProps) {
+  const { tabs, scrollPos, footer } = useTabs();
+  let ref = useRef<HTMLDivElement | null>(null);
+  if (contentRef) ref = contentRef;
+
+  useLayoutEffect(() => {
+    const elem = ref.current;
+    if (!elem) return;
+    elem.scroll(0, scrollPos.get());
+    const updateScrollPos = () => scrollPos.set(elem.scrollTop);
+    elem.addEventListener('scroll', updateScrollPos);
+    return () => elem.removeEventListener('scroll', updateScrollPos);
+  }, [scrollPos]);
+
+  return (
+    <Screen
+      heading={heading}
+      buttons={buttons}
+      footer={
+        <>
+          <div className="flex items-center justify-center">
+            {tabs.map(tab => (
+              <TabButton {...tab} key={tab.name} />
+            ))}
+          </div>
+          {footer}
+        </>
+      }
+      contentRef={ref}
+    >
+      {children}
+    </Screen>
+  );
+}
+
 export function withTabs<T extends TabDef>(
   { tabs, footer }: { tabs: T[]; footer: React.ReactNode },
   Component: React.FC<{ tab: T }>
@@ -96,44 +136,4 @@ export function withTabs<T extends TabDef>(
       </TabsContext.Provider>
     );
   };
-}
-
-export default function Tab({
-  heading,
-  buttons,
-  children,
-  contentRef,
-}: ScreenProps) {
-  const { tabs, scrollPos, footer } = useTabs();
-  let ref = useRef<HTMLDivElement | null>(null);
-  if (contentRef) ref = contentRef;
-
-  useLayoutEffect(() => {
-    const elem = ref.current;
-    if (!elem) return;
-    elem.scroll(0, scrollPos.get());
-    const updateScrollPos = () => scrollPos.set(elem.scrollTop);
-    elem.addEventListener('scroll', updateScrollPos);
-    return () => elem.removeEventListener('scroll', updateScrollPos);
-  }, [scrollPos]);
-
-  return (
-    <Screen
-      heading={heading}
-      buttons={buttons}
-      footer={
-        <>
-          <div className="flex items-center justify-center">
-            {tabs.map(tab => (
-              <TabButton {...tab} key={tab.name} />
-            ))}
-          </div>
-          {footer}
-        </>
-      }
-      contentRef={ref}
-    >
-      {children}
-    </Screen>
-  );
 }

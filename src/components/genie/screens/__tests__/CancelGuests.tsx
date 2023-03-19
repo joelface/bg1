@@ -8,18 +8,19 @@ import CancelGuests from '../CancelGuests';
 jest.useFakeTimers();
 
 const { guests } = booking;
-const onClose = jest.fn();
+const onCancel = jest.fn();
+
 function renderComponent() {
   render(
     <ClientProvider value={client}>
-      <CancelGuests booking={booking} onClose={onClose} />
+      <CancelGuests booking={booking} onCancel={onCancel} />
     </ClientProvider>
   );
 }
 
 describe('CancelGuests', () => {
   beforeEach(() => {
-    onClose.mockClear();
+    onCancel.mockClear();
   });
 
   it('cancels reservation', async () => {
@@ -28,7 +29,7 @@ describe('CancelGuests', () => {
     click('Cancel Reservation');
     expect(client.cancelBooking).lastCalledWith(guests);
     await loading();
-    expect(onClose).toBeCalledTimes(1);
+    expect(onCancel).toBeCalledTimes(1);
   });
 
   it('cancels selected guests', async () => {
@@ -38,7 +39,7 @@ describe('CancelGuests', () => {
     click('Cancel Guests');
     expect(client.cancelBooking).lastCalledWith([guests[0], guests[2]]);
     await loading();
-    expect(onClose).toBeCalledTimes(1);
+    expect(onCancel).toBeCalledTimes(1);
   });
 
   it('shows error on failure', async () => {
