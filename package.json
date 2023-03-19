@@ -10,7 +10,7 @@
   "devDependencies": {
     "@prefresh/vite": "^2.2.9",
     "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^13.4.0",
+    "@testing-library/react": "^14.0.0",
     "@trivago/prettier-plugin-sort-imports": "^4.1.1",
     "@types/estree": "^1.0.0",
     "@types/jest": "^29.2.4",
