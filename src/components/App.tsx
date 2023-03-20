@@ -19,22 +19,22 @@ export default function App({
   authStore: Public<AuthStore>;
   children: JSX.Element;
 }) {
-  const [screenName, show] = useState<keyof typeof screens>('Blank');
+  const [screenName, show] = useState<keyof typeof screens>('blank');
   const disclaimer = useDisclaimer();
   const news = useNews(NEWS_VERSION);
 
   useEffect(() => {
-    client.onUnauthorized = () => show('LoginForm');
+    client.onUnauthorized = () => show('login');
   }, [client]);
 
   useEffect(() => {
     function checkAuth() {
-      if (screenName === 'LoginForm') return;
+      if (screenName === 'login') return;
       try {
         authStore.getData();
-        show('Client');
+        show('client');
       } catch {
-        return show('LoginForm');
+        return show('login');
       }
     }
     checkAuth();
@@ -45,22 +45,18 @@ export default function App({
   if (news) return news;
 
   const screens = {
-    Blank: <div />,
-    LoginForm: (
+    blank: <div />,
+    login: (
       <LoginForm
         resort={client.resort}
         onLogin={data => {
           authStore.setData(data);
-          show('Client');
+          show('client');
         }}
       />
     ),
-    Client: children,
+    client: children,
   };
 
-  return (
-    <ClientProvider value={client}>
-      {disclaimer ? disclaimer : screens[screenName]}
-    </ClientProvider>
-  );
+  return <ClientProvider value={client}>{screens[screenName]}</ClientProvider>;
 }

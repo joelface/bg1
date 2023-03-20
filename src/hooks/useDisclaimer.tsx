@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import FloatingButton from '@/components/FloatingButton';
 import Screen from '@/components/Screen';
@@ -8,15 +8,18 @@ export const DISCLAIMER_ACCEPTED_KEY = 'bg1.disclaimer.accepted';
 const theme = { bg: 'bg-red-600', text: 'text-red-600' };
 
 export default function useDisclaimer() {
-  const storage = localStorage;
-  const acceptedKey = DISCLAIMER_ACCEPTED_KEY;
-  const [accepted, setAccepted] = useState(!!storage.getItem(acceptedKey));
+  const [accepted, setAccepted] = useState(
+    !!localStorage.getItem(DISCLAIMER_ACCEPTED_KEY)
+  );
 
-  useEffect(() => {
-    if (accepted) storage.setItem(acceptedKey, '1');
-  }, [accepted, storage, acceptedKey]);
-
-  return accepted ? null : <Disclaimer onAccept={() => setAccepted(true)} />;
+  return accepted ? null : (
+    <Disclaimer
+      onAccept={() => {
+        localStorage.setItem(DISCLAIMER_ACCEPTED_KEY, '1');
+        setAccepted(true);
+      }}
+    />
+  );
 }
 
 function Disclaimer({ onAccept }: { onAccept: () => void }) {

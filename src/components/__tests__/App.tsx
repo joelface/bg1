@@ -53,6 +53,8 @@ describe('App', () => {
     localStorage.removeItem(DISCLAIMER_ACCEPTED_KEY);
     renderComponent();
     see('Warning!');
+    click('Accept');
+    expect(localStorage.getItem(DISCLAIMER_ACCEPTED_KEY)).toBe('1');
   });
 
   it('shows News if newer than last seen', () => {
