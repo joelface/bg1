@@ -51,7 +51,7 @@ describe('Select', () => {
     click(ep.name);
     expect(btn).toHaveTextContent(ep.icon);
     expect(btn).not.toHaveTextContent(ep.name);
-    expect(screen.queryByTestId('select-shade')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('shade')).not.toBeInTheDocument();
 
     click(btn);
     expect(
@@ -59,7 +59,7 @@ describe('Select', () => {
         .getAllByRole('radio')
         .map(input => (input as HTMLInputElement).checked)
     ).toEqual([false, true, false, false]);
-    const shade = screen.getByTestId('select-shade');
+    const shade = screen.getByTestId('shade');
     click(shade);
     expect(shade).not.toBeInTheDocument();
   });

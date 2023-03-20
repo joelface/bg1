@@ -111,7 +111,7 @@ export default function Select<K extends string, V = K>(props: Props<K, V>) {
               arrowPressed = true;
             }
           }}
-          data-testid="select-shade"
+          data-testid="shade"
         >
           <ul
             className="overflow-auto min-w-[50%] max-h-[90%] rounded-lg bg-white text-black"
@@ -132,7 +132,7 @@ export default function Select<K extends string, V = K>(props: Props<K, V>) {
                       className="w-4 h-4 mr-2.5"
                     />{' '}
                     {opt.icon && (
-                      <span aria-hidden="true" className="mr-2.5">
+                      <span className="mr-2.5" aria-hidden="true">
                         {opt.icon}
                       </span>
                     )}{' '}

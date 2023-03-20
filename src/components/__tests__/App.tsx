@@ -1,9 +1,10 @@
 import { AuthData } from '@/api/auth/client';
 import { ReauthNeeded } from '@/api/auth/store';
 import { DISCLAIMER_ACCEPTED_KEY } from '@/hooks/useDisclaimer';
+import { NEWS_VERSION_KEY } from '@/hooks/useNews';
 import { act, click, render, see } from '@/testing';
 
-import App from '../App';
+import App, { NEWS_VERSION } from '../App';
 
 jest.mock('../LoginForm', () => {
   function LoginForm({ onLogin }: { onLogin: (data: AuthData) => void }) {
@@ -45,12 +46,21 @@ describe('App', () => {
       accessToken: 'm1ck3y',
     });
     localStorage.setItem(DISCLAIMER_ACCEPTED_KEY, '1');
+    localStorage.setItem(NEWS_VERSION_KEY, '1');
   });
 
   it('shows Disclaimer if not yet accepted', () => {
     localStorage.removeItem(DISCLAIMER_ACCEPTED_KEY);
     renderComponent();
     see('Warning!');
+  });
+
+  it('shows News if newer than last seen', () => {
+    localStorage.setItem(NEWS_VERSION_KEY, '0');
+    renderComponent();
+    see('BG1 News');
+    click('Close');
+    expect(localStorage.getItem(NEWS_VERSION_KEY)).toBe(String(NEWS_VERSION));
   });
 
   it('loads client if auth data valid', () => {

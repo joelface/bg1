@@ -3,9 +3,12 @@ import { useEffect, useState } from 'react';
 import { AuthStore } from '@/api/auth/store';
 import { Client, ClientProvider } from '@/contexts/Client';
 import useDisclaimer from '@/hooks/useDisclaimer';
+import useNews from '@/hooks/useNews';
 import onVisible from '@/onVisible';
 
 import LoginForm from './LoginForm';
+
+export const NEWS_VERSION = 1;
 
 export default function App({
   client,
@@ -18,6 +21,7 @@ export default function App({
 }) {
   const [screenName, show] = useState<keyof typeof screens>('Blank');
   const disclaimer = useDisclaimer();
+  const news = useNews(NEWS_VERSION);
 
   useEffect(() => {
     client.onUnauthorized = () => show('LoginForm');
@@ -36,6 +40,9 @@ export default function App({
     checkAuth();
     return onVisible(checkAuth);
   }, [authStore, screenName]);
+
+  if (disclaimer) return disclaimer;
+  if (news) return news;
 
   const screens = {
     Blank: <div />,
