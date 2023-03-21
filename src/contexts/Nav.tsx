@@ -34,8 +34,7 @@ export function Nav({ children }: { children: JSX.Element }) {
   const stack = useRef<{ elem: JSX.Element; key: number }[]>([
     { elem: children, key: 0 },
   ]);
-
-  const [nav] = useState({
+  const nav = useRef({
     goTo(elem: JSX.Element, options?: { replace?: boolean }) {
       let pos = getHashPos();
       let key: number;
@@ -98,7 +97,7 @@ export function Nav({ children }: { children: JSX.Element }) {
 
   const pos = Math.min(getHashPos(), stack.current.length - 1);
   return (
-    <NavProvider value={nav}>
+    <NavProvider value={nav.current}>
       <ScreensProvider value={screens}>
         {stack.current.slice(0, pos + 1).map(({ elem, key }, idx) => {
           const hidden = idx !== pos;
