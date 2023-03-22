@@ -5,7 +5,6 @@ import {
   ExperiencesProvider,
   useExperiencesState,
 } from '@/contexts/Experiences';
-import { useNav } from '@/contexts/Nav';
 import { usePark } from '@/contexts/Park';
 import { usePlans } from '@/contexts/Plans';
 import { useRebooking } from '@/contexts/Rebooking';
@@ -51,9 +50,8 @@ const tabs = [
 const footer = <SettingsButton />;
 
 const Home = withTabs({ tabs, footer }, ({ tab }) => {
-  const { goBack } = useNav();
   const rebooking = useRebooking();
-  const { park, setPark } = usePark();
+  const { park } = usePark();
   const exps = useExperiencesState();
   const { refreshExperiences } = exps;
   const { refreshPlans } = usePlans();
@@ -71,12 +69,8 @@ const Home = withTabs({ tabs, footer }, ({ tab }) => {
   }, [refreshExperiences, refreshPlans]);
 
   useEffect(() => {
-    if (!rebooking.current) return;
-    setPark(rebooking.current.park);
-    goBack({ screen: Home, props: { tabName: 'Genie+' } }).then(() =>
-      contentRef.current?.scroll(0, 0)
-    );
-  }, [rebooking, goBack, setPark]);
+    if (rebooking.current) contentRef.current?.scroll(0, 0);
+  }, [rebooking]);
 
   return (
     <ThemeProvider value={park.theme}>

@@ -7,15 +7,18 @@ import Screen from '@/components/Screen';
 import { Time } from '@/components/Time';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { useNav } from '@/contexts/Nav';
+import { usePark } from '@/contexts/Park';
 import { useRebooking } from '@/contexts/Rebooking';
 import { DEFAULT_THEME } from '@/contexts/Theme';
 
 import { ExperienceList } from '../ExperienceList';
 import ReturnTime from '../ReturnTime';
 import CancelGuests from './CancelGuests';
+import Home from './Home';
 
 export default function BookingDetails({ booking }: { booking: Booking }) {
   const { goTo, goBack } = useNav();
+  const { setPark } = usePark();
   const client = useGenieClient();
   const { name, park, choices, type, start } = booking;
   const isLL = type === 'LL';
@@ -50,7 +53,15 @@ export default function BookingDetails({ booking }: { booking: Booking }) {
       theme={theme}
       buttons={
         booking.modifiable && (
-          <Button onClick={() => rebooking.begin(booking)}>Modify</Button>
+          <Button
+            onClick={() => {
+              rebooking.begin(booking);
+              setPark(booking.park);
+              goBack({ screen: Home, props: { tabName: 'Genie+' } });
+            }}
+          >
+            Modify
+          </Button>
         )
       }
     >
