@@ -54,7 +54,7 @@ export function Nav({ children }: { children: JSX.Element }) {
     }: { screen?: React.FC<any>; props?: { [id: string]: any } } = {}) {
       if (Screen) {
         const pos = getHashPos();
-        for (let i = pos; i >= 0; --i) {
+        for (let i = pos - 1; i >= 0; --i) {
           if (stack.current[i].elem.type === Screen) {
             history.go(i - pos);
             if (props) {
@@ -64,8 +64,9 @@ export function Nav({ children }: { children: JSX.Element }) {
             return;
           }
         }
+      } else {
+        history.back();
       }
-      history.back();
     },
   });
 
