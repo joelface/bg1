@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 
 import Select from '@/components/Select';
-import { useExperiences } from '@/contexts/Experiences';
 import { useGenieClient } from '@/contexts/GenieClient';
+import { usePark } from '@/contexts/Park';
 
 export default function ParkSelect(props: { className?: string }) {
   const { parks } = useGenieClient();
-  const { park, setPark } = useExperiences();
+  const { park, setPark } = usePark();
 
   const parkOptions = useMemo(
     () =>

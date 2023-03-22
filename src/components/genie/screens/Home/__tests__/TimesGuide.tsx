@@ -2,6 +2,7 @@ import data from '@/api/data/wdw';
 import { ExpData, Experience, ExperienceType } from '@/api/genie';
 import { ExperiencesProvider } from '@/contexts/Experiences';
 import { Nav } from '@/contexts/Nav';
+import { ParkProvider } from '@/contexts/Park';
 import { click, render, screen, see, within } from '@/testing';
 
 import TimesGuide from '../TimesGuide';
@@ -77,19 +78,19 @@ const refreshExperiences = jest.fn();
 describe('TimesGuide', () => {
   it('renders times guide', async () => {
     render(
-      <ExperiencesProvider
-        value={{
-          experiences,
-          refreshExperiences,
-          park: mk,
-          setPark: jest.fn(),
-          loaderElem: null,
-        }}
-      >
-        <Nav>
-          <TimesGuide contentRef={{ current: null }} />
-        </Nav>
-      </ExperiencesProvider>
+      <ParkProvider value={{ park: mk, setPark: () => null }}>
+        <ExperiencesProvider
+          value={{
+            experiences,
+            refreshExperiences,
+            loaderElem: null,
+          }}
+        >
+          <Nav>
+            <TimesGuide contentRef={{ current: null }} />
+          </Nav>
+        </ExperiencesProvider>
+      </ParkProvider>
     );
     expectTimes({
       'Main Street, USA': {

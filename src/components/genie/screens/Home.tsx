@@ -6,6 +6,7 @@ import {
   useExperiencesState,
 } from '@/contexts/Experiences';
 import { useNav } from '@/contexts/Nav';
+import { usePark } from '@/contexts/Park';
 import { usePlans } from '@/contexts/Plans';
 import { useRebooking } from '@/contexts/Rebooking';
 import { ThemeProvider } from '@/contexts/Theme';
@@ -52,8 +53,9 @@ const footer = <SettingsButton />;
 const Home = withTabs({ tabs, footer }, ({ tab }) => {
   const { goBack } = useNav();
   const rebooking = useRebooking();
+  const { park, setPark } = usePark();
   const exps = useExperiencesState();
-  const { park, setPark, refreshExperiences } = exps;
+  const { refreshExperiences } = exps;
   const { refreshPlans } = usePlans();
   const contentRef = useRef<HTMLDivElement | null>(null);
 

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Park, PlusExperience } from '@/api/genie';
 import Select from '@/components/Select';
 import { useExperiences } from '@/contexts/Experiences';
+import { usePark } from '@/contexts/Park';
 import { timeToMinutes } from '@/datetime';
 import useCoords, { Coords } from '@/hooks/useCoords';
 
@@ -59,7 +60,8 @@ function inPark(park: Park, coords: Coords) {
 }
 
 export default function useSort() {
-  const { experiences, park } = useExperiences();
+  const { park } = usePark();
+  const { experiences } = useExperiences();
   const [coords, updateCoords] = useCoords();
   const [sortType, setSortType] = useState<SortType>('priority');
 

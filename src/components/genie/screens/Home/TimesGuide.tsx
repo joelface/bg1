@@ -3,7 +3,6 @@ import Screen from '@/components/Screen';
 import Tab from '@/components/Tab';
 import { useExperiences } from '@/contexts/Experiences';
 import { useNav } from '@/contexts/Nav';
-import { ThemeProvider } from '@/contexts/Theme';
 
 import { HomeTabProps } from '../Home';
 import RefreshButton from '../RefreshButton';
@@ -12,14 +11,8 @@ import ParkSelect from './ParkSelect';
 
 export default function TimesGuide({ contentRef }: HomeTabProps) {
   const { goTo } = useNav();
-  const { experiences, refreshExperiences, park, loaderElem } =
-    useExperiences();
-  const showExpInfo = (exp: Experience) =>
-    goTo(
-      <ThemeProvider value={park.theme}>
-        <ExperienceInfo exp={exp} />
-      </ThemeProvider>
-    );
+  const { experiences, refreshExperiences, loaderElem } = useExperiences();
+  const showExpInfo = (exp: Experience) => goTo(<ExperienceInfo exp={exp} />);
 
   const expsByLand = new Map<Land, Record<Experience['type'], Experience[]>>();
   experiences

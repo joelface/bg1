@@ -6,7 +6,8 @@ import Tab from '@/components/Tab';
 import { useExperiences } from '@/contexts/Experiences';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { useNav } from '@/contexts/Nav';
-import { ThemeProvider, useTheme } from '@/contexts/Theme';
+import { usePark } from '@/contexts/Park';
+import { useTheme } from '@/contexts/Theme';
 import { dateTimeStrings, displayTime, timeToMinutes } from '@/datetime';
 import CheckmarkIcon from '@/icons/CheckmarkIcon';
 import DropIcon from '@/icons/DropIcon';
@@ -43,8 +44,8 @@ export default function GeniePlusList({ contentRef }: HomeTabProps) {
   useSelectedParty();
   const { goTo } = useNav();
   const client = useGenieClient();
-  const { experiences, refreshExperiences, park, loaderElem } =
-    useExperiences();
+  const { park } = usePark();
+  const { experiences, refreshExperiences, loaderElem } = useExperiences();
   const { sorter, SortSelect } = useSort();
   const theme = useTheme();
   const [starred, setStarred] = useState<Set<string>>(() => {
@@ -76,12 +77,10 @@ export default function GeniePlusList({ contentRef }: HomeTabProps) {
 
   const dropTime = client.nextDropTime(park);
 
-  const showDesc = (desc: JSX.Element) =>
-    goTo(<ThemeProvider value={park.theme}>{desc}</ThemeProvider>);
-  const showLightningPickDesc = () => showDesc(<LightningPickDesc />);
+  const showLightningPickDesc = () => goTo(<LightningPickDesc />);
   const showDropTimeDesc = () =>
-    showDesc(<DropTimeDesc dropTime={dropTime} park={park} />);
-  const showBookedDesc = () => showDesc(<BookedDesc />);
+    goTo(<DropTimeDesc dropTime={dropTime} park={park} />);
+  const showBookedDesc = () => goTo(<BookedDesc />);
 
   const expListItem = (exp: PlusExperience) => (
     <li

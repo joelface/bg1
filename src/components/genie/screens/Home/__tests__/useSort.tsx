@@ -1,17 +1,18 @@
 import { hm, jc, mk, sm } from '@/__fixtures__/genie';
 import { useExperiences } from '@/contexts/Experiences';
+import { usePark } from '@/contexts/Park';
 import { click, render, screen, waitFor, withCoords } from '@/testing';
 
 import useSort from '../useSort';
 
 jest.mock('@/contexts/Experiences');
+jest.mock('@/contexts/Park');
 
 const experiences = [hm, jc, sm];
+jest.mocked(usePark).mockReturnValue({ park: mk, setPark: () => null });
 jest.mocked(useExperiences).mockReturnValue({
   experiences,
-  park: mk,
-  refreshExperiences: jest.fn(),
-  setPark: jest.fn(),
+  refreshExperiences: () => null,
   loaderElem: null,
 });
 
@@ -38,7 +39,7 @@ function sortBy(type: string) {
   click(type);
 }
 
-describe('useExperiences()', () => {
+describe('useSort()', () => {
   it('sorts', async () => {
     render(<SortTest />);
     expect(sortedIds()).toEqual(ids([jc, sm, hm]));

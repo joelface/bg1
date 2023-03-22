@@ -4,6 +4,7 @@ import { ExpData, PlusExperience } from '@/api/genie';
 import { ExperiencesProvider } from '@/contexts/Experiences';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { Nav } from '@/contexts/Nav';
+import { ParkProvider } from '@/contexts/Park';
 import { displayTime } from '@/datetime';
 import {
   click,
@@ -63,25 +64,25 @@ describe('GeniePlusList', () => {
   it('shows Genie+ availability', async () => {
     localStorage.setItem(STARRED_KEY, JSON.stringify([bz.id]));
     render(
-      <ExperiencesProvider
-        value={{
-          experiences: [
-            { ...hm, experienced: true, drop: true },
-            { ...db, experienced: true },
-            { ...bz, experienced: true },
-            { ...jc },
-            { ...sm, drop: true },
-          ],
-          refreshExperiences,
-          park: mk,
-          setPark: jest.fn(),
-          loaderElem: null,
-        }}
-      >
-        <Nav>
-          <GeniePlusList contentRef={{ current: null }} />
-        </Nav>
-      </ExperiencesProvider>
+      <ParkProvider value={{ park: mk, setPark: () => null }}>
+        <ExperiencesProvider
+          value={{
+            experiences: [
+              { ...hm, experienced: true, drop: true },
+              { ...db, experienced: true },
+              { ...bz, experienced: true },
+              { ...jc },
+              { ...sm, drop: true },
+            ],
+            refreshExperiences,
+            loaderElem: null,
+          }}
+        >
+          <Nav>
+            <GeniePlusList contentRef={{ current: null }} />
+          </Nav>
+        </ExperiencesProvider>
+      </ParkProvider>
     );
 
     const inJC = within(see(jc.name).closest('li') as HTMLElement);

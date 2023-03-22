@@ -17,6 +17,7 @@ import {
 import { Booking } from '@/api/genie';
 import { ClientProvider } from '@/contexts/Client';
 import { useNav } from '@/contexts/Nav';
+import { ParkProvider } from '@/contexts/Park';
 import { RebookingProvider } from '@/contexts/Rebooking';
 import { DEFAULT_THEME } from '@/contexts/Theme';
 import { displayTime } from '@/datetime';
@@ -28,13 +29,16 @@ import CancelGuests from '../CancelGuests';
 jest.mock('@/contexts/Nav');
 setTime('09:00');
 const rebooking = { begin: jest.fn(), end: jest.fn(), current: undefined };
+const setPark = jest.fn();
 
 function renderComponent(b: Booking = booking) {
   render(
     <ClientProvider value={client}>
-      <RebookingProvider value={rebooking}>
-        <BookingDetails booking={b} />
-      </RebookingProvider>
+      <ParkProvider value={{ park: mk, setPark }}>
+        <RebookingProvider value={rebooking}>
+          <BookingDetails booking={b} />
+        </RebookingProvider>
+      </ParkProvider>
     </ClientProvider>
   );
 }
