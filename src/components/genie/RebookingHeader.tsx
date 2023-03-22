@@ -1,11 +1,14 @@
+import { useNav } from '@/contexts/Nav';
 import { useRebooking } from '@/contexts/Rebooking';
 import { useTheme } from '@/contexts/Theme';
 
 import Button from '../Button';
 import BookingListing from './BookingListing';
+import Home from './screens/Home';
 
 export default function RebookingHeader() {
   const rebooking = useRebooking();
+  const { goBack } = useNav();
   const theme = useTheme();
   if (!rebooking.current) return null;
   return (
@@ -20,7 +23,13 @@ export default function RebookingHeader() {
           <BookingListing
             booking={rebooking.current}
             button={
-              <Button type="small" onClick={() => rebooking.end(true)}>
+              <Button
+                type="small"
+                onClick={() => {
+                  rebooking.end(true);
+                  goBack({ screen: Home });
+                }}
+              >
                 Keep
               </Button>
             }
