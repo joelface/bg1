@@ -1,4 +1,3 @@
-import { useNav } from '@/contexts/Nav';
 import { useRebooking } from '@/contexts/Rebooking';
 import { useTheme } from '@/contexts/Theme';
 
@@ -8,7 +7,6 @@ import Home from './screens/Home';
 
 export default function RebookingHeader() {
   const rebooking = useRebooking();
-  const { goBack } = useNav();
   const theme = useTheme();
   if (!rebooking.current) return null;
   return (
@@ -25,10 +23,8 @@ export default function RebookingHeader() {
             button={
               <Button
                 type="small"
-                onClick={() => {
-                  rebooking.end(true);
-                  goBack({ screen: Home });
-                }}
+                back={{ screen: Home }}
+                onClick={() => rebooking.end(true)}
               >
                 Keep
               </Button>

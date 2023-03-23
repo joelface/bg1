@@ -2,7 +2,7 @@ import { booking } from '@/__fixtures__/genie';
 import { useNav } from '@/contexts/Nav';
 import { RebookingProvider } from '@/contexts/Rebooking';
 import { displayTime } from '@/datetime';
-import { click, render, see, setTime } from '@/testing';
+import { click, render, see, setTime, waitFor } from '@/testing';
 
 import RebookingHeader from '../RebookingHeader';
 import Home from '../screens/Home';
@@ -31,18 +31,15 @@ describe('RebookingHeader', () => {
     rebooking.current = booking;
   });
 
-  it('shows LL to be modified', () => {
+  it('shows LL to be modified', async () => {
     render(<Test />);
     see(booking.name);
     see(displayTime(booking.start.time as string));
     see(displayTime(booking.end.time as string));
     click('Keep');
     expect(rebooking.end).toBeCalledTimes(1);
-    expect(goBack).toBeCalledTimes(1);
-    expect(goBack).lastCalledWith({
-      screen: Home,
-      props: { tabName: 'Genie+' },
-    });
+    await waitFor(() => expect(goBack).toBeCalledTimes(1));
+    expect(goBack).lastCalledWith({ screen: Home });
   });
 
   it('shows nothing if not modifying', () => {

@@ -2,15 +2,12 @@ import { createContext, useContext, useEffect, useRef, useState } from 'react';
 
 export interface NavMethods {
   goTo: (elem: JSX.Element, options?: { replace?: boolean }) => void;
-  goBack: <P>(options?: {
-    screen?: React.FC<P>;
-    props?: Partial<P>;
-  }) => Promise<void>;
+  goBack: <P>(options?: { screen?: React.FC<P>; props?: Partial<P> }) => void;
 }
 
 export const NavContext = createContext<NavMethods>({
   goTo: () => undefined,
-  goBack: async () => undefined,
+  goBack: () => undefined,
 });
 export const NavProvider = NavContext.Provider;
 export const useNav = () => useContext(NavContext);
@@ -48,10 +45,10 @@ export function Nav({ children }: { children: JSX.Element }) {
       }
       stack.current[pos] = { elem, key };
     },
-    async goBack({
+    goBack<P, C extends React.FC<P>>({
       screen: Screen,
       props,
-    }: { screen?: React.FC<any>; props?: { [id: string]: any } } = {}) {
+    }: { screen?: C; props?: Partial<P> } = {}) {
       if (Screen) {
         const pos = getHashPos();
         for (let i = pos - 1; i >= 0; --i) {
