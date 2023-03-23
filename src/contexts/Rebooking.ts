@@ -5,7 +5,7 @@ import { LightningLane } from '@/api/genie';
 export interface Rebooking {
   current: LightningLane | undefined;
   begin: (booking: LightningLane) => void;
-  end: (canceled?: boolean) => void;
+  end: () => void;
 }
 
 export const RebookingContext = createContext<Rebooking>({
