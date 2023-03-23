@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 
-export interface Nav {
+export interface NavMethods {
   goTo: (elem: JSX.Element, options?: { replace?: boolean }) => void;
   goBack: <P>(options?: {
     screen?: React.FC<P>;
@@ -8,7 +8,7 @@ export interface Nav {
   }) => Promise<void>;
 }
 
-export const NavContext = createContext<Nav>({
+export const NavContext = createContext<NavMethods>({
   goTo: () => undefined,
   goBack: async () => undefined,
 });
