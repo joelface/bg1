@@ -59,8 +59,9 @@ export const see = Object.assign(
   },
   {
     all(text: string) {
+      const c = within(getContainerElem());
       try {
-        return within(getContainerElem()).getAllByText(text);
+        return [...c.queryAllByText(text), ...c.queryAllByTitle(text)];
       } catch {
         throw getTextError(text);
       }

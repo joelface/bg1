@@ -1,11 +1,11 @@
 import { Booking } from '@/api/genie';
-import Button from '@/components/Button';
 import Tab from '@/components/Tab';
 import { Time } from '@/components/Time';
 import { useNav } from '@/contexts/Nav';
 import { usePlans } from '@/contexts/Plans';
 import { DEFAULT_THEME, useTheme } from '@/contexts/Theme';
 import { dateTimeStrings } from '@/datetime';
+import ChevronRightIcon from '@/icons/ChevronRightIcon';
 
 import { ScreenProps } from '../../Screen';
 import BookingListing from '../BookingListing';
@@ -50,13 +50,14 @@ export default function Plans({ ...props }: Partial<ScreenProps>) {
                 <li
                   className="py-3 first:border-0 border-t-4 border-gray-300"
                   key={booking.bookingId}
+                  onClick={() => showBooking(booking)}
                 >
                   <BookingListing
                     booking={booking}
                     button={
-                      <Button type="small" onClick={() => showBooking(booking)}>
-                        Info
-                      </Button>
+                      <button className={theme.text} title="More Info">
+                        <ChevronRightIcon />
+                      </button>
                     }
                   />
                 </li>

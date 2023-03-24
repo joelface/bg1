@@ -40,7 +40,7 @@ describe('Plans', () => {
       }
     });
 
-    click(see.all('Info')[1]);
+    click(see.all('More Info')[1]);
     expect(goTo).lastCalledWith(<BookingDetails booking={bookings[1]} />);
   });
 

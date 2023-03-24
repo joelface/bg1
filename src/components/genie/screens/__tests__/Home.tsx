@@ -40,7 +40,7 @@ describe('Home', () => {
     await loading();
     see(`Park: ${hs.name}`);
     click('Plans');
-    click(see.all('Info')[1]);
+    click(see.all('More Info')[1]);
     elemScrollMock.mockClear();
     await see.screen('Your Lightning Lane');
     click('Modify');
