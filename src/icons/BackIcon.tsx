@@ -1,5 +1,9 @@
 import Icon, { IconProps } from './Icon';
 
+/**
+ * Modified arrow-left2 icon from [IcoMoon]{@link https://icomoon.io/#icons-icomoon}
+ * @license CC-BY-4.0
+ */
 export default function BackIcon(props: IconProps) {
   return (
     <Icon {...props}>

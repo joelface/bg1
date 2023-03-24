@@ -1,7 +1,7 @@
 import Icon, { IconProps } from './Icon';
 
 /**
- * Arrow down icon from [IcoMoon]{@link https://icomoon.io/#icons-icomoon}
+ * Arrow-down icon from [IcoMoon]{@link https://icomoon.io/#icons-icomoon}
  * @license CC-BY-4.0
  */
 export default function DropIcon(props: IconProps) {
