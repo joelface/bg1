@@ -15,7 +15,7 @@ const dl = {
 const ca = {
   id: '336894',
   name: 'California Adventure',
-  icon: '☀️',
+  icon: '🎡',
   geo: {
     n: 33.8091255,
     s: 33.8037845,
