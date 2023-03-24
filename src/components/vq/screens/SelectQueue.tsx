@@ -60,7 +60,7 @@ export default function SelectQueue() {
         </Button>
       }
       footer={
-        <div className="py-2 text-center">
+        <div className="p-2 text-right">
           <LogoutButton className={`bg-opacity-90 bg-white ${theme.text}`} />
         </div>
       }
