@@ -1,6 +1,9 @@
 import { Booking } from '@/api/genie';
+import { useTheme } from '@/contexts/Theme';
 
 import ReturnTime from './ReturnTime';
+
+const DOT = <span aria-hidden>•</span>;
 
 export default function BookingListing({
   booking,
@@ -9,16 +12,30 @@ export default function BookingListing({
   booking: Booking;
   button?: React.ReactNode;
 }) {
+  const theme = useTheme();
   return (
     <div className="flex items-center gap-x-3">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-x-2 text-gray-500 text-sm font-semibold uppercase">
           {booking.subtype === 'DAS' && (
             <>
-              <span className={`px-1 rounded bg-gray-400 text-white`}>DAS</span>{' '}
+              <span>DAS</span>
+              {DOT}
             </>
           )}
-          <ReturnTime {...booking} timeOnly />
+          {booking.type === 'BG' ? (
+            <>
+              <span>BG&#8202;{booking.boardingGroup}</span>
+              {booking.status === 'SUMMONED' && (
+                <>
+                  {DOT}
+                  <span className={`${theme.text} font-bold`}>Board Now</span>
+                </>
+              )}
+            </>
+          ) : (
+            <ReturnTime {...booking} timeOnly />
+          )}
         </div>
         <div className="text-lg font-semibold leading-tight truncate">
           {booking.choices ? 'Multiple Experiences' : booking.name}

@@ -1,4 +1,4 @@
-import { hs, mk } from '@/__fixtures__/genie';
+import { booking, hs, mk } from '@/__fixtures__/genie';
 import {
   click,
   elemScrollMock,
@@ -40,7 +40,7 @@ describe('Home', () => {
     await loading();
     see(`Park: ${hs.name}`);
     click('Plans');
-    click(see.all('More Info')[1]);
+    click(booking.name);
     elemScrollMock.mockClear();
     await see.screen('Your Lightning Lane');
     click('Modify');

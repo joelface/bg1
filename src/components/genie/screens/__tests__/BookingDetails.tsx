@@ -1,7 +1,7 @@
 import {
   allDayExp,
+  bg,
   booking,
-  client,
   hm,
   hs,
   jc,
@@ -15,7 +15,6 @@ import {
   sm,
 } from '@/__fixtures__/genie';
 import { Booking } from '@/api/genie';
-import { ClientProvider } from '@/contexts/Client';
 import { useNav } from '@/contexts/Nav';
 import { ParkProvider } from '@/contexts/Park';
 import { RebookingProvider } from '@/contexts/Rebooking';
@@ -26,6 +25,7 @@ import { act, click, render, screen, see, setTime, waitFor } from '@/testing';
 import BookingDetails from '../BookingDetails';
 import CancelGuests from '../CancelGuests';
 
+jest.mock('@/contexts/GenieClient');
 jest.mock('@/contexts/Nav');
 setTime('09:00');
 const rebooking = { begin: jest.fn(), end: jest.fn(), current: undefined };
@@ -33,13 +33,11 @@ const setPark = jest.fn();
 
 function renderComponent(b: Booking = booking) {
   render(
-    <ClientProvider value={client}>
-      <ParkProvider value={{ park: mk, setPark }}>
-        <RebookingProvider value={rebooking}>
-          <BookingDetails booking={b} />
-        </RebookingProvider>
-      </ParkProvider>
-    </ClientProvider>
+    <ParkProvider value={{ park: mk, setPark }}>
+      <RebookingProvider value={rebooking}>
+        <BookingDetails booking={b} />
+      </RebookingProvider>
+    </ParkProvider>
   );
 }
 
@@ -116,6 +114,21 @@ describe('BookingDetails', () => {
     see('Park Close');
     see('Redemptions left: 2');
     see.no('Cancel');
+  });
+
+  it('shows boarding group details', async () => {
+    renderComponent(bg);
+    see(bg.name);
+    expect(see('Boarding Group:')).toHaveTextContent(
+      `Boarding Group: ${bg.boardingGroup}`
+    );
+    see.no('Your boarding group has been called');
+    see.no('Cancel');
+  });
+
+  it('shows when boarding group is called', async () => {
+    renderComponent({ ...bg, status: 'SUMMONED' });
+    see('Your boarding group has been called');
   });
 
   it('specifies DAS in heading', () => {

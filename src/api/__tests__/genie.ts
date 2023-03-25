@@ -3,6 +3,7 @@ import {
   bookings,
   client,
   donald,
+  expiredLL,
   hm,
   lttRes,
   mickey,
@@ -456,6 +457,17 @@ describe('GenieClient', () => {
                     redemptionsRemaining: g.redemptions,
                   })),
                 }
+              : b.type === 'BG'
+              ? {
+                  type: 'VIRTUAL_QUEUE_POSITION',
+                  id: b.bookingId,
+                  status: b.status,
+                  boardingGroup: { id: b.boardingGroup },
+                  startDateTime: `${b.start.date}T${b.start.time}-0400`,
+                  guests: b.guests.map(g => ({ id: xid(g) })),
+                  asset:
+                    '90e81c93-b84c-48e0-a98d-121094fa842e;type=virtual-queue',
+                }
               : {
                   type: 'DINING',
                   id: b.bookingId,
@@ -463,27 +475,36 @@ describe('GenieClient', () => {
                   asset: '90006947;entityType=table-service',
                   startDateTime: `${b.start.date}T${b.start.time}-0400`,
                 }),
-            cancellable: b.cancellable,
-            modifiable: b.modifiable,
-            multipleExperiences: !!b.choices,
-            assets: b.choices
-              ? [
-                  {
-                    content: entId(b),
-                    excluded: false,
-                    original: true,
-                  },
-                  ...b.choices.map(exp => ({
-                    content: entId(exp),
-                    excluded: false,
-                    original: false,
-                  })),
-                  { content: 'excluded-id', excluded: true, original: false },
-                ]
-              : undefined,
+            ...(b.type !== 'BG' && {
+              cancellable: b.cancellable,
+              modifiable: b.modifiable,
+              multipleExperiences: !!b.choices,
+              assets: b.choices
+                ? [
+                    {
+                      content: entId(b),
+                      excluded: false,
+                      original: true,
+                    },
+                    ...b.choices.map(exp => ({
+                      content: entId(exp),
+                      excluded: false,
+                      original: false,
+                    })),
+                    { content: 'excluded-id', excluded: true, original: false },
+                  ]
+                : undefined,
+            }),
           })),
         ],
         assets: {
+          '90e81c93-b84c-48e0-a98d-121094fa842e;type=virtual-queue': {
+            name: 'Tron',
+            facility: '411504498;entityType=Attraction',
+          },
+          '411504498;entityType=Attraction': {
+            location: entId(mk, 'theme-park'),
+          },
           '90006947;entityType=table-service': {
             name: 'Liberty Tree Tavern Lunch',
             facility: '90001819;entityType=restaurant',
@@ -714,10 +735,10 @@ describe('BookingTracker', () => {
 
   describe('update()', () => {
     it('updates tracking data', async () => {
-      await tracker.update([bookings[3]], client);
+      await tracker.update([expiredLL], client);
       await tracker.update(bookings, client);
       expect(tracker.experienced(booking)).toBe(false);
-      expect(tracker.experienced(bookings[3])).toBe(true);
+      expect(tracker.experienced(expiredLL)).toBe(true);
 
       client.guests.mockResolvedValueOnce({
         eligible: [],
@@ -725,9 +746,9 @@ describe('BookingTracker', () => {
           { ...mickey, ineligibleReason: 'EXPERIENCE_LIMIT_REACHED' },
         ],
       });
-      await tracker.update([bookings[3]], client);
+      await tracker.update([expiredLL], client);
       expect(tracker.experienced(booking)).toBe(true);
-      expect(tracker.experienced(bookings[3])).toBe(true);
+      expect(tracker.experienced(expiredLL)).toBe(true);
     });
   });
 });

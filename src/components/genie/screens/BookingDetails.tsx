@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Booking, Park } from '@/api/genie';
 import Button from '@/components/Button';
 import GuestList from '@/components/GuestList';
+import Notice from '@/components/Notice';
 import Screen from '@/components/Screen';
 import { Time } from '@/components/Time';
 import { useGenieClient } from '@/contexts/GenieClient';
@@ -22,6 +23,7 @@ export default function BookingDetails({ booking }: { booking: Booking }) {
   const client = useGenieClient();
   const { name, park, choices, type, start } = booking;
   const isLL = type === 'LL';
+  const isBG = type === 'BG';
   const rebooking = useRebooking();
   const [guests, setGuests] = useState(isLL ? booking.guests : undefined);
 
@@ -48,6 +50,8 @@ export default function BookingDetails({ booking }: { booking: Booking }) {
           ? booking.subtype === 'DAS'
             ? 'DAS Return Time'
             : 'Lightning Lane'
+          : isBG
+          ? 'Boarding Group'
           : 'Reservation')
       }
       theme={theme}
@@ -80,7 +84,23 @@ export default function BookingDetails({ booking }: { booking: Booking }) {
           <div>{park.name}</div>
         </>
       )}
-      <ReturnTime {...booking} />
+      {isBG ? (
+        <>
+          {booking.status === 'SUMMONED' && (
+            <Notice>Your boarding group has been called</Notice>
+          )}
+          <h3>
+            Boarding Group:{' '}
+            <span className="ml-1 font-semibold">{booking.boardingGroup}</span>
+          </h3>
+          <p>
+            Check the official Disney app for return time and other virtual
+            queue information.
+          </p>
+        </>
+      ) : (
+        <ReturnTime {...booking} />
+      )}
       {choices && (
         <>
           <p>

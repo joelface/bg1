@@ -207,13 +207,13 @@ export interface EntitledGuest extends Guest {
 
 interface BaseBooking {
   type: string;
-  subtype: string;
+  subtype?: string;
   id: string;
   name: string;
   start: Partial<DateTime> & Pick<DateTime, 'date'>;
   end?: Partial<DateTime>;
-  cancellable: boolean;
-  modifiable: boolean;
+  cancellable?: boolean;
+  modifiable?: boolean;
   guests: Guest[];
   choices?: Pick<Experience, 'id' | 'name' | 'park'>[];
   bookingId: string;
@@ -233,11 +233,22 @@ export interface Reservation extends BaseBooking {
   park: Partial<Park> & Pick<Park, 'id' | 'name'>;
   start: DateTime;
   end?: undefined;
-  cancellable: false;
-  modifiable: false;
+  cancellable?: undefined;
+  modifiable?: undefined;
 }
 
-export type Booking = LightningLane | Reservation;
+export interface BoardingGroup extends BaseBooking {
+  type: 'BG';
+  subtype?: undefined;
+  park: Park;
+  boardingGroup: number;
+  status: BoardingGroupItem['status'];
+  start: DateTime;
+  cancellable?: undefined;
+  modifiable?: undefined;
+}
+
+export type Booking = LightningLane | Reservation | BoardingGroup;
 
 interface Asset {
   id: string;
@@ -284,6 +295,16 @@ interface ReservationItem {
   asset: string;
 }
 
+export interface BoardingGroupItem {
+  id: string;
+  type: 'VIRTUAL_QUEUE_POSITION';
+  status: 'IN_PROGRESS' | 'SUMMONED' | 'EXPIRED' | 'RELEASED' | 'OTHER';
+  startDateTime: string;
+  boardingGroup: { id: number };
+  guests: { id: string }[];
+  asset: string;
+}
+
 interface Profile {
   id: string;
   name: { firstName: string; lastName: string };
@@ -293,7 +314,12 @@ interface Profile {
 
 interface Itinerary {
   assets: { [id: string]: Asset };
-  items: (FastPassItem | ReservationItem | { type: undefined })[];
+  items: (
+    | FastPassItem
+    | ReservationItem
+    | BoardingGroupItem
+    | { type: undefined }
+  )[];
   profiles: { [id: string]: Profile };
 }
 
@@ -602,7 +628,7 @@ export class GenieClient {
       assets = {},
       profiles = {},
     } = (await this.request({
-      path: `/plan/${itineraryApiName}/api/v1/itinerary-items/${swid}?item-types=FASTPASS&item-types=DINING&item-types=ACTIVITY`,
+      path: `/plan/${itineraryApiName}/api/v1/itinerary-items/${swid}?item-types=FASTPASS&item-types=DINING&item-types=ACTIVITY&item-types=VIRTUAL_QUEUE_POSITION`,
       params: {
         destination: this.resort,
         fields: 'items,profiles,assets',
@@ -649,8 +675,6 @@ export class GenieClient {
         park,
         name: activityAsset.name,
         start: dateTimeStrings(start),
-        cancellable: false,
-        modifiable: false,
         guests: item.guests
           .map(getGuest)
           .sort(
@@ -681,11 +705,14 @@ export class GenieClient {
       if (!subtype) return;
       const isGeniePlus = subtype === 'G+';
       const expAsset = assets[item.facility];
-      const parkId = idNum((expAsset as Required<Asset>).location);
       let booking: LightningLane = {
         type: 'LL',
         subtype,
-        ...this.getExperience(idNum(item.facility), parkId, expAsset.name),
+        ...this.getExperience(
+          item.facility,
+          (expAsset as Required<Asset>).location,
+          expAsset.name
+        ),
         start: {
           date: item.displayStartDate ?? today,
           time: item.displayStartTime,
@@ -715,8 +742,8 @@ export class GenieClient {
           booking = {
             ...booking,
             ...this.getExperience(
-              idNum(origAsset.content),
-              idNum((assets[origAsset.content] as Required<Asset>).location)
+              origAsset.content,
+              (assets[origAsset.content] as Required<Asset>).location
             ),
           };
         }
@@ -724,11 +751,29 @@ export class GenieClient {
           .filter(a => !a.excluded && !a.original)
           .map(({ content }) => {
             const { name, location } = assets[content] as Required<Asset>;
-            return this.getExperience(idNum(content), idNum(location), name);
+            return this.getExperience(content, location, name);
           })
           .sort((a, b) => a.name.localeCompare(b.name));
       }
       return booking;
+    };
+
+    const getBoardingGroup = (item: BoardingGroupItem): BoardingGroup => {
+      const vqAsset = assets[item.asset];
+      const facilityAsset = assets[vqAsset.facility];
+      return {
+        type: 'BG',
+        ...this.getExperience(
+          vqAsset.facility,
+          (facilityAsset as Required<Asset>).location,
+          vqAsset.name
+        ),
+        boardingGroup: item.boardingGroup.id,
+        status: item.status,
+        start: dateTimeStrings(new Date(item.startDateTime)),
+        guests: item.guests.map(getGuest),
+        bookingId: item.id,
+      };
     };
 
     const bookings = items
@@ -736,6 +781,8 @@ export class GenieClient {
         try {
           if (item.type === 'FASTPASS') {
             return getLightningLane(item);
+          } else if (item.type === 'VIRTUAL_QUEUE_POSITION') {
+            return getBoardingGroup(item);
           } else if (item.type && RES_TYPES.has(item.type)) {
             return getReservation(item);
           }
@@ -785,10 +832,11 @@ export class GenieClient {
   }
 
   protected getExperience(id: string, parkId: string, name?: string) {
+    id = idNum(id);
     return {
       id,
       name: (this.expData[id]?.name || name) as string,
-      park: this.parkMap.get(parkId) as Park,
+      park: this.parkMap.get(idNum(parkId)) as Park,
     };
   }
 
@@ -894,7 +942,7 @@ export class BookingTracker {
   async update(bookings: Booking[], client: GenieClient): Promise<void> {
     this.checkDate();
     const cancellableLLs = bookings.filter(
-      (b: Booking): b is LightningLane => b.type === 'LL' && b.cancellable
+      (b: Booking): b is LightningLane => b.type === 'LL' && !!b.cancellable
     );
     for (const b of cancellableLLs) {
       this.experiencedExpIds[b.modifiable ? 'delete' : 'add'](b.id);

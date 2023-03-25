@@ -1,5 +1,6 @@
 import data from '@/api/data/wdw';
 import {
+  BoardingGroup,
   Booking,
   ExpData,
   Experience,
@@ -147,6 +148,23 @@ export const allDayExp: LightningLane = {
   bookingId: 'sm_01',
 };
 
+const tron = {
+  ...(data.experiences['411504498'] as ExpData),
+  id: '411504498',
+};
+
+export const bg: BoardingGroup = {
+  type: 'BG',
+  id: tron.id,
+  name: tron.name,
+  park: mk,
+  boardingGroup: 42,
+  status: 'IN_PROGRESS',
+  guests: [mickey, minnie, pluto],
+  start: { date: TODAY, time: '07:00:00' },
+  bookingId: 'tron_01',
+};
+
 export const lttRes: Reservation = {
   type: 'RES',
   subtype: 'DINING',
@@ -155,32 +173,33 @@ export const lttRes: Reservation = {
   park: mk,
   start: { date: TODAY, time: '11:15:00' },
   end: undefined,
-  cancellable: false,
-  modifiable: false,
   guests: [mickey, minnie],
   bookingId: '38943;type=DINING',
 };
 
+export const expiredLL: LightningLane = {
+  type: 'LL',
+  subtype: 'G+',
+  id: jc.id,
+  name: jc.name,
+  park: jc.park,
+  start: { date: TODAY, time: '14:00:00' },
+  end: { date: TODAY, time: '15:00:00' },
+  cancellable: true,
+  modifiable: false,
+  guests: [
+    { ...mickey, entitlementId: 'jc1400_01' },
+    { ...minnie, entitlementId: 'jc1400_02' },
+  ],
+  bookingId: 'jc1400_01',
+};
+
 export const bookings: Booking[] = [
+  bg,
   allDayExp,
   booking,
   lttRes,
-  {
-    type: 'LL',
-    subtype: 'G+',
-    id: jc.id,
-    name: jc.name,
-    park: jc.park,
-    start: { date: TODAY, time: '14:00:00' },
-    end: { date: TODAY, time: '15:00:00' },
-    cancellable: true,
-    modifiable: false,
-    guests: [
-      { ...mickey, entitlementId: 'jc1400_01' },
-      { ...minnie, entitlementId: 'jc1400_02' },
-    ],
-    bookingId: 'jc1400_01',
-  },
+  expiredLL,
   multiExp,
 ];
 

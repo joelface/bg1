@@ -276,7 +276,7 @@ const data: ResortData = {
       name: 'Jungle Cruise',
       land: adventureland,
       geo: [28.4180339, -81.5834548],
-      priority: 1.2,
+      priority: 1.3,
       sort: 1,
     },
     80010160: {
@@ -317,7 +317,7 @@ const data: ResortData = {
       name: "Peter Pan's Flight",
       land: fantasyland,
       geo: [28.4203332, -81.5818676],
-      priority: 1.1,
+      priority: 1.2,
       sort: 2,
     },
     80010177: {
@@ -342,7 +342,7 @@ const data: ResortData = {
       land: fantasyland,
       geo: [28.4208803, -81.5796853],
       type: 'CHARACTER',
-      priority: 1.3,
+      priority: 1.4,
     },
     15850196: {
       name: 'Meet Mickey & Minnie (Town Square Theater)',
@@ -392,7 +392,7 @@ const data: ResortData = {
       name: 'Seven Dwarfs Mine Train',
       land: fantasyland,
       geo: [28.4204112, -81.5805506],
-      priority: 1.0,
+      priority: 1.1,
       sort: 1,
     },
     80010190: {
@@ -415,6 +415,13 @@ const data: ResortData = {
       land: tomorrowland,
       geo: [28.4194062, -81.5793505],
       sort: 4,
+    },
+    411504498: {
+      name: 'TRON Lightcycle / Run',
+      land: tomorrowland,
+      geo: [28.4202075, -81.577053],
+      priority: 1.0,
+      sort: 1,
     },
     16767263: {
       name: 'Under the Sea',
@@ -461,7 +468,7 @@ const data: ResortData = {
     411499845: {
       name: 'Guardians of the Galaxy: Cosmic Rewind',
       land: discovery,
-
+      geo: [28.3747479, -81.5478405],
       priority: 1.0,
       sort: 1,
     },

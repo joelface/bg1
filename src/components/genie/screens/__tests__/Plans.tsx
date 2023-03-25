@@ -1,4 +1,4 @@
-import { bookings } from '@/__fixtures__/genie';
+import { booking, bookings } from '@/__fixtures__/genie';
 import { Booking } from '@/api/genie';
 import { useNav } from '@/contexts/Nav';
 import { PlansProvider } from '@/contexts/Plans';
@@ -31,7 +31,11 @@ describe('Plans', () => {
       const inLI = within(lis[i]);
       inLI.getByText(booking.choices ? 'Multiple Experiences' : booking.name);
       inLI.getByText(
-        booking.start.time ? displayTime(booking.start.time) : 'Park Open'
+        booking.type === 'BG'
+          ? `BG ${booking.boardingGroup}`
+          : booking.start.time
+          ? displayTime(booking.start.time)
+          : 'Park Open'
       );
       if (booking.type === 'LL') {
         inLI.getByText(
@@ -40,8 +44,8 @@ describe('Plans', () => {
       }
     });
 
-    click(see.all('More Info')[1]);
-    expect(goTo).lastCalledWith(<BookingDetails booking={bookings[1]} />);
+    click(booking.name);
+    expect(goTo).lastCalledWith(<BookingDetails booking={booking} />);
   });
 
   it('shows "No existing plans" message', async () => {
