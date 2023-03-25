@@ -1,4 +1,4 @@
-import { bg, booking } from '@/__fixtures__/genie';
+import { bg, booking, multiExp } from '@/__fixtures__/genie';
 import { displayTime } from '@/datetime';
 import { render, see, setTime } from '@/testing';
 
@@ -8,11 +8,18 @@ setTime('09:00');
 
 describe('BookingListing', () => {
   it('renders listing', () => {
-    render(<BookingListing booking={booking} />);
+    render(<BookingListing booking={booking} button={<button>Info</button>} />);
     see(booking.name);
     see(displayTime(booking.start.time as string));
     see(displayTime(booking.end.time as string));
     see.no('DAS');
+    see('Info', 'button');
+  });
+
+  it('shows multiple experiences LLs', () => {
+    render(<BookingListing booking={multiExp} />);
+    see('Multiple Experiences');
+  });
 
   it('shows boarding group', () => {
     render(<BookingListing booking={bg} />);
