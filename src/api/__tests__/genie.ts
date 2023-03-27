@@ -425,7 +425,7 @@ describe('GenieClient', () => {
         'G+': 'FLEX',
         ILL: 'STANDARD',
         DAS: 'DAS',
-        MULTI: 'OTHER',
+        MEP: 'OTHER',
         OTHER: 'OTHER',
       };
       return response({

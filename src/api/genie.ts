@@ -221,7 +221,7 @@ interface BaseBooking {
 
 export interface LightningLane extends BaseBooking {
   type: 'LL';
-  subtype: 'G+' | 'ILL' | 'MULTI' | 'DAS' | 'OTHER';
+  subtype: 'G+' | 'ILL' | 'MEP' | 'DAS' | 'OTHER';
   park: Park;
   end: Partial<DateTime>;
   guests: EntitledGuest[];
@@ -700,7 +700,7 @@ export class GenieClient {
         OTHER: 'OTHER',
       };
       const subtype = item.multipleExperiences
-        ? 'MULTI'
+        ? 'MEP'
         : kindToSubtype[item.kind];
       if (!subtype) return;
       const isGeniePlus = subtype === 'G+';
