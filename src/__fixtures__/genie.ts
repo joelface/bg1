@@ -7,6 +7,7 @@ import {
   GenieClient,
   LightningLane,
   Offer,
+  ParkPass,
   PlusExperience,
   Reservation,
 } from '@/api/genie';
@@ -177,6 +178,16 @@ export const lttRes: Reservation = {
   bookingId: '38943;type=DINING',
 };
 
+export const akApr: ParkPass = {
+  type: 'APR',
+  id: ak.id,
+  name: ak.name,
+  park: ak,
+  start: { date: '2021-10-02', time: '00:00:00' },
+  guests: [mickey, minnie, pluto],
+  bookingId: 'ak20211002',
+};
+
 export const expiredLL: LightningLane = {
   type: 'LL',
   subtype: 'G+',
@@ -201,6 +212,7 @@ export const bookings: Booking[] = [
   lttRes,
   expiredLL,
   multiExp,
+  akApr,
 ];
 
 export const tracker = {

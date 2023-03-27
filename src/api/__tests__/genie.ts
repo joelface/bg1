@@ -1,4 +1,5 @@
 import {
+  ak,
   booking,
   bookings,
   client,
@@ -432,11 +433,6 @@ describe('GenieClient', () => {
         items: [
           {
             // This item should be ignored
-            type: 'FASTPASS',
-            kind: 'PARK_PASS',
-          },
-          {
-            // This item should be ignored
             type: 'ACTIVITY',
             asset: '19432184;entityType=activity-product',
           },
@@ -468,6 +464,15 @@ describe('GenieClient', () => {
                   asset:
                     '90e81c93-b84c-48e0-a98d-121094fa842e;type=virtual-queue',
                 }
+              : b.type === 'APR'
+              ? {
+                  type: 'FASTPASS',
+                  id: b.bookingId,
+                  kind: 'PARK_PASS',
+                  startDateTime: `${b.start.date}T${b.start.time}-0400`,
+                  guests: b.guests.map(g => ({ id: xid(g) })),
+                  facility: entId({ id: 'ak_apr' }),
+                }
               : {
                   type: 'DINING',
                   id: b.bookingId,
@@ -498,6 +503,9 @@ describe('GenieClient', () => {
           })),
         ],
         assets: {
+          [entId({ id: 'ak_apr' })]: {
+            location: entId(ak, 'theme-park'),
+          },
           '90e81c93-b84c-48e0-a98d-121094fa842e;type=virtual-queue': {
             name: 'Tron',
             facility: '411504498;entityType=Attraction',

@@ -1,4 +1,4 @@
-import { booking, bookings } from '@/__fixtures__/genie';
+import { ak, booking, bookings, ep, hs, mk } from '@/__fixtures__/genie';
 import { Booking } from '@/api/genie';
 import { useNav } from '@/contexts/Nav';
 import { PlansProvider } from '@/contexts/Plans';
@@ -25,24 +25,37 @@ describe('Plans', () => {
 
   it('shows reservations', async () => {
     renderComponent(bookings);
-    const lis = await screen.findAllByRole('listitem');
+    const lis = (await screen.findAllByRole('listitem')).filter(
+      li => !li.getAttribute('aria-label')
+    );
     see('Today, October 1');
-    bookings.forEach((booking, i) => {
-      const inLI = within(lis[i]);
-      inLI.getByText(booking.choices ? 'Multiple Experiences' : booking.name);
-      inLI.getByText(
-        booking.type === 'BG'
-          ? `BG ${booking.boardingGroup}`
-          : booking.start.time
-          ? displayTime(booking.start.time)
-          : 'Park Open'
-      );
-      if (booking.type === 'LL') {
+    bookings
+      .filter(b => b.type !== 'APR')
+      .forEach((booking, i) => {
+        const inLI = within(lis[i]);
+        inLI.getByText(booking.choices ? 'Multiple Experiences' : booking.name);
         inLI.getByText(
-          booking.end?.time ? displayTime(booking.end.time) : 'Park Close'
+          booking.type === 'BG'
+            ? `BG ${booking.boardingGroup}`
+            : booking.start.time
+            ? displayTime(booking.start.time)
+            : 'Park Open'
         );
-      }
-    });
+        if (booking.type === 'LL') {
+          inLI.getByText(
+            booking.end?.time ? displayTime(booking.end.time) : 'Park Close'
+          );
+        }
+      });
+
+    screen.getByRole('listitem', { name: mk.name });
+    screen.getByRole('listitem', { name: ak.name });
+    expect(
+      screen.queryByRole('listitem', { name: ep.name })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('listitem', { name: hs.name })
+    ).not.toBeInTheDocument();
 
     click(booking.name);
     expect(goTo).lastCalledWith(<BookingDetails booking={booking} />);

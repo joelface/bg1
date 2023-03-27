@@ -219,6 +219,15 @@ interface BaseBooking {
   bookingId: string;
 }
 
+export interface ParkPass extends BaseBooking {
+  type: 'APR';
+  subtype?: undefined;
+  park: Park;
+  start: DateTime;
+  cancellable?: undefined;
+  modifiable?: undefined;
+}
+
 export interface LightningLane extends BaseBooking {
   type: 'LL';
   subtype: 'G+' | 'ILL' | 'MEP' | 'DAS' | 'OTHER';
@@ -248,7 +257,7 @@ export interface BoardingGroup extends BaseBooking {
   modifiable?: undefined;
 }
 
-export type Booking = LightningLane | Reservation | BoardingGroup;
+export type Booking = LightningLane | Reservation | BoardingGroup | ParkPass;
 
 interface Asset {
   id: string;
@@ -776,11 +785,29 @@ export class GenieClient {
       };
     };
 
+    const getParkPass = (item: FastPassItem): ParkPass | undefined => {
+      const park = this.parkMap.get(
+        idNum((assets[item.facility] as Required<Asset>).location)
+      );
+      if (!park) return;
+      return {
+        type: 'APR',
+        id: park.id,
+        name: park.name,
+        park,
+        start: dateTimeStrings(new Date(item.startDateTime as string)),
+        guests: item.guests.map(getGuest),
+        bookingId: item.id,
+      };
+    };
+
     const bookings = items
       .map(item => {
         try {
           if (item.type === 'FASTPASS') {
-            return getLightningLane(item);
+            return item.kind === 'PARK_PASS'
+              ? getParkPass(item)
+              : getLightningLane(item);
           } else if (item.type === 'VIRTUAL_QUEUE_POSITION') {
             return getBoardingGroup(item);
           } else if (item.type && RES_TYPES.has(item.type)) {
