@@ -123,19 +123,15 @@ export default function Select<K extends string, V = K>(props: Props<K, V>) {
                   className="border-t-2 first:border-0 border-gray-300"
                   key={opt.text}
                 >
-                  <label className="flex flex-row items-center px-4 py-3">
+                  <label className="flex flex-row items-center gap-x-2.5 px-4 py-3">
                     <input
                       type="radio"
                       name={RADIO_NAME}
                       value={k}
                       defaultChecked={k === selected}
-                      className="w-4 h-4 mr-2.5"
+                      className="w-4 h-4"
                     />{' '}
-                    {opt.icon && (
-                      <span className="mr-2.5" aria-hidden="true">
-                        {opt.icon}
-                      </span>
-                    )}{' '}
+                    {opt.icon && <span aria-hidden="true">{opt.icon}</span>}{' '}
                     {opt.text}
                   </label>
                 </li>

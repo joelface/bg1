@@ -67,7 +67,7 @@ export default function Plans({ ...props }: Partial<ScreenProps>) {
             <ul className={plans.length === 0 ? 'mt-3' : ''}>
               {plans.map(booking => (
                 <li
-                  className="py-3 first:border-0 border-t-4 border-gray-300"
+                  className="py-2.5 first:border-0 border-t-4 border-gray-300"
                   key={booking.bookingId}
                   onClick={() => showBooking(booking)}
                 >

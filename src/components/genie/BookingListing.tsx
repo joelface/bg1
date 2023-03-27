@@ -37,7 +37,7 @@ export default function BookingListing({
             <ReturnTime {...booking} timeOnly />
           )}
         </div>
-        <div className="text-lg font-semibold leading-tight truncate">
+        <div className="text-lg font-semibold leading-snug truncate">
           {booking.choices ? 'Multiple Experiences' : booking.name}
         </div>
       </div>
