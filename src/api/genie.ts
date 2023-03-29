@@ -627,7 +627,7 @@ export class GenieClient {
     });
   }
 
-  async bookings(maxDays = 14): Promise<Booking[]> {
+  async bookings(maxDays = 30): Promise<Booking[]> {
     const { swid } = this.authStore.getData();
     const now = new Date(Date.now());
     const today = dateTimeStrings(now).date;
