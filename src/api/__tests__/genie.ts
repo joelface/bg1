@@ -569,7 +569,7 @@ describe('GenieClient', () => {
     it('excludes non-LL reservations >30 minutes old', async () => {
       setTime(lttRes.start.time, 31);
       respond(bookingsRes);
-      expect(await client.bookings()).toEqual(
+      expect(await client.bookings(30)).toEqual(
         bookings.filter(b => b !== lttRes)
       );
     });
@@ -577,7 +577,7 @@ describe('GenieClient', () => {
     it('overrides API-supplied modifiable property if end of return window', async () => {
       setTime(booking.end.time as string, 1);
       respond(bookingsRes);
-      const b = (await client.bookings()).filter(b => b.id === booking.id)[0];
+      const b = (await client.bookings(30)).filter(b => b.id === booking.id)[0];
       expect(b.modifiable).toBe(false);
     });
 
@@ -597,7 +597,9 @@ describe('GenieClient', () => {
       };
       const bookings = [bs];
       respond(createBookingsResponse(bookings));
-      expect(await client.bookings()).toEqual([{ ...bs, name: 'Barnstormer' }]);
+      expect(await client.bookings(30)).toEqual([
+        { ...bs, name: 'Barnstormer' },
+      ]);
     });
 
     it(`skips itinerary items that can't be parsed`, async () => {
@@ -610,7 +612,7 @@ describe('GenieClient', () => {
       const spy = jest
         .spyOn(global.console, 'error')
         .mockImplementation(() => null);
-      expect(await client.bookings()).toEqual([booking]);
+      expect(await client.bookings(30)).toEqual([booking]);
       expect(spy).toBeCalled();
       spy.mockRestore();
     });
