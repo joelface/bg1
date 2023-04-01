@@ -202,7 +202,7 @@ const data: ResortData = {
       name: 'Big Thunder Mountain Railroad',
       land: frontierland,
       geo: [28.4197486, -81.5845092],
-      priority: 2.1,
+      priority: 2.0,
       sort: 1,
     },
     80010114: {
@@ -243,7 +243,7 @@ const data: ResortData = {
       name: 'Enchanted Tales with Belle',
       land: fantasyland,
       geo: [28.4207354, -81.5807867],
-      priority: 2.3,
+      priority: 3.2,
     },
     16124144: {
       name: 'Enchanted Tiki Room',
@@ -262,7 +262,7 @@ const data: ResortData = {
       name: 'Haunted Mansion',
       land: libertySquare,
       geo: [28.4208771, -81.5830102],
-      priority: 2.2,
+      priority: 2.1,
       sort: 1,
     },
     80010149: {
@@ -324,7 +324,7 @@ const data: ResortData = {
       name: 'Pirates of the Caribbean',
       land: adventureland,
       geo: [28.4180994, -81.5842719],
-      priority: 3.2,
+      priority: 3.0,
       sort: 2,
     },
     80010117: {
@@ -342,21 +342,21 @@ const data: ResortData = {
       land: fantasyland,
       geo: [28.4208803, -81.5796853],
       type: 'CHARACTER',
-      priority: 1.4,
+      priority: 2.2,
     },
     15850196: {
       name: 'Meet Mickey (Town Square Theater)',
       land: mainStreet,
       geo: [28.4167334, -81.5803937],
       type: 'CHARACTER',
-      priority: 3.4,
+      priority: 3.6,
     },
     18498503: {
       name: 'Meet Cinderella (Princess Fairytale Hall)',
       land: fantasyland,
       geo: [28.4199771, -81.5808316],
       type: 'CHARACTER',
-      priority: 3.0,
+      priority: 3.4,
     },
     387133: {
       name: "Meet Donald/Goofy (Pete's Silly Side Show)",
@@ -373,7 +373,7 @@ const data: ResortData = {
       land: fantasyland,
       geo: [28.4199771, -81.5808316],
       type: 'CHARACTER',
-      priority: 3.6,
+      priority: 3.7,
     },
     19579538: {
       name: "Mickey's Celebration Cavalcade",
@@ -399,7 +399,7 @@ const data: ResortData = {
       name: 'Space Mountain',
       land: tomorrowland,
       geo: [28.4187869, -81.5782063],
-      priority: 2.0,
+      priority: 1.4,
       sort: 1,
     },
     80010196: {
