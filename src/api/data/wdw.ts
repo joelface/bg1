@@ -345,7 +345,7 @@ const data: ResortData = {
       priority: 1.4,
     },
     15850196: {
-      name: 'Meet Mickey & Minnie (Town Square Theater)',
+      name: 'Meet Mickey (Town Square Theater)',
       land: mainStreet,
       geo: [28.4167334, -81.5803937],
       type: 'CHARACTER',
