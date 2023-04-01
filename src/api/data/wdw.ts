@@ -724,7 +724,6 @@ const data: ResortData = {
       geo: [28.3584979, -81.587395],
       priority: 3.0,
       sort: 1,
-      pdtMask: 0b111,
     },
     19581372: {
       name: 'Feathered Friends in Flight',
@@ -762,7 +761,6 @@ const data: ResortData = {
       geo: [28.3592779, -81.5921478],
       priority: 1.2,
       sort: 1,
-      pdtMask: 0b111,
     },
     80010164: {
       name: 'Maharajah Jungle Trek',
@@ -791,7 +789,7 @@ const data: ResortData = {
     [mk.id]: [],
     [ep.id]: [707, 767, 827, 887, 947, 1007, 1127],
     [hs.id]: [797, 947],
-    [ak.id]: [767, 917],
+    [ak.id]: [],
   },
 };
 export default data;
