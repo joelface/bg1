@@ -629,8 +629,7 @@ export class GenieClient {
 
   async bookings(): Promise<Booking[]> {
     const { swid } = this.authStore.getData();
-    const now = new Date(Date.now());
-    const today = dateTimeStrings(now).date;
+    const today = dateTimeStrings().date;
     const itineraryApiName = RESORT_TO_ITINERARY_API_NAME[this.resort];
     const {
       items = [],
@@ -660,9 +659,6 @@ export class GenieClient {
       };
     };
 
-    const earliestResDT = new Date(now);
-    earliestResDT.setMinutes(earliestResDT.getMinutes() - 30);
-
     const getReservation = (item: ReservationItem) => {
       const activityAsset = assets[item.asset];
       const facilityAsset = assets[activityAsset.facility];
@@ -673,7 +669,6 @@ export class GenieClient {
         name: assets[parkIdStr].name,
       };
       const start = new Date(item.startDateTime);
-      if (start < earliestResDT) return;
       const res: Reservation = {
         type: 'RES',
         subtype: item.type,

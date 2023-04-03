@@ -6,7 +6,6 @@ import {
   donald,
   expiredLL,
   hm,
-  lttRes,
   mickey,
   minnie,
   mk,
@@ -565,14 +564,6 @@ describe('GenieClient', () => {
       });
     }
     const bookingsRes = createBookingsResponse(bookings);
-
-    it('excludes non-LL reservations >30 minutes old', async () => {
-      setTime(lttRes.start.time, 31);
-      respond(bookingsRes);
-      expect(await client.bookings()).toEqual(
-        bookings.filter(b => b !== lttRes)
-      );
-    });
 
     it('overrides API-supplied modifiable property if end of return window', async () => {
       setTime(booking.end.time as string, 1);
