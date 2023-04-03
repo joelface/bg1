@@ -33,7 +33,7 @@ export function usePlansState() {
   const refreshPlans = useThrottleable(
     useCallback(() => {
       loadData(async () => {
-        setPlans(await client.bookings(30));
+        setPlans(await client.bookings());
       });
     }, [client, loadData])
   );

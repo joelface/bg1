@@ -627,7 +627,7 @@ export class GenieClient {
     });
   }
 
-  async bookings(maxDays: number): Promise<Booking[]> {
+  async bookings(): Promise<Booking[]> {
     const { swid } = this.authStore.getData();
     const now = new Date(Date.now());
     const today = dateTimeStrings(now).date;
@@ -644,9 +644,6 @@ export class GenieClient {
         'guest-locators': swid + ';type=swid',
         'guest-locator-groups': 'MY_FAMILY',
         'start-date': today,
-        'end-date': dateTimeStrings(
-          new Date(now.getTime()).setDate(now.getDate() + maxDays + 1)
-        ).date,
         'show-friends': 'false',
       },
       userId: false,
