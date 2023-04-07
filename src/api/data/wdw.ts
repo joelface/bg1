@@ -715,15 +715,16 @@ const data: ResortData = {
       name: 'DINOSAUR',
       land: dinoland,
       geo: [28.3552805, -81.5884492],
-      priority: 3.1,
+      priority: 3.2,
       sort: 1,
     },
     26068: {
       name: 'Expedition Everest',
       land: asia,
       geo: [28.3584979, -81.587395],
-      priority: 3.0,
+      priority: 3.1,
       sort: 1,
+      pdtMask: 0b01,
     },
     19581372: {
       name: 'Feathered Friends in Flight',
@@ -753,7 +754,8 @@ const data: ResortData = {
       name: 'Kali River Rapids',
       land: asia,
       geo: [28.3592076, -81.5883195],
-      priority: 3.2,
+      priority: 3.0,
+      pdtMask: 0b11,
     },
     80010157: {
       name: 'Kilimanjaro Safaris',
@@ -771,6 +773,7 @@ const data: ResortData = {
       land: discIsland,
       geo: [28.3579455, -81.5898647],
       type: 'CHARACTER',
+      priority: 3.3,
     },
     18665185: {
       name: "Na'vi River Journey",
@@ -789,7 +792,7 @@ const data: ResortData = {
     [mk.id]: [],
     [ep.id]: [707, 767, 827, 887, 947, 1007, 1127],
     [hs.id]: [797, 947],
-    [ak.id]: [],
+    [ak.id]: [767, 917],
   },
 };
 export default data;
