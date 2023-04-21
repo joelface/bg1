@@ -40,5 +40,5 @@ export default defineConfig({
   },
   server,
   preview: server,
-  plugins: [prefresh()],
+  plugins: +(process.env.HMR ?? 0) ? [prefresh()] : [],
 });
