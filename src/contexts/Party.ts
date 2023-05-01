@@ -1,6 +1,5 @@
-import { createContext, useContext } from 'react';
-
 import { Guest, Guests } from '@/api/genie';
+import { createContext } from '@/context';
 
 export interface Party extends Guests {
   selected: Guest[];
@@ -11,15 +10,10 @@ export interface Party extends Guests {
   };
 }
 
-export const PartyContext = createContext<Party>({
+export const [PartyProvider, useParty] = createContext<Party>({
   eligible: [],
   ineligible: [],
   selected: [],
-  setSelected: () => null,
-  experience: {
-    name: '',
-    park: { name: '', theme: { bg: '', text: '' } },
-  },
+  setSelected: () => undefined,
+  experience: { name: '', park: { name: '', theme: { bg: '', text: '' } } },
 });
-export const PartyProvider = PartyContext.Provider;
-export const useParty = () => useContext(PartyContext);

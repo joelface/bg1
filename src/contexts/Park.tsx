@@ -1,8 +1,10 @@
-import { createContext, useContext, useState } from 'react';
+import { useState } from 'react';
 
 import { Park } from '@/api/genie';
-import { useGenieClient } from '@/contexts/GenieClient';
+import { createContext } from '@/context';
 import { dateTimeStrings } from '@/datetime';
+
+import { useGenieClient } from './GenieClient';
 
 const PARK_KEY = 'bg1.genie.park';
 
@@ -11,20 +13,16 @@ interface ParkState {
   setPark: (park: Park) => void;
 }
 
-const ParkContext = createContext<ParkState>({
-  park: {} as Park,
+export const [ParkProvider, usePark] = createContext<ParkState>({
+  park: {
+    id: '',
+    name: '',
+    icon: '',
+    geo: { n: 0, s: 0, e: 0, w: 0 },
+    theme: { bg: '', text: '' },
+  },
   setPark: () => undefined,
 });
-export const ParkProvider = ({
-  value,
-  children,
-}: {
-  value: ParkState;
-  children: React.ReactNode;
-}) => {
-  return <ParkContext.Provider value={value}>{children}</ParkContext.Provider>;
-};
-export const usePark = () => useContext(ParkContext);
 
 export function useParkState() {
   const client = useGenieClient();

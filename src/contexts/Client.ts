@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import { createContext } from '@/context';
 
 export interface Client {
   onUnauthorized: () => void;
@@ -6,10 +6,8 @@ export interface Client {
   logOut: () => void;
 }
 
-export const ClientContext = createContext<Client>({
+export const [ClientProvider, useClient] = createContext<Client>({
+  onUnauthorized: () => null,
   resort: 'WDW',
-  onUnauthorized: () => undefined,
   logOut: () => null,
 });
-export const ClientProvider = ClientContext.Provider;
-export const useClient = <T extends Client>() => useContext(ClientContext) as T;
