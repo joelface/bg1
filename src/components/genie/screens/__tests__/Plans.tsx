@@ -25,6 +25,10 @@ describe('Plans', () => {
 
   it('shows reservations', async () => {
     renderComponent(bookings);
+
+    click('Refresh Plans');
+    expect(refreshPlans).toBeCalledTimes(1);
+
     const lis = (await screen.findAllByRole('listitem')).filter(
       li => !li.getAttribute('aria-label')
     );

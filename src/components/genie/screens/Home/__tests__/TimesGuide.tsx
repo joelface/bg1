@@ -94,6 +94,10 @@ describe('TimesGuide', () => {
         </ParkProvider>
       </ResortDataProvider>
     );
+
+    click('Refresh Times');
+    expect(refreshExperiences).toBeCalledTimes(1);
+
     expectTimes({
       'Main Street, USA': {
         Entertainment: [dd, fof],

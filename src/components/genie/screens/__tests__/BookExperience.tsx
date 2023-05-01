@@ -147,7 +147,7 @@ describe('BookExperience', () => {
     await renderComponent();
     see(displayTime(offer.start.time));
     client.offer.mockResolvedValueOnce(newOffer);
-    click('Refresh');
+    click('Refresh Offer');
     await loading();
     see(displayTime(newOffer.start.time));
     see.no('Return time has been changed');
@@ -200,7 +200,7 @@ describe('BookExperience', () => {
     await renderComponent();
     see('No Guests Found');
 
-    click('Refresh');
+    click('Refresh Party');
     await loading();
     see(mickey.name);
   });
@@ -225,7 +225,7 @@ describe('BookExperience', () => {
     see('No Reservations Available');
 
     client.offer.mockResolvedValueOnce({ ...offer, active: false });
-    click('Refresh');
+    click('Refresh Offer');
     await loading();
     see('No Reservations Available');
   });

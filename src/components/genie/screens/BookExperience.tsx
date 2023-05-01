@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { Guest, LightningLane, Offer, PlusExperience } from '@/api/genie';
-import Button from '@/components/Button';
 import Screen from '@/components/Screen';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { useNav } from '@/contexts/Nav';
@@ -9,7 +8,6 @@ import { Party, PartyProvider } from '@/contexts/Party';
 import { usePlans } from '@/contexts/Plans';
 import { useRebooking } from '@/contexts/Rebooking';
 import useDataLoader from '@/hooks/useDataLoader';
-import RefreshIcon from '@/icons/RefreshIcon';
 import { ping } from '@/ping';
 
 import PlansButton from '../PlansButton';
@@ -20,6 +18,7 @@ import NoReservationsAvailable from './BookExperience/NoReservationsAvailable';
 import OfferDetails from './BookExperience/OfferDetails';
 import Prebooking from './BookExperience/Prebooking';
 import BookingDetails from './BookingDetails';
+import RefreshButton from './RefreshButton';
 
 export default function BookExperience({
   experience,
@@ -182,18 +181,16 @@ export default function BookExperience({
         <>
           <PlansButton />
           {!prebooking && (
-            <Button
+            <RefreshButton
               onClick={() => {
-                if (!party || party.selected.length === 0) {
+                if (noEligible) {
                   loadParty();
                 } else {
                   refreshOffer();
                 }
               }}
-              title="Refresh"
-            >
-              <RefreshIcon />
-            </Button>
+              name={noEligible ? 'Party' : 'Offer'}
+            />
           )}
         </>
       }

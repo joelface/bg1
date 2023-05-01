@@ -85,6 +85,9 @@ describe('GeniePlusList', () => {
       </ParkProvider>
     );
 
+    click('Refresh Experiences');
+    expect(refreshExperiences).toBeCalledTimes(1);
+
     const inJC = within(see(jc.name).closest('li') as HTMLElement);
     inJC.getByTitle('Booked (more info)');
 
