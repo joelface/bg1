@@ -39,6 +39,7 @@
     "preview": "vite preview",
     "checkall": "npm test && npm run lint && npm run typecheck",
     "test": "jest",
+    "coverage": "jest --coverage --coverageDirectory=.coverage",
     "lint": "eslint src",
     "lint:fix": "eslint --fix src",
     "format": "prettier --write src",
