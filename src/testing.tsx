@@ -122,10 +122,8 @@ export function setTime(time: string, minutes = 0) {
   if (minutes) jest.advanceTimersByTime(minutes * 60_000);
 }
 
-if (!HTMLElement.prototype.scroll) {
-  HTMLElement.prototype.scroll = () => undefined;
-}
-export const elemScrollMock = jest.spyOn(HTMLElement.prototype, 'scroll');
+Element.prototype.scroll ??= () => undefined;
+Element.prototype.scrollIntoView ??= () => undefined;
 
 const MK_DUMBO_COORDS = [28.4206047, -81.5789092] as const;
 let globalCoords: readonly [number, number] | undefined = MK_DUMBO_COORDS;

@@ -1,14 +1,6 @@
 import { booking, hs, mk, wdw } from '@/__fixtures__/genie';
 import { ResortDataProvider } from '@/contexts/ResortData';
-import {
-  click,
-  elemScrollMock,
-  loading,
-  render,
-  revisitTab,
-  see,
-  setTime,
-} from '@/testing';
+import { click, loading, render, revisitTab, see, setTime } from '@/testing';
 
 import Merlock from '../../Merlock';
 import { DEFAULT_TAB_KEY, getDefaultTab } from '../Home';
@@ -46,12 +38,12 @@ describe('Home', () => {
     see(`Park: ${hs.name}`);
     click('Plans');
     click(booking.name);
-    elemScrollMock.mockClear();
+    jest.spyOn(Element.prototype, 'scroll');
     await see.screen('Your Lightning Lane');
     click('Modify');
     await see.screen('Genie+');
     see(`Park: ${mk.name}`);
-    expect(elemScrollMock).toBeCalledTimes(2);
+    expect(Element.prototype.scroll).toBeCalledTimes(2);
   });
 });
 

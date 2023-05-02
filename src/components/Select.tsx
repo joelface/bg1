@@ -53,7 +53,9 @@ export default function Select<K extends string, V = K>(props: Props<K, V>) {
 
   useEffect(() => {
     if (!showingList) return;
-    selectedInput()?.focus();
+    const sel = selectedInput();
+    sel?.closest('li')?.scrollIntoView();
+    sel?.focus();
     const onFocus = (event: FocusEvent) => {
       if (!listRef.current?.contains(event.target as Element)) showList(false);
     };
