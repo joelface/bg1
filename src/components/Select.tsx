@@ -85,7 +85,11 @@ export default function Select<K extends string, V = K>(props: Props<K, V>) {
         {icon ? (
           icon
         ) : (
-          <span style={{ minWidth: `${minTextWidth}px` }} ref={btnTextRef}>
+          <span
+            className="flex-1 truncate"
+            style={{ minWidth: `${minTextWidth}px` }}
+            ref={btnTextRef}
+          >
             {text}
           </span>
         )}
