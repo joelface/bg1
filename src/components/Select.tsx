@@ -106,8 +106,13 @@ export default function Select<K extends string, V = K>(props: Props<K, V>) {
             arrowPressed = false;
           }}
           onClick={event => {
-            if (!listRef.current?.contains(event.target as Element)) {
+            if (arrowPressed) return;
+            if (
+              !listRef.current?.contains(event.target as Element) ||
+              (event.target as HTMLInputElement).value === selected
+            ) {
               showList(false);
+              event.preventDefault();
             }
           }}
           onKeyDown={({ key }) => {
