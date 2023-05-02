@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { ak, ep, hs, mk } from '@/__fixtures__/genie';
-import { click, render, screen, see } from '@/testing';
+import { click, fireEvent, render, screen, see } from '@/testing';
 
 import Select from '../Select';
 
@@ -24,12 +24,15 @@ function Selector({
 }) {
   const [value, setValue] = useState(defaultValue);
   return (
-    <Select
-      options={options}
-      selected={value}
-      onChange={setValue}
-      title="Park"
-    />
+    <div>
+      <button>Unrelated Button</button>
+      <Select
+        options={options}
+        selected={value}
+        onChange={setValue}
+        title="Park"
+      />
+    </div>
   );
 }
 
@@ -59,8 +62,21 @@ describe('Select', () => {
         .getAllByRole('radio')
         .map(input => (input as HTMLInputElement).checked)
     ).toEqual([false, true, false, false]);
-    const shade = screen.getByTestId('shade');
+    let shade = screen.getByTestId('shade');
     click(shade);
+    expect(shade).not.toBeInTheDocument();
+
+    click(btn);
+    shade = screen.getByTestId('shade');
+    fireEvent.keyDown(shade, { key: 'ArrowDown' });
+    click(ak.name);
+    fireEvent.keyDown(shade, { key: 'Enter' });
+    expect(shade).not.toBeInTheDocument();
+    see(`Park: ${ak.name}`);
+
+    click(btn);
+    shade = screen.getByTestId('shade');
+    fireEvent.focus(see('Unrelated Button'));
     expect(shade).not.toBeInTheDocument();
   });
 
