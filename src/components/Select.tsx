@@ -89,7 +89,7 @@ export default function Select<K extends string, V = K>(props: Props<K, V>) {
             {text}
           </span>
         )}
-        <Icon className="w-2.5 ml-2">
+        <Icon className="w-2.5 ml-2 shrink-0">
           <path d="m6.8273 12.401-5.6333-7.7812a1.0212 1.0212 117.05 0 1 0.82716-1.62l11.958-2e-7a1.0212 1.0212 62.952 0 1 0.82714 1.62l-1.6438 2.2705a79984 79984 125.9 0 0-2.3456 3.2401l-1.6437 2.2706a1.4479 1.4479 180 0 1-2.3456 4.4e-5z" />
         </Icon>
       </Button>
@@ -129,7 +129,7 @@ export default function Select<K extends string, V = K>(props: Props<K, V>) {
                       name={RADIO_NAME}
                       value={k}
                       defaultChecked={k === selected}
-                      className="w-4 h-4"
+                      className="w-4 h-4 shrink-0"
                     />{' '}
                     {opt.icon && <span aria-hidden="true">{opt.icon}</span>}{' '}
                     {opt.text}
