@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { Park, PlusExperience } from '@/api/genie';
+import { Park } from '@/api/data';
+import { PlusExperience } from '@/api/genie';
 import Select from '@/components/Select';
 import { useExperiences } from '@/contexts/Experiences';
 import { usePark } from '@/contexts/Park';

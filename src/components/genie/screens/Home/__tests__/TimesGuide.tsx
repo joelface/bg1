@@ -1,5 +1,6 @@
-import data from '@/api/data/wdw';
-import { ExpData, Experience, ExperienceType } from '@/api/genie';
+import { mk, wdw } from '@/__fixtures__/genie';
+import { Experience as ExpData } from '@/api/data';
+import { Experience, ExperienceType } from '@/api/genie';
 import { ExperiencesProvider } from '@/contexts/Experiences';
 import { Nav } from '@/contexts/Nav';
 import { ParkProvider } from '@/contexts/Park';
@@ -31,8 +32,6 @@ function expectTimes(def: { [key: string]: { [key: string]: Experience[] } }) {
   }
 }
 
-const mk = data.parks[0];
-
 function exp(
   id: string,
   args: {
@@ -43,7 +42,7 @@ function exp(
   } = {}
 ): Experience {
   return {
-    ...(data.experiences[id] as ExpData),
+    ...(wdw.experiences[id] as ExpData),
     id,
     park: mk,
     type: args.type || 'ATTRACTION',

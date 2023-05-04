@@ -1,4 +1,5 @@
-import { Experience, Land } from '@/api/genie';
+import { Land } from '@/api/data';
+import { Experience } from '@/api/genie';
 import Screen from '@/components/Screen';
 import Tab from '@/components/Tab';
 import { useExperiences } from '@/contexts/Experiences';

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Park } from '@/api/genie';
+import { Park } from '@/api/data';
 import { createContext } from '@/context';
 import { dateTimeStrings } from '@/datetime';
 

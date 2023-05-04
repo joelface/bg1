@@ -1,4 +1,5 @@
-import { Booking, Park } from '@/api/genie';
+import { Park } from '@/api/data';
+import { Booking } from '@/api/genie';
 import Tab from '@/components/Tab';
 import { Time } from '@/components/Time';
 import { useNav } from '@/contexts/Nav';

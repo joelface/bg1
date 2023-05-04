@@ -1,8 +1,8 @@
-import data from '@/api/data/wdw';
+import { Experience as ExpData } from '@/api/data';
+import * as data from '@/api/data/wdw';
 import {
   BoardingGroup,
   Booking,
-  ExpData,
   Experience,
   GenieClient,
   LightningLane,
@@ -14,7 +14,8 @@ import {
 
 const TODAY = '2021-10-01';
 
-export const [mk, ep, hs, ak] = data.parks;
+export const wdw = { resort: 'WDW' as const, ...data };
+export const [mk, ep, hs, ak] = [...wdw.parks.values()];
 
 export const mickey = {
   id: 'mickey',
@@ -39,7 +40,7 @@ export const donald = {
 };
 
 export const hm: PlusExperience = {
-  ...(data.experiences['80010208'] as ExpData),
+  ...(wdw.experiences['80010208'] as ExpData),
   id: '80010208',
   park: mk,
   type: 'ATTRACTION',
@@ -50,7 +51,7 @@ export const hm: PlusExperience = {
 };
 
 export const jc: PlusExperience = {
-  ...(data.experiences['80010153'] as ExpData),
+  ...(wdw.experiences['80010153'] as ExpData),
   id: '80010153',
   park: mk,
   type: 'ATTRACTION',
@@ -65,7 +66,7 @@ export const jc: PlusExperience = {
 };
 
 export const sm: PlusExperience = {
-  ...(data.experiences['80010190'] as ExpData),
+  ...(wdw.experiences['80010190'] as ExpData),
   id: '80010190',
   park: mk,
   type: 'ATTRACTION',
@@ -77,7 +78,7 @@ export const sm: PlusExperience = {
 };
 
 export const sdd: PlusExperience = {
-  ...(data.experiences['18904138'] as ExpData),
+  ...(wdw.experiences['18904138'] as ExpData),
   id: '18904138',
   park: hs,
   type: 'ATTRACTION',
@@ -150,7 +151,7 @@ export const allDayExp: LightningLane = {
 };
 
 const tron = {
-  ...(data.experiences['411504498'] as ExpData),
+  ...(wdw.experiences['411504498'] as ExpData),
   id: '411504498',
 };
 
@@ -215,23 +216,25 @@ export const bookings: Booking[] = [
   akApr,
 ];
 
+const authStore = {
+  getData: () => ({ swid: '', accessToken: '' }),
+  setData: () => null,
+  deleteData: () => null,
+  onUnauthorized: () => null,
+};
 export const tracker = {
   experienced: (exp: Experience) => exp.id === bookings[3].id,
   update: async () => undefined,
 };
-export const client = new GenieClient({
-  origin: 'https://disneyworld.disney.go.com',
-  authStore: {
-    getData: () => ({ swid: '', accessToken: '' }),
-    setData: () => null,
-    deleteData: () => null,
-  },
-  data,
-  tracker,
-}) as jest.Mocked<GenieClient>;
+export const client = jest.mocked(
+  new GenieClient({
+    origin: 'https://disneyworld.disney.go.com',
+    data: wdw,
+    authStore,
+    tracker,
+  })
+);
 client.nextBookTime = '11:00:00';
-
-const dropExps = [sm, hm].map(({ id, name }) => ({ id, name }));
 
 jest.spyOn(client, 'guests').mockResolvedValue({
   eligible: [mickey, minnie, pluto],
@@ -243,7 +246,7 @@ jest.spyOn(client, 'book').mockResolvedValue({ ...booking });
 jest.spyOn(client, 'cancelBooking').mockResolvedValue(undefined);
 jest.spyOn(client, 'bookings').mockResolvedValue([...bookings]);
 jest.spyOn(client, 'experiences').mockResolvedValue([hm, sm, jc]);
-jest.spyOn(client, 'nextDropTime').mockReturnValue('11:30');
+const dropExps = [sm, hm];
 jest.spyOn(client, 'upcomingDrops').mockReturnValue([
   { time: '11:30', experiences: dropExps },
   { time: '13:30', experiences: dropExps },

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
-import { Booking, Park } from '@/api/genie';
+import { Park } from '@/api/data';
+import { Booking } from '@/api/genie';
 import Button from '@/components/Button';
 import GuestList from '@/components/GuestList';
 import Notice from '@/components/Notice';

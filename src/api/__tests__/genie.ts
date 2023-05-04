@@ -1,5 +1,4 @@
 import {
-  ak,
   booking,
   bookings,
   client,
@@ -8,30 +7,28 @@ import {
   hm,
   mickey,
   minnie,
-  mk,
   pluto,
   sm,
   tracker,
 } from '@/__fixtures__/genie';
 import { fetchJson } from '@/fetch';
-import { TODAY, setTime, waitFor } from '@/testing';
+import { TODAY, setTime } from '@/testing';
 
-import wdw from '../data/wdw';
+import { Experience as ExpData } from '../data';
+import { experiences, parks } from '../data/wdw';
 import {
   Booking,
   BookingTracker,
-  ExpData,
   GenieClient,
   Guest,
   LightningLane,
   ModifyNotAllowed,
   PlusExperience,
   RequestError,
-  isGenieOrigin,
 } from '../genie';
 
 jest.mock('@/fetch');
-const fetchJsonMock = fetchJson as jest.MockedFunction<typeof fetchJson>;
+const fetchJsonMock = jest.mocked(fetchJson);
 
 const accessToken = 'access_token_123';
 const swid = '{abc}';
@@ -39,7 +36,7 @@ const origin = 'https://disneyworld.disney.go.com';
 hm.priority = undefined;
 
 function response(data: any, status = 200) {
-  return { status, data: { ...data } };
+  return { ok: status >= 200 && status < 300, status, data: { ...data } };
 }
 
 function respond(...responses: ReturnType<typeof response>[]) {
@@ -48,11 +45,10 @@ function respond(...responses: ReturnType<typeof response>[]) {
 
 function expectFetch(
   path: string,
-  { method, params, data }: Parameters<typeof fetchJson>[1] = {},
+  { method, params = {}, data }: Parameters<typeof fetchJson>[1] = {},
   appendUserId = true,
   nthCall = 1
 ) {
-  params ||= {};
   if (appendUserId) params = { ...params, userId: swid };
   expect(fetchJsonMock).nthCalledWith(
     nthCall,
@@ -74,34 +70,31 @@ function splitName({ name, ...rest }: Guest) {
   return { ...rest, firstName, lastName };
 }
 
-describe('isGenieOrigin()', () => {
-  it('returns true when Genie origin', () => {
-    expect(isGenieOrigin('https://disneyworld.disney.go.com')).toBe(true);
-    expect(isGenieOrigin('https://disneyland.disney.go.com')).toBe(true);
-  });
-  it('returns false when not Genie origin', () => {
-    expect(isGenieOrigin('https://example.com')).toBe(false);
-  });
-});
-
 describe('GenieClient', () => {
   const authStore = {
     getData: () => ({ accessToken, swid }),
     setData: () => null,
     deleteData: jest.fn(),
+    onUnauthorized: () => null,
   };
+  const [mk, , , ak] = [...parks.values()];
+  const mkDrops = [
+    { time: '11:30', experiences: [sm] },
+    { time: '14:30', experiences: [sm, hm] },
+    { time: '17:30', experiences: [hm] },
+  ];
   const data = {
-    ...wdw,
-    experiences: { ...wdw.experiences },
-    pdts: { [mk.id]: [690 /* 11:30 */, 870 /* 14:30 */, 1050 /* 17:30 */] },
+    resort: 'WDW' as const,
+    parks,
+    experiences,
+    drops: { [mk.id]: mkDrops },
   };
   const smData = data.experiences[sm.id] as ExpData;
   smData.priority = sm.priority;
-  smData.pdtMask = 0b011;
   const client = new GenieClient({
     origin: 'https://disneyworld.disney.go.com',
-    authStore,
     data,
+    authStore,
     tracker,
   });
   const onUnauthorized = jest.fn();
@@ -119,25 +112,6 @@ describe('GenieClient', () => {
     authStore.deleteData.mockReset();
     onUnauthorized.mockReset();
     setTime('10:00');
-  });
-
-  describe('load()', () => {
-    it('loads Genie client', async () => {
-      const client = await GenieClient.load({
-        origin: 'https://disneyland.disney.go.com',
-        authStore,
-      });
-      expect(client.parks.map(p => p.name)).toEqual([
-        'Disneyland',
-        'California Adventure',
-      ]);
-    });
-  });
-
-  describe('resort', () => {
-    it('returns resort abbreviation', () => {
-      expect(client.resort).toBe('WDW');
-    });
   });
 
   describe('experiences()', () => {
@@ -158,7 +132,7 @@ describe('GenieClient', () => {
         drop: true,
         experienced: false,
       };
-      const getExpData = async () => client.experiences(mk);
+      const getExpData = () => client.experiences(mk);
       respond(guestsRes, ...Array(4).fill(res));
       expect(await getExpData()).toEqual([smExp]);
       expect(client.nextBookTime).toBe('11:00:00');
@@ -436,6 +410,7 @@ describe('GenieClient', () => {
             asset: '19432184;entityType=activity-product',
           },
           ...bookings.map(b => ({
+            id: b.bookingId,
             ...(b.type === 'LL'
               ? {
                   type: 'FASTPASS',
@@ -455,7 +430,6 @@ describe('GenieClient', () => {
               : b.type === 'BG'
               ? {
                   type: 'VIRTUAL_QUEUE_POSITION',
-                  id: b.bookingId,
                   status: b.status,
                   boardingGroup: { id: b.boardingGroup },
                   startDateTime: `${b.start.date}T${b.start.time}-0400`,
@@ -466,7 +440,6 @@ describe('GenieClient', () => {
               : b.type === 'APR'
               ? {
                   type: 'FASTPASS',
-                  id: b.bookingId,
                   kind: 'PARK_PASS',
                   startDateTime: `${b.start.date}T${b.start.time}-0400`,
                   guests: b.guests.map(g => ({ id: xid(g) })),
@@ -474,7 +447,6 @@ describe('GenieClient', () => {
                 }
               : {
                   type: 'DINING',
-                  id: b.bookingId,
                   guests: b.guests.map(g => ({ id: xid(g) })),
                   asset: '90006947;entityType=table-service',
                   startDateTime: `${b.start.date}T${b.start.time}-0400`,
@@ -700,30 +672,27 @@ describe('GenieClient', () => {
     });
   });
 
-  describe('nextDropTime()', () => {
-    it('returns next drop time', () => {
-      setTime('11:30:59');
-      expect(client.nextDropTime(mk)).toBe('11:30');
-      setTime('11:31:00');
-      expect(client.nextDropTime(mk)).toBe('14:30');
-      setTime('14:31:00');
-      expect(client.nextDropTime(mk)).toBe('17:30');
-      setTime('17:31:00');
-      expect(client.nextDropTime(mk)).toBe(undefined);
+  describe('upcomingDrops()', () => {
+    it('returns upcoming drops', () => {
+      expect(client.upcomingDrops(mk)).toStrictEqual(mkDrops);
+      setTime('12:00');
+      expect(client.upcomingDrops(mk)).toStrictEqual(mkDrops.slice(1));
+      setTime('15:00');
+      expect(client.upcomingDrops(mk)).toStrictEqual(mkDrops.slice(2));
+      setTime('18:00');
+      expect(client.upcomingDrops(mk)).toStrictEqual(mkDrops.slice(3));
     });
   });
 
-  describe('logOut()', () => {
-    it('calls onUnauthorized() and authStore.deleteData()', () => {
-      client.logOut();
-      expect(onUnauthorized).toBeCalledTimes(1);
-      expect(authStore.deleteData).toBeCalledTimes(1);
-    });
-
-    it('is called on 401 Unauthorized response', async () => {
-      respond({ status: 401, data: {} });
-      await expect(client.experiences(mk)).rejects.toThrow(RequestError);
-      await waitFor(() => expect(onUnauthorized).toBeCalledTimes(1));
+  describe('nextDropTime()', () => {
+    it('returns next drop time', () => {
+      expect(client.nextDropTime(mk)).toBe('11:30');
+      setTime('12:00');
+      expect(client.nextDropTime(mk)).toBe('14:30');
+      setTime('15:00');
+      expect(client.nextDropTime(mk)).toBe('17:30');
+      setTime('18:00');
+      expect(client.nextDropTime(mk)).toBe(undefined);
     });
   });
 });

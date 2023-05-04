@@ -3,6 +3,13 @@ import { fetchJson } from '@/fetch';
 
 import { AuthStore } from './auth/store';
 import { avatarUrl } from './avatar';
+import {
+  Drop,
+  Experience as ExpData,
+  Park,
+  ResortData,
+  loadResortData,
+} from './data';
 
 const ORIGIN_TO_RESORT = {
   'https://disneyworld.disney.go.com': 'WDW',
@@ -22,12 +29,8 @@ export function isGenieOrigin(origin: string): origin is Origin {
 
 export type ExperienceType = 'ATTRACTION' | 'ENTERTAINMENT' | 'CHARACTER';
 
-export interface Experience {
-  id: string;
-  name: string;
+export interface Experience extends ExpData {
   park: Park;
-  land: Land;
-  geo?: readonly [number, number];
   type: ExperienceType;
   standby: {
     available: boolean;
@@ -46,8 +49,6 @@ export interface Experience {
     available: boolean;
     displayPrice: string;
   };
-  priority?: number;
-  sort?: number;
   experienced?: boolean;
   drop?: boolean;
 }
@@ -136,39 +137,6 @@ export interface Offer {
     ineligible: Guest[];
   };
   experience: Pick<PlusExperience, 'id'>;
-}
-
-export interface Park {
-  id: string;
-  name: string;
-  icon: string;
-  geo: { n: number; s: number; e: number; w: number };
-  theme: { bg: string; text: string };
-}
-
-export interface Land {
-  name: string;
-  park: Park;
-  sort: number;
-  theme: { bg: string; text: string };
-}
-
-export interface ExpData {
-  name: string;
-  land: Land;
-  geo?: readonly [number, number];
-  pdtMask?: number;
-  type?: ExperienceType;
-  priority?: number;
-  sort?: number;
-}
-
-export interface ResortData {
-  parks: Park[];
-  experiences: {
-    [id: string]: ExpData | null | undefined;
-  };
-  pdts: { [id: string]: number[] };
 }
 
 export interface NewBookingResponse {
@@ -372,14 +340,7 @@ export class GenieClient {
   onUnauthorized = () => undefined;
   protected origin: Origin;
   protected authStore: Public<AuthStore>;
-  protected expData: ResortData['experiences'];
-  protected parkMap: Map<string, Park>;
-  protected drops: {
-    [parkId: string]: {
-      time: string;
-      expIds: string[];
-    }[];
-  } = {};
+  protected data: ResortData;
   protected partyIds = new Set<string>();
   protected guestCache = new Map<
     string,
@@ -391,8 +352,8 @@ export class GenieClient {
   static async load(
     args: Omit<ConstructorParameters<typeof GenieClient>[0], 'data'>
   ) {
-    const resort = ORIGIN_TO_RESORT[args.origin].toLowerCase();
-    const data: ResortData = (await import(`./data/${resort}.ts`)).default;
+    const resort = ORIGIN_TO_RESORT[args.origin];
+    const data: ResortData = await loadResortData(resort);
     return new GenieClient({ ...args, data });
   }
 
@@ -404,24 +365,8 @@ export class GenieClient {
   }) {
     this.origin = args.origin;
     this.authStore = args.authStore;
-    this.parkMap = new Map(args.data.parks.map(p => [p.id, p]));
     this.tracker = args.tracker || new BookingTracker();
-    for (const [id, times] of Object.entries(args.data.pdts ?? {})) {
-      this.drops[id] = times.map(m => ({
-        time: new Date(new Date().setHours(m / 60, m % 60, 0))
-          .toTimeString()
-          .slice(0, 5),
-        expIds: [],
-      }));
-    }
-    this.expData = { ...args.data.experiences };
-    for (const [id, exp] of Object.entries(args.data.experiences)) {
-      if (!exp?.pdtMask) continue;
-      const { id: parkId } = exp.land.park;
-      for (const [i, drop] of this.drops?.[parkId]?.entries() ?? []) {
-        if (exp.pdtMask & (1 << i)) drop.expIds.push(id);
-      }
-    }
+    this.data = args.data;
   }
 
   get resort() {
@@ -429,7 +374,7 @@ export class GenieClient {
   }
 
   get parks() {
-    return [...this.parkMap.values()];
+    return [...this.data.parks.values()];
   }
 
   setPartyIds(partyIds: string[]) {
@@ -447,15 +392,15 @@ export class GenieClient {
     this.nextBookTime = (res.eligibility?.flexEligibilityWindows || []).sort(
       (a, b) => a.time.time.localeCompare(b.time.time)
     )[0]?.time.time;
-    const { expIds = [] } = this.nextDrop(park) ?? {};
+    const { experiences: dropExps = [] } = this.upcomingDrops(park)[0] ?? {};
     return res.availableExperiences
-      .filter(exp => !!this.expData[exp.id])
+      .filter(exp => !!this.data.experiences[exp.id])
       .map(exp => ({
         ...exp,
-        ...(this.expData[exp.id] as ExpData),
+        ...(this.data.experiences[exp.id] as ExpData),
         park,
         experienced: this.tracker.experienced(exp),
-        drop: expIds.includes(exp.id),
+        drop: !!dropExps.find(({ id }) => id === exp.id),
       }));
   }
 
@@ -664,7 +609,7 @@ export class GenieClient {
       const facilityAsset = assets[activityAsset.facility];
       const parkIdStr = facilityAsset.location;
       if (!parkIdStr) return;
-      const park = this.parkMap.get(idNum(parkIdStr)) || {
+      const park = this.data.parks.get(idNum(parkIdStr)) || {
         id: parkIdStr,
         name: assets[parkIdStr].name,
       };
@@ -778,7 +723,7 @@ export class GenieClient {
     };
 
     const getParkPass = (item: FastPassItem): ParkPass | undefined => {
-      const park = this.parkMap.get(
+      const park = this.data.parks.get(
         idNum((assets[item.facility] as Required<Asset>).location)
       );
       if (!park) return;
@@ -815,29 +760,15 @@ export class GenieClient {
     return bookings;
   }
 
-  upcomingDrops(park: Pick<Park, 'id'>): {
-    time: string;
-    experiences: { id: string; name: string }[];
-  }[] {
+  upcomingDrops(park: Pick<Park, 'id'>): Drop[] {
     const now = dateTimeStrings().time.slice(0, 5);
-    return (this.drops?.[park.id] ?? [])
-      .filter(({ time }) => time >= now)
-      .map(({ time, expIds }) => ({
-        time,
-        experiences: expIds
-          .map(id => ({
-            id,
-            name: this.expData[id]?.name,
-          }))
-          .filter(
-            (exp): exp is { id: string; name: string } => exp.name !== undefined
-          )
-          .sort((a, b) => a.name.localeCompare(b.name)),
-      }));
+    const drops = this.data.drops[park.id] ?? [];
+    const idx = drops.findIndex(({ time }) => time >= now);
+    return idx >= 0 ? drops.slice(idx) : [];
   }
 
   nextDropTime(park: Pick<Park, 'id'>): string | undefined {
-    return this.nextDrop(park)?.time;
+    return this.upcomingDrops(park)[0]?.time;
   }
 
   logOut(): void {
@@ -845,17 +776,12 @@ export class GenieClient {
     this.onUnauthorized();
   }
 
-  protected nextDrop(park: Pick<Park, 'id'>) {
-    const now = dateTimeStrings().time.slice(0, 5);
-    return this.drops?.[park.id]?.find(({ time }) => time >= now);
-  }
-
   protected getExperience(id: string, parkId: string, name?: string) {
     id = idNum(id);
     return {
       id,
-      name: (this.expData[id]?.name || name) as string,
-      park: this.parkMap.get(idNum(parkId)) as Park,
+      name: (this.data.experiences[id]?.name || name) as string,
+      park: this.data.parks.get(idNum(parkId)) as Park,
     };
   }
 

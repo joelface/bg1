@@ -1,6 +1,6 @@
-import { hm, jc, mk, sm } from '@/__fixtures__/genie';
-import data from '@/api/data/wdw';
-import { ExpData, PlusExperience } from '@/api/genie';
+import { hm, jc, mk, sm, wdw } from '@/__fixtures__/genie';
+import { Experience } from '@/api/data';
+import { PlusExperience } from '@/api/genie';
 import { ExperiencesProvider } from '@/contexts/Experiences';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { Nav } from '@/contexts/Nav';
@@ -36,7 +36,7 @@ const getExperiences = (
 const names = (exps: { name: string }[]) => exps.map(({ name }) => name);
 
 const bz: PlusExperience = {
-  ...(data.experiences['80010114'] as ExpData),
+  ...(wdw.experiences['80010114'] as Experience),
   id: '80010114',
   park: mk,
   type: 'ATTRACTION',
@@ -45,7 +45,7 @@ const bz: PlusExperience = {
 };
 
 const db: PlusExperience = {
-  ...(data.experiences['80010129'] as ExpData),
+  ...(wdw.experiences['80010129'] as Experience),
   id: '80010129',
   park: mk,
   type: 'ATTRACTION',
