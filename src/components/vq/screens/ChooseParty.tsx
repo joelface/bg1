@@ -3,13 +3,13 @@ import { useEffect, useState } from 'react';
 import { Guest, Queue } from '@/api/vq';
 import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
-import Screen from '@/components/Screen';
 import { useNav } from '@/contexts/Nav';
 import { useVQClient } from '@/contexts/VQClient';
 import useDataLoader from '@/hooks/useDataLoader';
 
 import StartTime from '../StartTime';
 import JoinQueue from './JoinQueue';
+import QueueScreen from './QueueScreen';
 
 export default function ChooseParty({ queue }: { queue: Queue }) {
   const { goTo } = useNav();
@@ -39,8 +39,7 @@ export default function ChooseParty({ queue }: { queue: Queue }) {
   }
 
   return (
-    <Screen heading="Choose Your Party">
-      <h2>{queue.name}</h2>
+    <QueueScreen queue={queue} heading="Choose Your Party">
       {queue.howToEnterMessage.split('\n\n').map((graf, i) => (
         <p key={i}>{graf}</p>
       ))}
@@ -64,6 +63,6 @@ export default function ChooseParty({ queue }: { queue: Queue }) {
         Confirm Party
       </FloatingButton>
       {loaderElem}
-    </Screen>
+    </QueueScreen>
   );
 }

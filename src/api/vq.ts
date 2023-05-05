@@ -16,10 +16,12 @@ interface BaseQueue {
 
 export interface Queue extends BaseQueue {
   id: string;
+  park?: Park;
 }
 
 export interface ApiQueue extends BaseQueue {
   queueId: string;
+  tabContentId?: string;
 }
 
 type GetQueuesResponse = ApiQueue[];
@@ -124,7 +126,11 @@ export class VQClient extends ApiClient {
     if (!Array.isArray(response.data?.queues)) throw new RequestError(response);
     return (response.data.queues as GetQueuesResponse)
       .filter(q => !!q.categoryContentId)
-      .map(({ queueId, ...queue }) => ({ ...queue, id: queueId }));
+      .map(({ queueId, tabContentId = '', ...queue }) => ({
+        ...queue,
+        id: queueId,
+        park: this.data.parks.get(tabContentId.split(';')[0]),
+      }));
   }
 
   async getQueue(queue: Pick<Queue, 'id'>): Promise<Queue> {

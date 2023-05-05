@@ -3,9 +3,9 @@ import { useEffect, useState } from 'react';
 import { Guest, JoinQueueResult, Queue } from '@/api/vq';
 import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
-import Screen from '@/components/Screen';
 import { useNav } from '@/contexts/Nav';
 
+import QueueScreen from './QueueScreen';
 import SelectQueue from './SelectQueue';
 
 const DONE_BTN_HIDDEN_MS = 5_000;
@@ -31,8 +31,7 @@ export default function BGResult({
   }, [hasBG]);
 
   return (
-    <Screen heading="Boarding Group">
-      <h2>{queue.name}</h2>
+    <QueueScreen queue={queue} heading="Boarding Group">
       {hasBG ? (
         <>
           <h3>Congratulations! 🎉</h3>
@@ -66,6 +65,6 @@ export default function BGResult({
           <GuestList guests={failedGuests} conflicts={conflicts} />
         </>
       )}
-    </Screen>
+    </QueueScreen>
   );
 }
