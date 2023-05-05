@@ -1,12 +1,13 @@
 import { useEffect, useRef } from 'react';
 
 import { AuthClient, AuthData } from '@/api/auth/client';
+import { Resort } from '@/api/data';
 
 export default function LoginForm({
   resort,
   onLogin,
 }: {
-  resort: 'WDW' | 'DLR';
+  resort: Resort;
   onLogin: (data: AuthData) => void;
 }) {
   const iframe = useRef<HTMLIFrameElement>(null);

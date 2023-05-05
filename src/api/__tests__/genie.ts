@@ -14,6 +14,7 @@ import {
 import { fetchJson } from '@/fetch';
 import { TODAY, setTime } from '@/testing';
 
+import { RequestError } from '../client';
 import { Experience as ExpData } from '../data';
 import { experiences, parks } from '../data/wdw';
 import {
@@ -24,7 +25,6 @@ import {
   LightningLane,
   ModifyNotAllowed,
   PlusExperience,
-  RequestError,
 } from '../genie';
 
 jest.mock('@/fetch');
@@ -45,7 +45,7 @@ function respond(...responses: ReturnType<typeof response>[]) {
 
 function expectFetch(
   path: string,
-  { method, params = {}, data }: Parameters<typeof fetchJson>[1] = {},
+  { method, params, data }: Parameters<typeof fetchJson>[1] = {},
   appendUserId = true,
   nthCall = 1
 ) {
@@ -91,12 +91,7 @@ describe('GenieClient', () => {
   };
   const smData = data.experiences[sm.id] as ExpData;
   smData.priority = sm.priority;
-  const client = new GenieClient({
-    origin: 'https://disneyworld.disney.go.com',
-    data,
-    authStore,
-    tracker,
-  });
+  const client = new GenieClient(data, authStore, tracker);
   const onUnauthorized = jest.fn();
   client.onUnauthorized = onUnauthorized;
   const guests = [mickey, minnie, pluto];

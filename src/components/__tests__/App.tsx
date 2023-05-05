@@ -2,10 +2,16 @@ import { AuthData } from '@/api/auth/client';
 import { ReauthNeeded } from '@/api/auth/store';
 import { DISCLAIMER_ACCEPTED_KEY } from '@/hooks/useDisclaimer';
 import { NEWS_VERSION_KEY } from '@/hooks/useNews';
-import { act, click, render, see } from '@/testing';
+import { act, click, render, screen, see } from '@/testing';
 
 import App, { NEWS_VERSION } from '../App';
+import Screen from '../Screen';
 
+jest.mock('../genie/Merlock', () => {
+  return function Merlock() {
+    return <Screen heading="Genie+">test</Screen>;
+  };
+});
 jest.mock('../LoginForm', () => {
   function LoginForm({ onLogin }: { onLogin: (data: AuthData) => void }) {
     const onClick = () =>
@@ -19,24 +25,17 @@ jest.mock('../LoginForm', () => {
   return LoginForm;
 });
 
+window.origin = 'https://disneyworld.disney.go.com';
+
 const authStore = {
   getData: jest.fn(),
   setData: jest.fn(),
   deleteData: jest.fn(),
-};
-
-const client = {
-  onUnauthorized: () => null,
-  logOut: () => null,
-  resort: 'WDW' as const,
+  onUnauthorized: jest.fn(),
 };
 
 function renderComponent() {
-  render(
-    <App client={client} authStore={authStore}>
-      <>client loaded</>
-    </App>
-  );
+  render(<App authStore={authStore} />);
 }
 
 describe('App', () => {
@@ -49,47 +48,45 @@ describe('App', () => {
     localStorage.setItem(NEWS_VERSION_KEY, '1');
   });
 
-  it('shows Disclaimer if not yet accepted', () => {
+  it('shows Disclaimer if not yet accepted', async () => {
     localStorage.removeItem(DISCLAIMER_ACCEPTED_KEY);
     renderComponent();
-    see('Warning!');
+    await see.screen('Warning!');
     click('Accept');
     expect(localStorage.getItem(DISCLAIMER_ACCEPTED_KEY)).toBe('1');
   });
 
-  it('shows News if newer than last seen', () => {
+  it('shows News if newer than last seen', async () => {
     localStorage.setItem(NEWS_VERSION_KEY, '0');
     renderComponent();
-    see('BG1 News');
+    await see.screen('BG1 News');
     click('Close');
     expect(localStorage.getItem(NEWS_VERSION_KEY)).toBe(String(NEWS_VERSION));
   });
 
-  it('loads client if auth data valid', () => {
+  it('loads client if auth data valid', async () => {
     renderComponent();
-    see('client loaded');
+    await see.screen('Genie+');
   });
 
-  it('shows LoginForm if auth data expired', () => {
+  it('shows LoginForm if auth data expired', async () => {
     authStore.getData.mockImplementationOnce(() => {
       throw new ReauthNeeded('auth');
     });
     renderComponent();
-    click('Log In');
+    click(await screen.findByRole('button', { name: 'Log In' }));
     expect(authStore.setData).lastCalledWith({
       swid: '{MINNIE}',
       accessToken: 'm1nn13',
       expires: new Date(2121, 12, 21, 12, 21, 12),
     });
-    see('client loaded');
+    await see.screen('Genie+');
   });
 
   it('shows LoginForm if client.onAuthorized() called', async () => {
     renderComponent();
-    see('client loaded');
-    act(() => {
-      client.onUnauthorized();
-    });
+    await see.screen('Genie+');
+    act(() => authStore.onUnauthorized());
     see('Log In');
   });
 });

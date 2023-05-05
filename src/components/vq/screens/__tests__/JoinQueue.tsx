@@ -1,6 +1,6 @@
 import { client, mickey, pluto, rotr } from '@/__fixtures__/vq';
-import { ClientProvider } from '@/contexts/Client';
 import { useNav } from '@/contexts/Nav';
+import { VQClientProvider } from '@/contexts/VQClient';
 import { click, loading, render, see } from '@/testing';
 
 import StartTime from '../../StartTime';
@@ -23,9 +23,9 @@ describe('JoinQueue', () => {
   it('shows VQ join screen', async () => {
     const guests = [mickey, pluto];
     render(
-      <ClientProvider value={client}>
+      <VQClientProvider value={client}>
         <JoinQueue queue={rotr} guests={guests} />
-      </ClientProvider>
+      </VQClientProvider>
     );
     expect(StartTime).lastCalledWith({ queue: rotr, screen: JoinQueue }, {});
 

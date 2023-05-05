@@ -4,7 +4,7 @@ import { Park } from '@/api/data';
 import { createContext } from '@/context';
 import { dateTimeStrings } from '@/datetime';
 
-import { useGenieClient } from './GenieClient';
+import { useResortData } from './ResortData';
 
 const PARK_KEY = 'bg1.genie.park';
 
@@ -25,15 +25,12 @@ export const [ParkProvider, usePark] = createContext<ParkState>({
 });
 
 export function useParkState() {
-  const client = useGenieClient();
-  const { parks } = client;
+  const { parks } = useResortData();
   const [park, setPark] = useState(() => {
-    const { id = parks[0].id, date = '' } =
+    const firstPark = [...parks.values()][0];
+    const { id = firstPark.id, date = '' } =
       JSON.parse(sessionStorage.getItem(PARK_KEY) || '{}') || {};
-    return (
-      (date === dateTimeStrings().date && parks.find(p => p.id === id)) ||
-      parks[0]
-    );
+    return (date === dateTimeStrings().date && parks.get(id)) || firstPark;
   });
 
   return { park, setPark };

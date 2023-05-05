@@ -226,14 +226,7 @@ export const tracker = {
   experienced: (exp: Experience) => exp.id === bookings[3].id,
   update: async () => undefined,
 };
-export const client = jest.mocked(
-  new GenieClient({
-    origin: 'https://disneyworld.disney.go.com',
-    data: wdw,
-    authStore,
-    tracker,
-  })
-);
+export const client = jest.mocked(new GenieClient(wdw, authStore, tracker));
 client.nextBookTime = '11:00:00';
 
 jest.spyOn(client, 'guests').mockResolvedValue({

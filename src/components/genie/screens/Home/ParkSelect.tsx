@@ -1,17 +1,17 @@
 import { useMemo } from 'react';
 
 import Select from '@/components/Select';
-import { useGenieClient } from '@/contexts/GenieClient';
 import { usePark } from '@/contexts/Park';
+import { useResortData } from '@/contexts/ResortData';
 
 export default function ParkSelect(props: { className?: string }) {
-  const { parks } = useGenieClient();
+  const { parks } = useResortData();
   const { park, setPark } = usePark();
 
   const parkOptions = useMemo(
     () =>
       new Map(
-        parks.map(park => [
+        [...parks.values()].map(park => [
           park.id,
           {
             value: park,

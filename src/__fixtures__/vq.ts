@@ -1,3 +1,4 @@
+import * as data from '@/api/data/wdw';
 import { Guest, Queue, VQClient } from '@/api/vq';
 
 export const rotr: Queue = {
@@ -65,14 +66,15 @@ export const pluto: Guest = {
 };
 export const guests = [mickey, minnie, fifi, pluto];
 
-export const client = new VQClient({
-  origin: 'https://vqguest-svc-wdw.wdprapps.disney.com',
-  authStore: {
+export const wdw = { resort: 'WDW' as const, ...data };
+export const client = jest.mocked(
+  new VQClient(wdw, {
     getData: () => ({ swid: '', accessToken: '' }),
     setData: () => null,
     deleteData: () => null,
-  },
-}) as jest.Mocked<VQClient>;
+    onUnauthorized: () => null,
+  })
+);
 jest.spyOn(client, 'getQueues').mockResolvedValue(queues);
 jest.spyOn(client, 'getLinkedGuests').mockResolvedValue(guests);
 jest.spyOn(client, 'joinQueue').mockResolvedValue({

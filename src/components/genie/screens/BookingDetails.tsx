@@ -7,10 +7,10 @@ import GuestList from '@/components/GuestList';
 import Notice from '@/components/Notice';
 import Screen from '@/components/Screen';
 import { Time } from '@/components/Time';
-import { useGenieClient } from '@/contexts/GenieClient';
 import { useNav } from '@/contexts/Nav';
 import { usePark } from '@/contexts/Park';
 import { useRebooking } from '@/contexts/Rebooking';
+import { useResortData } from '@/contexts/ResortData';
 import { DEFAULT_THEME } from '@/contexts/Theme';
 
 import { ExperienceList } from '../ExperienceList';
@@ -21,7 +21,7 @@ import Home from './Home';
 export default function BookingDetails({ booking }: { booking: Booking }) {
   const { goTo, goBack } = useNav();
   const { setPark } = usePark();
-  const client = useGenieClient();
+  const { parks } = useResortData();
   const { name, park, choices, type, start } = booking;
   const isLL = type === 'LL';
   const isBG = type === 'BG';
@@ -30,7 +30,7 @@ export default function BookingDetails({ booking }: { booking: Booking }) {
 
   const choicesByPark = new Map([
     [park as Park, []],
-    ...client.parks.map(
+    ...[...parks.values()].map(
       park => [park, []] as [Park, Required<typeof booking>['choices']]
     ),
   ]);

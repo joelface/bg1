@@ -1,18 +1,7 @@
-import { fetchJson } from '@/fetch';
+import { JsonResponse, fetchJson } from '@/fetch';
 
-import { AuthStore } from './auth/store';
-
-const ORIGIN_TO_RESORT = {
-  'https://vqguest-svc-wdw.wdprapps.disney.com': 'WDW',
-  'https://vqguest-svc.wdprapps.disney.com': 'DLR',
-} as const;
-
-export type Origin = keyof typeof ORIGIN_TO_RESORT;
-export type Resort = (typeof ORIGIN_TO_RESORT)[Origin];
-
-export function isVirtualQueueOrigin(origin: string): origin is Origin {
-  return origin in ORIGIN_TO_RESORT;
-}
+import { ApiClient, RequestError } from './client';
+import { Park } from './data';
 
 interface BaseQueue {
   name: string;
@@ -122,40 +111,16 @@ export const sortGuests = (guests: Guest[]): Guest[] =>
       a.name.localeCompare(b.name)
   );
 
-export class RequestError extends Error {
-  name = 'RequestError';
+const path = (resource: VQResource) => `/application/v1/guest/${resource}`;
 
-  constructor(
-    public response: Awaited<ReturnType<typeof fetchJson>>,
-    message = 'Request failed'
-  ) {
-    super(`${message}: ${JSON.stringify(response)}`);
-  }
-}
-
-export class VQClient {
-  onUnauthorized = () => undefined;
-  protected origin: Origin;
-  protected authStore: Public<AuthStore>;
-
-  constructor(args: {
-    origin: VQClient['origin'];
-    authStore: VQClient['authStore'];
-  }) {
-    this.origin = args.origin;
-    this.authStore = args.authStore;
-  }
-
-  get resort(): Resort {
-    return ORIGIN_TO_RESORT[this.origin];
-  }
-
-  url(resource: VQResource): string {
-    return `${this.origin}/application/v1/guest/${resource}`;
-  }
+export class VQClient extends ApiClient {
+  protected static origins = {
+    WDW: 'https://vqguest-svc-wdw.wdprapps.disney.com',
+    DLR: 'https://vqguest-svc.wdprapps.disney.com',
+  };
 
   async getQueues(): Promise<Queue[]> {
-    const response = await fetchJson(this.url('getQueues'));
+    const response = await fetchJson(this.origin + path('getQueues'));
     if (!Array.isArray(response.data?.queues)) throw new RequestError(response);
     return (response.data.queues as GetQueuesResponse)
       .filter(q => !!q.categoryContentId)
@@ -243,26 +208,22 @@ export class VQClient {
     }
   }
 
-  logOut(): void {
-    this.authStore.deleteData();
-    this.onUnauthorized();
-  }
-
   protected async post<T>(
     request: VQRequest
   ): Promise<{ ok: boolean; status: number; data: T }> {
-    const response = await fetchJson(this.url(request.resource), {
-      method: 'POST',
-      headers: {
-        Authorization: `BEARER ${this.authStore.getData().accessToken}`,
-      },
-      data: request.data,
-    });
-    const { status } = response;
-    if (status === 401) setTimeout(() => this.logOut());
-    if (!status || status === 401 || status >= 500) {
-      throw new RequestError(response);
+    try {
+      return await this.request<T>({
+        ...request,
+        method: 'POST',
+        path: path(request.resource),
+      });
+    } catch (e) {
+      if (e instanceof RequestError) {
+        const response = e.response as JsonResponse<T>;
+        const { ok, status } = response;
+        if (!ok && status < 500 && status !== 401) return response;
+      }
+      throw e;
     }
-    return response;
   }
 }

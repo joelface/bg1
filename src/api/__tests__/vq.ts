@@ -1,14 +1,9 @@
+import { wdw } from '@/__fixtures__/vq';
 import { guests, mtwr, queues, rotr, santa } from '@/__fixtures__/vq';
 import { fetchJson } from '@/fetch';
-import { waitFor } from '@/testing';
 
-import {
-  Guest,
-  RequestError,
-  VQClient,
-  isVirtualQueueOrigin,
-  sortGuests,
-} from '../vq';
+import { RequestError } from '../client';
+import { Guest, VQClient, sortGuests } from '../vq';
 
 jest.mock('@/fetch');
 
@@ -26,66 +21,33 @@ function respond(...responses: ReturnType<typeof response>[]) {
   }
 }
 
-function expectFetch(url: string, data?: unknown) {
-  const fetchArgs: unknown[] = [url];
+function expectFetch(resource: string, data?: unknown) {
+  const fetchArgs: unknown[] = [
+    `https://vqguest-svc-wdw.wdprapps.disney.com/application/v1/guest/${resource}`,
+  ];
   if (data) {
     fetchArgs.push({
       method: 'POST',
       data,
-      headers: {
+      headers: expect.objectContaining({
         Authorization: 'BEARER access_token_123',
-      },
+      }),
     });
   }
   expect(jest.mocked(fetchJson).mock.calls[0]).toEqual(fetchArgs);
 }
-
-describe('isVirtualQueueOrigin()', () => {
-  it('returns true when VQ origin', () => {
-    expect(
-      isVirtualQueueOrigin('https://vqguest-svc-wdw.wdprapps.disney.com')
-    ).toBe(true);
-    expect(
-      isVirtualQueueOrigin('https://vqguest-svc.wdprapps.disney.com')
-    ).toBe(true);
-  });
-  it('returns false when not VQ origin', () => {
-    expect(isVirtualQueueOrigin('https://example.com')).toBe(false);
-  });
-});
 
 describe('VQClient', () => {
   const authStore = {
     getData: () => ({ swid: '', accessToken: 'access_token_123' }),
     setData: () => null,
     deleteData: jest.fn(),
+    onUnauthorized: () => null,
   };
-  const client = new VQClient({
-    origin: 'https://vqguest-svc-wdw.wdprapps.disney.com',
-    authStore,
-  });
-  const onUnauthorized = jest.fn();
-  client.onUnauthorized = onUnauthorized;
-  const getQueuesUrl = client.url('getQueues');
-  const joinQueueUrl = client.url('joinQueue');
-  const getLinkedGuestsUrl = client.url('getLinkedGuests');
+  const client = new VQClient(wdw, authStore);
 
   beforeEach(() => {
     jest.mocked(fetchJson).mockReset();
-  });
-
-  describe('resort', () => {
-    it('returns resort abbreviation', () => {
-      expect(client.resort).toBe('WDW');
-    });
-  });
-
-  describe('url()', () => {
-    it('returns joinQueue URL', () => {
-      expect(client.url('joinQueue')).toBe(
-        'https://vqguest-svc-wdw.wdprapps.disney.com/application/v1/guest/joinQueue'
-      );
-    });
   });
 
   const queueClosedRes = response({
@@ -96,7 +58,7 @@ describe('VQClient', () => {
     it('returns queues', async () => {
       respond(queueClosedRes);
       expect(await client.getQueues()).toEqual([santa, mtwr, rotr]);
-      expectFetch(getQueuesUrl);
+      expectFetch('getQueues');
     });
   });
 
@@ -106,7 +68,7 @@ describe('VQClient', () => {
     });
 
     afterEach(() => {
-      expectFetch(getQueuesUrl);
+      expectFetch('getQueues');
     });
 
     it('returns queue', async () => {
@@ -138,7 +100,7 @@ describe('VQClient', () => {
     it('returns guests', async () => {
       respond(guestsRes);
       expect(await client.getLinkedGuests(rotr)).toEqual(guests);
-      expectFetch(getLinkedGuestsUrl, { queueId: rotr.id });
+      expectFetch('getLinkedGuests', { queueId: rotr.id });
     });
   });
 
@@ -173,7 +135,7 @@ describe('VQClient', () => {
 
   describe('joinQueue()', () => {
     afterEach(() => {
-      expectFetch(joinQueueUrl, {
+      expectFetch('joinQueue', {
         queueId: rotr.id,
         guestIds: guests.map(g => g.id),
       });
@@ -225,22 +187,6 @@ describe('VQClient', () => {
       await expect(client.joinQueue(rotr, guests)).rejects.toThrow(
         RequestError
       );
-    });
-  });
-
-  describe('logOut()', () => {
-    it('calls onUnauthorized() and authStore.deleteData()', () => {
-      client.logOut();
-      expect(onUnauthorized).toBeCalledTimes(1);
-      expect(authStore.deleteData).toBeCalledTimes(1);
-    });
-
-    it('is called on 401 Unauthorized response', async () => {
-      respond(response({}, 'UNAUTHORIZED', 401));
-      await expect(client.getLinkedGuests({ id: '1' })).rejects.toThrow(
-        RequestError
-      );
-      await waitFor(() => expect(onUnauthorized).toBeCalledTimes(1));
     });
   });
 });

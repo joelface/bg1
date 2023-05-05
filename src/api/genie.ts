@@ -1,33 +1,20 @@
 import { dateTimeStrings, splitDateTime } from '@/datetime';
-import { fetchJson } from '@/fetch';
 
 import { AuthStore } from './auth/store';
 import { avatarUrl } from './avatar';
+import { ApiClient } from './client';
 import {
   Drop,
   Experience as ExpData,
+  ExperienceType,
   Park,
   ResortData,
-  loadResortData,
 } from './data';
-
-const ORIGIN_TO_RESORT = {
-  'https://disneyworld.disney.go.com': 'WDW',
-  'https://disneyland.disney.go.com': 'DLR',
-} as const;
 
 const RESORT_TO_ITINERARY_API_NAME = {
   WDW: 'wdw-itinerary-api',
   DLR: 'dlr-itinerary-web-api',
 } as const;
-
-export type Origin = keyof typeof ORIGIN_TO_RESORT;
-
-export function isGenieOrigin(origin: string): origin is Origin {
-  return origin in ORIGIN_TO_RESORT;
-}
-
-export type ExperienceType = 'ATTRACTION' | 'ENTERTAINMENT' | 'CHARACTER';
 
 export interface Experience extends ExpData {
   park: Park;
@@ -300,17 +287,6 @@ interface Itinerary {
   profiles: { [id: string]: Profile };
 }
 
-export class RequestError extends Error {
-  name = 'RequestError';
-
-  constructor(
-    public response: Awaited<ReturnType<typeof fetchJson>>,
-    message = 'Request failed'
-  ) {
-    super(`${message}: ${JSON.stringify(response)}`);
-  }
-}
-
 const RES_TYPES = new Set(['ACTIVITY', 'DINING']);
 
 const idNum = (id: string) => id.split(';')[0];
@@ -334,13 +310,11 @@ function throwOnNotModifiable(booking?: Booking) {
   }
 }
 
-export class GenieClient {
+export class GenieClient extends ApiClient {
   readonly maxPartySize = 12;
   nextBookTime: string | undefined;
   onUnauthorized = () => undefined;
-  protected origin: Origin;
-  protected authStore: Public<AuthStore>;
-  protected data: ResortData;
+
   protected partyIds = new Set<string>();
   protected guestCache = new Map<
     string,
@@ -349,32 +323,13 @@ export class GenieClient {
   protected tracker: Public<BookingTracker>;
   protected primaryGuestId = '';
 
-  static async load(
-    args: Omit<ConstructorParameters<typeof GenieClient>[0], 'data'>
+  constructor(
+    data: ResortData,
+    authStore: Public<AuthStore>,
+    tracker?: Public<BookingTracker>
   ) {
-    const resort = ORIGIN_TO_RESORT[args.origin];
-    const data: ResortData = await loadResortData(resort);
-    return new GenieClient({ ...args, data });
-  }
-
-  constructor(args: {
-    origin: GenieClient['origin'];
-    authStore: GenieClient['authStore'];
-    data: ResortData;
-    tracker?: GenieClient['tracker'];
-  }) {
-    this.origin = args.origin;
-    this.authStore = args.authStore;
-    this.tracker = args.tracker || new BookingTracker();
-    this.data = args.data;
-  }
-
-  get resort() {
-    return ORIGIN_TO_RESORT[this.origin];
-  }
-
-  get parks() {
-    return [...this.data.parks.values()];
+    super(data, authStore);
+    this.tracker = tracker ?? new BookingTracker();
   }
 
   setPartyIds(partyIds: string[]) {
@@ -383,17 +338,17 @@ export class GenieClient {
 
   async experiences(park: Park): Promise<Experience[]> {
     await this.primeGuestCache();
-    const res: ExperiencesResponse = await this.request({
+    const { data } = await this.request<ExperiencesResponse>({
       path: `/tipboard-vas/api/v1/parks/${encodeURIComponent(
         park.id
       )}/experiences`,
       params: { eligibilityGuestIds: [...this.guestCache.keys()].join(',') },
     });
-    this.nextBookTime = (res.eligibility?.flexEligibilityWindows || []).sort(
+    this.nextBookTime = (data.eligibility?.flexEligibilityWindows || []).sort(
       (a, b) => a.time.time.localeCompare(b.time.time)
     )[0]?.time.time;
     const { experiences: dropExps = [] } = this.upcomingDrops(park)[0] ?? {};
-    return res.availableExperiences
+    return data.availableExperiences
       .filter(exp => {
         const expData = this.data.experiences[exp.id];
         if (expData) return true;
@@ -414,7 +369,7 @@ export class GenieClient {
     park: { id: string };
   }): Promise<Guests> {
     experience ||= { id: '0', park: { id: '0' } };
-    const res: GuestsResponse = await this.request({
+    const { data } = await this.request<GuestsResponse>({
       path: '/ea-vas/api/v1/guests',
       params: {
         productType: 'FLEX',
@@ -422,9 +377,9 @@ export class GenieClient {
         parkId: experience.park.id,
       },
     });
-    this.primaryGuestId = res.primaryGuestId;
-    const ineligible = res.ineligibleGuests.map(this.convertGuest);
-    const eligible = res.guests
+    this.primaryGuestId = data.primaryGuestId;
+    const ineligible = data.ineligibleGuests.map(this.convertGuest);
+    const eligible = data.guests
       .map(this.convertGuest)
       .filter(g => !('ineligibleReason' in g) || (ineligible.push(g) && false));
     ineligible.sort((a, b) => {
@@ -453,7 +408,13 @@ export class GenieClient {
     bookingToModify?: LightningLane
   ): Promise<Offer> {
     throwOnNotModifiable(bookingToModify);
-    const res: OfferResponse = await this.request({
+    const {
+      data: {
+        offer: { id, date, startTime, endTime, status, changeStatus },
+        eligibleGuests,
+        ineligibleGuests,
+      },
+    } = await this.request<OfferResponse>({
       path: bookingToModify
         ? '/ea-vas/api/v1/products/modifications/flex/offers'
         : '/ea-vas/api/v2/products/flex/offers',
@@ -476,7 +437,6 @@ export class GenieClient {
       },
       userId: false,
     });
-    const { id, date, startTime, endTime, status, changeStatus } = res.offer;
     return {
       id,
       start: { date, time: startTime },
@@ -484,8 +444,8 @@ export class GenieClient {
       active: status === 'ACTIVE',
       changed: changeStatus !== 'NONE',
       guests: {
-        eligible: (res.eligibleGuests || []).map(this.convertGuest),
-        ineligible: (res.ineligibleGuests || []).map(this.convertGuest),
+        eligible: (eligibleGuests || []).map(this.convertGuest),
+        ineligible: (ineligibleGuests || []).map(this.convertGuest),
       },
       experience,
     };
@@ -511,12 +471,7 @@ export class GenieClient {
     const guestIdsToModify = new Set(
       (guestsToModify ?? offer.guests.eligible).map(g => g.id)
     );
-    const {
-      singleExperienceDetails: { experienceId, parkId },
-      entitlements,
-      startDateTime,
-      endDateTime,
-    }: NewBookingResponse = await this.request({
+    const { data } = await this.request<NewBookingResponse>({
       path: bookingToModify
         ? '/ea-vas/api/v1/products/modifications/flex/bookings'
         : '/ea-vas/api/v1/products/flex/bookings',
@@ -544,6 +499,12 @@ export class GenieClient {
       },
       key: 'booking',
     });
+    const {
+      singleExperienceDetails: { experienceId, parkId },
+      entitlements,
+      startDateTime,
+      endDateTime,
+    }: NewBookingResponse = data;
     return {
       type: 'LL',
       subtype: 'G+',
@@ -580,15 +541,13 @@ export class GenieClient {
   async bookings(): Promise<Booking[]> {
     const { swid } = this.authStore.getData();
     const today = dateTimeStrings().date;
-    const itineraryApiName = RESORT_TO_ITINERARY_API_NAME[this.resort];
+    const itineraryApiName = RESORT_TO_ITINERARY_API_NAME[this.data.resort];
     const {
-      items = [],
-      assets = {},
-      profiles = {},
-    } = (await this.request({
+      data: { items = [], assets = {}, profiles = {} },
+    } = await this.request<Itinerary>({
       path: `/plan/${itineraryApiName}/api/v1/itinerary-items/${swid}?item-types=FASTPASS&item-types=DINING&item-types=ACTIVITY&item-types=VIRTUAL_QUEUE_POSITION`,
       params: {
-        destination: this.resort,
+        destination: this.data.resort,
         fields: 'items,profiles,assets',
         'guest-locators': swid + ';type=swid',
         'guest-locator-groups': 'MY_FAMILY',
@@ -596,7 +555,7 @@ export class GenieClient {
         'show-friends': 'false',
       },
       userId: false,
-    })) as Itinerary;
+    });
 
     const getGuest = (g: ReservationItem['guests'][0]) => {
       const { name, avatarId, type } = profiles[g.id];
@@ -776,11 +735,6 @@ export class GenieClient {
     return this.upcomingDrops(park)[0]?.time;
   }
 
-  logOut(): void {
-    this.authStore.deleteData();
-    this.onUnauthorized();
-  }
-
   protected getExperience(id: string, parkId: string, name?: string) {
     id = idNum(id);
     return {
@@ -822,37 +776,15 @@ export class GenieClient {
     this.guestCache.set(id, { name, characterId });
   }
 
-  protected async request(request: {
-    path: string;
-    method?: 'GET' | 'POST' | 'DELETE';
-    params?: { [key: string]: string };
-    data?: unknown;
-    key?: string;
-    userId?: boolean;
-  }): Promise<any> {
-    const { swid, accessToken } = this.authStore.getData();
-    const url = this.origin + request.path;
-    const params = { ...request.params };
-    if (request.userId ?? true) params.userId = swid;
-    const response = await fetchJson(url, {
-      method: request.method || 'GET',
-      params,
-      data: request.data,
-      headers: {
-        Authorization: `BEARER ${accessToken}`,
-        'x-user-id': swid,
-      },
-    });
-    const { ok, status, data } = response;
-    if (status === 401) {
-      setTimeout(() => this.logOut());
-    } else {
-      const { key } = request;
-      if (ok && (!key || data[key])) {
-        return key ? data[key] : data;
-      }
+  protected async request<T>(
+    request: Parameters<ApiClient['request']>[0] & { userId?: boolean }
+  ) {
+    if (request.userId ?? true) {
+      const { swid } = this.authStore.getData();
+      request = { ...request };
+      request.params = { ...request.params, userId: swid };
     }
-    throw new RequestError(response);
+    return super.request<T>(request);
   }
 }
 

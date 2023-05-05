@@ -104,9 +104,9 @@ describe('GeniePlusList', () => {
 
     click('Upcoming Drop (more info)');
     await see.screen('Upcoming Drop');
-    expect(
-      see.all(displayTime(client.nextDropTime(mk) as string))
-    ).toHaveLength(2);
+    expect(see.all(displayTime(client.upcomingDrops(mk)[0].time))).toHaveLength(
+      2
+    );
     see(displayTime(client.upcomingDrops(mk)[1].time));
     expect(see.all(sm.name)).toHaveLength(2);
     expect(see.all(hm.name)).toHaveLength(2);

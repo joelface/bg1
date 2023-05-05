@@ -11,6 +11,8 @@ export class ReauthNeeded extends Error {
 }
 
 export class AuthStore {
+  onUnauthorized: () => void = () => undefined;
+
   constructor(
     protected storageKey: string,
     protected storage: Pick<
@@ -38,6 +40,7 @@ export class AuthStore {
     } catch (error) {
       console.error(error);
     }
+    this.deleteData();
     throw new ReauthNeeded(this.storageKey);
   }
 
@@ -47,5 +50,6 @@ export class AuthStore {
 
   deleteData(): void {
     this.storage.removeItem(this.storageKey);
+    setTimeout(this.onUnauthorized);
   }
 }

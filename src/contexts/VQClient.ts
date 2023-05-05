@@ -1,5 +1,6 @@
 import { VQClient } from '@/api/vq';
+import { createContext } from '@/context';
 
-import { useClient } from './Client';
-
-export const useVQClient = () => useClient() as VQClient;
+export const [VQClientProvider, useVQClient] = createContext<Public<VQClient>>(
+  {} as VQClient
+);

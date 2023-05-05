@@ -1,4 +1,5 @@
-import { booking, hs, mk } from '@/__fixtures__/genie';
+import { booking, hs, mk, wdw } from '@/__fixtures__/genie';
+import { ResortDataProvider } from '@/contexts/ResortData';
 import {
   click,
   elemScrollMock,
@@ -26,7 +27,11 @@ describe('Home', () => {
   });
 
   it('shows Genie+ home screen', async () => {
-    render(<Merlock />);
+    render(
+      <ResortDataProvider value={wdw}>
+        <Merlock />
+      </ResortDataProvider>
+    );
     await loading();
 
     revisitTab(60);

@@ -8,8 +8,8 @@ import {
   offer,
   pluto,
 } from '@/__fixtures__/genie';
-import { RequestError } from '@/api/genie';
-import { ClientProvider } from '@/contexts/Client';
+import { RequestError } from '@/api/client';
+import { GenieClientProvider } from '@/contexts/GenieClient';
 import { Nav } from '@/contexts/Nav';
 import { RebookingProvider } from '@/contexts/Rebooking';
 import { displayTime } from '@/datetime';
@@ -71,13 +71,13 @@ async function renderComponent({
     end: jest.fn(),
   };
   render(
-    <ClientProvider value={client}>
+    <GenieClientProvider value={client}>
       <RebookingProvider value={rebooking}>
         <Nav>
           <BookExperience experience={available ? hm : hmPrebooking} />
         </Nav>
       </RebookingProvider>
-    </ClientProvider>
+    </GenieClientProvider>
   );
   await loading();
 }

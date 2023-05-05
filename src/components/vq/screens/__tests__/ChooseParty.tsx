@@ -1,6 +1,6 @@
 import { client, fifi, mickey, minnie, pluto, rotr } from '@/__fixtures__/vq';
-import { ClientProvider } from '@/contexts/Client';
 import { useNav } from '@/contexts/Nav';
+import { VQClientProvider } from '@/contexts/VQClient';
 import { click, loading, render, see } from '@/testing';
 
 import StartTime from '../../StartTime';
@@ -16,9 +16,9 @@ describe('ChooseParty', () => {
 
   it('shows VQ party selection screen', async () => {
     render(
-      <ClientProvider value={client}>
+      <VQClientProvider value={client}>
         <ChooseParty queue={rotr} />
-      </ClientProvider>
+      </VQClientProvider>
     );
     await loading();
     expect(StartTime).lastCalledWith({ queue: rotr, screen: ChooseParty }, {});

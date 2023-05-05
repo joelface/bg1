@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react';
 
+import Overlay from '@/components/Overlay';
+import News from '@/components/screens/News';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { useNav } from '@/contexts/Nav';
 import ExitIcon from '@/icons/ExitIcon';
@@ -8,8 +10,6 @@ import NewsIcon from '@/icons/NewsIcon';
 import SettingsIcon from '@/icons/SettingsIcon';
 import UserIcon from '@/icons/UserIcon';
 
-import Overlay from '../../../Overlay';
-import News from '../../../screens/News';
 import PartySelector from '../PartySelector';
 
 export default function SettingsButton() {

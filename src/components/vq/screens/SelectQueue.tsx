@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { Queue } from '@/api/vq';
 import Button from '@/components/Button';
-import LogoutButton from '@/components/LogoutButton';
 import Screen from '@/components/Screen';
 import { useNav } from '@/contexts/Nav';
 import { useTheme } from '@/contexts/Theme';
@@ -61,7 +60,12 @@ export default function SelectQueue() {
       }
       footer={
         <div className="p-2 text-right">
-          <LogoutButton className={`bg-opacity-90 bg-white ${theme.text}`} />
+          <Button
+            className={`bg-opacity-90 bg-white ${theme.text}`}
+            onClick={() => client.logOut()}
+          >
+            Log Out
+          </Button>
         </div>
       }
     >

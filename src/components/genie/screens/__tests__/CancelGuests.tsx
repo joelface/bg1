@@ -1,6 +1,6 @@
 import { booking, client, mickey, pluto } from '@/__fixtures__/genie';
-import { RequestError } from '@/api/genie';
-import { ClientProvider } from '@/contexts/Client';
+import { RequestError } from '@/api/client';
+import { GenieClientProvider } from '@/contexts/GenieClient';
 import { click, loading, render, see } from '@/testing';
 
 import CancelGuests from '../CancelGuests';
@@ -12,9 +12,9 @@ const onCancel = jest.fn();
 
 function renderComponent() {
   render(
-    <ClientProvider value={client}>
+    <GenieClientProvider value={client}>
       <CancelGuests booking={booking} onCancel={onCancel} />
-    </ClientProvider>
+    </GenieClientProvider>
   );
 }
 

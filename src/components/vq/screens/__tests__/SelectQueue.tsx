@@ -1,6 +1,6 @@
 import { client, mtwr, rotr, santa } from '@/__fixtures__/vq';
-import { ClientProvider } from '@/contexts/Client';
 import { useNav } from '@/contexts/Nav';
+import { VQClientProvider } from '@/contexts/VQClient';
 import {
   click,
   loading,
@@ -24,9 +24,9 @@ describe('SelectQueue', () => {
   it('shows VQ selection screen', async () => {
     client.getQueues.mockResolvedValueOnce([]);
     render(
-      <ClientProvider value={client}>
+      <VQClientProvider value={client}>
         <SelectQueue />
-      </ClientProvider>
+      </VQClientProvider>
     );
     await loading();
     see('No virtual queues found');
