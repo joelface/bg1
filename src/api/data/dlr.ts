@@ -162,6 +162,11 @@ export const experiences: Experiences = {
     name: 'Casey Jr. Circus Train',
     land: fantasyland,
   },
+  353337: {
+    id: '353337',
+    name: "Chip 'n' Dale's GADGETcoaster",
+    land: toontown,
+  },
   3908469: {
     id: '3908469',
     name: 'Christmas Fantasy Parade',
@@ -257,6 +262,11 @@ export const experiences: Experiences = {
     name: 'Mad Tea Party',
     land: fantasyland,
   },
+  19444352: {
+    id: '19444352',
+    name: 'Magic Happens Parade',
+    land: mainStreet,
+  },
   353449: {
     id: '353449',
     name: 'Many Adventures of Winnie the Pooh',
@@ -288,6 +298,12 @@ export const experiences: Experiences = {
     name: "Mickey and Minnie's Runaway Railway",
     land: toontown,
     geo: [33.8154852, -117.9183938],
+  },
+  401526: {
+    id: '401526',
+    name: "Meet Mickey (Mickey's House)",
+    land: toontown,
+    type: 'CHARACTER',
   },
   19193459: {
     id: '19193459',
@@ -611,6 +627,7 @@ export const experiences: Experiences = {
     name: 'World of Color - Season of Light',
     land: paradise,
   },
+  18407713: null,
 };
 
 export const drops: Drops = {};

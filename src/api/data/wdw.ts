@@ -218,11 +218,6 @@ export const experiences: Experiences = {
     name: 'Disney Adventure Friends Cavalcade',
     land: mainStreet,
   },
-  19630230: {
-    id: '19630230',
-    name: 'Disney Enchantment',
-    land: mainStreet,
-  },
   80010129: {
     id: '80010129',
     name: 'Dumbo the Flying Elephant',
@@ -252,6 +247,11 @@ export const experiences: Experiences = {
     id: '80069754',
     name: 'Hall of Presidents',
     land: libertySquare,
+  },
+  18672598: {
+    id: '18672598',
+    name: 'Happily Ever After',
+    land: mainStreet,
   },
   80010208: {
     id: '80010208',
@@ -481,6 +481,11 @@ export const experiences: Experiences = {
     land: celebration,
     geo: [28.3720463, -81.5508243],
   },
+  19258170: {
+    id: '19258170',
+    name: 'Epcot Forever',
+    land: showcase,
+  },
   18375495: (fea = {
     id: '18375495',
     name: 'Frozen Ever After',
@@ -495,6 +500,11 @@ export const experiences: Experiences = {
     land: showcase,
     sort: 3,
   },
+  18923661: {
+    id: '18923661',
+    name: "Groovin' Alps",
+    land: showcase,
+  },
   411499845: {
     id: '411499845',
     name: 'Guardians of the Galaxy: Cosmic Rewind',
@@ -502,11 +512,6 @@ export const experiences: Experiences = {
     geo: [28.3747479, -81.5478405],
     priority: 1.0,
     sort: 1,
-  },
-  19622841: {
-    id: '19622841',
-    name: 'Harmonious',
-    land: showcase,
   },
   13507: {
     id: '13507',
@@ -519,6 +524,11 @@ export const experiences: Experiences = {
     land: celebration,
     geo: [28.372896, -81.5512292],
     sort: 2,
+  },
+  411928911: {
+    id: '411928911',
+    name: 'Les Raftsmen',
+    land: showcase,
   },
   19516307: {
     id: '19516307',
@@ -850,6 +860,12 @@ export const experiences: Experiences = {
     geo: [28.3579455, -81.5898647],
     type: 'CHARACTER',
     priority: 3.3,
+  },
+  411921961: {
+    id: '411921961',
+    name: 'Meet Moana (Character Landing)',
+    land: discovery,
+    type: 'CHARACTER',
   },
   18665185: {
     id: '18665185',
