@@ -10,6 +10,7 @@ function mockFetch(body: any, headers: { [name: string]: string } = {}) {
     Object.entries(headers).map(([k, v]) => [k.toLowerCase(), v])
   );
   fetchMock.mockResolvedValue({
+    ok: true,
     status: 200,
     headers: {
       get: (name: string) => headers[name.toLowerCase()] ?? null,
@@ -31,12 +32,16 @@ const init = {
 describe('fetchJson()', () => {
   it('returns response', async () => {
     mockFetch({ a: 1 }, { 'content-type': 'application/json' });
-    expect(await fetchJson(url)).toEqual({ status: 200, data: { a: 1 } });
+    expect(await fetchJson(url)).toEqual({
+      ok: true,
+      status: 200,
+      data: { a: 1 },
+    });
   });
 
   it('returns empty data object for non-JSON response', async () => {
     mockFetch(null);
-    expect(await fetchJson(url)).toEqual({ status: 200, data: {} });
+    expect(await fetchJson(url)).toEqual({ ok: true, status: 200, data: {} });
   });
 
   it('uses POST if method not specified and data included', async () => {
@@ -64,13 +69,13 @@ describe('fetchJson()', () => {
           if (init.signal?.aborted) {
             reject('aborted');
           } else {
-            resolve({ status: 200, data: {} });
+            resolve({ ok: true, status: 200, data: {} });
           }
         }, timeout);
       });
     });
     const promise = fetchJson(url, { timeout });
     jest.advanceTimersByTime(timeout);
-    expect(await promise).toEqual({ status: 0, data: null });
+    expect(await promise).toEqual({ ok: false, status: 0, data: null });
   });
 });

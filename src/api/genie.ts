@@ -829,7 +829,7 @@ export class GenieClient {
     const url = this.origin + request.path;
     const params = { ...request.params };
     if (request.userId ?? true) params.userId = swid;
-    const { status, data } = await fetchJson(url, {
+    const response = await fetchJson(url, {
       method: request.method || 'GET',
       params,
       data: request.data,
@@ -838,15 +838,16 @@ export class GenieClient {
         'x-user-id': swid,
       },
     });
+    const { ok, status, data } = response;
     if (status === 401) {
       setTimeout(() => this.logOut());
     } else {
       const { key } = request;
-      if (String(status)[0] === '2' && (!key || data[key])) {
+      if (ok && (!key || data[key])) {
         return key ? data[key] : data;
       }
     }
-    throw new RequestError({ status, data });
+    throw new RequestError(response);
   }
 }
 

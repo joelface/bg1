@@ -1,18 +1,19 @@
-export interface JsonResponse {
-  status: number;
-  data: any;
-}
+export type JsonOK<T = any> = { ok: true; status: number; data: T };
+
+export type JsonResponse<T = any> =
+  | JsonOK<T>
+  | { ok: false; status: number; data: any };
 
 const DEFAULT_TIMEOUT_MS = 8000;
 
-export async function fetchJson(
+export async function fetchJson<T = any>(
   url: string,
   init: RequestInit & {
     params?: { [key: string]: string | number };
     data?: unknown;
     timeout?: number;
   } = {}
-): Promise<JsonResponse> {
+): Promise<JsonResponse<T>> {
   const { params, data, timeout = DEFAULT_TIMEOUT_MS, ...fetchInit } = init;
   init = fetchInit;
   init.referrer ||= '';
@@ -45,11 +46,12 @@ export async function fetchJson(
     response = await fetch(url, init);
   } catch (error) {
     console.error(error);
-    return { status: 0, data: null };
+    return { ok: false, status: 0, data: null };
   } finally {
     clearTimeout(timeoutId);
   }
   return {
+    ok: response.ok,
     status: response.status,
     data: (response.headers.get('Content-Type') || '').startsWith(
       'application/json'

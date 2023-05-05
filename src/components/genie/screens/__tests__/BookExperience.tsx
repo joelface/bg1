@@ -28,7 +28,9 @@ const mockClickResponse = async (
   status: number
 ) => {
   const error =
-    status >= 0 ? new RequestError({ status, data: {} }) : new Error();
+    status >= 0
+      ? new RequestError({ ok: status === 200, status, data: {} })
+      : new Error();
   errorMock.mockImplementationOnce(() => null);
   clientMethod.mockRejectedValueOnce(error);
   click(buttonText);
@@ -217,7 +219,7 @@ describe('BookExperience', () => {
 
   it('shows "No Reservations Available" when no/invalid offer', async () => {
     client.offer.mockRejectedValueOnce(
-      new RequestError({ status: 410, data: {} })
+      new RequestError({ ok: false, status: 410, data: {} })
     );
     await renderComponent();
     see('No Reservations Available');

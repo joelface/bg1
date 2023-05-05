@@ -17,7 +17,7 @@ function response(
   responseStatus = 'OK',
   status = 200
 ) {
-  return { status, data: { ...data, responseStatus } };
+  return { ok: status === 200, status, data: { ...data, responseStatus } };
 }
 
 function respond(...responses: ReturnType<typeof response>[]) {

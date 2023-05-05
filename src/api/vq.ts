@@ -198,10 +198,11 @@ export class VQClient {
     guests: Pick<Guest, 'id'>[]
   ): Promise<JoinQueueResult> {
     const guestIds = guests.map(g => g.id);
-    const { status, data } = await this.post<JoinQueueResponse>({
+    const response = await this.post<JoinQueueResponse>({
       resource: 'joinQueue',
       data: { queueId: queue.id, guestIds },
     });
+    const { data } = response;
     if (data.responseStatus === 'OK') {
       const pos = data.positions.find(
         p =>
@@ -209,7 +210,7 @@ export class VQClient {
           p.guestIds.length > 0 &&
           guestIds.some(gid => p.guestIds.includes(gid))
       );
-      if (!pos) throw new RequestError({ status, data });
+      if (!pos) throw new RequestError(response);
       return {
         boardingGroup: pos.boardingGroup,
         conflicts: {},
@@ -238,7 +239,7 @@ export class VQClient {
       result.conflicts = { ...conflicts, ...result.conflicts };
       return result;
     } else {
-      throw new RequestError({ status, data });
+      throw new RequestError(response);
     }
   }
 
@@ -249,18 +250,19 @@ export class VQClient {
 
   protected async post<T>(
     request: VQRequest
-  ): Promise<{ status: number; data: T }> {
-    const { status, data } = await fetchJson(this.url(request.resource), {
+  ): Promise<{ ok: boolean; status: number; data: T }> {
+    const response = await fetchJson(this.url(request.resource), {
       method: 'POST',
       headers: {
         Authorization: `BEARER ${this.authStore.getData().accessToken}`,
       },
       data: request.data,
     });
+    const { status } = response;
     if (status === 401) setTimeout(() => this.logOut());
     if (!status || status === 401 || status >= 500) {
-      throw new RequestError({ status, data });
+      throw new RequestError(response);
     }
-    return { status, data };
+    return response;
   }
 }

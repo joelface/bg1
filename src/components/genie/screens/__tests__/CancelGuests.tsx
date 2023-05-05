@@ -45,7 +45,7 @@ describe('CancelGuests', () => {
   it('shows error on failure', async () => {
     renderComponent();
     client.cancelBooking.mockRejectedValueOnce(
-      new RequestError({ status: 0, data: {} })
+      new RequestError({ ok: false, status: 0, data: {} })
     );
     click('Select All');
     click('Cancel Reservation');

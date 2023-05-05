@@ -4,7 +4,7 @@ import { setTime } from '@/testing';
 import { ping } from '../ping';
 
 jest.mock('@/fetch');
-jest.mocked(fetchJson).mockResolvedValue({ status: 204, data: {} });
+jest.mocked(fetchJson).mockResolvedValue({ ok: true, status: 204, data: {} });
 setTime('07:00');
 
 const ONE_HOUR = 60 * 60_000;
