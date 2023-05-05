@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Park } from '@/api/data';
 import { createContext } from '@/context';
@@ -6,7 +6,7 @@ import { dateTimeStrings } from '@/datetime';
 
 import { useResortData } from './ResortData';
 
-const PARK_KEY = 'bg1.genie.park';
+export const PARK_KEY = 'bg1.genie.park';
 
 interface ParkState {
   park: Park;
@@ -32,6 +32,13 @@ export function useParkState() {
       JSON.parse(sessionStorage.getItem(PARK_KEY) || '{}') || {};
     return (date === dateTimeStrings().date && parks.get(id)) || firstPark;
   });
+
+  useEffect(() => {
+    sessionStorage.setItem(
+      PARK_KEY,
+      JSON.stringify({ id: park.id, date: dateTimeStrings().date })
+    );
+  }, [park]);
 
   return { park, setPark };
 }
