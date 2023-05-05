@@ -116,6 +116,7 @@ describe('GenieClient', () => {
 
   describe('experiences()', () => {
     it('returns experience info', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => null);
       const nextBookTime = '11:00:00';
       const res = response({
         availableExperiences: [sm, { id: 'not_a_real_id' }],
@@ -127,7 +128,6 @@ describe('GenieClient', () => {
         },
       });
       const smExp: PlusExperience = {
-        ...smData,
         ...sm,
         drop: true,
         experienced: false,
@@ -151,6 +151,10 @@ describe('GenieClient', () => {
 
       setTime('15:00');
       expect(await getExpData()).toEqual([{ ...smExp, drop: false }]);
+
+      expect(console.warn).toBeCalledTimes(3);
+      expect(console.warn).lastCalledWith('Missing experience: not_a_real_id');
+      jest.mocked(console.warn).mockRestore();
     });
   });
 

@@ -394,7 +394,12 @@ export class GenieClient {
     )[0]?.time.time;
     const { experiences: dropExps = [] } = this.upcomingDrops(park)[0] ?? {};
     return res.availableExperiences
-      .filter(exp => !!this.data.experiences[exp.id])
+      .filter(exp => {
+        const expData = this.data.experiences[exp.id];
+        if (expData) return true;
+        if (expData !== null) console.warn(`Missing experience: ${exp.id}`);
+        return false;
+      })
       .map(exp => ({
         ...exp,
         ...(this.data.experiences[exp.id] as ExpData),
