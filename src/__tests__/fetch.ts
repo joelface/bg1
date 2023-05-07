@@ -1,22 +1,20 @@
 import { fetchJson } from '../fetch';
 
 jest.useFakeTimers();
-
-const fetchMock = jest.fn();
-self.fetch = fetchMock;
+self.fetch = jest.fn();
 
 function mockFetch(body: any, headers: { [name: string]: string } = {}) {
   headers = Object.fromEntries(
     Object.entries(headers).map(([k, v]) => [k.toLowerCase(), v])
   );
-  fetchMock.mockResolvedValue({
+  jest.mocked(fetch).mockResolvedValue({
     ok: true,
     status: 200,
     headers: {
       get: (name: string) => headers[name.toLowerCase()] ?? null,
     },
     json: () => body,
-  });
+  } as Response);
 }
 
 const url = 'https://example.com/';
@@ -47,7 +45,7 @@ describe('fetchJson()', () => {
   it('uses POST if method not specified and data included', async () => {
     const data = { name: 'Mickey' };
     await fetchJson(url, { data });
-    expect(fetchMock).lastCalledWith(url, {
+    expect(fetch).lastCalledWith(url, {
       method: 'POST',
       body: JSON.stringify(data),
       ...init,
@@ -57,23 +55,26 @@ describe('fetchJson()', () => {
 
   it('adds params to URL', async () => {
     await fetchJson(url, { params: { start: 5, end: 15 } });
-    expect(fetchMock).lastCalledWith(url + '?start=5&end=15', init);
+    expect(fetch).lastCalledWith(url + '?start=5&end=15', init);
   });
 
   it('returns status=0 response on timeout', async () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => null);
     const timeout = 5000;
-    fetchMock.mockImplementationOnce((url: string, init: RequestInit) => {
+    jest.mocked(fetch).mockImplementationOnce(((
+      url: string,
+      init: RequestInit
+    ) => {
       return new Promise((resolve, reject) => {
         setTimeout(() => {
           if (init.signal?.aborted) {
             reject('aborted');
           } else {
-            resolve({ ok: true, status: 200, data: {} });
+            resolve({ ok: true, status: 200 } as Response);
           }
         }, timeout);
       });
-    });
+    }) as typeof fetch);
     const promise = fetchJson(url, { timeout });
     jest.advanceTimersByTime(timeout);
     expect(await promise).toEqual({ ok: false, status: 0, data: null });

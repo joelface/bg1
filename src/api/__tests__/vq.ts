@@ -47,7 +47,7 @@ describe('VQClient', () => {
   const client = new VQClient(wdw, authStore);
 
   beforeEach(() => {
-    jest.mocked(fetchJson).mockReset();
+    jest.resetAllMocks();
   });
 
   const queueClosedRes = response({

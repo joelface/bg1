@@ -28,7 +28,6 @@ import {
 } from '../genie';
 
 jest.mock('@/fetch');
-const fetchJsonMock = jest.mocked(fetchJson);
 
 const accessToken = 'access_token_123';
 const swid = '{abc}';
@@ -40,7 +39,9 @@ function response(data: any, status = 200) {
 }
 
 function respond(...responses: ReturnType<typeof response>[]) {
-  for (const res of responses) fetchJsonMock.mockResolvedValueOnce(res);
+  for (const res of responses) {
+    jest.mocked(fetchJson).mockResolvedValueOnce(res);
+  }
 }
 
 function expectFetch(
@@ -50,7 +51,7 @@ function expectFetch(
   nthCall = 1
 ) {
   if (appendUserId) params = { ...params, userId: swid };
-  expect(fetchJsonMock).nthCalledWith(
+  expect(fetchJson).nthCalledWith(
     nthCall,
     expect.stringContaining(origin + path),
     {
@@ -103,9 +104,7 @@ describe('GenieClient', () => {
   });
 
   beforeEach(() => {
-    fetchJsonMock.mockReset();
-    authStore.deleteData.mockReset();
-    onUnauthorized.mockReset();
+    jest.resetAllMocks();
     setTime('10:00');
   });
 
