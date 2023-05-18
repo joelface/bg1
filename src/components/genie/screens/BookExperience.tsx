@@ -44,11 +44,8 @@ export default function BookExperience({
     loadData(
       async () => {
         let booking: LightningLane | null = null;
-        try {
-          booking = await client.book(offer, rebooking.current, party.selected);
-        } finally {
-          rebooking.end();
-        }
+        booking = await client.book(offer, rebooking.current, party.selected);
+        rebooking.end();
         const selectedIds = new Set(party.selected.map(g => g.id));
         const guestsToCancel = booking.guests.filter(
           g => !selectedIds.has(g.id)
