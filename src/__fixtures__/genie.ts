@@ -234,7 +234,6 @@ jest.spyOn(client, 'guests').mockResolvedValue({
   ineligible: [donald],
 });
 jest.spyOn(client, 'offer').mockResolvedValue(offer);
-jest.spyOn(client, 'cancelOffer').mockResolvedValue(undefined);
 jest.spyOn(client, 'book').mockResolvedValue({ ...booking });
 jest.spyOn(client, 'cancelBooking').mockResolvedValue(undefined);
 jest.spyOn(client, 'bookings').mockResolvedValue([...bookings]);

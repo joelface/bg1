@@ -451,17 +451,6 @@ export class GenieClient extends ApiClient {
     };
   }
 
-  async cancelOffer(offer: Pick<Offer, 'id'>) {
-    await this.request({
-      path: `/ea-vas/api/v1/offers/${encodeURIComponent(offer.id)}`,
-      method: 'DELETE',
-      params: {
-        productType: 'FLEX',
-      },
-      userId: false,
-    });
-  }
-
   async book(
     offer: Pick<Offer, 'id' | 'guests' | 'experience'>,
     bookingToModify?: LightningLane,

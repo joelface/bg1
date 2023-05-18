@@ -371,22 +371,6 @@ describe('GenieClient', () => {
     });
   });
 
-  describe('cancelOffer()', () => {
-    it('cancels offer', async () => {
-      respond(response({}, 204));
-      const offer = { id: 'offer1' };
-      await client.cancelOffer(offer);
-      expectFetch(
-        '/ea-vas/api/v1/offers/' + offer.id,
-        {
-          method: 'DELETE',
-          params: { productType: 'FLEX' },
-        },
-        false
-      );
-    });
-  });
-
   describe('bookings()', () => {
     const entId = ({ id }: { id: string }, type = 'Attraction') =>
       `${id};entityType=${type}`;

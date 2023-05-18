@@ -161,12 +161,6 @@ export default function BookExperience({
     if (offer === undefined) refreshOffer();
   }, [offer, refreshOffer]);
 
-  useEffect(() => {
-    return () => {
-      if (offer) client.cancelOffer(offer);
-    };
-  }, [offer, client]);
-
   const noEligible = party?.eligible.length === 0;
   const noGuestsFound = noEligible && party?.ineligible.length === 0;
 
