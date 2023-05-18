@@ -727,6 +727,12 @@ export const experiences: Experiences = {
     geo: [28.3562836, -81.55906],
     type: 'CHARACTER',
   },
+  19205017: {
+    id: '19205017',
+    name: 'Meet Edna Mode (Edna Mode Experience)',
+    land: otherStudios,
+    type: 'CHARACTER',
+  },
   18904138: (sdd = {
     id: '18904138',
     name: 'Slinky Dog Dash',
