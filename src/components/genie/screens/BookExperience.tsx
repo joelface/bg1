@@ -55,7 +55,7 @@ export default function BookExperience({
           booking.guests = booking.guests.filter(g => selectedIds.has(g.id));
         }
         if (booking) {
-          goTo(<BookingDetails booking={booking} />, {
+          goTo(<BookingDetails booking={booking} isNew={true} />, {
             replace: true,
           });
         }

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Park } from '@/api/data';
 import { Booking } from '@/api/genie';
 import Button from '@/components/Button';
+import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
 import Notice from '@/components/Notice';
 import Screen from '@/components/Screen';
@@ -18,7 +19,13 @@ import ReturnTime from '../ReturnTime';
 import CancelGuests from './CancelGuests';
 import Home from './Home';
 
-export default function BookingDetails({ booking }: { booking: Booking }) {
+export default function BookingDetails({
+  booking,
+  isNew,
+}: {
+  booking: Booking;
+  isNew?: boolean;
+}) {
   const { goTo, goBack } = useNav();
   const { setPark } = usePark();
   const { parks } = useResortData();
@@ -157,6 +164,13 @@ export default function BookingDetails({ booking }: { booking: Booking }) {
           )
         }
       />
+      {isNew && (
+        <FloatingButton
+          onClick={() => goBack({ screen: Home, props: { tabName: 'Plans' } })}
+        >
+          Show Plans
+        </FloatingButton>
+      )}
     </Screen>
   );
 }
