@@ -502,7 +502,7 @@ export class GenieClient extends ApiClient {
       start: splitDateTime(startDateTime),
       end: splitDateTime(endDateTime),
       cancellable: true,
-      modifiable: true,
+      modifiable: false,
       guests: entitlements.map(e => {
         const g = this.guestCache.get(e.guestId);
         return {

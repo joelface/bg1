@@ -606,7 +606,7 @@ describe('GenieClient', () => {
         start: offer.start,
         end: offer.end,
         cancellable: true,
-        modifiable: true,
+        modifiable: false,
         guests: guests.map((g, i) => ({
           ...g,
           entitlementId: newBooking.entitlements[i].id,
