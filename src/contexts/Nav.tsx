@@ -37,7 +37,7 @@ export function Nav({ children }: { children: JSX.Element }) {
       let key: number;
       if (options?.replace) {
         key = stack.current[pos].key ?? nextKey();
-        setScreens({ ...screens, current: elem });
+        setScreens(screens => ({ ...screens, current: elem }));
       } else {
         stack.current = stack.current.slice(0, ++pos);
         location.hash = `#${pos}`;

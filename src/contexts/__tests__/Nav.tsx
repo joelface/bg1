@@ -57,6 +57,7 @@ async function click(screenNum: number, sub?: number) {
   const heading = `Screen ${screenNum}.${sub ?? ''}`.replace(/\.$/, '');
   _click(heading);
   await see.screen(heading);
+  if (screenNum > 1) see('Go Back');
 }
 
 describe('Nav', () => {
