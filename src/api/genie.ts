@@ -430,6 +430,7 @@ export class GenieClient extends ApiClient {
         selectedTime: experience.flex.nextAvailableTime,
         ...(bookingToModify
           ? {
+              date: dateTimeStrings().date,
               modificationType:
                 experience.id === bookingToModify.id ? 'TIME' : 'EXPERIENCE',
             }
@@ -470,6 +471,7 @@ export class GenieClient extends ApiClient {
         offerId: offer.id,
         ...(bookingToModify
           ? {
+              date: dateTimeStrings().date,
               modificationType:
                 bookingToModify.id === offer.experience.id
                   ? 'TIME'
