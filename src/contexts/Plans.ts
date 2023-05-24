@@ -1,7 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 
 import { Booking } from '@/api/genie';
-import { createContext } from '@/context';
 import { useGenieClient } from '@/contexts/GenieClient';
 import useDataLoader from '@/hooks/useDataLoader';
 import useThrottleable from '@/hooks/useThrottleable';
@@ -12,11 +17,13 @@ interface PlansState {
   loaderElem: ReturnType<typeof useDataLoader>['loaderElem'];
 }
 
-export const [PlansProvider, usePlans] = createContext<PlansState>({
+export const PlansContext = createContext<PlansState>({
   plans: [],
   refreshPlans: () => undefined,
   loaderElem: null,
 });
+export const PlansProvider = PlansContext.Provider;
+export const usePlans = () => useContext(PlansContext);
 
 export function usePlansState() {
   const client = useGenieClient();

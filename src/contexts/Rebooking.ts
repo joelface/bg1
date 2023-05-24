@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import { createContext, useContext, useState } from 'react';
 
 import { LightningLane } from '@/api/genie';
-import { createContext } from '@/context';
 
 export interface Rebooking {
   current: LightningLane | undefined;
@@ -9,13 +8,14 @@ export interface Rebooking {
   end: () => void;
 }
 
-export const [RebookingProvider, useRebooking] = createContext<Rebooking>({
+export const RebookingContext = createContext<Rebooking>({
   current: undefined,
   begin: () => undefined,
   end: () => undefined,
 });
-
-export function useRebookingState() {
+export const RebookingProvider = RebookingContext.Provider;
+export const useRebooking = () => useContext(RebookingContext);
+export const useRebookingState = () => {
   const [rebooking, setRebooking] = useState<Rebooking>({
     current: undefined,
     begin: (booking: LightningLane) => {
@@ -28,4 +28,4 @@ export function useRebookingState() {
     },
   });
   return rebooking;
-}
+};

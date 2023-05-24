@@ -1,25 +1,25 @@
-import { useEffect, useRef, useState } from 'react';
-
-import { createContext } from '@/context';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 
 export interface NavMethods {
   goTo: (elem: JSX.Element, options?: { replace?: boolean }) => void;
   goBack: <P>(options?: { screen?: React.FC<P>; props?: Partial<P> }) => void;
 }
 
-export const [NavProvider, useNav] = createContext<NavMethods>({
-  goTo: () => null,
-  goBack: () => null,
+export const NavContext = createContext<NavMethods>({
+  goTo: () => undefined,
+  goBack: () => undefined,
 });
+export const NavProvider = NavContext.Provider;
+export const useNav = () => useContext(NavContext);
 
 export interface Screens {
   current: JSX.Element;
   prev?: JSX.Element;
 }
 
-export const [ScreensProvider, useScreens] = createContext<Screens>({
-  current: <div />,
-});
+export const ScreensContext = createContext<Screens>({ current: <div /> });
+export const ScreensProvider = ScreensContext.Provider;
+export const useScreens = () => useContext(ScreensContext);
 
 let keyInc = 0;
 const nextKey = () => ++keyInc;

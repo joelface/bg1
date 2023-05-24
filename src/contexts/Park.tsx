@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 import { Park } from '@/api/data';
-import { createContext } from '@/context';
 import { dateTimeStrings } from '@/datetime';
 
 import { useResortData } from './ResortData';
@@ -13,16 +12,20 @@ interface ParkState {
   setPark: (park: Park) => void;
 }
 
-export const [ParkProvider, usePark] = createContext<ParkState>({
-  park: {
-    id: '',
-    name: '',
-    icon: '',
-    geo: { n: 0, s: 0, e: 0, w: 0 },
-    theme: { bg: '', text: '' },
-  },
+const ParkContext = createContext<ParkState>({
+  park: {} as Park,
   setPark: () => undefined,
 });
+export const ParkProvider = ({
+  value,
+  children,
+}: {
+  value: ParkState;
+  children: React.ReactNode;
+}) => {
+  return <ParkContext.Provider value={value}>{children}</ParkContext.Provider>;
+};
+export const usePark = () => useContext(ParkContext);
 
 export function useParkState() {
   const { parks } = useResortData();

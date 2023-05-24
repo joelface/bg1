@@ -1,6 +1,7 @@
-import { GenieClient } from '@/api/genie';
-import { createContext } from '@/context';
+import { createContext, useContext } from 'react';
 
-export const [GenieClientProvider, useGenieClient] = createContext<
-  Public<GenieClient>
->({} as GenieClient);
+import { GenieClient } from '@/api/genie';
+
+const GenieClientContext = createContext({} as GenieClient);
+export const GenieClientProvider = GenieClientContext.Provider;
+export const useGenieClient = () => useContext(GenieClientContext);

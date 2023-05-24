@@ -1,9 +1,12 @@
-import { ResortData } from '@/api/data';
-import { createContext } from '@/context';
+import { createContext, useContext } from 'react';
 
-export const [ResortDataProvider, useResortData] = createContext<ResortData>({
+import { ResortData } from '@/api/data';
+
+const ResortDataContext = createContext<ResortData>({
   resort: 'WDW',
   parks: new Map(),
   experiences: {},
   drops: {},
 });
+export const ResortDataProvider = ResortDataContext.Provider;
+export const useResortData = () => useContext(ResortDataContext);
