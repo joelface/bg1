@@ -128,14 +128,12 @@ export const experiences: Experiences = {
     id: '353291',
     name: 'Astro Orbitor',
     land: tomorrowland,
-    sort: 3,
   },
   353293: {
     id: '353293',
     name: 'Autopia',
     land: tomorrowland,
     geo: [33.8126634, -117.9167994],
-    sort: 5,
   },
   424945: {
     id: '424945',
@@ -147,7 +145,7 @@ export const experiences: Experiences = {
     name: 'Big Thunder Mountain Railroad',
     land: frontierland,
     geo: [33.8124801, -117.9205132],
-    priority: 3.6,
+    priority: 3.5,
     sort: 1,
   },
   353301: {
@@ -205,14 +203,14 @@ export const experiences: Experiences = {
   353327: {
     id: '353327',
     name: 'Finding Nemo Submarine Voyage',
-    land: fantasyland,
+    land: tomorrowland,
   },
   353347: {
     id: '353347',
     name: 'Haunted Mansion',
     land: newOrleans,
     geo: [33.811616, -117.9218924],
-    priority: 3.5,
+    priority: 3.6,
     sort: 1,
   },
   18249927: {
@@ -236,7 +234,6 @@ export const experiences: Experiences = {
     name: "it's a small world",
     land: fantasyland,
     geo: [33.8144167, -117.9181268],
-    sort: 9,
   },
   18237232: {
     id: '18237232',
@@ -298,6 +295,7 @@ export const experiences: Experiences = {
     name: "Mickey and Minnie's Runaway Railway",
     land: toontown,
     geo: [33.8154852, -117.9183938],
+    sort: 1,
   },
   401526: {
     id: '401526',
@@ -366,6 +364,7 @@ export const experiences: Experiences = {
     name: "Roger Rabbit's Car Toon Spin",
     land: toontown,
     geo: [33.8155682, -117.9181205],
+    sort: 2,
   },
   353435: {
     id: '353435',
@@ -395,7 +394,6 @@ export const experiences: Experiences = {
     name: 'Star Tours',
     land: tomorrowland,
     geo: [33.8119436, -117.9182118],
-    sort: 4,
   },
   19193461: {
     id: '19193461',
