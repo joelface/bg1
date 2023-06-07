@@ -677,6 +677,12 @@ export const experiences: Experiences = {
     name: "Lightning McQueen's Racing Academy",
     land: hollywood,
   },
+  411926516: {
+    id: '411926516',
+    name: 'Meet Ariel (Walt Disney Presents)',
+    land: otherStudios,
+    type: 'CHARACTER',
+  },
   19259335: {
     id: '19259335',
     name: "Mickey & Minnie's Runaway Railway",
