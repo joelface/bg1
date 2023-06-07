@@ -284,6 +284,12 @@ export const experiences: Experiences = {
     land: fantasyland,
     type: 'CHARACTER',
   },
+  401526: {
+    id: '401526',
+    name: "Meet Mickey (Mickey's House)",
+    land: toontown,
+    type: 'CHARACTER',
+  },
   401524: {
     id: '401524',
     name: 'Meet Tinker Bell (Pixie Hollow)',
@@ -296,12 +302,6 @@ export const experiences: Experiences = {
     land: toontown,
     geo: [33.8154852, -117.9183938],
     sort: 1,
-  },
-  401526: {
-    id: '401526',
-    name: "Meet Mickey (Mickey's House)",
-    land: toontown,
-    type: 'CHARACTER',
   },
   19193459: {
     id: '19193459',
@@ -332,26 +332,6 @@ export const experiences: Experiences = {
     name: "Pirate's Lair on Tom Sawyer Island",
     land: frontierland,
   },
-  353429: {
-    id: '353429',
-    name: "Snow White's Enchanted Wish",
-    land: fantasyland,
-  },
-  353443: {
-    id: '353443',
-    name: 'Storybook Land Canal Boats',
-    land: fantasyland,
-  },
-  17346575: {
-    id: '17346575',
-    name: 'Storytelling at Royal Theatre',
-    land: fantasyland,
-  },
-  19319963: {
-    id: '19319963',
-    name: 'Tale of the Lion King',
-    land: fantasyland,
-  },
   353405: {
     id: '353405',
     name: 'Pirates of the Caribbean',
@@ -359,12 +339,25 @@ export const experiences: Experiences = {
     geo: [33.811295, -117.9209785],
     sort: 2,
   },
+  19193461: {
+    id: '19193461',
+    name: 'Rise of the Resistance',
+    land: starWars,
+    geo: [33.8135671, -117.9236346],
+    priority: 1.0,
+    sort: 1,
+  },
   353421: {
     id: '353421',
     name: "Roger Rabbit's Car Toon Spin",
     land: toontown,
     geo: [33.8155682, -117.9181205],
     sort: 2,
+  },
+  353429: {
+    id: '353429',
+    name: "Snow White's Enchanted Wish",
+    land: fantasyland,
   },
   353435: {
     id: '353435',
@@ -382,26 +375,26 @@ export const experiences: Experiences = {
     priority: 2.2,
     sort: 1,
   },
-  353437: {
-    id: '353437',
-    name: 'Splash Mountain',
-    land: critter,
-    geo: [33.8123509, -117.9221379],
-    sort: 1,
-  },
   353439: {
     id: '353439',
     name: 'Star Tours',
     land: tomorrowland,
     geo: [33.8119436, -117.9182118],
   },
-  19193461: {
-    id: '19193461',
-    name: 'Rise of the Resistance',
-    land: starWars,
-    geo: [33.8135671, -117.9236346],
-    priority: 1.0,
-    sort: 1,
+  353443: {
+    id: '353443',
+    name: 'Storybook Land Canal Boats',
+    land: fantasyland,
+  },
+  17346575: {
+    id: '17346575',
+    name: 'Storytelling at Royal Theatre',
+    land: fantasyland,
+  },
+  19319963: {
+    id: '19319963',
+    name: 'Tale of the Lion King',
+    land: fantasyland,
   },
   // California Adventure
   19630108: {
@@ -514,15 +507,15 @@ export const experiences: Experiences = {
     name: 'Mariachi Divas',
     land: pacific,
   },
-  18848247: {
-    id: '18848247',
-    name: "Mater's Jingle Jamboree",
-    land: cars,
-    sort: 3,
-  },
   16514431: {
     id: '16514431',
     name: "Mater's Junkyard Jamboree",
+    land: cars,
+    sort: 3,
+  },
+  18848247: {
+    id: '18848247',
+    name: "Mater's Jingle Jamboree",
     land: cars,
     sort: 3,
   },
@@ -548,6 +541,14 @@ export const experiences: Experiences = {
     name: 'Pixar Pal-A-Round - Swinging',
     land: pixar,
     sort: 3,
+  },
+  16514416: {
+    id: '16514416',
+    name: 'Radiator Springs Racers',
+    land: cars,
+    geo: [33.8052475, -117.9198715],
+    priority: 1.0,
+    sort: 1,
   },
   15510732: {
     id: '15510732',
@@ -584,14 +585,6 @@ export const experiences: Experiences = {
     name: 'Turtle Talk with Crush',
     land: hollywood,
     type: 'ENTERTAINMENT',
-  },
-  16514416: {
-    id: '16514416',
-    name: 'Radiator Springs Racers',
-    land: cars,
-    geo: [33.8052475, -117.9198715],
-    priority: 1.0,
-    sort: 1,
   },
   19531124: {
     id: '19531124',
