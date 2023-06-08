@@ -145,7 +145,7 @@ export const experiences: Experiences = {
     name: 'Big Thunder Mountain Railroad',
     land: frontierland,
     geo: [33.8124801, -117.9205132],
-    priority: 3.5,
+    priority: 2.2,
     sort: 1,
   },
   353301: {
@@ -210,7 +210,7 @@ export const experiences: Experiences = {
     name: 'Haunted Mansion',
     land: newOrleans,
     geo: [33.811616, -117.9218924],
-    priority: 3.6,
+    priority: 3.0,
     sort: 1,
   },
   18249927: {
@@ -218,7 +218,6 @@ export const experiences: Experiences = {
     name: 'Haunted Mansion Holiday',
     land: newOrleans,
     geo: [33.811616, -117.9218924],
-    priority: 2.1,
     sort: 1,
   },
   353355: {
@@ -226,7 +225,7 @@ export const experiences: Experiences = {
     name: 'Indiana Jones Adventure',
     land: adventureland,
     geo: [33.8114097, -117.9204077],
-    priority: 2.0,
+    priority: 1.1,
     sort: 1,
   },
   367492: {
@@ -240,7 +239,6 @@ export const experiences: Experiences = {
     name: "it's a small world Holiday",
     land: fantasyland,
     geo: [33.8144167, -117.9181268],
-    priority: 2.4,
     sort: 4,
   },
   353363: {
@@ -275,7 +273,7 @@ export const experiences: Experiences = {
     name: 'Matterhorn Bobsleds',
     land: fantasyland,
     geo: [33.8127838, -117.9182386],
-    priority: 3.4,
+    priority: 1.3,
     sort: 1,
   },
   18738682: {
@@ -301,6 +299,7 @@ export const experiences: Experiences = {
     name: "Mickey and Minnie's Runaway Railway",
     land: toontown,
     geo: [33.8154852, -117.9183938],
+    priority: 3.1,
     sort: 1,
   },
   19193459: {
@@ -308,7 +307,7 @@ export const experiences: Experiences = {
     name: 'Millennium Falcon: Smugglers Run',
     land: starWars,
     geo: [33.8153228, -117.922197],
-    priority: 2.3,
+    priority: 2.1,
     sort: 2,
   },
   353389: {
@@ -353,6 +352,7 @@ export const experiences: Experiences = {
     land: toontown,
     geo: [33.8155682, -117.9181205],
     sort: 2,
+    priority: 2.0,
   },
   353429: {
     id: '353429',
@@ -364,7 +364,7 @@ export const experiences: Experiences = {
     name: 'Space Mountain',
     land: tomorrowland,
     geo: [33.8112647, -117.9175892],
-    priority: 2.2,
+    priority: 1.2,
     sort: 1,
   },
   18237368: {
@@ -372,7 +372,7 @@ export const experiences: Experiences = {
     name: 'Hyperspace Mountain',
     land: tomorrowland,
     geo: [33.8112647, -117.9175892],
-    priority: 2.2,
+    priority: 1.2,
     sort: 1,
   },
   353439: {
@@ -428,6 +428,7 @@ export const experiences: Experiences = {
     name: "Goofy's Sky School",
     land: paradise,
     geo: [33.8062523, -117.9228425],
+    priority: 2.1,
     sort: 1,
   },
   353345: {
@@ -435,7 +436,7 @@ export const experiences: Experiences = {
     name: 'Grizzly River Run',
     land: grizzly,
     geo: [33.8069638, -117.9212689],
-    priority: 3.1,
+    priority: 3.0,
     sort: 2,
   },
   353451: {
@@ -443,7 +444,7 @@ export const experiences: Experiences = {
     name: 'Guardians of the Galaxy - Mission: BREAKOUT',
     land: avengers,
     geo: [33.8068606, -117.9172434],
-    priority: 2.0,
+    priority: 1.1,
     sort: 1,
   },
   18774860: {
@@ -451,7 +452,7 @@ export const experiences: Experiences = {
     name: 'Guardians of the Galaxy - Monsters After Dark',
     land: avengers,
     geo: [33.8068606, -117.9172434],
-    priority: 2.0,
+    priority: 1.1,
     sort: 1,
   },
   18614009: {
@@ -464,6 +465,7 @@ export const experiences: Experiences = {
     name: 'Incredicoaster',
     land: pixar,
     geo: [33.8046948, -117.9207725],
+    priority: 2.3,
     sort: 2,
   },
   19285637: {
@@ -534,6 +536,7 @@ export const experiences: Experiences = {
     name: 'Monsters, Inc.',
     land: hollywood,
     geo: [33.8081471, -117.9175137],
+    priority: 2.2,
     sort: 1,
   },
   353379: {
@@ -561,7 +564,7 @@ export const experiences: Experiences = {
     name: "Soarin' Around the World",
     land: grizzly,
     geo: [33.8085516, -117.9204917],
-    priority: 3.2,
+    priority: 2.0,
     sort: 1,
   },
   19324604: {
@@ -569,7 +572,7 @@ export const experiences: Experiences = {
     name: "Soarin' Over California",
     land: grizzly,
     geo: [33.8085516, -117.9204917],
-    priority: 3.2,
+    priority: 2.0,
     sort: 1,
   },
   353453: {
@@ -577,7 +580,7 @@ export const experiences: Experiences = {
     name: 'Toy Story Midway Mania',
     land: pixar,
     geo: [33.804614, -117.9216383],
-    priority: 3.0,
+    priority: 1.2,
     sort: 1,
   },
   353457: {
@@ -591,6 +594,7 @@ export const experiences: Experiences = {
     name: 'WEB SLINGERS',
     land: avengers,
     geo: [33.8067598, -117.91849],
+    priority: 1.3,
     sort: 2,
   },
   411805943: {
