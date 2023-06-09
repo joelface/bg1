@@ -42,7 +42,7 @@ describe('Home', () => {
     await see.screen('Your Lightning Lane');
     click('Modify');
     await see.screen('Genie+');
-    see(`Park: ${mk.name}`);
+    expect(see(`Park: ${mk.name}`)).toBeDisabled();
     expect(Element.prototype.scroll).toBeCalledTimes(2);
   });
 });
