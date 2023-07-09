@@ -248,6 +248,7 @@ interface FastPassItem {
     bookingId: string;
     entitlementId: string;
     redemptionsRemaining?: number;
+    redemptionsAllowed?: number;
   }[];
 }
 
@@ -606,6 +607,7 @@ export class GenieClient extends ApiClient {
       if (!subtype) return;
       const isGeniePlus = subtype === 'G+';
       const expAsset = assets[item.facility];
+      const guestIds = new Set();
       let booking: LightningLane = {
         type: 'LL',
         subtype,
@@ -624,17 +626,25 @@ export class GenieClient extends ApiClient {
         },
         cancellable: item.cancellable && isGeniePlus,
         modifiable: item.modifiable && isGeniePlus,
-        guests: item.guests.map(g => {
-          return {
+        guests: item.guests
+          .filter(g => {
+            if (guestIds.has(g.id)) return false;
+            if (g.redemptionsRemaining === 0) return false;
+            guestIds.add(g.id);
+            return true;
+          })
+          .map(g => ({
             ...getGuest(g),
             entitlementId: g.entitlementId,
             bookingId: g.bookingId,
             ...(g.redemptionsRemaining !== undefined && {
-              redemptions: g.redemptionsRemaining,
+              redemptions: Math.min(
+                g.redemptionsRemaining,
+                g.redemptionsAllowed ?? 1
+              ),
             }),
-          };
-        }),
-        bookingId: item.guests[0]?.entitlementId,
+          })),
+        bookingId: item.id,
       };
       booking.modifiable = isModifiable(booking);
       if (item.multipleExperiences) {

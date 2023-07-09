@@ -402,12 +402,23 @@ describe('GenieClient', () => {
                   displayStartTime: b.start.time,
                   displayEndDate: b.end.date,
                   displayEndTime: b.end.time,
-                  guests: b.guests.map(g => ({
-                    id: xid(g),
-                    entitlementId: g.entitlementId,
-                    bookingId: g.bookingId,
-                    redemptionsRemaining: g.redemptions,
-                  })),
+                  guests: [
+                    ...b.guests.map(g => ({
+                      id: xid(g),
+                      redemptionsRemaining: 0,
+                    })),
+                    ...b.guests.map(g => ({
+                      id: xid(g),
+                      entitlementId: g.entitlementId,
+                      bookingId: g.bookingId,
+                      redemptionsRemaining:
+                        g.redemptions && g.redemptions > 1
+                          ? g.redemptions + 1
+                          : g.redemptions,
+                      redemptionsAllowed: g.redemptions,
+                    })),
+                    ...b.guests.map(g => ({ id: xid(g) })),
+                  ],
                 }
               : b.type === 'BG'
               ? {
@@ -537,12 +548,20 @@ describe('GenieClient', () => {
         end: { date: undefined, time: undefined },
         cancellable: false,
         modifiable: false,
-        guests: [{ ...mickey, entitlementId: 'bs_01', bookingId: 'bs_bid_01' }],
+        guests: [
+          {
+            ...mickey,
+            entitlementId: 'bs_01',
+            bookingId: 'bs_bid_01',
+            redemptions: 1,
+          },
+        ],
         bookingId: 'bs_01',
       };
       const bookings = [bs];
       respond(createBookingsResponse(bookings));
-      expect(await client.bookings()).toEqual([{ ...bs, name: 'Barnstormer' }]);
+      const b = await client.bookings();
+      expect(b).toEqual([{ ...bs, name: 'Barnstormer' }]);
     });
 
     it(`skips itinerary items that can't be parsed`, async () => {
