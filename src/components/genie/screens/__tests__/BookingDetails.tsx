@@ -15,7 +15,7 @@ import {
   sm,
   wdw,
 } from '@/__fixtures__/genie';
-import { Booking } from '@/api/genie';
+import { Booking, DasBooking } from '@/api/genie';
 import { useNav } from '@/contexts/Nav';
 import { ParkProvider } from '@/contexts/Park';
 import { RebookingProvider } from '@/contexts/Rebooking';
@@ -136,10 +136,13 @@ describe('BookingDetails', () => {
   });
 
   it('specifies DAS in heading', () => {
-    booking.subtype = 'DAS';
-    renderComponent();
-    expect(see('Your DAS Return Time').tagName).toBe('H1');
-    booking.subtype = 'G+';
+    renderComponent({
+      ...booking,
+      type: 'DAS',
+      subtype: 'IN_PARK',
+      modifiable: undefined,
+    } as DasBooking);
+    expect(see('Your DAS Selection').tagName).toBe('H1');
   });
 
   it('shows dining reservation', () => {

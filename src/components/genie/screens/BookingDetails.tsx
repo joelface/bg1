@@ -8,6 +8,7 @@ import GuestList from '@/components/GuestList';
 import Notice from '@/components/Notice';
 import Screen from '@/components/Screen';
 import { Time } from '@/components/Time';
+import { useDasParties } from '@/contexts/DasParties';
 import { useNav } from '@/contexts/Nav';
 import { usePark } from '@/contexts/Park';
 import { useRebooking } from '@/contexts/Rebooking';
@@ -29,11 +30,18 @@ export default function BookingDetails({
   const { goTo, goBack } = useNav();
   const { setPark } = usePark();
   const { parks } = useResortData();
-  const { name, park, choices, type, start } = booking;
-  const isLL = type === 'LL';
-  const isBG = type === 'BG';
+  const dasParties = useDasParties();
+  const { name, park, choices, type, subtype, start } = booking;
+  const dasGuest =
+    type === 'DAS' && subtype === 'IN_PARK'
+      ? booking.guests.find(g => dasParties.find(p => p[0].id === g.id))
+      : undefined;
   const rebooking = useRebooking();
-  const [guests, setGuests] = useState(isLL ? booking.guests : undefined);
+  const [guests, setGuests] = useState(
+    booking.cancellable && (type !== 'DAS' || dasGuest)
+      ? booking.guests
+      : undefined
+  );
 
   const choicesByPark = new Map([
     [park as Park, []],
@@ -49,19 +57,17 @@ export default function BookingDetails({
   const theme =
     (!choices ? park : parkChoices.length === 1 ? parkChoices[0] : {}).theme ??
     DEFAULT_THEME;
+  const headings = {
+    LL: 'Lightning Lane',
+    DAS: 'DAS Selection',
+    BG: 'Boarding Group',
+    APR: 'Park Pass',
+    RES: 'Reservation',
+  };
 
   return (
     <Screen
-      heading={
-        'Your ' +
-        (isLL
-          ? booking.subtype === 'DAS'
-            ? 'DAS Return Time'
-            : 'Lightning Lane'
-          : isBG
-          ? 'Boarding Group'
-          : 'Reservation')
-      }
+      heading={'Your ' + headings[type]}
       theme={theme}
       buttons={
         booking.modifiable && (
@@ -92,7 +98,7 @@ export default function BookingDetails({
           <div>{park.name}</div>
         </>
       )}
-      {isBG ? (
+      {type === 'BG' ? (
         <>
           {booking.status === 'SUMMONED' && (
             <Notice>Your boarding group has been called</Notice>
@@ -137,6 +143,7 @@ export default function BookingDetails({
               goTo(
                 <CancelGuests
                   booking={{ ...booking, guests }}
+                  dasGuest={dasGuest}
                   onCancel={remainingGuests => {
                     if (remainingGuests.length > 0) {
                       setGuests(remainingGuests);
@@ -155,14 +162,13 @@ export default function BookingDetails({
       </div>
       <GuestList
         guests={guests || booking.guests}
-        conflicts={
-          guests &&
-          Object.fromEntries(
-            guests
-              .filter(g => (g.redemptions ?? 1) !== 1)
-              .map(g => [g.id, `Redemptions left: ${g.redemptions}`])
-          )
-        }
+        conflicts={Object.fromEntries(
+          booking.type === 'LL'
+            ? booking.guests
+                .filter(g => (g.redemptions ?? 1) !== 1)
+                .map(g => [g.id, `Redemptions left: ${g.redemptions}`])
+            : []
+        )}
       />
       {isNew && (
         <FloatingButton

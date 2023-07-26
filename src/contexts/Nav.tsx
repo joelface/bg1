@@ -2,12 +2,15 @@ import { createContext, useContext, useEffect, useRef, useState } from 'react';
 
 export interface NavMethods {
   goTo: (elem: JSX.Element, options?: { replace?: boolean }) => void;
-  goBack: <P>(options?: { screen?: React.FC<P>; props?: Partial<P> }) => void;
+  goBack: <P>(options?: {
+    screen?: React.FC<P>;
+    props?: Partial<P>;
+  }) => Promise<void>;
 }
 
 export const NavContext = createContext<NavMethods>({
   goTo: () => undefined,
-  goBack: () => undefined,
+  goBack: async () => undefined,
 });
 export const NavProvider = NavContext.Provider;
 export const useNav = () => useContext(NavContext);
@@ -25,6 +28,18 @@ let keyInc = 0;
 const nextKey = () => ++keyInc;
 
 const getHashPos = () => Number(location.hash.slice(1)) || 0;
+
+let hashChanged = () => undefined as void;
+class HashChangedPromise extends Promise<void> {
+  constructor() {
+    super(resolve => {
+      hashChanged = () => {
+        resolve();
+        hashChanged = () => undefined;
+      };
+    });
+  }
+}
 
 export function Nav({ children }: { children: JSX.Element }) {
   const [screens, setScreens] = useState<Screens>({ current: children });
@@ -58,17 +73,19 @@ export function Nav({ children }: { children: JSX.Element }) {
               const newProps = { ...stack.current[i].elem.props, ...props };
               stack.current[i].elem = <Screen {...newProps} />;
             }
-            return;
+            break;
           }
         }
       } else {
         history.back();
       }
+      return new HashChangedPromise();
     },
   });
 
   useEffect(() => {
     function onHashChange() {
+      hashChanged();
       const pos = getHashPos();
       if (pos >= stack.current.length) {
         history.back();

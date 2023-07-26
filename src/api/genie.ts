@@ -185,9 +185,18 @@ export interface ParkPass extends BaseBooking {
 
 export interface LightningLane extends BaseBooking {
   type: 'LL';
-  subtype: 'G+' | 'ILL' | 'MEP' | 'DAS' | 'OTHER';
+  subtype: 'G+' | 'ILL' | 'MEP' | 'OTHER';
   park: Park;
   end: Partial<DateTime>;
+  guests: EntitledGuest[];
+}
+
+export interface DasBooking extends BaseBooking {
+  type: 'DAS';
+  subtype: 'IN_PARK' | 'ADVANCE';
+  park: Park;
+  start: DateTime;
+  modifiable?: undefined;
   guests: EntitledGuest[];
 }
 
@@ -212,7 +221,12 @@ export interface BoardingGroup extends BaseBooking {
   modifiable?: undefined;
 }
 
-export type Booking = LightningLane | Reservation | BoardingGroup | ParkPass;
+export type Booking =
+  | LightningLane
+  | DasBooking
+  | Reservation
+  | BoardingGroup
+  | ParkPass;
 
 interface Asset {
   id: string;
@@ -518,9 +532,7 @@ export class GenieClient extends ApiClient {
     };
   }
 
-  async cancelBooking(
-    guests: Pick<EntitledGuest, 'entitlementId'>[]
-  ): Promise<void> {
+  async cancelBooking(guests: EntitledGuest[]): Promise<void> {
     const ids = guests.map(g => g.entitlementId);
     const idParam = ids.map(encodeURIComponent).join(',');
     await this.request({
@@ -591,26 +603,10 @@ export class GenieClient extends ApiClient {
       return res;
     };
 
-    const getLightningLane = (item: FastPassItem) => {
-      const kindToSubtype: {
-        [key: string]: LightningLane['subtype'] | undefined;
-      } = {
-        FLEX: 'G+',
-        STANDARD: 'ILL',
-        DAS: 'DAS',
-        FDS: 'DAS',
-        OTHER: 'OTHER',
-      };
-      const subtype = item.multipleExperiences
-        ? 'MEP'
-        : kindToSubtype[item.kind];
-      if (!subtype) return;
-      const isGeniePlus = subtype === 'G+';
+    const getFastPass = (item: FastPassItem) => {
       const expAsset = assets[item.facility];
       const guestIds = new Set();
-      let booking: LightningLane = {
-        type: 'LL',
-        subtype,
+      return {
         ...this.getExperience(
           item.facility,
           (expAsset as Required<Asset>).location,
@@ -624,8 +620,6 @@ export class GenieClient extends ApiClient {
           date: item.displayEndDate,
           time: item.displayEndTime,
         },
-        cancellable: item.cancellable && isGeniePlus,
-        modifiable: item.modifiable && isGeniePlus,
         guests: item.guests
           .filter(g => {
             if (guestIds.has(g.id)) return false;
@@ -644,6 +638,29 @@ export class GenieClient extends ApiClient {
               ),
             }),
           })),
+        bookingId: item.id,
+      };
+    };
+
+    const getLightningLane = (item: FastPassItem) => {
+      const kindToSubtype: {
+        [key: string]: LightningLane['subtype'] | undefined;
+      } = {
+        FLEX: 'G+',
+        STANDARD: 'ILL',
+        OTHER: 'OTHER',
+      };
+      const subtype = item.multipleExperiences
+        ? 'MEP'
+        : kindToSubtype[item.kind];
+      if (!subtype) return;
+      const isGeniePlus = subtype === 'G+';
+      let booking: LightningLane = {
+        type: 'LL',
+        subtype,
+        ...getFastPass(item),
+        cancellable: item.cancellable && isGeniePlus,
+        modifiable: item.modifiable && isGeniePlus,
         bookingId: item.id,
       };
       booking.modifiable = isModifiable(booking);
@@ -667,6 +684,20 @@ export class GenieClient extends ApiClient {
           .sort((a, b) => a.name.localeCompare(b.name));
       }
       return booking;
+    };
+
+    const getDasSelection = (item: FastPassItem): DasBooking => {
+      const kindToSubtype = { DAS: 'IN_PARK', FDS: 'ADVANCE' } as const;
+      const subtype = kindToSubtype[item.kind as 'DAS' | 'FDS'];
+      const inPark = subtype === 'IN_PARK';
+      return {
+        type: 'DAS',
+        subtype,
+        cancellable: item.cancellable && inPark,
+        ...(getFastPass(item) as ReturnType<typeof getFastPass> & {
+          start: DasBooking['start'];
+        }),
+      };
     };
 
     const getBoardingGroup = (item: BoardingGroupItem): BoardingGroup => {
@@ -703,13 +734,21 @@ export class GenieClient extends ApiClient {
       };
     };
 
+    const kindToFunc: {
+      [key: string]:
+        | ((item: FastPassItem) => ParkPass | undefined)
+        | ((item: FastPassItem) => DasBooking)
+        | undefined;
+    } = {
+      PARK_PASS: getParkPass,
+      DAS: getDasSelection,
+      FDS: getDasSelection,
+    };
     const bookings = items
       .map(item => {
         try {
           if (item.type === 'FASTPASS') {
-            return item.kind === 'PARK_PASS'
-              ? getParkPass(item)
-              : getLightningLane(item);
+            return (kindToFunc[item.kind] ?? getLightningLane)(item);
           } else if (item.type === 'VIRTUAL_QUEUE_POSITION') {
             return getBoardingGroup(item);
           } else if (item.type && RES_TYPES.has(item.type)) {

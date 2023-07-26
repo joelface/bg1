@@ -55,10 +55,11 @@ function expectFetch(
     nthCall,
     expect.stringContaining(origin + path),
     {
-      method: method || 'GET',
+      method,
       params,
       data,
       headers: {
+        'Accept-Language': 'en-US',
         Authorization: `BEARER ${accessToken}`,
         'x-user-id': '{abc}',
       },
@@ -660,7 +661,7 @@ describe('GenieClient', () => {
   });
 
   describe('cancelBooking()', () => {
-    it('cancel booking', async () => {
+    it('cancels booking', async () => {
       respond(response({}));
       await client.cancelBooking(booking.guests);
       expectFetch(

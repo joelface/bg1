@@ -55,7 +55,10 @@ describe('fetchJson()', () => {
 
   it('adds params to URL', async () => {
     await fetchJson(url, { params: { start: 5, end: 15 } });
-    expect(fetch).lastCalledWith(url + '?start=5&end=15', init);
+    expect(fetch).lastCalledWith(url + '?start=5&end=15', {
+      ...init,
+      method: 'GET',
+    });
   });
 
   it('returns status=0 response on timeout', async () => {

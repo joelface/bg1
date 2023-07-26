@@ -1,23 +1,28 @@
 import { useState } from 'react';
 
-import { LightningLane } from '@/api/genie';
+import { DasBooking, LightningLane } from '@/api/genie';
 import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
 import Screen from '@/components/Screen';
+import { useDasClient } from '@/contexts/DasClient';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { usePlans } from '@/contexts/Plans';
 import useDataLoader from '@/hooks/useDataLoader';
 
 import ReturnTime from '../ReturnTime';
 
-export default function CancelGuests({
+export default function CancelGuests<B extends LightningLane | DasBooking>({
   booking,
   onCancel,
+  dasGuest,
 }: {
-  booking: LightningLane;
-  onCancel: (newGuests: LightningLane['guests']) => void;
+  booking: B;
+  onCancel: (newGuests: B['guests']) => void;
+  dasGuest?: B['guests'][0];
 }) {
-  const client = useGenieClient();
+  const genieClient = useGenieClient();
+  const dasClient = useDasClient();
+  const client = booking.type === 'DAS' ? dasClient : genieClient;
   const { refreshPlans } = usePlans();
   const [guestsToCancel, setGuestsToCancel] = useState<
     Set<LightningLane['guests'][0]>
@@ -28,11 +33,11 @@ export default function CancelGuests({
   const cancelingNone = guestsToCancel.size === 0;
   const cancelingAll = guestsToCancel.size === guests.length;
 
-  async function cancelGuests() {
+  async function cancelBooking() {
     if (cancelingNone) return;
     await loadData(async () => {
       await client.cancelBooking([...guestsToCancel]);
-      if (cancelingAll) refreshPlans();
+      refreshPlans();
     });
     onCancel(guests.filter(g => !guestsToCancel.has(g)));
   }
@@ -62,9 +67,17 @@ export default function CancelGuests({
             selectable={{
               isSelected: () => true,
               onToggle: g => {
-                const newGuests = new Set(guestsToCancel);
-                newGuests.delete(g);
-                setGuestsToCancel(newGuests);
+                if (
+                  dasGuest &&
+                  g !== dasGuest &&
+                  guestsToCancel.has(dasGuest)
+                ) {
+                  setGuestsToCancel(new Set());
+                } else {
+                  const newGuests = new Set(guestsToCancel);
+                  newGuests.delete(g);
+                  setGuestsToCancel(newGuests);
+                }
               },
             }}
           />
@@ -77,12 +90,16 @@ export default function CancelGuests({
             guests={guests.filter(g => !guestsToCancel.has(g))}
             selectable={{
               isSelected: () => false,
-              onToggle: g => setGuestsToCancel(new Set(guestsToCancel).add(g)),
+              onToggle: g => {
+                setGuestsToCancel(
+                  new Set(g === dasGuest ? guests : guestsToCancel).add(g)
+                );
+              },
             }}
           />
         </div>
       )}
-      <FloatingButton back disabled={cancelingNone} onClick={cancelGuests}>
+      <FloatingButton back disabled={cancelingNone} onClick={cancelBooking}>
         {'Cancel ' + (cancelingAll ? 'Reservation' : 'Guests')}
       </FloatingButton>
 

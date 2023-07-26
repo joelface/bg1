@@ -50,6 +50,10 @@
   th {
     @apply font-normal;
   }
+
+  abbr {
+    text-decoration: none;
+  }
 }
 
 @layer utilities {

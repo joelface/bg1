@@ -1,10 +1,13 @@
 import { Land } from '@/api/data';
 import { Experience } from '@/api/genie';
+import Button from '@/components/Button';
 import Screen from '@/components/Screen';
 import Tab from '@/components/Tab';
+import { useDasParties } from '@/contexts/DasParties';
 import { useExperiences } from '@/contexts/Experiences';
 import { useNav } from '@/contexts/Nav';
 
+import DasPartyList from '../DasPartyList';
 import { HomeTabProps } from '../Home';
 import RefreshButton from '../RefreshButton';
 import Legend, { Symbol } from './Legend';
@@ -13,6 +16,7 @@ import ParkSelect from './ParkSelect';
 export default function TimesGuide({ contentRef }: HomeTabProps) {
   const { goTo } = useNav();
   const { experiences, refreshExperiences, loaderElem } = useExperiences();
+  const parties = useDasParties();
   const showExpInfo = (exp: Experience) => goTo(<ExperienceInfo exp={exp} />);
 
   const expsByLand = new Map<Land, Record<Experience['type'], Experience[]>>();
@@ -44,6 +48,14 @@ export default function TimesGuide({ contentRef }: HomeTabProps) {
       heading="Times Guide"
       buttons={
         <>
+          {parties.length > 0 && (
+            <Button
+              title="Disability Access Service"
+              onClick={() => goTo(<DasPartyList parties={parties} />)}
+            >
+              DAS
+            </Button>
+          )}
           <ParkSelect />
           <RefreshButton name="Times" onClick={refreshExperiences} />
         </>

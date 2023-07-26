@@ -52,7 +52,9 @@ export default function useDataLoader(): {
         await callback(delayFlash);
       } catch (error: any) {
         const status = error?.response?.status;
-        if (Number.isInteger(status)) {
+        if (msgs[error.name] !== undefined) {
+          delayFlash(msgs[error.name], 'error');
+        } else if (Number.isInteger(status)) {
           delayFlash(status in msgs ? msgs[status] : msgs.request, 'error');
         } else {
           console.error(error);

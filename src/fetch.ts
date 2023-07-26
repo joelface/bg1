@@ -38,6 +38,7 @@ export async function fetchJson<T = any>(
     };
     init.body = JSON.stringify(data);
   }
+  init.method ||= 'GET';
   const controller = new AbortController();
   init.signal = controller.signal;
   const timeoutId = setTimeout(() => controller.abort(), timeout);

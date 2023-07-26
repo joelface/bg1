@@ -16,8 +16,8 @@ export default function BookingListing({
   return (
     <div className="flex items-center gap-x-3">
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-x-2 text-gray-500 text-sm font-semibold uppercase">
-          {booking.subtype === 'DAS' && (
+        <div className="flex items-center gap-x-2 text-gray-500 text-sm font-semibold uppercase whitespace-nowrap">
+          {booking.type === 'DAS' && (
             <>
               <span>DAS</span>
               {DOT}

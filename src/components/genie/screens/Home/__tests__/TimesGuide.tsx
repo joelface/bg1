@@ -1,6 +1,9 @@
+import { party } from '@/__fixtures__/das';
 import { mk, wdw } from '@/__fixtures__/genie';
+import { DasParty } from '@/api/das';
 import { Experience as ExpData, ExperienceType } from '@/api/data';
 import { Experience } from '@/api/genie';
+import { DasPartiesProvider } from '@/contexts/DasParties';
 import { ExperiencesProvider } from '@/contexts/Experiences';
 import { Nav } from '@/contexts/Nav';
 import { ParkProvider } from '@/contexts/Park';
@@ -75,11 +78,11 @@ const tiana = exp('17505397', { type: 'CHARACTER', waitTime: 45 });
 const experiences = [dd, fof, potc, tiki, btmr, tiana, uts];
 const refreshExperiences = jest.fn();
 
-describe('TimesGuide', () => {
-  it('renders times guide', async () => {
-    render(
-      <ResortDataProvider value={wdw}>
-        <ParkProvider value={{ park: mk, setPark: () => null }}>
+function renderComponent(dasParties: DasParty[] = []) {
+  render(
+    <ResortDataProvider value={wdw}>
+      <ParkProvider value={{ park: mk, setPark: () => null }}>
+        <DasPartiesProvider value={dasParties}>
           <ExperiencesProvider
             value={{
               experiences,
@@ -91,9 +94,15 @@ describe('TimesGuide', () => {
               <TimesGuide contentRef={{ current: null }} />
             </Nav>
           </ExperiencesProvider>
-        </ParkProvider>
-      </ResortDataProvider>
-    );
+        </DasPartiesProvider>
+      </ParkProvider>
+    </ResortDataProvider>
+  );
+}
+
+describe('TimesGuide', () => {
+  it('renders times guide', async () => {
+    renderComponent();
 
     click('Refresh Times');
     expect(refreshExperiences).toBeCalledTimes(1);
@@ -125,5 +134,12 @@ describe('TimesGuide', () => {
     expect(
       screen.getAllByRole('listitem').map(elem => elem.textContent)
     ).toEqual(ddShowTimes);
+
+    see.no('DAS');
+  });
+
+  it('shows DAS button if eligible', async () => {
+    renderComponent([party]);
+    see('DAS', 'button');
   });
 });

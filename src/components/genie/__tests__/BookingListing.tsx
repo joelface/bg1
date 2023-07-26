@@ -1,4 +1,5 @@
 import { bg, booking, multiExp } from '@/__fixtures__/genie';
+import { DasBooking } from '@/api/genie';
 import { displayTime } from '@/datetime';
 import { render, see, setTime } from '@/testing';
 
@@ -33,7 +34,18 @@ describe('BookingListing', () => {
   });
 
   it('shows DAS badge', () => {
-    render(<BookingListing booking={{ ...booking, subtype: 'DAS' }} />);
+    render(
+      <BookingListing
+        booking={
+          {
+            ...booking,
+            type: 'DAS',
+            subtype: 'IN_PARK',
+            modifiable: undefined,
+          } as DasBooking
+        }
+      />
+    );
     see('DAS');
   });
 });

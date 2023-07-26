@@ -57,10 +57,11 @@ export abstract class ApiClient {
     const { swid, accessToken } = this.authStore.getData();
     const url = this.origin + request.path;
     const res = await fetchJson(url, {
-      method: request.method || 'GET',
+      method: request.method,
       params: request.params,
       data: request.data,
       headers: {
+        'Accept-Language': 'en-US',
         Authorization: `BEARER ${accessToken}`,
         'x-user-id': swid,
       },

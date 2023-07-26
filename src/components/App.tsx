@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 
 import { AuthStore, ReauthNeeded } from '@/api/auth/store';
 import { InvalidOrigin } from '@/api/client';
+import { DasClient } from '@/api/das';
 import { Resort, loadResortData } from '@/api/data';
 import { GenieClient } from '@/api/genie';
 import { VQClient } from '@/api/vq';
+import { DasClientProvider } from '@/contexts/DasClient';
 import { GenieClientProvider } from '@/contexts/GenieClient';
 import { ResortDataProvider } from '@/contexts/ResortData';
 import { VQClientProvider } from '@/contexts/VQClient';
@@ -62,9 +64,11 @@ export default function App({ authStore }: { authStore: Public<AuthStore> }) {
           setContent(
             <ResortDataProvider value={data}>
               <GenieClientProvider value={new GenieClient(data, authStore)}>
-                <VQClientProvider value={new VQClient(data, authStore)}>
-                  <Component />
-                </VQClientProvider>
+                <DasClientProvider value={new DasClient(data, authStore)}>
+                  <VQClientProvider value={new VQClient(data, authStore)}>
+                    <Component />
+                  </VQClientProvider>
+                </DasClientProvider>
               </GenieClientProvider>
             </ResortDataProvider>
           );
