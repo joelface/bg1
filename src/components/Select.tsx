@@ -20,7 +20,6 @@ type Props<K, V> = Omit<
   options: Map<K, Option<V>>;
   selected: K;
   onChange: (value: V) => void;
-  iconOnly?: boolean;
 };
 
 export default function Select<K extends string, V = K>(props: Props<K, V>) {
