@@ -18,7 +18,7 @@ type Props<K, V> = Omit<
   'children' | 'selected' | 'onChange'
 > & {
   options: Map<K, Option<V>>;
-  selected: K;
+  selected?: K;
   onChange: (value: V) => void;
 };
 
@@ -71,7 +71,11 @@ export default function Select<K extends string, V = K>(props: Props<K, V>) {
     }
     showList(false);
   };
-  const opt = options.get(selected);
+  const opt = selected
+    ? options.get(selected)
+    : title !== undefined
+    ? { text: title }
+    : undefined;
   if (!opt) return null;
   const { icon, text } = opt;
   let arrowPressed = false;
@@ -108,7 +112,8 @@ export default function Select<K extends string, V = K>(props: Props<K, V>) {
             if (arrowPressed) return;
             if (
               !listRef.current?.contains(event.target as Element) ||
-              (event.target as HTMLInputElement).value === selected
+              (selected &&
+                (event.target as HTMLInputElement).value === selected)
             ) {
               showList(false);
               event.preventDefault();
