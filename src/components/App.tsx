@@ -19,7 +19,7 @@ import LoginForm from './LoginForm';
 import Merlock from './genie/Merlock';
 import BGClient from './vq/BGClient';
 
-export const NEWS_VERSION = 1;
+export const NEWS_VERSION = 0;
 
 function disableDoubleTapZoom() {
   document.body.addEventListener('click', () => null);
