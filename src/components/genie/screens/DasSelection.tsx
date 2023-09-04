@@ -17,6 +17,7 @@ import { useDasClient } from '@/contexts/DasClient';
 import { useNav } from '@/contexts/Nav';
 import { usePlans } from '@/contexts/Plans';
 import useDataLoader from '@/hooks/useDataLoader';
+import { ping } from '@/ping';
 
 import BookingDetails from './BookingDetails';
 import DasExperienceList from './DasExperienceList';
@@ -48,6 +49,7 @@ export default function DasSelection({
             guests: [...selected],
           });
           refreshPlans();
+          ping();
           await goBack({ screen: Home });
           goTo(<BookingDetails booking={booking} isNew={true} />);
         } catch (e) {
