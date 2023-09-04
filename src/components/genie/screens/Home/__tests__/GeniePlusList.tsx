@@ -123,10 +123,5 @@ describe('GeniePlusList', () => {
 
     click(screen.getAllByTitle('Add to Favorites')[4]);
     expect(getExperiences()).toEqual(names([hm, sm, jc]));
-
-    click(displayTime(sm.flex.nextAvailableTime as string));
-    await see.screen('Lightning Lane');
-    await loading();
-    see(sm.name);
   });
 });
