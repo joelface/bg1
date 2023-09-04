@@ -6,15 +6,7 @@ import { useGenieClient } from '@/contexts/GenieClient';
 import { Nav } from '@/contexts/Nav';
 import { ParkProvider } from '@/contexts/Park';
 import { displayTime } from '@/datetime';
-import {
-  click,
-  loading,
-  render,
-  screen,
-  see,
-  setTime,
-  within,
-} from '@/testing';
+import { click, render, screen, see, setTime, within } from '@/testing';
 
 import GeniePlusList, { STARRED_KEY } from '../GeniePlusList';
 
