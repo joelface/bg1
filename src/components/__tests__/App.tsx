@@ -4,7 +4,7 @@ import { DISCLAIMER_ACCEPTED_KEY } from '@/hooks/useDisclaimer';
 import { NEWS_VERSION_KEY } from '@/hooks/useNews';
 import { act, click, render, screen, see } from '@/testing';
 
-import App /*, { NEWS_VERSION } */ from '../App';
+import App, { NEWS_VERSION } from '../App';
 import Screen from '../Screen';
 
 jest.mock('../genie/Merlock', () => {
@@ -56,13 +56,13 @@ describe('App', () => {
     expect(localStorage.getItem(DISCLAIMER_ACCEPTED_KEY)).toBe('1');
   });
 
-  // it('shows News if newer than last seen', async () => {
-  //   localStorage.setItem(NEWS_VERSION_KEY, '0');
-  //   renderComponent();
-  //   await see.screen('BG1 News');
-  //   click('Close');
-  //   expect(localStorage.getItem(NEWS_VERSION_KEY)).toBe(String(NEWS_VERSION));
-  // });
+  it('shows News if newer than last seen', async () => {
+    localStorage.setItem(NEWS_VERSION_KEY, '-1');
+    renderComponent();
+    await see.screen('BG1 News');
+    click('Close');
+    expect(localStorage.getItem(NEWS_VERSION_KEY)).toBe(String(NEWS_VERSION));
+  });
 
   it('loads client if auth data valid', async () => {
     renderComponent();

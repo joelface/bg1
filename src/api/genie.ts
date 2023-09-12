@@ -465,6 +465,7 @@ export class GenieClient extends ApiClient {
       },
       userId: false,
     });
+    import('./diu'); // preload
     return {
       id,
       start: { date, time: startTime },
@@ -485,17 +486,19 @@ export class GenieClient extends ApiClient {
     guestsToModify?: Pick<Guest, 'id'>[]
   ): Promise<LightningLane> {
     throwOnNotModifiable(bookingToModify);
+    const diu = (await import('./diu')).default;
     const guestIdsToModify = new Set(
       (guestsToModify ?? offer.guests.eligible).map(g => g.id)
     );
     const { data } = await this.request<NewBookingResponse>({
       path: bookingToModify
-        ? '/ea-vas/api/v1/products/modifications/flex/bookings'
-        : '/ea-vas/api/v1/products/flex/bookings',
+        ? '/ea-vas/api/v2/products/modifications/flex/bookings'
+        : '/ea-vas/api/v2/products/flex/bookings',
       method: 'POST',
       userId: false,
       data: {
         offerId: offer.id,
+        ...(await diu(offer.id)),
         ...(bookingToModify
           ? {
               date: dateTimeStrings().date,

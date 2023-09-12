@@ -49,7 +49,7 @@ export default function DasSelection({
             guests: [...selected],
           });
           refreshPlans();
-          ping();
+          ping('D');
           await goBack({ screen: Home });
           goTo(<BookingDetails booking={booking} isNew={true} />);
         } catch (e) {

@@ -1,6 +1,7 @@
 import prefresh from '@prefresh/vite';
 import path from 'path';
 import { defineConfig } from 'vite';
+import obfuscatorPlugin from 'vite-plugin-javascript-obfuscator';
 
 const server = {
   host: '0.0.0.0',
@@ -40,5 +41,17 @@ export default defineConfig({
   },
   server,
   preview: server,
-  plugins: +(process.env.HMR ?? 0) ? [prefresh()] : [],
+  plugins: [
+    obfuscatorPlugin({
+      include: ['src/api/diu/*'],
+      apply: 'build',
+      options: {
+        seed: 1,
+        splitStrings: true,
+        stringArrayThreshold: 1,
+        stringArrayEncoding: ['base64'],
+      },
+    }),
+    +(process.env.HMR ?? 0) ? prefresh() : null,
+  ],
 });

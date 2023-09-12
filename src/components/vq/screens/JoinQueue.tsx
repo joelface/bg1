@@ -32,7 +32,7 @@ export default function JoinQueue({
         goTo(<BGResult queue={queue} guests={guests} result={result} />, {
           replace: true,
         });
-        if (result.boardingGroup !== null) ping();
+        if (result.boardingGroup !== null) ping('V');
       },
       { minLoadTime: 999 }
     );

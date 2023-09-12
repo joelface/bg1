@@ -6,7 +6,15 @@ import { useGenieClient } from '@/contexts/GenieClient';
 import { Nav } from '@/contexts/Nav';
 import { ParkProvider } from '@/contexts/Park';
 import { displayTime } from '@/datetime';
-import { click, render, screen, see, setTime, within } from '@/testing';
+import {
+  click,
+  loading,
+  render,
+  screen,
+  see,
+  setTime,
+  within,
+} from '@/testing';
 
 import GeniePlusList, { STARRED_KEY } from '../GeniePlusList';
 
@@ -115,5 +123,10 @@ describe('GeniePlusList', () => {
 
     click(screen.getAllByTitle('Add to Favorites')[4]);
     expect(getExperiences()).toEqual(names([hm, sm, jc]));
+
+    click(displayTime(sm.flex.nextAvailableTime as string));
+    await see.screen('Lightning Lane');
+    await loading();
+    see(sm.name);
   });
 });

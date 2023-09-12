@@ -60,7 +60,7 @@ export default function BookExperience({
           });
         }
         refreshPlans();
-        ping();
+        ping('G');
       },
       {
         messages: { 410: 'Offer expired' },

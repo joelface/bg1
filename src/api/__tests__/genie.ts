@@ -29,6 +29,12 @@ import {
 } from '../genie';
 
 jest.mock('@/fetch');
+const diu = {
+  disneyInternalUse01: '1',
+  disneyInternalUse02: '2',
+  disneyInternalUse03: '3',
+};
+jest.mock('../diu', () => ({ __esModule: true, default: () => diu }));
 
 const accessToken = 'access_token_123';
 const swid = '{abc}';
@@ -640,10 +646,10 @@ describe('GenieClient', () => {
         bookingId: 'ent-' + mickey.id,
       });
       expectFetch(
-        '/ea-vas/api/v1/products/flex/bookings',
+        '/ea-vas/api/v2/products/flex/bookings',
         {
           method: 'POST',
-          data: { offerId: offer.id },
+          data: { offerId: offer.id, ...diu },
         },
         false
       );

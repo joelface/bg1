@@ -12,18 +12,19 @@ const ONE_DAY = 24 * ONE_HOUR;
 
 describe('ping()', () => {
   it('pings once per day', async () => {
-    await ping();
+    await ping('G');
     jest.advanceTimersByTime(ONE_HOUR);
-    await ping();
+    await ping('G');
     expect(fetchJson).toBeCalledTimes(1);
     expect(fetchJson).lastCalledWith('https://bg1.joelface.com/ping', {
       method: 'POST',
+      data: { service: 'G' },
     });
 
     jest.advanceTimersByTime(ONE_DAY);
-    await ping();
+    await ping('G');
     jest.advanceTimersByTime(ONE_HOUR);
-    await ping();
+    await ping('G');
     expect(fetchJson).toBeCalledTimes(2);
   });
 });
