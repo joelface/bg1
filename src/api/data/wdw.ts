@@ -481,6 +481,11 @@ export const experiences: Experiences = {
     land: celebration,
     geo: [28.3720463, -81.5508243],
   },
+  19242311: {
+    id: '19242311',
+    name: 'Germany Gazebo Entertainment',
+    land: showcase,
+  },
   19258170: {
     id: '19258170',
     name: 'Epcot Forever',
