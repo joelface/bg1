@@ -605,6 +605,14 @@ export const experiences: Experiences = {
     priority: 3.0,
     sort: 1,
   },
+  412001587: {
+    id: '412001587',
+    name: "Soarin' Over California",
+    land: nature,
+    geo: [28.3735924, -81.5522783],
+    priority: 2.0,
+    sort: 1,
+  },
   80010191: {
     id: '80010191',
     name: 'Spaceship Earth',
