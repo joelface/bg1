@@ -610,7 +610,7 @@ export const experiences: Experiences = {
     name: "Soarin' Over California",
     land: nature,
     geo: [28.3735924, -81.5522783],
-    priority: 3.0,
+    priority: 2.0,
     sort: 1,
   },
   80010191: {
