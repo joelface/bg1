@@ -598,8 +598,8 @@ export const experiences: Experiences = {
     sort: 3,
   },
   20194: {
-    id: '20194',
-    name: "Soarin' Around the World",
+    id: '412001587',
+    name: "Soarin' Over California",
     land: nature,
     geo: [28.3735924, -81.5522783],
     priority: 3.0,
