@@ -498,6 +498,12 @@ export const experiences: Experiences = {
     land: cars,
     sort: 2,
   },
+  18752877: {
+    id: '18752877',
+    name: "Luigi's Honkin' Haul-O-Ween",
+    land: cars,
+    sort: 2,
+  },
   18848246: {
     id: '18848246',
     name: "Luigi's Joy to the Whirl",
@@ -512,6 +518,12 @@ export const experiences: Experiences = {
   16514431: {
     id: '16514431',
     name: "Mater's Junkyard Jamboree",
+    land: cars,
+    sort: 3,
+  },
+  18752875: {
+    id: '18752875',
+    name: "Mater's Graveyard JamBOOree",
     land: cars,
     sort: 3,
   },
@@ -538,6 +550,11 @@ export const experiences: Experiences = {
     geo: [33.8081471, -117.9175137],
     priority: 2.2,
     sort: 1,
+  },
+  18781959: {
+    id: '18781959',
+    name: 'Coco Musical Celebration',
+    land: paradise,
   },
   353379: {
     id: '353379',
