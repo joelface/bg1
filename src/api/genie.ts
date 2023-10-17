@@ -29,15 +29,53 @@ export interface Experience extends ExpData {
   flex?: {
     available: boolean;
     nextAvailableTime?: string;
+    //not replaced due to not being able to book
     enrollmentStartTime?: string;
     preexistingPlan?: boolean;
   };
   individual?: {
     available: boolean;
     displayPrice: string;
+    nextAvailableTime?: string;
+    preexistingPlan?: boolean;
   };
   experienced?: boolean;
   drop?: boolean;
+}
+
+export function getPreexistingPlan(
+  experience: Experience
+): boolean | undefined {
+  if (experience.flex != undefined) {
+    return experience.flex.preexistingPlan;
+  } else if (experience.individual != undefined) {
+    return experience.individual.preexistingPlan;
+  } else {
+    return false;
+  }
+}
+
+export function getAvailable(experience: Experience | undefined): boolean {
+  if (experience === undefined) return false;
+  if (experience.flex != undefined) {
+    return experience.flex.available;
+  } else if (experience.individual != undefined) {
+    return experience.individual.available;
+  } else {
+    return false;
+  }
+}
+
+export function getNextAvailableTime(
+  experience: Experience
+): string | undefined {
+  if (experience.flex != undefined) {
+    return experience.flex.nextAvailableTime;
+  } else if (experience.individual != undefined) {
+    return experience.individual.nextAvailableTime;
+  } else {
+    return undefined;
+  }
 }
 
 export type PlusExperience = Experience & Required<Pick<Experience, 'flex'>>;

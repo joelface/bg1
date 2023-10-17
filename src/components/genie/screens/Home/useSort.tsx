@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { Park } from '@/api/data';
-import { PlusExperience } from '@/api/genie';
+import { PlusExperience, getNextAvailableTime } from '@/api/genie';
 import Select from '@/components/Select';
 import { useExperiences } from '@/contexts/Experiences';
 import { usePark } from '@/contexts/Park';
@@ -17,8 +17,8 @@ const sortByStandby: Sorter = (a, b) =>
   (b.standby.waitTime || -1) - (a.standby.waitTime || -1);
 
 const sortBySoonest: Sorter = (a, b) =>
-  timeToMinutes(a?.flex?.nextAvailableTime || '00:00') -
-  timeToMinutes(b?.flex?.nextAvailableTime || '00:00');
+  timeToMinutes(getNextAvailableTime(a) || '00:00') -
+  timeToMinutes(getNextAvailableTime(b) || '00:00');
 
 const sortByName: Sorter = (a, b) =>
   a.name.toLowerCase().localeCompare(b.name.toLowerCase());

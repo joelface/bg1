@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { PlusExperience as BasePlusExp } from '@/api/genie';
+import {
+  PlusExperience as BasePlusExp,
+  getNextAvailableTime,
+  getPreexistingPlan,
+} from '@/api/genie';
 import Screen from '@/components/Screen';
 import Tab from '@/components/Tab';
 import { useExperiences } from '@/contexts/Experiences';
@@ -105,7 +109,7 @@ export default function GeniePlusList({ contentRef }: HomeTabProps) {
             onClick={showDropTimeDesc}
           />
         ) : null}
-        {exp.flex.preexistingPlan && (
+        {getPreexistingPlan(exp) && (
           <InfoButton
             name={BOOKED}
             icon={CheckmarkIcon}
@@ -122,10 +126,10 @@ export default function GeniePlusList({ contentRef }: HomeTabProps) {
 
   const nowMinutes = timeToMinutes(dateTimeStrings().time);
   const plusExps = experiences
-    .filter((exp): exp is BasePlusExp => !!exp.flex)
+    .filter((exp): exp is BasePlusExp => !!exp.flex || !!exp.individual)
     .map(exp => {
       const standby = exp.standby.waitTime || 0;
-      const returnTime = exp?.flex?.nextAvailableTime;
+      const returnTime = getNextAvailableTime(exp);
       return {
         ...exp,
         lp:

@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { Guest, LightningLane, Offer, PlusExperience } from '@/api/genie';
+import {
+  Guest,
+  LightningLane,
+  Offer,
+  PlusExperience,
+  getAvailable,
+} from '@/api/genie';
 import Screen from '@/components/Screen';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { useNav } from '@/contexts/Nav';
@@ -31,7 +37,7 @@ export default function BookExperience({
   const rebooking = useRebooking();
   const [party, setParty] = useState<Party>();
   const [prebooking, setPrebooking] = useState(
-    !experience.flex.available &&
+    !getAvailable(experience) &&
       experience.flex.enrollmentStartTime !== undefined
   );
   const [offer, setOffer] = useState<Offer | null | undefined>(
@@ -72,7 +78,8 @@ export default function BookExperience({
     loadData(async flash => {
       const exps = await client.experiences(experience.park);
       const exp = exps.find(exp => exp.id === experience.id);
-      if (exp?.flex?.available) {
+
+      if (getAvailable(exp)) {
         setPrebooking(false);
         setOffer(undefined);
       } else {
