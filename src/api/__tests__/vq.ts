@@ -100,7 +100,10 @@ describe('VQClient', () => {
     it('returns guests', async () => {
       respond(guestsRes);
       expect(await client.getLinkedGuests(rotr)).toEqual(guests);
-      expectFetch('getLinkedGuests', { queueId: rotr.id });
+      expectFetch('getLinkedGuests', {
+        queueId: rotr.id,
+        requestType: 'REVIEW',
+      });
     });
   });
 

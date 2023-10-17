@@ -94,6 +94,7 @@ interface GetLinkedGuestsRequest {
   resource: 'getLinkedGuests';
   data: {
     queueId: string;
+    requestType: 'REVIEW' | 'CHANGE';
   };
 }
 
@@ -142,7 +143,7 @@ export class VQClient extends ApiClient {
   async getLinkedGuests(queue: Pick<Queue, 'id'>): Promise<Guest[]> {
     const { data } = await this.post<GetLinkedGuestsOKResponse>({
       resource: 'getLinkedGuests',
-      data: { queueId: queue.id },
+      data: { queueId: queue.id, requestType: 'REVIEW' },
     });
     return sortGuests(
       data.guests.map(
