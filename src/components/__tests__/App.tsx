@@ -4,8 +4,7 @@ import { DISCLAIMER_ACCEPTED_KEY } from '@/hooks/useDisclaimer';
 import { NEWS_VERSION_KEY } from '@/hooks/useNews';
 import { act, click, render, screen, see } from '@/testing';
 
-import App from /*, { NEWS_VERSION } */
-'../App';
+import App /*, { NEWS_VERSION } */ from '../App';
 import Screen from '../Screen';
 
 jest.mock('../genie/Merlock', () => {

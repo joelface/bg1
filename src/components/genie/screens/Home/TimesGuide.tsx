@@ -171,9 +171,7 @@ const ExperienceInfo = ({ exp }: { exp: Experience }) => (
       {!!exp.standby.displayNextShowTime && (
         <li>{exp.standby.displayNextShowTime}</li>
       )}
-      {exp.displayAdditionalShowTimes?.map(time => (
-        <li key={time}>{time}</li>
-      ))}
+      {exp.displayAdditionalShowTimes?.map(time => <li key={time}>{time}</li>)}
     </ul>
   </Screen>
 );
