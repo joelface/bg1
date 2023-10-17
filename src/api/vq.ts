@@ -1,4 +1,4 @@
-import { JsonResponse, fetchJson } from '@/fetch';
+import { JsonResponse } from '@/fetch';
 
 import { ApiClient, RequestError } from './client';
 import { Park } from './data';
@@ -24,7 +24,13 @@ export interface ApiQueue extends BaseQueue {
   tabContentId?: string;
 }
 
-type GetQueuesResponse = ApiQueue[];
+interface GetQueuesRequest {
+  resource: 'getQueues';
+}
+
+interface GetQueuesResponse {
+  queues: ApiQueue[];
+}
 
 interface BaseGuest {
   avatarImageUrl?: string;
@@ -103,7 +109,7 @@ interface GetLinkedGuestsOKResponse {
   guests: ApiGuest[];
 }
 
-type VQRequest = JoinQueueRequest | GetLinkedGuestsRequest;
+type VQRequest = GetQueuesRequest | JoinQueueRequest | GetLinkedGuestsRequest;
 type VQResource = VQRequest['resource'] | 'getQueues';
 
 export const sortGuests = (guests: Guest[]): Guest[] =>
@@ -123,9 +129,11 @@ export class VQClient extends ApiClient {
   };
 
   async getQueues(): Promise<Queue[]> {
-    const response = await fetchJson(this.origin + path('getQueues'));
+    const response = await this.post<GetQueuesResponse>({
+      resource: 'getQueues',
+    });
     if (!Array.isArray(response.data?.queues)) throw new RequestError(response);
-    return (response.data.queues as GetQueuesResponse)
+    return response.data.queues
       .filter(q => !!q.categoryContentId)
       .map(({ queueId, tabContentId = '', ...queue }) => ({
         ...queue,
@@ -221,7 +229,7 @@ export class VQClient extends ApiClient {
     try {
       return await this.request<T>({
         ...request,
-        method: 'POST',
+        method: 'data' in request ? 'POST' : 'GET',
         path: path(request.resource),
       });
     } catch (e) {

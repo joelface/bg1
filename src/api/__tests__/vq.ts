@@ -24,16 +24,14 @@ function respond(...responses: ReturnType<typeof response>[]) {
 function expectFetch(resource: string, data?: unknown) {
   const fetchArgs: unknown[] = [
     `https://vqguest-svc-wdw.wdprapps.disney.com/application/v1/guest/${resource}`,
-  ];
-  if (data) {
-    fetchArgs.push({
-      method: 'POST',
+    {
+      method: data ? 'POST' : 'GET',
       data,
       headers: expect.objectContaining({
         Authorization: 'BEARER access_token_123',
       }),
-    });
-  }
+    },
+  ];
   expect(jest.mocked(fetchJson).mock.calls[0]).toEqual(fetchArgs);
 }
 
