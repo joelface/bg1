@@ -35,12 +35,19 @@ export interface Experience extends ExpData {
   individual?: {
     available: boolean;
     displayPrice: string;
+    nextAvailableTime?: string;
+  };
+  virtualQueue?: {
+    available: boolean;
+    waitTime: number;
   };
   experienced?: boolean;
   drop?: boolean;
 }
 
 export type PlusExperience = Experience & Required<Pick<Experience, 'flex'>>;
+export type IllExperience = Experience &
+  Required<Pick<Experience, 'individual'>>;
 
 type ApiExperience = Omit<
   Experience,

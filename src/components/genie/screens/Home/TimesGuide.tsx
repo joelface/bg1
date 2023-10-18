@@ -6,6 +6,7 @@ import Tab from '@/components/Tab';
 import { useDasParties } from '@/contexts/DasParties';
 import { useExperiences } from '@/contexts/Experiences';
 import { useNav } from '@/contexts/Nav';
+import { displayTime } from '@/datetime';
 
 import DasPartyList from '../DasPartyList';
 import { HomeTabProps } from '../Home';
@@ -24,6 +25,7 @@ export default function TimesGuide({ contentRef }: HomeTabProps) {
     .filter(
       exp =>
         exp.standby.available ||
+        exp.individual ||
         exp.standby.unavailableReason === 'TEMPORARILY_DOWN'
     )
     .sort(
@@ -95,6 +97,7 @@ export default function TimesGuide({ contentRef }: HomeTabProps) {
         <Legend>
           <Symbol sym="*" def="No listed wait/show time" />
           <Symbol sym="❌" def="Temporarily down" />
+          <Symbol sym="VQ" def="Virtual queue" />
         </Legend>
       )}
       {loaderElem}
@@ -119,7 +122,7 @@ function ExperienceList({
       <h3 className="mt-0 py-1 text-white text-xs font-semibold text-center uppercase">
         {title}
       </h3>
-      <table className="w-full bg-white bg-opacity-90 leading-snug">
+      <table className="w-full leading-snug">
         <tbody>
           {experiences.map(exp => (
             <tr className="group" key={exp.id}>
@@ -128,11 +131,7 @@ function ExperienceList({
                   exp.standby.displayNextShowTime
                     ? 'min-w-[5.625rem]'
                     : 'min-w-[2.75rem]'
-                } px-2 py-0.5 group-first:pt-1 group-last:pb-1 ${
-                  land.theme.bg
-                } bg-opacity-10 ${
-                  land.theme.text
-                } font-bold text-center uppercase whitespace-nowrap`}
+                } px-2 py-0.5 group-first:pt-1 group-last:pb-1 bg-white bg-opacity-80 font-bold text-center uppercase whitespace-nowrap`}
               >
                 {exp.standby.displayNextShowTime ? (
                   (exp.displayAdditionalShowTimes?.length ?? 0) > 0 ? (
@@ -147,12 +146,28 @@ function ExperienceList({
                   )
                 ) : exp.standby.available ? (
                   exp.standby.waitTime ?? '*'
+                ) : exp.virtualQueue &&
+                  exp.standby.unavailableReason === 'NOT_STANDBY_ENABLED' ? (
+                  'VQ'
                 ) : (
                   '❌'
                 )}
               </td>
-              <td className="w-full px-1 pl-2 py-0.5 group-first:pt-1 group-last:pb-1">
-                {exp.name}
+              <td className="w-full px-1 pl-2 py-0.5 group-first:pt-1 group-last:pb-1 bg-white bg-opacity-90">
+                <div className="flex items-center gap-x-2">
+                  <div className="flex-1">{exp.name}</div>
+                  {exp?.individual && (
+                    <div
+                      className={`px-1.5 py-0.5 ${land.theme.bg} text-white text-xs font-semibold uppercase`}
+                    >
+                      <abbr title="Individual Lightning Lane">ILL</abbr>
+                      {'\u200a: '}
+                      {exp.individual.nextAvailableTime
+                        ? displayTime(exp.individual.nextAvailableTime)
+                        : 'None'}
+                    </div>
+                  )}
+                </div>
               </td>
             </tr>
           ))}

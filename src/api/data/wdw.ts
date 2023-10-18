@@ -444,7 +444,7 @@ export const experiences: Experiences = {
     land: tomorrowland,
     geo: [28.4202075, -81.577053],
     priority: 1.0,
-    sort: 1,
+    sort: 8,
   },
   16767263: {
     id: '16767263',
@@ -526,7 +526,7 @@ export const experiences: Experiences = {
     land: discovery,
     geo: [28.3747479, -81.5478405],
     priority: 1.0,
-    sort: 1,
+    sort: 3,
   },
   13507: {
     id: '13507',
@@ -590,7 +590,7 @@ export const experiences: Experiences = {
     land: discovery,
     geo: [28.3739368, -81.5526389],
     priority: 4.0,
-    sort: 3,
+    sort: 2,
   },
   18780200: {
     id: '18780200',
@@ -647,7 +647,7 @@ export const experiences: Experiences = {
     land: discovery,
     geo: [28.3733374, -81.5474931],
     priority: 1.2,
-    sort: 2,
+    sort: 1,
   }),
   62992: {
     id: '62992',
