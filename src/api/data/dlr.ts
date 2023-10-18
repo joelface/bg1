@@ -402,6 +402,16 @@ export const experiences: Experiences = {
     name: 'Amazing Spider-Man',
     land: avengers,
   },
+  19630107: {
+    id: '19630107',
+    name: 'Avengers Assemble!',
+    land: avengers,
+  },
+  18781959: {
+    id: '18781959',
+    name: 'Coco Musical Celebration',
+    land: paradise,
+  },
   18708628: {
     id: '18708628',
     name: 'Disney Junior Dance Party',
@@ -551,11 +561,6 @@ export const experiences: Experiences = {
     priority: 2.2,
     sort: 1,
   },
-  18781959: {
-    id: '18781959',
-    name: 'Coco Musical Celebration',
-    land: paradise,
-  },
   353379: {
     id: '353379',
     name: 'Pixar Pal-A-Round - Swinging',
@@ -569,6 +574,11 @@ export const experiences: Experiences = {
     geo: [33.8052475, -117.9198715],
     priority: 1.0,
     sort: 1,
+  },
+  353413: {
+    id: '353413',
+    name: 'Redwood Creek Challenge Trail',
+    land: grizzly,
   },
   15510732: {
     id: '15510732',

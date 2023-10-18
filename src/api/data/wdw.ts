@@ -465,6 +465,11 @@ export const experiences: Experiences = {
     land: showcase,
     type: 'ENTERTAINMENT',
   },
+  19473173: {
+    id: '19473173',
+    name: 'Awesome Planet',
+    land: nature,
+  },
   19463785: {
     id: '19463785',
     name: 'Beauty & the Beast Sing-Along',
@@ -473,6 +478,11 @@ export const experiences: Experiences = {
   80010174: {
     id: '80010174',
     name: 'Canada Far and Wide',
+    land: showcase,
+  },
+  19036653: {
+    id: '19036653',
+    name: 'Canada Mill Stage Entertainment',
     land: showcase,
   },
   18269694: {
@@ -529,6 +539,11 @@ export const experiences: Experiences = {
     land: celebration,
     geo: [28.372896, -81.5512292],
     sort: 2,
+  },
+  411794307: {
+    id: '411794307',
+    name: 'Journey of Water, Inspired by Moana',
+    land: nature,
   },
   19516307: {
     id: '19516307',
@@ -666,6 +681,11 @@ export const experiences: Experiences = {
     name: 'Disney Junior Play and Dance',
     land: otherStudios,
     geo: [28.3579409, -81.5607914],
+  },
+  18693119: {
+    id: '18693119',
+    name: 'Disney Movie Magic',
+    land: hollywood,
   },
   80010887: {
     id: '80010887',
