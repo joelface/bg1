@@ -5,7 +5,6 @@ import News from '@/components/screens/News';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { useNav } from '@/contexts/Nav';
 import ExitIcon from '@/icons/ExitIcon';
-import HeartIcon from '@/icons/HeartIcon';
 import NewsIcon from '@/icons/NewsIcon';
 import SettingsIcon from '@/icons/SettingsIcon';
 import UserIcon from '@/icons/UserIcon';
@@ -30,11 +29,6 @@ export default function SettingsButton() {
       text: 'BG1 News',
       icon: <NewsIcon />,
       action: () => goTo(<News />),
-    },
-    {
-      text: 'Support BG1',
-      icon: <HeartIcon className="text-red-600" />,
-      action: () => open('https://joelface.github.io/bg1/contact.html#donate'),
     },
   ]);
   const [showingMenu, showMenu] = useState(false);
