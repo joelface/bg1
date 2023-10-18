@@ -53,6 +53,7 @@ export abstract class ApiClient {
     params?: { [key: string]: string };
     data?: unknown;
     key?: string;
+    ignoreUnauth?: boolean;
   }): Promise<JsonOK<T>> {
     const { swid, accessToken } = this.authStore.getData();
     const url = this.origin + request.path;
@@ -66,7 +67,7 @@ export abstract class ApiClient {
         'x-user-id': swid,
       },
     });
-    if (res.status === 401) {
+    if (res.status === 401 && !request.ignoreUnauth) {
       setTimeout(() => this.authStore.deleteData());
     } else {
       const { key } = request;

@@ -566,6 +566,7 @@ export class GenieClient extends ApiClient {
         'show-friends': 'false',
       },
       userId: false,
+      ignoreUnauth: true,
     });
 
     const getGuest = (g: ReservationItem['guests'][0]) => {
