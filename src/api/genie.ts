@@ -309,6 +309,11 @@ interface Itinerary {
   profiles: { [id: string]: Profile };
 }
 
+export const FALLBACK_IDS = {
+  WDW: { experience: '80010110', park: '80007944' },
+  DLR: { experience: '353295', park: '330339' },
+} as const;
+
 const RES_TYPES = new Set(['ACTIVITY', 'DINING']);
 
 const idNum = (id: string) => id.split(';')[0];
@@ -388,15 +393,15 @@ export class GenieClient extends ApiClient {
 
   async guests(experience?: {
     id: string;
-    park: { id: string };
+    park?: { id: string };
   }): Promise<Guests> {
-    experience ||= { id: '0', park: { id: '0' } };
+    const ids = FALLBACK_IDS[this.data.resort];
     const { data } = await this.request<GuestsResponse>({
       path: '/ea-vas/api/v1/guests',
       params: {
         productType: 'FLEX',
-        experienceId: experience.id,
-        parkId: experience.park.id,
+        experienceId: experience?.id ?? ids.experience,
+        parkId: experience?.park?.id ?? ids.park,
       },
     });
     this.primaryGuestId = data.primaryGuestId;
@@ -882,7 +887,7 @@ export class BookingTracker {
     this.expIds = new Set(cancellableLLs.map(b => b.id));
     for (const id of oldExpIds) {
       if (this.expIds.has(id)) continue;
-      const { ineligible } = await client.guests({ id, park: { id: '0' } });
+      const { ineligible } = await client.guests({ id });
       const limitReached = ineligible.some(
         g => g.ineligibleReason === 'EXPERIENCE_LIMIT_REACHED'
       );

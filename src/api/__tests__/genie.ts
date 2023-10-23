@@ -20,6 +20,7 @@ import { experiences, parks } from '../data/wdw';
 import {
   Booking,
   BookingTracker,
+  FALLBACK_IDS,
   GenieClient,
   Guest,
   LightningLane,
@@ -131,8 +132,13 @@ describe('GenieClient', () => {
       respond(guestsRes, ...Array(4).fill(res));
       expect(await getExpData()).toEqual([smExp]);
       expect(client.nextBookTime).toBe('11:00:00');
+      const ids = FALLBACK_IDS.WDW;
       expectFetch('/ea-vas/api/v1/guests', {
-        params: { productType: 'FLEX', experienceId: '0', parkId: '0' },
+        params: {
+          productType: 'FLEX',
+          experienceId: ids.experience,
+          parkId: ids.park,
+        },
       });
       expectFetch(
         `/tipboard-vas/api/v1/parks/${encodeURIComponent(mk.id)}/experiences`,
