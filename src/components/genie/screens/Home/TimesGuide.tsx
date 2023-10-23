@@ -158,7 +158,7 @@ function ExperienceList({
                   <div className="flex-1">{exp.name}</div>
                   {exp?.individual && (
                     <div
-                      className={`${land.theme.text} text-xs font-semibold text-center uppercase`}
+                      className={`${land.theme.text} text-xs leading-tight font-semibold text-center uppercase`}
                     >
                       <div>
                         <abbr title="Individual Lightning Lane">ILL</abbr>
