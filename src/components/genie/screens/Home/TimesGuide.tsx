@@ -158,7 +158,7 @@ function ExperienceList({
                   <div className="flex-1">{exp.name}</div>
                   {exp?.individual && (
                     <div
-                      className={`px-1.5 py-0.5 ${land.theme.bg} text-white text-xs font-semibold uppercase`}
+                      className={`${land.theme.text} text-xs font-semibold uppercase`}
                     >
                       <abbr title="Individual Lightning Lane">ILL</abbr>
                       {'\u200a: '}
