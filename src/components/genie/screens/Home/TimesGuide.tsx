@@ -158,13 +158,17 @@ function ExperienceList({
                   <div className="flex-1">{exp.name}</div>
                   {exp?.individual && (
                     <div
-                      className={`${land.theme.text} text-xs font-semibold uppercase`}
+                      className={`${land.theme.text} text-xs font-semibold text-center uppercase`}
                     >
-                      <abbr title="Individual Lightning Lane">ILL</abbr>
-                      {'\u200a: '}
-                      {exp.individual.nextAvailableTime
-                        ? displayTime(exp.individual.nextAvailableTime)
-                        : 'None'}
+                      <div>
+                        <abbr title="Individual Lightning Lane">ILL</abbr>
+                        {'\u200a: ' + exp.individual.displayPrice}
+                      </div>
+                      {exp.individual.nextAvailableTime && (
+                        <div>
+                          {displayTime(exp.individual.nextAvailableTime)}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
