@@ -2,21 +2,7 @@
 
 **WARNING! Use at your own risk. BG1 is highly experimental, for demonstration purposes only, and provided "as is" without warranty of any kind. It is in no way endorsed by or associated with the Walt Disney Company and could stop working at any time for any reason. To ensure the intended experience, always use the official Disney app.**
 
-BG1 is an unofficial, experimental client for obtaining virtual queue boarding groups at Disney theme parks in the United States. Read the [BG1 documentation](https://joelface.github.io/bg1/) to learn more.
-
-## Major Updates
-
-- ### July 18, 2023
-
-  Due to changes made by Disney with the intention of blocking third party clients, BG1 is no longer able to book Lightning Lanes. Sorry!
-
-- ### April 28, 2022
-
-  BG1 now supports Genie+!
-
-- ### September 9, 2021
-
-  The official WDW/DL apps have been updated to include many of the virtual queue user experience improvements first implemented in BG1.
+BG1 is an unofficial, experimental client for obtaining Genie+ Lightning Lane reservations and virtual queue boarding groups at Disney theme parks in the United States. Read the [BG1 documentation](https://joelface.github.io/bg1/) to learn more.
 
 ## Acknowledgements
 
