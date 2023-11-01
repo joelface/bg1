@@ -269,6 +269,14 @@ export const experiences: Experiences = {
     sort: 4,
     priority: 4.0,
   },
+  412010035: {
+    id: '412010035',
+    name: 'Jingle Cruise',
+    land: adventureland,
+    geo: [28.4180339, -81.5834548],
+    priority: 1.2,
+    sort: 1,
+  },
   80010153: {
     id: '80010153',
     name: 'Jungle Cruise',
