@@ -12,6 +12,7 @@ import {
 
 export * from '@testing-library/react';
 
+export const YESTERDAY = '2021-09-30';
 export const TODAY = '2021-10-01';
 export const TOMORROW = '2021-10-02';
 

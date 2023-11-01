@@ -123,10 +123,14 @@ describe('GenieClient', () => {
       const res = response({
         availableExperiences: [sm, { id: 'not_a_real_id' }],
         eligibility: {
-          flexEligibilityWindows: [
-            { time: { time: '13:30:00' } },
-            { time: { time: nextBookTime } },
-          ],
+          geniePlusEligibility: {
+            [TODAY]: {
+              flexEligibilityWindows: [
+                { time: { time: '13:30:00' } },
+                { time: { time: nextBookTime } },
+              ],
+            },
+          },
         },
       });
       const smExp: PlusExperience = {
@@ -147,7 +151,7 @@ describe('GenieClient', () => {
         },
       });
       expectFetch(
-        `/tipboard-vas/api/v1/parks/${encodeURIComponent(mk.id)}/experiences`,
+        `/tipboard-vas/api/v2/parks/${encodeURIComponent(mk.id)}/experiences`,
         { params: { eligibilityGuestIds: guests.map(g => g.id).join(',') } },
         true,
         2

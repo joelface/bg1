@@ -1,13 +1,16 @@
-import { setTime } from '@/testing';
+import { TODAY, YESTERDAY, setTime } from '@/testing';
 
 import {
   dateTimeStrings,
   displayTime,
+  parkDate,
   setDefaultTimeZone,
   splitDateTime,
 } from '../datetime';
 
-setTime('08:00');
+beforeEach(() => {
+  setTime('08:00');
+});
 
 describe('dateTimeStrings()', () => {
   it('parses Date object', () => {
@@ -30,6 +33,22 @@ describe('displayTime()', () => {
     expect(displayTime('08:14:42')).toBe('8:14 AM');
     expect(displayTime('08:14')).toBe('8:14 AM');
     expect(displayTime('8:00')).toBe('8:00 AM');
+  });
+});
+
+describe('parkDate()', () => {
+  it(`returns today's date if after 3 AM`, () => {
+    setTime('23:59:59');
+    expect(parkDate()).toBe(TODAY);
+    setTime('03:00:01');
+    expect(parkDate()).toBe(TODAY);
+  });
+
+  it(`returns yesterday's date if it's between midnight and 3 AM`, () => {
+    setTime('00:00:00');
+    expect(parkDate()).toBe(YESTERDAY);
+    setTime('03:00:00');
+    expect(parkDate()).toBe(YESTERDAY);
   });
 });
 

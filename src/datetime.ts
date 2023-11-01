@@ -34,6 +34,14 @@ export function dateTimeStrings(date?: Date | number): DateTimeStrings {
   };
 }
 
+export function parkDate(): string {
+  const dt = dateTimeStrings();
+  if (dt.time > '03:00:00') return dt.date;
+  const parkDay = new Date();
+  parkDay.setDate(parkDay.getDate() - 1);
+  return dateTimeStrings(parkDay).date;
+}
+
 export function displayDate(date: string) {
   const dt = new Date(date + 'T00:00:00');
   const monthDay = dt.toLocaleString('en-US', {

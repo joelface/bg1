@@ -1,4 +1,4 @@
-import { dateTimeStrings, splitDateTime } from '@/datetime';
+import { dateTimeStrings, parkDate, splitDateTime } from '@/datetime';
 
 import { AuthStore } from './auth/store';
 import { avatarUrl } from './avatar';
@@ -57,13 +57,18 @@ type ApiExperience = Omit<
 interface ExperiencesResponse {
   availableExperiences: ApiExperience[];
   eligibility?: {
-    flexEligibilityWindows?: {
-      time: {
-        time: string;
-        timeDisplayString: string;
-        timeStatus: string;
+    geniePlusEligibility?: {
+      [date: string]: {
+        flexEligibilityWindows?: {
+          time: {
+            time: string;
+            timeDisplayString: string;
+            timeStatus: 'NOW' | 'LATER';
+          };
+          guestIds: string[];
+        }[];
       };
-    }[];
+    };
     guestIds: string[];
   };
 }
@@ -366,14 +371,17 @@ export class GenieClient extends ApiClient {
   async experiences(park: Park): Promise<Experience[]> {
     await this.primeGuestCache();
     const { data } = await this.request<ExperiencesResponse>({
-      path: `/tipboard-vas/api/v1/parks/${encodeURIComponent(
+      path: `/tipboard-vas/api/v2/parks/${encodeURIComponent(
         park.id
       )}/experiences`,
-      params: { eligibilityGuestIds: [...this.guestCache.keys()].join(',') },
+      params: {
+        eligibilityGuestIds: [...this.guestCache.keys()].join(','),
+      },
     });
-    this.nextBookTime = (data.eligibility?.flexEligibilityWindows || []).sort(
-      (a, b) => a.time.time.localeCompare(b.time.time)
-    )[0]?.time.time;
+    this.nextBookTime = (
+      data.eligibility?.geniePlusEligibility?.[parkDate()]
+        ?.flexEligibilityWindows || []
+    ).sort((a, b) => a.time.time.localeCompare(b.time.time))[0]?.time.time;
     const { experiences: dropExps = [] } = this.upcomingDrops(park)[0] ?? {};
     return data.availableExperiences
       .filter(exp => {
