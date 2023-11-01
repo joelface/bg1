@@ -186,7 +186,7 @@ export const experiences: Experiences = {
     name: 'Big Thunder Mountain Railroad',
     land: frontierland,
     geo: [28.4197486, -81.5845092],
-    priority: 2.1,
+    priority: 3.0,
     sort: 1,
   },
   80010114: {
@@ -194,7 +194,7 @@ export const experiences: Experiences = {
     name: "Buzz Lightyear's Space Ranger Spin",
     land: tomorrowland,
     geo: [28.418446, -81.5796479],
-    priority: 3.3,
+    priority: 3.5,
     sort: 2,
   },
   80010232: {
@@ -230,7 +230,7 @@ export const experiences: Experiences = {
     name: 'Enchanted Tales with Belle',
     land: fantasyland,
     geo: [28.4207354, -81.5807867],
-    priority: 3.5,
+    priority: 3.2,
   },
   16124144: {
     id: '16124144',
@@ -266,8 +266,8 @@ export const experiences: Experiences = {
     name: "it's a small world",
     land: fantasyland,
     geo: [28.4205055, -81.582156],
-    priority: 3.7,
     sort: 4,
+    priority: 4.0,
   },
   80010153: {
     id: '80010153',
@@ -301,7 +301,7 @@ export const experiences: Experiences = {
     name: 'Many Adventures of Winnie the Pooh',
     land: fantasyland,
     geo: [28.4202297, -81.5801966],
-    priority: 3.1,
+    priority: 3.4,
     sort: 3,
   },
   16874126: {
@@ -310,7 +310,7 @@ export const experiences: Experiences = {
     land: fantasyland,
     geo: [28.4208803, -81.5796853],
     type: 'CHARACTER',
-    priority: 3.0,
+    priority: 2.2,
   },
   15850196: {
     id: '15850196',
@@ -318,7 +318,7 @@ export const experiences: Experiences = {
     land: mainStreet,
     geo: [28.4167334, -81.5803937],
     type: 'CHARACTER',
-    priority: 3.8,
+    priority: 3.1,
   },
   18498503: {
     id: '18498503',
@@ -326,7 +326,7 @@ export const experiences: Experiences = {
     land: fantasyland,
     geo: [28.4199771, -81.5808316],
     type: 'CHARACTER',
-    priority: 3.6,
+    priority: 2.1,
   },
   387133: {
     id: '387133',
@@ -346,7 +346,7 @@ export const experiences: Experiences = {
     land: fantasyland,
     geo: [28.4199771, -81.5808316],
     type: 'CHARACTER',
-    priority: 3.4,
+    priority: 3.3,
   },
   19579538: {
     id: '19579538',
@@ -390,7 +390,7 @@ export const experiences: Experiences = {
     name: 'Pirates of the Caribbean',
     land: adventureland,
     geo: [28.4180994, -81.5842719],
-    priority: 3.2,
+    priority: 3.6,
     sort: 2,
   },
   80010117: {
@@ -418,7 +418,7 @@ export const experiences: Experiences = {
     name: 'Space Mountain',
     land: tomorrowland,
     geo: [28.4187869, -81.5782063],
-    priority: 1.4,
+    priority: 2.3,
     sort: 1,
   },
   80010196: {
@@ -506,7 +506,7 @@ export const experiences: Experiences = {
     name: 'Frozen Ever After',
     land: showcase,
     geo: [28.3706716, -81.5465556],
-    priority: 1.3,
+    priority: 1.2,
     sort: 2,
   }),
   207395: {
@@ -646,7 +646,7 @@ export const experiences: Experiences = {
     name: 'Test Track',
     land: discovery,
     geo: [28.3733374, -81.5474931],
-    priority: 1.2,
+    priority: 1.3,
     sort: 1,
   }),
   62992: {
@@ -753,7 +753,7 @@ export const experiences: Experiences = {
     name: "Mickey & Minnie's Runaway Railway",
     land: hollywood,
     geo: [28.3567406, -81.5606842],
-    priority: 2.2,
+    priority: 2.0,
     sort: 1,
   },
   19263735: {
@@ -761,7 +761,7 @@ export const experiences: Experiences = {
     name: 'Millennium Falcon: Smugglers Run',
     land: starWars,
     geo: [28.353862, -81.5616967],
-    priority: 2.1,
+    priority: 2.2,
     sort: 2,
   },
   80010151: {
@@ -775,7 +775,7 @@ export const experiences: Experiences = {
     name: "Rock 'n' Roller Coaster",
     land: hollywood,
     geo: [28.3597607, -81.5606022],
-    priority: 2.0,
+    priority: 2.1,
     sort: 3,
   },
   18904138: (sdd = {
@@ -838,7 +838,7 @@ export const experiences: Experiences = {
     name: 'DINOSAUR',
     land: dinoland,
     geo: [28.3552805, -81.5884492],
-    priority: 3.3,
+    priority: 3.1,
     sort: 1,
   },
   26068: (ee = {
@@ -846,7 +846,7 @@ export const experiences: Experiences = {
     name: 'Expedition Everest',
     land: asia,
     geo: [28.3584979, -81.587395],
-    priority: 3.1,
+    priority: 3.0,
     sort: 1,
   }),
   19581372: {
@@ -883,14 +883,14 @@ export const experiences: Experiences = {
     name: 'Kali River Rapids',
     land: asia,
     geo: [28.3592076, -81.5883195],
-    priority: 3.0,
+    priority: 3.2,
   }),
   80010157: {
     id: '80010157',
     name: 'Kilimanjaro Safaris',
     land: africa,
     geo: [28.3592779, -81.5921478],
-    priority: 3.2,
+    priority: 2.1,
     sort: 1,
   },
   80010164: {
@@ -904,7 +904,7 @@ export const experiences: Experiences = {
     land: discIsland,
     geo: [28.3579455, -81.5898647],
     type: 'CHARACTER',
-    priority: 3.4,
+    priority: 2.0,
   },
   411921961: {
     id: '411921961',
