@@ -8,7 +8,7 @@ BG1 is an unofficial, experimental client for obtaining Genie+ Lightning Lane re
 
 - **Len Testa:** For helping me get as close as I could ever reasonably expect to accomplish a not very serious childhood dream of almost being an Imagineer. Also for creating [Touring Plans](https://touringplans.com/), which is pretty rad.
 
-- **Barry, Stacy, Jeff, Michelle, Jim, Stuart, Bob, Kimberly, Milissa, Jennifer, Erin & Erin, Kristina, Lemonia, Scott, Jorge, Phil, Kellianne, and others:** For helping me test and improve BG1.
+- **Barry, Stacy, Jeff, Michelle, Jim, Stuart, Bob, Kimberly, Milissa, Jennifer, Erin & Erin, Kristina, Lemonia, Scott, Jorge, Phil, Kellianne, Joshua, and others:** For helping me test and improve BG1.
 
 - **[Thrill Data](https://www.thrill-data.com/):** For providing data used to help determine Lightning Lane priorities.
 
