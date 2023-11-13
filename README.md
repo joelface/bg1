@@ -10,6 +10,8 @@ BG1 is an unofficial, experimental client for obtaining Genie+ Lightning Lane re
 
 - **Barry, Stacy, Jeff, Michelle, Jim, Stuart, Bob, Kimberly, Milissa, Jennifer, Erin & Erin, Kristina, Lemonia, Scott, Jorge, Phil, Kellianne, Joshua, and others:** For helping me test and improve BG1.
 
+- **Arialvetica:** For creating the awesome BG1 logo.
+
 - **[Thrill Data](https://www.thrill-data.com/):** For providing data used to help determine Lightning Lane priorities.
 
 - **[IcoMoon](https://icomoon.io/#icons-icomoon):** For the free icons, provided under a [Creative Commons license](https://creativecommons.org/licenses/by/4.0/).
