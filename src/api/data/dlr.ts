@@ -242,6 +242,11 @@ export const experiences: Experiences = {
     geo: [33.8144167, -117.9181268],
     sort: 4,
   },
+  18847498: {
+    id: '18847498',
+    name: "it's a small world Holiday Lighting",
+    land: fantasyland,
+  },
   353363: {
     id: '353363',
     name: 'Jungle Cruise',
@@ -397,6 +402,11 @@ export const experiences: Experiences = {
     name: 'Tale of the Lion King',
     land: fantasyland,
   },
+  15756384: {
+    id: '15756384',
+    name: 'Wintertime Enchantment',
+    land: mainStreet,
+  },
   // California Adventure
   19630108: {
     id: '19630108',
@@ -417,6 +427,11 @@ export const experiences: Experiences = {
     id: '18708628',
     name: 'Disney Junior Dance Party',
     land: hollywood,
+  },
+  17595196: {
+    id: '17595196',
+    name: 'Viva Navidad Street Party',
+    land: paradise,
   },
   19630109: {
     id: '19630109',
