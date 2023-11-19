@@ -95,7 +95,7 @@ export default function BookingDetails({
       ) : (
         <>
           <h2>{name}</h2>
-          <div>{park.name}</div>
+          {park.name && <div>{park.name}</div>}
         </>
       )}
       {type === 'BG' ? (

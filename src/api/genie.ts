@@ -600,11 +600,12 @@ export class GenieClient extends ApiClient {
       const activityAsset = assets[item.asset];
       const facilityAsset = assets[activityAsset.facility];
       const parkIdStr = facilityAsset.location;
-      if (!parkIdStr) return;
-      const park = this.data.parks.get(idNum(parkIdStr)) || {
-        id: parkIdStr,
-        name: assets[parkIdStr].name,
-      };
+      const park = parkIdStr
+        ? this.data.parks.get(idNum(parkIdStr)) || {
+            id: parkIdStr,
+            name: assets[parkIdStr].name,
+          }
+        : { id: '', name: '' };
       const start = new Date(item.startDateTime);
       const res: Reservation = {
         type: 'RES',
