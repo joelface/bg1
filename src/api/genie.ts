@@ -215,7 +215,7 @@ export interface DasBooking extends BaseBooking {
 export interface Reservation extends BaseBooking {
   type: 'RES';
   subtype: 'DINING' | 'ACTIVITY';
-  park: Partial<Park> & Pick<Park, 'id' | 'name'>;
+  park: Park;
   start: DateTime;
   end?: undefined;
   cancellable?: undefined;
@@ -599,13 +599,9 @@ export class GenieClient extends ApiClient {
     const getReservation = (item: ReservationItem) => {
       const activityAsset = assets[item.asset];
       const facilityAsset = assets[activityAsset.facility];
-      const parkIdStr = facilityAsset.location;
-      const park = parkIdStr
-        ? this.data.parks.get(idNum(parkIdStr)) || {
-            id: parkIdStr,
-            name: assets[parkIdStr].name,
-          }
-        : { id: '', name: '' };
+      const parkIdStr = facilityAsset.location ?? '';
+      const park = this.getPark(parkIdStr);
+      if (park.name === '' && parkIdStr) park.name = assets[parkIdStr].name;
       const start = new Date(item.startDateTime);
       const res: Reservation = {
         type: 'RES',
@@ -728,13 +724,15 @@ export class GenieClient extends ApiClient {
     const getBoardingGroup = (item: BoardingGroupItem): BoardingGroup => {
       const vqAsset = assets[item.asset];
       const facilityAsset = assets[vqAsset.facility];
+      const exp = this.getExperience(
+        vqAsset.facility,
+        (facilityAsset as Required<Asset>).location,
+        vqAsset.name
+      );
+      if (exp.park.name === '') exp.park.name = facilityAsset.name;
       return {
+        ...exp,
         type: 'BG',
-        ...this.getExperience(
-          vqAsset.facility,
-          (facilityAsset as Required<Asset>).location,
-          vqAsset.name
-        ),
         boardingGroup: item.boardingGroup.id,
         status: item.status,
         start: dateTimeStrings(new Date(item.startDateTime)),
@@ -800,12 +798,25 @@ export class GenieClient extends ApiClient {
     return this.upcomingDrops(park)[0]?.time;
   }
 
+  protected getPark(id: string) {
+    id = idNum(id);
+    return (
+      this.data.parks.get(id) ?? {
+        id,
+        name: '',
+        icon: '',
+        geo: { n: 0, s: 0, e: 0, w: 0 },
+        theme: { bg: 'bg-blue-500', text: 'text-blue-500' },
+      }
+    );
+  }
+
   protected getExperience(id: string, parkId: string, name?: string) {
     id = idNum(id);
     return {
       id,
       name: (this.data.experiences[id]?.name || name) as string,
-      park: this.data.parks.get(idNum(parkId)) as Park,
+      park: this.getPark(parkId),
     };
   }
 
