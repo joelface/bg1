@@ -29,14 +29,14 @@ describe('Plans', () => {
     click('Refresh Plans');
     expect(refreshPlans).toBeCalledTimes(1);
 
-    const lis = (await screen.findAllByRole('listitem')).filter(
-      li => !li.getAttribute('aria-label')
+    const planLIs = (await screen.findAllByRole('listitem')).filter(li =>
+      li.classList.contains('border-t-4')
     );
     see('Today, October 1');
     bookings
       .filter(b => b.type !== 'APR')
       .forEach((booking, i) => {
-        const inLI = within(lis[i]);
+        const inLI = within(planLIs[i]);
         inLI.getByText(booking.choices ? 'Multiple Experiences' : booking.name);
         inLI.getByText(
           booking.type === 'BG'
@@ -60,6 +60,11 @@ describe('Plans', () => {
     expect(
       screen.queryByRole('listitem', { name: hs.name })
     ).not.toBeInTheDocument();
+
+    within(see('Tomorrow, October 2').closest('li') as HTMLLIElement).getByText(
+      'No existing plans'
+    );
+    expect(see.all('No existing plans')).toHaveLength(1);
 
     click(booking.name);
     expect(goTo).lastCalledWith(<BookingDetails booking={booking} />);

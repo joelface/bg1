@@ -35,6 +35,12 @@ export default function Plans({ ...props }: Partial<ScreenProps>) {
     }
   }
 
+  const noPlans = (
+    <p className="font-semibold text-center uppercase text-gray-500">
+      No existing plans
+    </p>
+  );
+
   return (
     <Tab
       heading="Your Plans"
@@ -42,54 +48,56 @@ export default function Plans({ ...props }: Partial<ScreenProps>) {
       theme={DEFAULT_THEME}
       {...props}
     >
-      {plans.length > 0 ? (
-        [...plansByDate].map(([date, plans]) => (
-          <div key={date}>
-            <div className={`sticky top-0 -mx-3 pt-1 bg-white`}>
-              <div className="flex items-center">
-                <h2
-                  className={`flex-1 mt-0 rounded-r-full px-3 py-1 ${theme.bg} text-white text-sm uppercase`}
-                >
-                  <Time date={date} />
-                </h2>
-                <ul className="px-3 pl-2 text-lg text-right">
-                  {[...(parksByDate.get(date) ?? [])].map(park => (
-                    <li
-                      key={park.id}
-                      className="inline ml-1 first:ml-0"
-                      aria-label={park.name}
+      <ul>
+        {plans.length > 0
+          ? [...plansByDate].map(([date, plans]) => (
+              <li key={date}>
+                <div className={`sticky top-0 -mx-3 pt-1 bg-white`}>
+                  <div className="flex items-center">
+                    <h2
+                      className={`flex-1 mt-0 rounded-r-full px-3 py-1 ${theme.bg} text-white text-sm uppercase`}
                     >
-                      {park.icon}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            <ul className={plans.length === 0 ? 'mt-3' : ''}>
-              {plans.map(booking => (
-                <li
-                  className="py-2.5 first:border-0 border-t-4 border-gray-300"
-                  key={booking.bookingId}
-                  onClick={() => showBooking(booking)}
-                >
-                  <BookingListing
-                    booking={booking}
-                    button={
-                      <button className={theme.text} title="More Info">
-                        <ChevronRightIcon />
-                      </button>
-                    }
-                  />
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))
-      ) : (
-        <p className="font-semibold text-center uppercase text-gray-500">
-          No existing plans
-        </p>
-      )}
+                      <Time date={date} />
+                    </h2>
+                    <ul className="px-3 pl-2 text-lg text-right">
+                      {[...(parksByDate.get(date) ?? [])].map(park => (
+                        <li
+                          key={park.id}
+                          className="inline ml-1 first:ml-0"
+                          aria-label={park.name}
+                        >
+                          {park.icon}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+                {plans.length > 0 ? (
+                  <ul className={plans.length === 0 ? 'mt-3' : ''}>
+                    {plans.map(booking => (
+                      <li
+                        className="py-2.5 first:border-0 border-t-4 border-gray-300"
+                        key={booking.bookingId}
+                        onClick={() => showBooking(booking)}
+                      >
+                        <BookingListing
+                          booking={booking}
+                          button={
+                            <button className={theme.text} title="More Info">
+                              <ChevronRightIcon />
+                            </button>
+                          }
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  noPlans
+                )}
+              </li>
+            ))
+          : noPlans}
+      </ul>
       {loaderElem}
     </Tab>
   );
