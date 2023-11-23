@@ -25,7 +25,7 @@ export default function BookingListing({
           )}
           {booking.type === 'BG' ? (
             <>
-              <span>BG&#8202;{booking.boardingGroup}</span>
+              <span>BG {booking.boardingGroup}</span>
               {booking.status === 'SUMMONED' && (
                 <>
                   {DOT}
