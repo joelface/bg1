@@ -40,6 +40,7 @@ export default function TimesGuide({ contentRef }: HomeTabProps) {
           ATTRACTION: [],
           ENTERTAINMENT: [],
           CHARACTER: [],
+          HOLIDAY: [],
         });
       }
       expsByLand.get(exp.land)?.[exp.type]?.push(exp);
@@ -82,6 +83,12 @@ export default function TimesGuide({ contentRef }: HomeTabProps) {
               title="Entertainment"
               land={land}
               experiences={expsByType.ENTERTAINMENT}
+              onInfoClick={showExpInfo}
+            />
+            <ExperienceList
+              title="Holiday Entertainment"
+              land={land}
+              experiences={expsByType.HOLIDAY}
               onInfoClick={showExpInfo}
             />
             <ExperienceList

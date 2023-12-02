@@ -203,6 +203,11 @@ export const experiences: Experiences = {
     land: tomorrowland,
     sort: 7,
   },
+  8074: {
+    id: '8074',
+    name: "Casey's Corner Pianist",
+    land: mainStreet,
+  },
   80069748: {
     id: '80069748',
     name: 'Country Bear Jamboree',
@@ -242,6 +247,11 @@ export const experiences: Experiences = {
     name: 'Festival of Fantasy Parade',
     land: mainStreet,
     geo: [28.4189018, -81.5812001],
+  },
+  7922: {
+    id: '7922',
+    name: 'Flag Retreat',
+    land: mainStreet,
   },
   80069754: {
     id: '80069754',
@@ -285,6 +295,11 @@ export const experiences: Experiences = {
     priority: 1.2,
     sort: 1,
   },
+  8336: {
+    id: '8336',
+    name: 'Let the Magic Begin',
+    land: mainStreet,
+  },
   80010160: {
     id: '80010160',
     name: 'Liberty Square Riverboat',
@@ -303,6 +318,11 @@ export const experiences: Experiences = {
     land: adventureland,
     geo: [28.4183166, -81.5835006],
     sort: 4,
+  },
+  8066: {
+    id: '8066',
+    name: 'Main Street Philharmonic',
+    land: mainStreet,
   },
   80010213: {
     id: '80010213',
@@ -345,6 +365,12 @@ export const experiences: Experiences = {
   15743682: {
     id: '15743682',
     name: "Meet Minnie/Daisy (Pete's Silly Side Show)",
+    land: fantasyland,
+    type: 'CHARACTER',
+  },
+  411987382: {
+    id: '411987382',
+    name: 'Meet Mirabel (Fairytale Garden)',
     land: fantasyland,
     type: 'CHARACTER',
   },
@@ -473,6 +499,11 @@ export const experiences: Experiences = {
     land: showcase,
     type: 'ENTERTAINMENT',
   },
+  19496225: {
+    id: '19496225',
+    name: 'Atlas Fusion (Morocco)',
+    land: showcase,
+  },
   19473173: {
     id: '19473173',
     name: 'Awesome Planet',
@@ -493,21 +524,39 @@ export const experiences: Experiences = {
     name: 'Canada Mill Stage Entertainment',
     land: showcase,
   },
+  245272: {
+    id: '245272',
+    name: 'Chinese Lion Dancer',
+    land: showcase,
+    type: 'HOLIDAY',
+  },
+  411702927: {
+    id: '411702927',
+    name: 'Command Performance (UK)',
+    land: showcase,
+  },
+  245268: {
+    id: '245268',
+    name: 'Daruma Storyteller (Japan)',
+    land: showcase,
+    type: 'HOLIDAY',
+  },
   18269694: {
     id: '18269694',
     name: 'Disney & Pixar Short Film Festival',
     land: celebration,
     geo: [28.3720463, -81.5508243],
   },
-  19242311: {
-    id: '19242311',
-    name: 'Germany Gazebo Entertainment',
-    land: showcase,
-  },
   19258170: {
     id: '19258170',
     name: 'Epcot Forever',
     land: showcase,
+  },
+  245270: {
+    id: '245270',
+    name: 'Father Christmas (UK)',
+    land: showcase,
+    type: 'HOLIDAY',
   },
   18375495: (fea = {
     id: '18375495',
@@ -517,6 +566,11 @@ export const experiences: Experiences = {
     priority: 1.2,
     sort: 2,
   }),
+  19242311: {
+    id: '19242311',
+    name: 'Germany Gazebo Entertainment',
+    land: showcase,
+  },
   207395: {
     id: '207395',
     name: 'Gran Fiesta Tour',
@@ -536,6 +590,12 @@ export const experiences: Experiences = {
     priority: 1.0,
     sort: 3,
   },
+  17186496: {
+    id: '17186496',
+    name: 'Hanukkah Storyteller (Between Morocco & France)',
+    land: showcase,
+    type: 'HOLIDAY',
+  },
   13507: {
     id: '13507',
     name: 'Jammitors',
@@ -553,10 +613,28 @@ export const experiences: Experiences = {
     name: 'Journey of Water, Inspired by Moana',
     land: nature,
   },
+  3427049: {
+    id: '3427049',
+    name: 'JOYFUL! A Celebration of the Season',
+    land: showcase,
+    type: 'HOLIDAY',
+  },
   19516307: {
     id: '19516307',
     name: 'Julia Scheeser & Band',
     land: showcase,
+  },
+  245263: {
+    id: '245263',
+    name: 'La Befana (Italy)',
+    land: showcase,
+    type: 'HOLIDAY',
+  },
+  245264: {
+    id: '245264',
+    name: 'Las Posadas Celebration',
+    land: showcase,
+    type: 'HOLIDAY',
   },
   411928911: {
     id: '411928911',
@@ -577,6 +655,12 @@ export const experiences: Experiences = {
     geo: [28.3739368, -81.5526389],
     sort: 2,
   },
+  19423795: {
+    id: '19423795',
+    name: 'Mischievous Barn Santa (Norway)',
+    land: showcase,
+    type: 'HOLIDAY',
+  },
   19322758: {
     id: '19322758',
     name: 'Mariachi Cobre',
@@ -584,7 +668,7 @@ export const experiences: Experiences = {
   },
   80010865: {
     id: '80010865',
-    name: 'Matsuriza',
+    name: 'Matsuriza (Japan)',
     land: showcase,
   },
   15695444: {
@@ -593,9 +677,27 @@ export const experiences: Experiences = {
     land: showcase,
     type: 'CHARACTER',
   },
+  268742: {
+    id: '268742',
+    name: 'Meet Mulan (China)',
+    land: showcase,
+    type: 'CHARACTER',
+  },
   15574092: {
     id: '15574092',
     name: 'Meet Princess Aurora (France)',
+    land: showcase,
+    type: 'CHARACTER',
+  },
+  245271: {
+    id: '245271',
+    name: 'Meet Santa (Odyssey Pavilion)',
+    land: celebration,
+    type: 'HOLIDAY',
+  },
+  13625: {
+    id: '13625',
+    name: 'Meet Winnie the Pooh (UK)',
     land: showcase,
     type: 'CHARACTER',
   },
@@ -606,6 +708,12 @@ export const experiences: Experiences = {
     geo: [28.3739368, -81.5526389],
     priority: 4.0,
     sort: 2,
+  },
+  245274: {
+    id: '245274',
+    name: 'Père Noël (France)',
+    land: showcase,
+    type: 'HOLIDAY',
   },
   18780200: {
     id: '18780200',
@@ -625,12 +733,22 @@ export const experiences: Experiences = {
     priority: 1.1,
     sort: 1,
   }),
+  17490262: {
+    id: '17490262',
+    name: 'Rose & Crown Pub Musician',
+    land: showcase,
+  },
   107785: {
     id: '107785',
     name: 'Seas with Nemo & Friends',
     land: nature,
     geo: [28.3748995, -81.5507208],
     sort: 3,
+  },
+  80010873: {
+    id: '80010873',
+    name: 'Sergio (Italy)',
+    land: showcase,
   },
   20194: {
     id: '20194',
@@ -708,11 +826,21 @@ export const experiences: Experiences = {
     land: hollywood,
     geo: [28.3599166, -81.5592299],
   },
+  19025720: {
+    id: '19025720',
+    name: 'Green Army Drum Corps',
+    land: toyStory,
+  },
   136: {
     id: '136',
     name: 'Indiana Jones Epic Stunt Spectacular',
     land: echoLake,
     geo: [28.3567464, -81.5588053],
+  },
+  411979428: {
+    id: '411979428',
+    name: 'First Order Searches for the Resistance',
+    land: starWars,
   },
   17842841: {
     id: '17842841',
@@ -887,6 +1015,11 @@ export const experiences: Experiences = {
     name: 'Gorilla Falls Exploration Trail',
     land: africa,
   },
+  18425797: {
+    id: '18425797',
+    name: 'Harambe Village Acrobats',
+    land: africa,
+  },
   80010150: {
     id: '80010150',
     name: "It's Tough to be a Bug",
@@ -907,6 +1040,11 @@ export const experiences: Experiences = {
     geo: [28.3592779, -81.5921478],
     priority: 2.1,
     sort: 1,
+  },
+  18435910: {
+    id: '18435910',
+    name: 'Kora Tinga Tinga',
+    land: africa,
   },
   80010164: {
     id: '80010164',
@@ -935,11 +1073,26 @@ export const experiences: Experiences = {
     priority: 1.1,
     sort: 2,
   },
+  72877: {
+    id: '72877',
+    name: 'Tam Tam Drummers of Harambe',
+    land: africa,
+  },
   80010228: {
     id: '80010228',
     name: 'Triceratop Spin',
     land: dinoland,
     sort: 2,
+  },
+  16629705: {
+    id: '16629705',
+    name: 'Viva Gaia Street Band',
+    land: discIsland,
+  },
+  17821434: {
+    id: '17821434',
+    name: 'Winged Encounters - The Kingdom Takes Flight',
+    land: discIsland,
   },
 };
 

@@ -12,6 +12,8 @@ BG1 is an unofficial, experimental client for obtaining Genie+ Lightning Lane re
 
 - **Arialvetica:** For creating the awesome BG1 logo.
 
+- **[ThemeParks.wiki](https://themeparks.wiki/):** For the free API used for showtime data not available via Disney's tipboard.
+
 - **[Thrill Data](https://www.thrill-data.com/):** For providing data used to help determine Lightning Lane priorities.
 
 - **[IcoMoon](https://icomoon.io/#icons-icomoon):** For the free icons, provided under a [Creative Commons license](https://creativecommons.org/licenses/by/4.0/).

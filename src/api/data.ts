@@ -12,7 +12,11 @@ export interface Land {
   theme: { bg: string; text: string };
 }
 
-export type ExperienceType = 'ATTRACTION' | 'ENTERTAINMENT' | 'CHARACTER';
+export type ExperienceType =
+  | 'ATTRACTION'
+  | 'ENTERTAINMENT'
+  | 'CHARACTER'
+  | 'HOLIDAY';
 
 export interface Experience {
   id: string;

@@ -21,7 +21,10 @@ export interface Experience extends ExpData {
   type: ExperienceType;
   standby: {
     available: boolean;
-    unavailableReason?: 'TEMPORARILY_DOWN' | 'NOT_STANDBY_ENABLED';
+    unavailableReason?:
+      | 'TEMPORARILY_DOWN'
+      | 'NOT_STANDBY_ENABLED'
+      | 'NO_MORE_SHOWS';
     waitTime?: number;
     displayNextShowTime?: string;
   };

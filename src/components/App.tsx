@@ -18,6 +18,8 @@ import onVisible from '@/onVisible';
 import LoginForm from './LoginForm';
 import Merlock from './genie/Merlock';
 import BGClient from './vq/BGClient';
+import { LiveDataClientProvider } from '@/contexts/LiveDataClient';
+import { LiveDataClient } from '@/api/livedata';
 
 export const NEWS_VERSION = 0;
 
@@ -63,13 +65,15 @@ export default function App({ authStore }: { authStore: Public<AuthStore> }) {
         loadResortData(resort).then(data => {
           setContent(
             <ResortDataProvider value={data}>
-              <GenieClientProvider value={new GenieClient(data, authStore)}>
-                <DasClientProvider value={new DasClient(data, authStore)}>
-                  <VQClientProvider value={new VQClient(data, authStore)}>
-                    <Component />
-                  </VQClientProvider>
-                </DasClientProvider>
-              </GenieClientProvider>
+              <LiveDataClientProvider value={new LiveDataClient(data)}>
+                <GenieClientProvider value={new GenieClient(data, authStore)}>
+                  <DasClientProvider value={new DasClient(data, authStore)}>
+                    <VQClientProvider value={new VQClient(data, authStore)}>
+                      <Component />
+                    </VQClientProvider>
+                  </DasClientProvider>
+                </GenieClientProvider>
+              </LiveDataClientProvider>
             </ResortDataProvider>
           );
         });
