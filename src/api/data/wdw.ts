@@ -655,6 +655,11 @@ export const experiences: Experiences = {
     geo: [28.3739368, -81.5526389],
     sort: 2,
   },
+  412008998: {
+    id: '412008998',
+    land: showcase,
+    name: 'Luminous: The Symphony of Us',
+  },
   19423795: {
     id: '19423795',
     name: 'Mischievous Barn Santa (Norway)',
