@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply touch-manipulation overflow-hidden bg-white text-black;
+  }
+
+  html * {
+    /* HACK: Disable font boosting in mobile Chrome */
+    max-height: 10000000px;
+  }
+
+  body {
+    @apply fixed inset-0 overflow-auto underline-offset-2;
+  }
+
+  p {
+    @apply my-4;
+  }
+
+  h2 {
+    @apply mt-4 text-xl leading-snug font-semibold;
+  }
+
+  h3 {
+    @apply mt-4 text-lg;
+  }
+
+  option {
+    @apply bg-white text-black;
+  }
+
+  input[type='checkbox'],
+  input[type='radio'] {
+    @apply w-5 h-5;
+  }
+
+  button,
+  select {
+    @apply select-none;
+  }
+
+  b,
+  strong {
+    @apply font-semibold;
+  }
+
+  th {
+    @apply font-normal;
+  }
+
+  abbr {
+    text-decoration: none;
+  }
+}
+
+@layer utilities {
+  .p-std {
+    @apply px-3 py-4;
+  }
+}
