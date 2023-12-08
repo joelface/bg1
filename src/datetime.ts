@@ -81,6 +81,46 @@ export function splitDateTime(dateTime: string): DateTimeStrings {
 }
 
 /**
+ * Converts time string to Date object
+ */
+export function timeToDate(time: string): Date {
+  const dt = new Date();
+  const [h, m, s] = time.split(':').map(Number);
+  dt.setHours(h, m, s, 0);
+  return dt;
+}
+
+/**
+ * @returns Closest time from a list of times
+ */
+// const timeOptions = new Map<string, { text: string }>([
+// ['07:00:00', { text: '7:00 AM' }],
+// ['07:15:00', { text: '7:15 AM' }],
+// ['07:30:00', { text: '7:30 AM' }],
+// ['07:45:00', { text: '7:45 AM' }],
+// ['08:00:00', { text: '8:00 AM' }],
+// ['08:15:00', { text: '8:15 AM' }],
+export function getClosestTime(
+  times: Map<string, { text: string }>
+): string {
+  const now = timeToMinutes(dateTimeStrings().time);
+  const options = [...times.keys()].map(time => ({
+    time,
+    minutes: timeToMinutes(time),
+  }));
+  const closest = options.reduce(
+    (closest, option) =>
+      // make sure time isn't in the past
+      option.minutes > now &&
+      Math.abs(option.minutes - now) < Math.abs(closest.minutes - now)
+        ? option
+        : closest,
+    options[0]
+  );
+  return closest.time;
+}
+
+/**
  * Converts time string to number of minutes since 7 AM
  */
 export function timeToMinutes(time: string) {

@@ -9,6 +9,7 @@ import { usePlans } from '@/contexts/Plans';
 import { useRebooking } from '@/contexts/Rebooking';
 import useDataLoader from '@/hooks/useDataLoader';
 import { ping } from '@/ping';
+import { timeToDate } from '@/datetime';
 
 import PlansButton from '../PlansButton';
 import RebookingHeader from '../RebookingHeader';
@@ -19,6 +20,7 @@ import OfferDetails from './BookExperience/OfferDetails';
 import Prebooking from './BookExperience/Prebooking';
 import BookingDetails from './BookingDetails';
 import RefreshButton from './RefreshButton';
+import AutoBook from './BookExperience/AutoBook';
 
 export default function BookExperience({
   experience,
@@ -39,12 +41,16 @@ export default function BookExperience({
   );
   const { loadData, loaderElem } = useDataLoader();
 
-  async function book() {
+  async function book(newOffer?: Offer) {
     if (!offer || !party) return;
     loadData(
       async () => {
         let booking: LightningLane | null = null;
-        booking = await client.book(offer, rebooking.current, party.selected);
+        booking = await client.book(
+          newOffer ?? offer,
+          rebooking.current,
+          party.selected
+        );
         rebooking.end();
         const selectedIds = new Set(party.selected.map(g => g.id));
         const guestsToCancel = booking.guests.filter(
@@ -115,12 +121,13 @@ export default function BookExperience({
   }, [party, loadParty]);
 
   const refreshOffer = useCallback(
-    (event?: React.MouseEvent<HTMLButtonElement>) => {
-      if (!party || party.selected.length === 0) return;
-      loadData(
+    async (event?: React.MouseEvent<HTMLButtonElement>): Promise<Offer> => {
+      if (!party || party.selected.length === 0) return null!;
+      let newOffer: Offer | null = null;
+      await loadData(
         async () => {
           try {
-            const newOffer = await client.offer(
+            newOffer = await client.offer(
               experience,
               party.selected,
               rebooking.current
@@ -153,8 +160,33 @@ export default function BookExperience({
           messages: { 410: offer ? 'No reservations available' : '' },
         }
       );
+
+      return newOffer!;
     },
     [client, experience, party, offer, rebooking, loadData]
+  );
+
+  const bookBetweenTime = useCallback(
+    async (minStartTime: string, maxStartTime: string) => {
+      if (!party) return;
+
+      const newOffer = await refreshOffer();
+      if (!newOffer) return;
+
+      const minDate = timeToDate(minStartTime);
+      const maxDate = timeToDate(maxStartTime);
+      const offerDate = timeToDate(newOffer.start.time);
+
+      if (offerDate >= minDate && offerDate <= maxDate) {
+        await book(newOffer);
+        console.log(`${offerDate} is between ${minDate} and ${maxDate}`);
+      } else {
+        // make notification
+        // offerDate is greater than maxDate
+        console.log('Offer is not available yet');
+      }
+    },
+    [client, goTo, offer, party, rebooking, refreshPlans]
   );
 
   useEffect(() => {
@@ -203,9 +235,15 @@ export default function BookExperience({
           ) : !party || offer === undefined ? (
             <div />
           ) : offer === null ? (
-            <NoReservationsAvailable />
+            <>
+              <NoReservationsAvailable />
+              <AutoBook onBook={bookBetweenTime} />
+            </>
           ) : (
-            <OfferDetails offer={offer} onBook={book} />
+            <>
+              <OfferDetails offer={offer} onBook={book} />
+              <AutoBook onBook={bookBetweenTime} />
+            </>
           )}
         </PartyProvider>
       )}
