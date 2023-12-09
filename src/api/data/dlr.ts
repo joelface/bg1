@@ -10,7 +10,7 @@ const dl = {
     e: -117.9155825,
     w: -117.9243814,
   },
-  theme: { bg: 'bg-pink-600', text: 'text-pink-600' },
+  theme: { bg: 'bg-blue-600', text: 'text-blue-600' },
 };
 const ca = {
   id: '336894',
@@ -61,7 +61,7 @@ const frontierland = {
 const fantasyland = {
   name: 'Fantasyland',
   sort: 7,
-  theme: { bg: 'bg-pink-600', text: 'text-pink-700' },
+  theme: { bg: 'bg-blue-600', text: 'text-pink-700' },
 };
 const toontown = {
   name: "Mickey's Toontown",
@@ -83,7 +83,7 @@ const buenaVista = {
 const hollywood = {
   name: 'Hollywood Land',
   sort: 2,
-  theme: { bg: 'bg-pink-600', text: 'text-pink-700' },
+  theme: { bg: 'bg-blue-600', text: 'text-pink-700' },
 };
 const avengers = {
   name: 'Avengers Campus',
