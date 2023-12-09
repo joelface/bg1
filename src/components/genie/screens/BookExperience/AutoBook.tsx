@@ -90,7 +90,6 @@ export default function AutoBook({
     if (isAutoBooking) {
       const autoBook = async () => {
         await onBook(minTime, maxTime);
-        // Wait for 1 second before next call
         await new Promise(resolve => setTimeout(resolve, 750));
       };
 
@@ -130,7 +129,6 @@ export default function AutoBook({
         <p className="text-sm">
           Automatically book the experience when it becomes available.
         </p>
-        {/* maxiumum booking time title */}
         <div className="flex flex-row">
           <div>
             <p className="text-sm">
