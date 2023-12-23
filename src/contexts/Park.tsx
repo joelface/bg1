@@ -32,12 +32,12 @@ export function useParkState() {
   const [park, setPark] = useState(() => {
     const firstPark = [...parks.values()][0];
     const { id = firstPark.id, date = '' } =
-      JSON.parse(sessionStorage.getItem(PARK_KEY) || '{}') || {};
+      JSON.parse(localStorage.getItem(PARK_KEY) || '{}') || {};
     return (date === dateTimeStrings().date && parks.get(id)) || firstPark;
   });
 
   useEffect(() => {
-    sessionStorage.setItem(
+    localStorage.setItem(
       PARK_KEY,
       JSON.stringify({ id: park.id, date: dateTimeStrings().date })
     );

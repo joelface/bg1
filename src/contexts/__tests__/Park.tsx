@@ -24,7 +24,7 @@ describe('useParkState()', () => {
     see(mk.name);
     click(`Hop to ${ep.name}`);
     see(ep.name);
-    expect(JSON.parse(sessionStorage.getItem(PARK_KEY) || '{}')).toEqual({
+    expect(JSON.parse(localStorage.getItem(PARK_KEY) || '{}')).toEqual({
       id: ep.id,
       date: dateTimeStrings().date,
     });
