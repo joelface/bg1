@@ -392,11 +392,21 @@ export const experiences: Experiences = {
     name: "Mickey's Magical Friendship Faire",
     land: mainStreet,
   },
+  411854078: {
+    id: '411854078',
+    name: "Mickey's Once Upon a Christmastime Parade",
+    land: mainStreet,
+  },
   80010170: {
     id: '80010170',
     name: "Mickey's PhilharMagic",
     land: fantasyland,
     geo: [28.4200575, -81.5814156],
+  },
+  411854079: {
+    id: '411854079',
+    name: "Minnie's Wonderful Christmastime Fireworks",
+    land: mainStreet,
   },
   136550: {
     id: '136550',
