@@ -42,8 +42,8 @@ describe('Plans', () => {
           booking.type === 'BG'
             ? `BG ${booking.boardingGroup}`
             : booking.start.time
-            ? displayTime(booking.start.time)
-            : 'Park Open'
+              ? displayTime(booking.start.time)
+              : 'Park Open'
         );
         if (booking.type === 'LL') {
           inLI.getByText(

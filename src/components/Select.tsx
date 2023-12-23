@@ -77,8 +77,8 @@ export default function Select<K extends string, V = K>(props: Props<K, V>) {
   const opt = selected
     ? options.get(selected)
     : title !== undefined
-    ? { text: title }
-    : undefined;
+      ? { text: title }
+      : undefined;
   if (!opt) return null;
   const { icon, text } = opt;
   let arrowPressed = false;

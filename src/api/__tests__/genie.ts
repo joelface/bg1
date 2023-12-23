@@ -438,29 +438,29 @@ describe('GenieClient', () => {
                   ],
                 }
               : b.type === 'BG'
-              ? {
-                  type: 'VIRTUAL_QUEUE_POSITION',
-                  status: b.status,
-                  boardingGroup: { id: b.boardingGroup },
-                  startDateTime: `${b.start.date}T${b.start.time}-0400`,
-                  guests: b.guests.map(g => ({ id: xid(g) })),
-                  asset:
-                    '90e81c93-b84c-48e0-a98d-121094fa842e;type=virtual-queue',
-                }
-              : b.type === 'APR'
-              ? {
-                  type: 'FASTPASS',
-                  kind: 'PARK_PASS',
-                  startDateTime: `${b.start.date}T${b.start.time}-0400`,
-                  guests: b.guests.map(g => ({ id: xid(g) })),
-                  facility: entId({ id: 'ak_apr' }),
-                }
-              : {
-                  type: 'DINING',
-                  guests: b.guests.map(g => ({ id: xid(g) })),
-                  asset: '90006947;entityType=table-service',
-                  startDateTime: `${b.start.date}T${b.start.time}-0400`,
-                }),
+                ? {
+                    type: 'VIRTUAL_QUEUE_POSITION',
+                    status: b.status,
+                    boardingGroup: { id: b.boardingGroup },
+                    startDateTime: `${b.start.date}T${b.start.time}-0400`,
+                    guests: b.guests.map(g => ({ id: xid(g) })),
+                    asset:
+                      '90e81c93-b84c-48e0-a98d-121094fa842e;type=virtual-queue',
+                  }
+                : b.type === 'APR'
+                  ? {
+                      type: 'FASTPASS',
+                      kind: 'PARK_PASS',
+                      startDateTime: `${b.start.date}T${b.start.time}-0400`,
+                      guests: b.guests.map(g => ({ id: xid(g) })),
+                      facility: entId({ id: 'ak_apr' }),
+                    }
+                  : {
+                      type: 'DINING',
+                      guests: b.guests.map(g => ({ id: xid(g) })),
+                      asset: '90006947;entityType=table-service',
+                      startDateTime: `${b.start.date}T${b.start.time}-0400`,
+                    }),
             ...(b.type !== 'BG' && {
               cancellable: b.cancellable,
               modifiable: b.modifiable,
