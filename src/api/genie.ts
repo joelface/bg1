@@ -330,8 +330,8 @@ function isModifiable(booking: Booking) {
   const { date, time } = dateTimeStrings();
   return (
     booking.modifiable &&
-    date === booking.end.date &&
-    time <= (booking.end.time ?? '')
+    ((date === booking.end.date && time <= (booking.end.time ?? '')) ||
+      date < (booking.end.date ?? ''))
   );
 }
 
