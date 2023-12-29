@@ -242,6 +242,11 @@ export const experiences: Experiences = {
     name: 'Enchanted Tiki Room',
     land: adventureland,
   },
+  12248: {
+    id: '12248',
+    name: 'Fantasy in the Sky Fireworks',
+    land: mainStreet,
+  },
   17718925: {
     id: '17718925',
     name: 'Festival of Fantasy Parade',
