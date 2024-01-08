@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
 import { Park } from '@/api/data';
-import { dateTimeStrings } from '@/datetime';
+import { parkDate } from '@/datetime';
 
 import { useResortData } from './ResortData';
 
@@ -33,13 +33,13 @@ export function useParkState() {
     const firstPark = [...parks.values()][0];
     const { id = firstPark.id, date = '' } =
       JSON.parse(localStorage.getItem(PARK_KEY) || '{}') || {};
-    return (date === dateTimeStrings().date && parks.get(id)) || firstPark;
+    return (date === parkDate() && parks.get(id)) || firstPark;
   });
 
   useEffect(() => {
     localStorage.setItem(
       PARK_KEY,
-      JSON.stringify({ id: park.id, date: dateTimeStrings().date })
+      JSON.stringify({ id: park.id, date: parkDate() })
     );
   }, [park]);
 

@@ -11,8 +11,7 @@ import {
   PlusExperience,
   Reservation,
 } from '@/api/genie';
-
-const TODAY = '2021-10-01';
+import { TODAY, TOMORROW } from '@/testing';
 
 export const wdw = { resort: 'WDW' as const, ...data };
 export const [mk, ep, hs, ak] = [...wdw.parks.values()];
@@ -184,7 +183,7 @@ export const akApr: ParkPass = {
   id: ak.id,
   name: ak.name,
   park: ak,
-  start: { date: '2021-10-02', time: '00:00:00' },
+  start: { date: TOMORROW, time: '06:00:00' },
   guests: [mickey, minnie, pluto],
   bookingId: 'ak20211002',
 };

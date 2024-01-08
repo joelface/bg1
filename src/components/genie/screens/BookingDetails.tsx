@@ -19,6 +19,7 @@ import { ExperienceList } from '../ExperienceList';
 import ReturnTime from '../ReturnTime';
 import CancelGuests from './CancelGuests';
 import Home from './Home';
+import { parkDate } from '@/datetime';
 
 export default function BookingDetails({
   booking,
@@ -87,7 +88,7 @@ export default function BookingDetails({
         <div
           className={`-mx-3 px-2 py-1 text-center ${theme.bg} text-white text-sm font-semibold uppercase`}
         >
-          <Time date={start.date} />
+          <Time date={parkDate(start)} />
         </div>
       }
       {choices ? (

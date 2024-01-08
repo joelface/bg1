@@ -1,5 +1,5 @@
 import { Booking } from '@/api/genie';
-import { DateTimeStrings, dateTimeStrings } from '@/datetime';
+import { parkDate } from '@/datetime';
 
 import { Time } from '../Time';
 
@@ -8,23 +8,31 @@ export default function ReturnTime({
   end,
   timeOnly,
 }: Pick<Booking, 'start' | 'end'> & { timeOnly?: boolean }) {
-  const rt = returnTime({ start, end });
-  const timeElem = !end ? (
-    <Time time={start.time} />
-  ) : (
-    <>
-      {rt.start ? <Time time={rt.start} /> : <span>Park Open</span>} –{' '}
-      {rt.end ? <Time time={rt.end} /> : <span>Park Close</span>}
-    </>
-  );
+  const today = parkDate();
+  const startParkDate = parkDate(start);
+  const endParkDate = parkDate(end);
+  let timeElem: JSX.Element;
+  if (end) {
+    const rt = {
+      start: startParkDate < today ? undefined : start.time,
+      end: endParkDate > today ? undefined : end?.time,
+    };
+    timeElem = (
+      <>
+        {rt.start ? <Time time={rt.start} /> : <span>Park Open</span>} –{' '}
+        {rt.end ? <Time time={rt.end} /> : <span>Park Close</span>}
+      </>
+    );
+  } else {
+    timeElem = <Time time={start.time} />;
+  }
   if (timeOnly) return timeElem;
-  const today = dateTimeStrings().date;
   return (
     <table className="mt-4 text-lg">
       <tbody>
         <Row label={end ? 'Arrive by' : 'Reservation at'} data={timeElem} />
-        {end?.date && end.date > (start.date ?? today) && (
-          <Row label="Valid until" data={<Time date={end.date} />} />
+        {end && endParkDate !== startParkDate && endParkDate !== today && (
+          <Row label="Valid until" data={<Time date={endParkDate} />} />
         )}
       </tbody>
     </table>
@@ -38,20 +46,4 @@ function Row({ label, data }: { label: string; data: React.ReactNode }) {
       <td className="pl-2 font-semibold">{data}</td>
     </tr>
   );
-}
-
-interface BookingDateTimes {
-  start: Partial<DateTimeStrings>;
-  end?: Partial<DateTimeStrings>;
-}
-
-export function returnTime({ start, end }: BookingDateTimes): {
-  start?: string;
-  end?: string;
-} {
-  const today = dateTimeStrings().date;
-  return {
-    start: (start.date || '') < today ? undefined : start.time,
-    end: end?.time,
-  };
 }

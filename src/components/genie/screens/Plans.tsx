@@ -5,7 +5,7 @@ import { Time } from '@/components/Time';
 import { useNav } from '@/contexts/Nav';
 import { usePlans } from '@/contexts/Plans';
 import { DEFAULT_THEME, useTheme } from '@/contexts/Theme';
-import { dateTimeStrings } from '@/datetime';
+import { parkDate } from '@/datetime';
 import ChevronRightIcon from '@/icons/ChevronRightIcon';
 
 import { ScreenProps } from '../../Screen';
@@ -22,11 +22,10 @@ export default function Plans({ ...props }: Partial<ScreenProps>) {
     goTo(<BookingDetails booking={booking} />);
   }
 
-  const today = dateTimeStrings().date;
   const plansByDate = new Map<string, Booking[]>();
   const parksByDate = new Map<string, Set<Park>>();
   for (const plan of plans) {
-    const date = plan.start.date ?? today;
+    const date = parkDate(plan.start);
     if (!plansByDate.has(date)) plansByDate.set(date, []);
     if (plan.type !== 'APR') plansByDate.get(date)?.push(plan);
     if (!parksByDate.has(date)) parksByDate.set(date, new Set());

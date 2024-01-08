@@ -1,5 +1,5 @@
 import { ep, mk, wdw } from '@/__fixtures__/genie';
-import { dateTimeStrings } from '@/datetime';
+import { parkDate } from '@/datetime';
 import { click, render, see } from '@/testing';
 
 import { PARK_KEY, useParkState } from '../Park';
@@ -26,7 +26,7 @@ describe('useParkState()', () => {
     see(ep.name);
     expect(JSON.parse(localStorage.getItem(PARK_KEY) || '{}')).toEqual({
       id: ep.id,
-      date: dateTimeStrings().date,
+      date: parkDate(),
     });
   });
 });

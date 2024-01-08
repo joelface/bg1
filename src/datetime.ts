@@ -34,10 +34,12 @@ export function dateTimeStrings(date?: Date | number): DateTimeStrings {
   };
 }
 
-export function parkDate(): string {
-  const dt = dateTimeStrings();
-  if (dt.time > '03:00:00') return dt.date;
-  const parkDay = new Date();
+export function parkDate(dateTime?: Partial<DateTimeStrings>): string {
+  dateTime ??= dateTimeStrings();
+  if ((dateTime.time ?? '1') > '03:00:00') {
+    return dateTime.date ?? dateTimeStrings().date;
+  }
+  const parkDay = new Date(`${dateTime.date}T00:00:00`);
   parkDay.setDate(parkDay.getDate() - 1);
   return dateTimeStrings(parkDay).date;
 }
@@ -48,7 +50,7 @@ export function displayDate(date: string) {
     month: 'long',
     day: 'numeric',
   });
-  const today = dateTimeStrings().date;
+  const today = parkDate();
   if (date === today) return `Today, ${monthDay}`;
   const tomorrowDT = new Date(today);
   tomorrowDT.setDate(tomorrowDT.getDate() + 1);

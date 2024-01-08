@@ -754,7 +754,10 @@ export class GenieClient extends ApiClient {
         id: park.id,
         name: park.name,
         park,
-        start: dateTimeStrings(new Date(item.startDateTime as string)),
+        start: {
+          date: item.displayStartDate as string,
+          time: '06:00:00',
+        },
         guests: item.guests.map(getGuest),
         bookingId: item.id,
       };
@@ -882,7 +885,7 @@ export class BookingTracker {
 
   constructor() {
     const {
-      date = dateTimeStrings().date,
+      date = parkDate(),
       expIds: expIds = [],
       experiencedExpIds = [],
     }: BookingTrackerData = JSON.parse(
@@ -930,7 +933,7 @@ export class BookingTracker {
   }
 
   protected checkDate() {
-    const today = dateTimeStrings().date;
+    const today = parkDate();
     if (this.date === today) return;
     this.date = today;
     this.expIds = new Set();
