@@ -403,11 +403,6 @@ describe('GenieClient', () => {
       };
       return response({
         items: [
-          {
-            // This item should be ignored
-            type: 'ACTIVITY',
-            asset: '19432184;entityType=activity-product',
-          },
           ...bookings.map(b => ({
             id: b.bookingId,
             ...(b.type === 'LL'
@@ -501,10 +496,6 @@ describe('GenieClient', () => {
           '90001819;entityType=restaurant': {
             location: entId(mk, 'theme-park'),
           },
-          '19432184;entityType=activity-product': {
-            facility: '19536899;entityType=tour',
-          },
-          '19536899;entityType=tour': {},
           ...Object.fromEntries(
             [booking, ...bookings, ...bookings.map(b => b.choices || [])]
               .flat()

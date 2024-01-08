@@ -11,6 +11,7 @@ import DasSelection from '../DasSelection';
 import Home from '../Home';
 
 jest.mock('@/contexts/Nav');
+jest.mock('@/ping');
 const refreshPlans = jest.fn();
 const client = { book: jest.fn() };
 client.book.mockResolvedValue(booking);

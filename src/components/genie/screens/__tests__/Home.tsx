@@ -7,6 +7,7 @@ import Merlock from '../../Merlock';
 import { DEFAULT_TAB_KEY, getDefaultTab } from '../Home';
 
 jest.mock('@/contexts/GenieClient');
+jest.mock('@/contexts/LiveDataClient');
 jest.mock('@/ping');
 
 beforeEach(() => {
