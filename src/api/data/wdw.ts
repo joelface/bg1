@@ -857,7 +857,7 @@ export const experiences: Experiences = {
   },
   18368386: {
     id: '18368386',
-    name: 'Meet Disney Stars (Red Carpet Dreams)',
+    name: 'Meet Mickey & Minnie (Red Carpet Dreams)',
     land: otherStudios,
     geo: [28.3560952, -81.5594433],
     type: 'CHARACTER',
@@ -1025,7 +1025,7 @@ export const experiences: Experiences = {
   },
   17421326: {
     id: '17421326',
-    name: 'Meet Disney Pals (Adventurers Outpost)',
+    name: 'Meet Mickey & Minnie (Adventurers Outpost)',
     land: discIsland,
     geo: [28.3579455, -81.5898647],
     type: 'CHARACTER',
