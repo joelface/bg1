@@ -353,13 +353,13 @@ export const experiences: Experiences = {
   },
   387133: {
     id: '387133',
-    name: "Donald/Goofy (Pete's Silly Side Show)",
+    name: "Donald & Goofy (Pete's Silly Side Show)",
     land: fantasyland,
     type: 'CHARACTER',
   },
   15743682: {
     id: '15743682',
-    name: "Minnie/Daisy (Pete's Silly Side Show)",
+    name: "Minnie & Daisy (Pete's Silly Side Show)",
     land: fantasyland,
     type: 'CHARACTER',
   },
