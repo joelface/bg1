@@ -230,6 +230,7 @@ export const experiences: Experiences = {
     name: 'Enchanted Tales with Belle',
     land: fantasyland,
     geo: [28.4207354, -81.5807867],
+    type: 'CHARACTER',
     priority: 3.4,
   },
   16124144: {
