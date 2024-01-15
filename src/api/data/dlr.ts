@@ -122,7 +122,6 @@ export const experiences: Experiences = {
     id: '367495',
     name: 'Alice in Wonderland',
     land: fantasyland,
-    sort: 3,
   },
   353291: {
     id: '353291',
@@ -152,7 +151,6 @@ export const experiences: Experiences = {
     name: 'Buzz Lightyear Astro Blasters',
     land: tomorrowland,
     geo: [33.8122751, -117.9181819],
-    sort: 2,
   },
   353305: {
     id: '353305',
@@ -210,7 +208,6 @@ export const experiences: Experiences = {
     land: newOrleans,
     geo: [33.811616, -117.9218924],
     priority: 3.0,
-    sort: 1,
   },
   18249927: {
     id: '18249927',
@@ -237,7 +234,6 @@ export const experiences: Experiences = {
     name: "it's a small world Holiday",
     land: fantasyland,
     geo: [33.8144167, -117.9181268],
-    sort: 4,
   },
   18847498: {
     id: '18847498',
@@ -248,7 +244,6 @@ export const experiences: Experiences = {
     id: '353363',
     name: 'Jungle Cruise',
     land: adventureland,
-    sort: 2,
   },
   353365: {
     id: '353365',
@@ -269,7 +264,6 @@ export const experiences: Experiences = {
     id: '353449',
     name: 'Many Adventures of Winnie the Pooh',
     land: critter,
-    sort: 2,
   },
   353377: {
     id: '353377',
@@ -319,7 +313,7 @@ export const experiences: Experiences = {
     id: '353399',
     name: "Peter Pan's Flight",
     land: fantasyland,
-    sort: 2,
+    priority: 3,
   },
   353401: {
     id: '353401',
@@ -336,7 +330,7 @@ export const experiences: Experiences = {
     name: 'Pirates of the Caribbean',
     land: newOrleans,
     geo: [33.811295, -117.9209785],
-    sort: 2,
+    priority: 3,
   },
   19193461: {
     id: '19193461',
@@ -344,14 +338,12 @@ export const experiences: Experiences = {
     land: starWars,
     geo: [33.8135671, -117.9236346],
     priority: 1.0,
-    sort: 1,
   },
   353421: {
     id: '353421',
     name: "Roger Rabbit's Car Toon Spin",
     land: toontown,
     geo: [33.8155682, -117.9181205],
-    sort: 2,
     priority: 3.1,
   },
   353429: {
@@ -372,7 +364,6 @@ export const experiences: Experiences = {
     land: tomorrowland,
     geo: [33.8112647, -117.9175892],
     priority: 1.2,
-    sort: 1,
   },
   353439: {
     id: '353439',
@@ -440,7 +431,6 @@ export const experiences: Experiences = {
     id: '353341',
     name: 'Golden Zephyr',
     land: paradise,
-    sort: 4,
   },
   15822029: {
     id: '15822029',
@@ -469,7 +459,6 @@ export const experiences: Experiences = {
     land: avengers,
     geo: [33.8068606, -117.9172434],
     priority: 1.1,
-    sort: 1,
   },
   18614009: {
     id: '18614009',
@@ -487,43 +476,39 @@ export const experiences: Experiences = {
     id: '19285637',
     name: 'Inside Out Emotional Whirlwind',
     land: pixar,
-    sort: 4,
   },
   353367: {
     id: '353367',
     name: "Jessie's Critter Carousel",
     land: pixar,
-    sort: 6,
   },
   353361: {
     id: '353361',
     name: "Jumpin' Jellyfish",
     land: pixar,
-    sort: 5,
   },
   15575069: {
     id: '15575069',
     name: "Little Mermaid - Ariel's Undersea Adventure",
     land: paradise,
-    sort: 2,
   },
   18343088: {
     id: '18343088',
     name: "Luigi's Rollickin' Roadsters",
     land: cars,
-    sort: 2,
+    priority: 3,
   },
   18752877: {
     id: '18752877',
     name: "Luigi's Honkin' Haul-O-Ween",
     land: cars,
-    sort: 2,
+    priority: 3,
   },
   18848246: {
     id: '18848246',
     name: "Luigi's Joy to the Whirl",
     land: cars,
-    sort: 2,
+    priority: 3,
   },
   15559914: {
     id: '15559914',
@@ -534,19 +519,16 @@ export const experiences: Experiences = {
     id: '16514431',
     name: "Mater's Junkyard Jamboree",
     land: cars,
-    sort: 3,
   },
   18752875: {
     id: '18752875',
     name: "Mater's Graveyard JamBOOree",
     land: cars,
-    sort: 3,
   },
   18848247: {
     id: '18848247',
     name: "Mater's Jingle Jamboree",
     land: cars,
-    sort: 3,
   },
   19259687: {
     id: '19259687',
@@ -564,13 +546,11 @@ export const experiences: Experiences = {
     land: hollywood,
     geo: [33.8081471, -117.9175137],
     priority: 3.0,
-    sort: 1,
   },
   353379: {
     id: '353379',
     name: 'Pixar Pal-A-Round - Swinging',
     land: pixar,
-    sort: 3,
   },
   16514416: {
     id: '16514416',
@@ -578,7 +558,6 @@ export const experiences: Experiences = {
     land: cars,
     geo: [33.8052475, -117.9198715],
     priority: 1.0,
-    sort: 1,
   },
   353413: {
     id: '353413',
@@ -589,7 +568,6 @@ export const experiences: Experiences = {
     id: '15510732',
     name: 'Silly Symphony Swings',
     land: paradise,
-    sort: 3,
   },
   353431: {
     id: '353431',
@@ -624,7 +602,6 @@ export const experiences: Experiences = {
     land: avengers,
     geo: [33.8067598, -117.91849],
     priority: 1.3,
-    sort: 2,
   },
   411805943: {
     id: '411805943',

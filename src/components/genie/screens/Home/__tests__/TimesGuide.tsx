@@ -112,7 +112,7 @@ describe('TimesGuide', () => {
         Entertainment: [dd, fof],
       },
       Adventureland: {
-        Attractions: [potc, tiki],
+        Attractions: [tiki, potc],
       },
       Frontierland: {
         Attractions: [btmr],

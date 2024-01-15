@@ -28,12 +28,7 @@ export default function TimesGuide({ contentRef }: HomeTabProps) {
         exp.individual ||
         exp.standby.unavailableReason === 'TEMPORARILY_DOWN'
     )
-    .sort(
-      (a, b) =>
-        a.land.sort - b.land.sort ||
-        (a.sort || Infinity) - (b.sort || Infinity) ||
-        a.name.localeCompare(b.name)
-    )
+    .sort((a, b) => a.land.sort - b.land.sort || a.name.localeCompare(b.name))
     .forEach(exp => {
       if (!expsByLand.has(exp.land)) {
         expsByLand.set(exp.land, {
@@ -102,7 +97,7 @@ export default function TimesGuide({ contentRef }: HomeTabProps) {
       ))}
       {experiences.length > 0 && (
         <Legend>
-          <Symbol sym="*" def="No listed wait/show time" />
+          <Symbol sym="*" def="No posted wait/show time" />
           <Symbol sym="❌" def="Temporarily down" />
           <Symbol sym="VQ" def="Virtual queue" />
         </Legend>
@@ -162,7 +157,17 @@ function ExperienceList({
               </td>
               <td className="w-full px-1 pl-2 py-0.5 group-first:pt-1 group-last:pb-1 bg-white bg-opacity-90">
                 <div className="flex items-center gap-x-2">
-                  <div className="flex-1">{exp.name}</div>
+                  <div
+                    className={`flex-1 ${
+                      exp.type === 'ATTRACTION' &&
+                      !exp.virtualQueue &&
+                      (exp.priority ?? 4) < 4
+                        ? `font-bold ${land.theme.text}`
+                        : ''
+                    }`}
+                  >
+                    {exp.name}
+                  </div>
                   {exp?.individual && (
                     <div
                       className={`${land.theme.text} text-xs leading-tight font-semibold text-center uppercase`}

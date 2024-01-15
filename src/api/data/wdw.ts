@@ -172,7 +172,6 @@ export const experiences: Experiences = {
     id: '80010107',
     name: 'Astro Orbiter',
     land: tomorrowland,
-    sort: 3,
   },
   16491297: {
     id: '16491297',
@@ -199,7 +198,6 @@ export const experiences: Experiences = {
     id: '80010232',
     name: 'Carousel of Progress',
     land: tomorrowland,
-    sort: 7,
   },
   8074: {
     id: '8074',
@@ -226,7 +224,6 @@ export const experiences: Experiences = {
     name: 'Dumbo the Flying Elephant',
     land: fantasyland,
     geo: [28.4206047, -81.5789092],
-    sort: 6,
   },
   16767276: {
     id: '16767276',
@@ -287,7 +284,6 @@ export const experiences: Experiences = {
     land: adventureland,
     geo: [28.4180339, -81.5834548],
     priority: 1.2,
-    sort: 1,
   },
   80010153: {
     id: '80010153',
@@ -311,14 +307,12 @@ export const experiences: Experiences = {
     name: 'Mad Tea Party',
     land: fantasyland,
     geo: [28.4200602, -81.5799004],
-    sort: 7,
   },
   80010210: {
     id: '80010210',
     name: 'Magic Carpets of Aladdin',
     land: adventureland,
     geo: [28.4183166, -81.5835006],
-    sort: 4,
   },
   8066: {
     id: '8066',
@@ -413,13 +407,11 @@ export const experiences: Experiences = {
     name: 'Monsters Inc. Laugh Floor',
     land: tomorrowland,
     geo: [28.4179954, -81.5800854],
-    sort: 6,
   },
   80010224: {
     id: '80010224',
     name: 'PeopleMover',
     land: tomorrowland,
-    sort: 5,
   },
   80010176: {
     id: '80010176',
@@ -439,7 +431,6 @@ export const experiences: Experiences = {
     id: '80010117',
     name: 'Prince Charming Regal Carrousel',
     land: fantasyland,
-    sort: 8,
   },
   8515: {
     id: '8515',
@@ -453,7 +444,6 @@ export const experiences: Experiences = {
     land: fantasyland,
     geo: [28.4204112, -81.5805506],
     priority: 1.1,
-    sort: 1,
   },
   80010190: {
     id: '80010190',
@@ -477,7 +467,6 @@ export const experiences: Experiences = {
     name: 'Tomorrowland Speedway',
     land: tomorrowland,
     geo: [28.4194062, -81.5793505],
-    sort: 4,
   },
   411504498: {
     id: '411504498',
@@ -485,14 +474,12 @@ export const experiences: Experiences = {
     land: tomorrowland,
     geo: [28.4202075, -81.577053],
     priority: 1.0,
-    sort: 8,
   },
   16767263: {
     id: '16767263',
     name: 'Under the Sea',
     land: fantasyland,
     geo: [28.4210351, -81.5799673],
-    sort: 4,
   },
   // EPCOT
   78700: {
@@ -571,7 +558,6 @@ export const experiences: Experiences = {
     land: showcase,
     geo: [28.3706716, -81.5465556],
     priority: 1.2,
-    sort: 2,
   }),
   19242311: {
     id: '19242311',
@@ -582,7 +568,6 @@ export const experiences: Experiences = {
     id: '207395',
     name: 'Gran Fiesta Tour',
     land: showcase,
-    sort: 3,
   },
   18923661: {
     id: '18923661',
@@ -595,7 +580,6 @@ export const experiences: Experiences = {
     land: discovery,
     geo: [28.3747479, -81.5478405],
     priority: 1.0,
-    sort: 3,
   },
   17186496: {
     id: '17186496',
@@ -613,7 +597,6 @@ export const experiences: Experiences = {
     name: 'Journey Into Imagination',
     land: celebration,
     geo: [28.372896, -81.5512292],
-    sort: 2,
   },
   411794307: {
     id: '411794307',
@@ -653,14 +636,12 @@ export const experiences: Experiences = {
     name: 'Living with the Land',
     land: nature,
     geo: [28.3739368, -81.5526389],
-    sort: 2,
   },
   412010036: {
     id: '412010036',
     name: 'Living with the Land', // Christmas overlay
     land: nature,
     geo: [28.3739368, -81.5526389],
-    sort: 2,
   },
   412008998: {
     id: '412008998',
@@ -719,7 +700,6 @@ export const experiences: Experiences = {
     land: discovery,
     geo: [28.3739368, -81.5526389],
     priority: 4.0,
-    sort: 2,
   },
   245274: {
     id: '245274',
@@ -743,7 +723,6 @@ export const experiences: Experiences = {
     land: showcase,
     geo: [28.3680021, -81.5534178],
     priority: 1.1,
-    sort: 1,
   }),
   17490262: {
     id: '17490262',
@@ -755,7 +734,6 @@ export const experiences: Experiences = {
     name: 'Seas with Nemo & Friends',
     land: nature,
     geo: [28.3748995, -81.5507208],
-    sort: 3,
   },
   80010873: {
     id: '80010873',
@@ -768,7 +746,6 @@ export const experiences: Experiences = {
     land: nature,
     geo: [28.3735924, -81.5522783],
     priority: 3.0,
-    sort: 1,
   },
   412001587: {
     id: '412001587',
@@ -776,7 +753,6 @@ export const experiences: Experiences = {
     land: nature,
     geo: [28.3735924, -81.5522783],
     priority: 2.0,
-    sort: 1,
   },
   80010191: {
     id: '80010191',
@@ -784,7 +760,6 @@ export const experiences: Experiences = {
     land: celebration,
     geo: [28.3754661, -81.5493961],
     priority: 4.1,
-    sort: 1,
   },
   80010199: (tt = {
     id: '80010199',
@@ -792,14 +767,12 @@ export const experiences: Experiences = {
     land: discovery,
     geo: [28.3733374, -81.5474931],
     priority: 1.3,
-    sort: 1,
   }),
   62992: {
     id: '62992',
     name: 'Turtle Talk With Crush',
     land: nature,
     geo: [28.3753989, -81.5511449],
-    sort: 4,
   },
   80010879: {
     id: '80010879',
@@ -908,7 +881,6 @@ export const experiences: Experiences = {
     land: hollywood,
     geo: [28.3567406, -81.5606842],
     priority: 2.0,
-    sort: 1,
   },
   19263735: {
     id: '19263735',
@@ -936,7 +908,6 @@ export const experiences: Experiences = {
     land: toyStory,
     geo: [28.3562472, -81.5628474],
     priority: 1.1,
-    sort: 1,
   }),
   80010193: {
     id: '80010193',
@@ -951,7 +922,6 @@ export const experiences: Experiences = {
     land: starWars,
     geo: [28.3548829, -81.5604682],
     priority: 1.0,
-    sort: 1,
   },
   209857: (tsm = {
     id: '209857',
@@ -966,7 +936,6 @@ export const experiences: Experiences = {
     land: hollywood,
     geo: [28.3595812, -81.5597695],
     priority: 2.3,
-    sort: 2,
   }),
   // Animal Kingdom
   19330300: {
@@ -981,7 +950,6 @@ export const experiences: Experiences = {
     land: pandora,
     geo: [28.3555698, -81.592292],
     priority: 1.0,
-    sort: 1,
   },
   80010123: {
     id: '80010123',
@@ -1044,7 +1012,6 @@ export const experiences: Experiences = {
     land: africa,
     geo: [28.3592779, -81.5921478],
     priority: 3.0,
-    sort: 1,
   },
   18435910: {
     id: '18435910',
@@ -1076,7 +1043,6 @@ export const experiences: Experiences = {
     land: pandora,
     geo: [28.3551663, -81.591708],
     priority: 1.1,
-    sort: 2,
   },
   72877: {
     id: '72877',
@@ -1087,7 +1053,6 @@ export const experiences: Experiences = {
     id: '80010228',
     name: 'Triceratop Spin',
     land: dinoland,
-    sort: 2,
   },
   16629705: {
     id: '16629705',
