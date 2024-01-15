@@ -122,6 +122,7 @@ export const experiences: Experiences = {
     id: '367495',
     name: 'Alice in Wonderland',
     land: fantasyland,
+    priority: 3,
   },
   353291: {
     id: '353291',
@@ -133,6 +134,7 @@ export const experiences: Experiences = {
     name: 'Autopia',
     land: tomorrowland,
     geo: [33.8126634, -117.9167994],
+    priority: 3,
   },
   424945: {
     id: '424945',
@@ -274,19 +276,19 @@ export const experiences: Experiences = {
   },
   18738682: {
     id: '18738682',
-    name: 'Meet Disney Princesses (Royal Hall)',
+    name: 'Disney Princesses (Royal Hall)',
     land: fantasyland,
     type: 'CHARACTER',
   },
   401526: {
     id: '401526',
-    name: "Meet Mickey (Mickey's House)",
+    name: "Mickey (Mickey's House)",
     land: toontown,
     type: 'CHARACTER',
   },
   401524: {
     id: '401524',
-    name: 'Meet Tinker Bell (Pixie Hollow)',
+    name: 'Tinker Bell (Pixie Hollow)',
     land: fantasyland,
     type: 'CHARACTER',
   },
