@@ -29,7 +29,7 @@ export default function ChooseParty({ queue }: { queue: Queue }) {
   function toggleGuest(guest: Guest) {
     const newParty = new Set(party);
     newParty[newParty.has(guest) ? 'delete' : 'add'](guest);
-    const maxPartySize = Number(queue?.maxPartySize);
+    const { maxPartySize } = queue;
     if (maxPartySize > 0 && newParty.size > maxPartySize) {
       flash(`Maximum party size: ${maxPartySize}`);
     } else {
