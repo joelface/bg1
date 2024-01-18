@@ -157,8 +157,8 @@ export class VQClient extends ApiClient {
       data.guests.map(
         ({
           guestId,
-          firstName,
-          lastName,
+          firstName = '',
+          lastName = '',
           isPrimaryGuest,
           isPreselected,
           ...rest
