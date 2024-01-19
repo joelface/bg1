@@ -161,13 +161,13 @@ export class VQClient extends ApiClient {
           lastName = '',
           isPrimaryGuest,
           isPreselected,
-          ...rest
+          avatarImageUrl,
         }) => ({
-          ...rest,
           id: guestId,
           name: `${firstName} ${lastName}`.trim(),
           primary: !!isPrimaryGuest,
           preselected: !!isPreselected,
+          avatarImageUrl,
         })
       )
     );
