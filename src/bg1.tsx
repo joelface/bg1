@@ -11,6 +11,7 @@ function main() {
     return;
   }
 
+  document.close();
   addViewportMeta();
   createAppRoot().render(<App authStore={new AuthStore('bg1.auth')} />);
 }
