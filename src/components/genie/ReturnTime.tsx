@@ -20,8 +20,12 @@ export default function ReturnTime({
     timeElem = (
       <>
         {rt.start ? <Time time={rt.start} /> : <span>Park Open</span>} –{' '}
-        {rt.end && (endParkDate === startParkDate || endParkDate === today) ? (
-          <Time time={rt.end} />
+        {rt.end ? (
+          endParkDate === startParkDate || endParkDate === today ? (
+            <Time time={rt.end} />
+          ) : (
+            <Time date={endParkDate} type="short" />
+          )
         ) : (
           <span>Park Close</span>
         )}
@@ -32,22 +36,9 @@ export default function ReturnTime({
   }
   if (timeOnly) return timeElem;
   return (
-    <table className="mt-4 text-lg">
-      <tbody>
-        <Row label={end ? 'Arrive by' : 'Reservation at'} data={timeElem} />
-        {end && endParkDate !== startParkDate && endParkDate !== today && (
-          <Row label="Valid until" data={<Time date={endParkDate} />} />
-        )}
-      </tbody>
-    </table>
-  );
-}
-
-function Row({ label, data }: { label: string; data: React.ReactNode }) {
-  return (
-    <tr>
-      <th className="text-right">{label}:</th>
-      <td className="pl-2 font-semibold">{data}</td>
-    </tr>
+    <div className="mt-4 text-lg">
+      {end ? 'Arrive by' : 'Reservation at'}:{' '}
+      <span className="pl-1 font-semibold">{timeElem}</span>
+    </div>
   );
 }

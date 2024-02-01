@@ -44,12 +44,15 @@ export function parkDate(dateTime?: Partial<DateTimeStrings>): string {
   return dateTimeStrings(parkDay).date;
 }
 
-export function displayDate(date: string) {
+export type DisplayType = 'short';
+
+export function displayDate(date: string, type?: DisplayType) {
   const dt = new Date(date + 'T00:00:00');
   const monthDay = dt.toLocaleString('en-US', {
     month: 'long',
     day: 'numeric',
   });
+  if (type === 'short') return monthDay;
   const today = parkDate();
   if (date === today) return `Today, ${monthDay}`;
   const tomorrowDT = new Date(today);

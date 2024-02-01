@@ -1,7 +1,8 @@
-import { TODAY, YESTERDAY, setTime } from '@/testing';
+import { TODAY, TOMORROW, YESTERDAY, setTime } from '@/testing';
 
 import {
   dateTimeStrings,
+  displayDate,
   displayTime,
   parkDate,
   setDefaultTimeZone,
@@ -25,6 +26,14 @@ describe('dateTimeStrings()', () => {
       date: '2021-10-01',
       time: '08:00:00',
     });
+  });
+});
+
+describe('displayDate()', () => {
+  it('formats date for display', () => {
+    expect(displayDate(TODAY)).toBe('Today, October 1');
+    expect(displayDate(TODAY, 'short')).toBe('October 1');
+    expect(displayDate(TOMORROW)).toBe('Tomorrow, October 2');
   });
 });
 

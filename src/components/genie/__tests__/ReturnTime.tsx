@@ -1,5 +1,6 @@
-import { TODAY, TOMORROW, YESTERDAY, render, see, setTime } from '@/testing';
+import { TODAY, TOMORROW, YESTERDAY, render, setTime } from '@/testing';
 import ReturnTime from '../ReturnTime';
+import { displayDate } from '@/datetime';
 
 setTime('09:00');
 
@@ -7,12 +8,11 @@ describe('ReturnTime', () => {
   it('shows return time details', () => {
     const { container } = render(
       <ReturnTime
-        start={{ date: TOMORROW, time: '10:00:00' }}
-        end={{ date: TOMORROW, time: '11:00:00' }}
+        start={{ date: TODAY, time: '10:00:00' }}
+        end={{ date: TODAY, time: '11:00:00' }}
       />
     );
-    expect(container).toHaveTextContent('Arrive by:10:00 AM – 11:00 AM');
-    see.no('Valid until:');
+    expect(container).toHaveTextContent('Arrive by: 10:00 AM – 11:00 AM');
   });
 
   it('shows return time that is valid until the next day', () => {
@@ -22,8 +22,9 @@ describe('ReturnTime', () => {
         end={{ date: TOMORROW, time: '11:00:00' }}
       />
     );
-    expect(container).toHaveTextContent('Arrive by:10:00 AM – Park Close');
-    expect(container).toHaveTextContent('Valid until:Tomorrow, October 2');
+    expect(container).toHaveTextContent(
+      'Arrive by: 10:00 AM – ' + displayDate(TOMORROW, 'short')
+    );
   });
 
   it('shows return time from park open to close', () => {
@@ -33,7 +34,6 @@ describe('ReturnTime', () => {
         end={{ date: TODAY }}
       />
     );
-    expect(container).toHaveTextContent('Arrive by:Park Open – Park Close');
-    see.no('Valid until:');
+    expect(container).toHaveTextContent('Arrive by: Park Open – Park Close');
   });
 });
