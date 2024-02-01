@@ -1,7 +1,7 @@
 import { Booking } from '@/api/genie';
 import { useTheme } from '@/contexts/Theme';
 
-import ReturnTime from './ReturnTime';
+import ReturnWindow from './ReturnWindow';
 
 const DOT = <span aria-hidden>•</span>;
 
@@ -34,7 +34,7 @@ export default function BookingListing({
               )}
             </>
           ) : (
-            <ReturnTime {...booking} timeOnly />
+            <ReturnWindow {...booking} />
           )}
         </div>
         <div className="text-lg font-semibold leading-snug truncate">
