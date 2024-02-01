@@ -7,8 +7,8 @@ describe('ReturnTime', () => {
   it('shows return time details', () => {
     const { container } = render(
       <ReturnTime
-        start={{ date: TODAY, time: '10:00:00' }}
-        end={{ date: TODAY, time: '11:00:00' }}
+        start={{ date: TOMORROW, time: '10:00:00' }}
+        end={{ date: TOMORROW, time: '11:00:00' }}
       />
     );
     expect(container).toHaveTextContent('Arrive by:10:00 AM – 11:00 AM');

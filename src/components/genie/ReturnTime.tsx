@@ -15,12 +15,16 @@ export default function ReturnTime({
   if (end) {
     const rt = {
       start: startParkDate < today ? undefined : start.time,
-      end: endParkDate > today ? undefined : end?.time,
+      end: end?.time,
     };
     timeElem = (
       <>
         {rt.start ? <Time time={rt.start} /> : <span>Park Open</span>} –{' '}
-        {rt.end ? <Time time={rt.end} /> : <span>Park Close</span>}
+        {rt.end && (endParkDate === startParkDate || endParkDate === today) ? (
+          <Time time={rt.end} />
+        ) : (
+          <span>Park Close</span>
+        )}
       </>
     );
   } else {
