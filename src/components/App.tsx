@@ -5,9 +5,11 @@ import { InvalidOrigin } from '@/api/client';
 import { DasClient } from '@/api/das';
 import { Resort, loadResortData } from '@/api/data';
 import { GenieClient } from '@/api/genie';
+import { LiveDataClient } from '@/api/livedata';
 import { VQClient } from '@/api/vq';
 import { DasClientProvider } from '@/contexts/DasClient';
 import { GenieClientProvider } from '@/contexts/GenieClient';
+import { LiveDataClientProvider } from '@/contexts/LiveDataClient';
 import { ResortDataProvider } from '@/contexts/ResortData';
 import { VQClientProvider } from '@/contexts/VQClient';
 import { setDefaultTimeZone } from '@/datetime';
@@ -18,8 +20,6 @@ import onVisible from '@/onVisible';
 import LoginForm from './LoginForm';
 import Merlock from './genie/Merlock';
 import BGClient from './vq/BGClient';
-import { LiveDataClientProvider } from '@/contexts/LiveDataClient';
-import { LiveDataClient } from '@/api/livedata';
 
 export const NEWS_VERSION = 0;
 

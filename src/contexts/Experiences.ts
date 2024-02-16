@@ -11,8 +11,8 @@ import { useGenieClient } from '@/contexts/GenieClient';
 import useDataLoader from '@/hooks/useDataLoader';
 import useThrottleable from '@/hooks/useThrottleable';
 
-import { usePark } from './Park';
 import { useLiveDataClient } from './LiveDataClient';
+import { usePark } from './Park';
 
 interface ExperiencesState {
   experiences: Experience[];

@@ -1,6 +1,7 @@
-import { TODAY, TOMORROW, YESTERDAY, render, setTime } from '@/testing';
-import ReturnTime from '../ReturnTime';
 import { displayDate } from '@/datetime';
+import { TODAY, TOMORROW, YESTERDAY, render, setTime } from '@/testing';
+
+import ReturnTime from '../ReturnTime';
 
 setTime('09:00');
 
