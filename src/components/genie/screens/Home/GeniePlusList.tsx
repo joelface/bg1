@@ -53,6 +53,14 @@ export default function GeniePlusList({ contentRef }: HomeTabProps) {
     return new Set(Array.isArray(ids) ? ids : []);
   });
   const firstUpdate = useRef(true);
+  const plusExps = useRef<{
+    experienced: PlusExperience[];
+    unexperienced: PlusExperience[];
+  }>({ experienced: [], unexperienced: [] });
+
+  useEffect(() => {
+    plusExps.current = { experienced: [], unexperienced: [] };
+  }, [park]);
 
   useEffect(() => {
     if (firstUpdate.current) {
@@ -120,32 +128,37 @@ export default function GeniePlusList({ contentRef }: HomeTabProps) {
     </li>
   );
 
-  const nowMinutes = timeToMinutes(dateTimeStrings().time);
-  const plusExps = experiences
-    .filter((exp): exp is BasePlusExp => !!exp.flex)
-    .map(exp => {
-      const standby = exp.standby.waitTime || 0;
-      const returnTime = exp?.flex?.nextAvailableTime;
-      return {
-        ...exp,
-        lp:
-          !!returnTime &&
-          standby >= LP_MIN_STANDBY &&
-          timeToMinutes(returnTime) - nowMinutes <=
-            Math.min(
-              LP_MAX_LL_WAIT,
-              ((4 - Math.trunc(exp.priority || 4)) / 3) * standby
-            ),
-        starred: starred.has(exp.id),
-      };
-    })
-    .sort(
-      (a, b) => +!a.starred - +!b.starred || +!a.lp - +!b.lp || sorter(a, b)
-    );
-  const unexperienced = plusExps.filter(exp => !isExperienced(exp));
-  const experienced = plusExps
-    .filter(isExperienced)
-    .sort((a, b) => a.name.localeCompare(b.name));
+  if (!loaderElem) {
+    const nowMinutes = timeToMinutes(dateTimeStrings().time);
+    const allPlusExps = experiences
+      .filter((exp): exp is BasePlusExp => !!exp.flex)
+      .map(exp => {
+        const standby = exp.standby.waitTime || 0;
+        const returnTime = exp?.flex?.nextAvailableTime;
+        return {
+          ...exp,
+          lp:
+            !!returnTime &&
+            standby >= LP_MIN_STANDBY &&
+            timeToMinutes(returnTime) - nowMinutes <=
+              Math.min(
+                LP_MAX_LL_WAIT,
+                ((4 - Math.trunc(exp.priority || 4)) / 3) * standby
+              ),
+          starred: starred.has(exp.id),
+        };
+      })
+      .sort(
+        (a, b) => +!a.starred - +!b.starred || +!a.lp - +!b.lp || sorter(a, b)
+      );
+    plusExps.current = {
+      unexperienced: allPlusExps.filter(exp => !isExperienced(exp)),
+      experienced: allPlusExps
+        .filter(isExperienced)
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    };
+  }
+  const { unexperienced, experienced } = plusExps.current;
 
   return (
     <Tab
@@ -172,7 +185,7 @@ export default function GeniePlusList({ contentRef }: HomeTabProps) {
           <ul data-testid="experienced">{experienced.map(expListItem)}</ul>
         </>
       )}
-      {plusExps.length > 0 && (
+      {(unexperienced.length > 0 || experienced.length > 0) && (
         <Legend>
           <Symbol
             sym={<LightningIcon className={theme.text} />}
