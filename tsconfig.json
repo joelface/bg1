@@ -11,8 +11,8 @@
       ]
     },
     "incremental": true,
-    "target": "esnext",
-    "module": "esnext",
+    "target": "es2022",
+    "module": "es2022",
     "moduleResolution": "node",
     "jsx": "react-jsx",
     "isolatedModules": true,
