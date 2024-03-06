@@ -19,6 +19,7 @@ import { TODAY, click, loading, render, screen, see, setTime } from '@/testing';
 import BookExperience from '../BookExperience';
 
 jest.mock('@/ping');
+jest.mock('@/timesync');
 setTime('09:00');
 const errorMock = jest.spyOn(console, 'error');
 

@@ -1,25 +1,27 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { dateTimeStrings } from '@/datetime';
-import * as timeIs from '@/time-is';
+import { now, syncTime } from '@/timesync';
 
-function updateTime(id: string, onSync: () => void) {
-  const elem = document.getElementById(id);
-  if (!elem || elem.firstElementChild) return onSync();
-  elem.textContent = dateTimeStrings().time;
-  setTimeout(() => updateTime(id, onSync), 100);
-}
+const CLOCK_UPDATE_MS = 50;
 
 export default function Clock({
-  id,
   onSync,
 }: {
-  id: string;
-  onSync: () => void;
+  onSync: (synced: boolean) => void;
 }) {
+  const [time, setTime] = useState(now());
+
   useEffect(() => {
-    timeIs.add(id);
-    updateTime(id, onSync);
-  }, [id, onSync]);
-  return <time id={id} />;
+    const intervalId = setInterval(() => setTime(now()), CLOCK_UPDATE_MS);
+    return () => clearInterval(intervalId);
+  }, []);
+
+  useEffect(() => {
+    syncTime()
+      .then(() => onSync(true))
+      .catch(() => onSync(false));
+  }, [onSync]);
+
+  return <time>{dateTimeStrings(time).time}</time>;
 }

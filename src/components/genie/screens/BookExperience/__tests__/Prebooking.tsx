@@ -2,7 +2,7 @@ import { click, render, see } from '@/testing';
 
 import Prebooking from '../Prebooking';
 
-jest.useFakeTimers();
+jest.mock('@/timesync');
 
 const onRefresh = jest.fn();
 

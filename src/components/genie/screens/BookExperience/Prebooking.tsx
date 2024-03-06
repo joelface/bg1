@@ -15,7 +15,7 @@ export default function Prebooking({
     <>
       {startTime ? (
         <>
-          <TimeBoard resort="WDW" time={startTime} label="Booking start" />
+          <TimeBoard time={startTime} label="Booking start" />
           <p>
             At{' '}
             <time dateTime={startTime} className="font-semibold">

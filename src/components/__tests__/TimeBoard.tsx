@@ -1,22 +1,20 @@
-import { act, render, screen, see } from '@/testing';
+import { render, screen, see, setTime, waitFor } from '@/testing';
+import { SyncFailed, syncTime } from '@/timesync';
 
-import TimeBoard, { TIME_IS_IDS } from '../TimeBoard';
+import TimeBoard from '../TimeBoard';
 
-jest.mock('@/datetime', () => {
-  return {
-    dateTimeStrings: () => ({ date: '2020-04-05', time: '12:59:47.328' }),
-  };
-});
-
-self.time_is_widget = { init: jest.fn() };
+jest.mock('@/timesync');
 
 function renderComponent() {
-  render(<TimeBoard resort="WDW" label="Next queue opening" time="13:00:00" />);
+  render(<TimeBoard label="Next queue opening" time="13:00:00" />);
 }
 
 describe('TimeBoard', () => {
-  const unsyncedMsg = '(unsynced)';
-  jest.useFakeTimers();
+  const UNSYNCED_MSG = '(unsynced)';
+
+  beforeEach(() => {
+    setTime('12:59:47');
+  });
 
   it('shows next queue open time and current time', () => {
     renderComponent();
@@ -26,25 +24,13 @@ describe('TimeBoard', () => {
     expect(tds[0]).toHaveTextContent('13:00:00');
     expect(ths[1]).toHaveTextContent('Current time:');
     expect(tds[1]).toHaveTextContent('12:59:47');
-  });
-
-  it("doesn't show unsynced if syncing succeeds", async () => {
-    renderComponent();
-    // Fake clock syncing
-    (document.getElementById(TIME_IS_IDS.WDW) as HTMLElement).innerHTML =
-      '<span>12:59:48</span>';
-    act(() => {
-      jest.advanceTimersByTime(5000);
-    });
-    see.no(unsyncedMsg);
+    expect(syncTime).toHaveBeenCalledTimes(1);
+    see.no(UNSYNCED_MSG);
   });
 
   it('shows unsynced if syncing fails', async () => {
+    jest.mocked(syncTime).mockRejectedValue(SyncFailed);
     renderComponent();
-    see.no(unsyncedMsg);
-    act(() => {
-      jest.advanceTimersByTime(5000);
-    });
-    see(unsyncedMsg);
+    await waitFor(() => see(UNSYNCED_MSG));
   });
 });

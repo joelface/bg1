@@ -1,25 +1,30 @@
-import { render, see, waitFor } from '@/testing';
+import { act, render, see, setTime, waitFor } from '@/testing';
+import { SyncFailed, syncTime } from '@/timesync';
 
 import Clock from '../Clock';
 
-jest.mock('@/datetime', () => {
-  return {
-    dateTimeStrings: () => ({ date: '2020-04-05', time: '12:59:47' }),
-  };
-});
-
-self.time_is_widget = { init: jest.fn() };
+jest.mock('@/timesync');
 const onSync = jest.fn();
 
 describe('Clock', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    setTime('12:59:47');
+  });
+
   it('shows current time', async () => {
-    const id = 'Orlando_z161';
-    render(<Clock id={id} onSync={onSync} />);
-    expect(see('12:59:47')).toHaveAttribute('id', id);
-    expect(self.time_is_widget.init).lastCalledWith({ [id]: {} });
-    // Fake clock syncing
-    (document.getElementById(id) as HTMLElement).innerHTML =
-      '<span>12:59:48</span>';
-    await waitFor(() => expect(onSync).toBeCalled());
+    render(<Clock onSync={onSync} />);
+    see('12:59:47');
+    act(() => jest.advanceTimersByTime(1000));
+    await waitFor(() => see('12:59:48'));
+    expect(syncTime).toHaveBeenCalledTimes(1);
+    expect(onSync).toHaveBeenCalledTimes(1);
+    expect(onSync).toHaveBeenCalledWith(true);
+  });
+
+  it('calls onSync(false) when syncing fails', async () => {
+    jest.mocked(syncTime).mockRejectedValue(SyncFailed);
+    render(<Clock onSync={onSync} />);
+    await waitFor(() => expect(onSync).toHaveBeenCalledWith(false));
   });
 });
