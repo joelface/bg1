@@ -39,14 +39,14 @@ describe('NoEligibleGuests', () => {
     expect(see('Eligible at')).toHaveTextContent(
       displayTime(client.nextBookTime as string)
     );
-    expect(IneligibleGuestList).toBeCalled();
+    expect(IneligibleGuestList).toHaveBeenCalled();
   });
 
   it(`shows "Unable to Modify" if rebooking`, () => {
     renderComponent({ modify: true });
     see('Unable to Modify');
     see.no('Eligible at');
-    expect(IneligibleGuestList).toBeCalled();
+    expect(IneligibleGuestList).toHaveBeenCalled();
   });
 
   it(`doesn't show "Eligible at" time if eligible now`, () => {

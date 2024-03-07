@@ -55,7 +55,7 @@ function expectFetch(
   { method, params, data }: Parameters<typeof fetchJson>[1] = {},
   nthCall = 1
 ) {
-  expect(fetchJson).nthCalledWith(
+  expect(fetchJson).toHaveBeenNthCalledWith(
     nthCall,
     expect.stringContaining(origin + path),
     {

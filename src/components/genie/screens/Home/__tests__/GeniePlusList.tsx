@@ -86,7 +86,7 @@ describe('GeniePlusList', () => {
     );
 
     click('Refresh Experiences');
-    expect(refreshExperiences).toBeCalledTimes(1);
+    expect(refreshExperiences).toHaveBeenCalledTimes(1);
 
     const inJC = within(see(jc.name).closest('li') as HTMLElement);
     inJC.getByTitle('Booked (more info)');

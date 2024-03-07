@@ -15,16 +15,19 @@ describe('ping()', () => {
     await ping('G');
     jest.advanceTimersByTime(ONE_HOUR);
     await ping('G');
-    expect(fetchJson).toBeCalledTimes(1);
-    expect(fetchJson).lastCalledWith('https://bg1.joelface.com/ping', {
-      method: 'POST',
-      data: { service: 'G' },
-    });
+    expect(fetchJson).toHaveBeenCalledTimes(1);
+    expect(fetchJson).toHaveBeenLastCalledWith(
+      'https://bg1.joelface.com/ping',
+      {
+        method: 'POST',
+        data: { service: 'G' },
+      }
+    );
 
     jest.advanceTimersByTime(ONE_DAY);
     await ping('G');
     jest.advanceTimersByTime(ONE_HOUR);
     await ping('G');
-    expect(fetchJson).toBeCalledTimes(2);
+    expect(fetchJson).toHaveBeenCalledTimes(2);
   });
 });

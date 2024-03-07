@@ -45,7 +45,7 @@ describe('fetchJson()', () => {
   it('uses POST if method not specified and data included', async () => {
     const data = { name: 'Mickey' };
     await fetchJson(url, { data });
-    expect(fetch).lastCalledWith(url, {
+    expect(fetch).toHaveBeenLastCalledWith(url, {
       method: 'POST',
       body: JSON.stringify(data),
       ...init,
@@ -55,7 +55,7 @@ describe('fetchJson()', () => {
 
   it('adds params to URL', async () => {
     await fetchJson(url, { params: { start: 5, end: 15 } });
-    expect(fetch).lastCalledWith(url + '?start=5&end=15', {
+    expect(fetch).toHaveBeenLastCalledWith(url + '?start=5&end=15', {
       ...init,
       method: 'GET',
     });

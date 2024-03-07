@@ -47,7 +47,7 @@ describe('Home', () => {
     click('Modify');
     await see.screen('Genie+');
     expect(see(`Park: ${mk.name}`)).toBeDisabled();
-    expect(Element.prototype.scroll).toBeCalledTimes(2);
+    expect(Element.prototype.scroll).toHaveBeenCalledTimes(2);
   });
 });
 

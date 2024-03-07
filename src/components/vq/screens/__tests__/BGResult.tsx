@@ -30,14 +30,14 @@ describe('BGResult', () => {
     });
     see('Boarding Group: 89');
 
-    expect(GuestList).nthCalledWith(
+    expect(GuestList).toHaveBeenNthCalledWith(
       1,
       {
         guests: guests.slice(0, 2),
       },
       {}
     );
-    expect(GuestList).nthCalledWith(
+    expect(GuestList).toHaveBeenNthCalledWith(
       2,
       {
         guests: guests.slice(2),
@@ -50,6 +50,9 @@ describe('BGResult', () => {
   it('show failure message', async () => {
     renderComponent({ boardingGroup: null, conflicts: {}, closed: true });
     see('Sorry!');
-    expect(GuestList).lastCalledWith({ guests: [], conflicts: {} }, {});
+    expect(GuestList).toHaveBeenLastCalledWith(
+      { guests: [], conflicts: {} },
+      {}
+    );
   });
 });

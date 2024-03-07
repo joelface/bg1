@@ -27,7 +27,7 @@ describe('Plans', () => {
     renderComponent(bookings);
 
     click('Refresh Plans');
-    expect(refreshPlans).toBeCalledTimes(1);
+    expect(refreshPlans).toHaveBeenCalledTimes(1);
 
     const planLIs = (await screen.findAllByRole('listitem')).filter(li =>
       li.classList.contains('border-t-4')
@@ -67,7 +67,7 @@ describe('Plans', () => {
     expect(see.all('No existing plans')).toHaveLength(1);
 
     click(booking.name);
-    expect(goTo).lastCalledWith(<BookingDetails booking={booking} />);
+    expect(goTo).toHaveBeenLastCalledWith(<BookingDetails booking={booking} />);
   });
 
   it('shows "No existing plans" message', async () => {

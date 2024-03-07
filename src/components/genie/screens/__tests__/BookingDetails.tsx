@@ -61,11 +61,11 @@ describe('BookingDetails', () => {
     see(minnie.name);
     see(pluto.name);
     click('Modify');
-    expect(rebooking.begin).lastCalledWith(booking);
-    expect(goBack).toBeCalledTimes(1);
+    expect(rebooking.begin).toHaveBeenLastCalledWith(booking);
+    expect(goBack).toHaveBeenCalledTimes(1);
 
     click('Cancel');
-    expect(goTo).lastCalledWith(
+    expect(goTo).toHaveBeenLastCalledWith(
       <CancelGuests booking={booking} onCancel={expect.any(Function)} />
     );
 
@@ -76,7 +76,7 @@ describe('BookingDetails', () => {
     await waitFor(() => see.no(pluto.name));
 
     act(() => onCancel([]));
-    expect(goBack).toBeCalledTimes(2);
+    expect(goBack).toHaveBeenCalledTimes(2);
   });
 
   it('shows Multiple Experiences LL details', async () => {

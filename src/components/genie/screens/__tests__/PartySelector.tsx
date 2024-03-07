@@ -36,7 +36,7 @@ describe('PartySelector', () => {
     await renderComponent();
     expect(see('Book for all eligible guests', 'radio')).toBeChecked();
     expect(see('Only book for selected guests', 'radio')).not.toBeChecked();
-    expect(client.setPartyIds).lastCalledWith([]);
+    expect(client.setPartyIds).toHaveBeenLastCalledWith([]);
 
     click('Only book for selected guests');
     see('Add to Your Party');
@@ -49,14 +49,14 @@ describe('PartySelector', () => {
     see('Add to Your Party');
 
     click('Save');
-    await waitFor(() => expect(goBack).toBeCalled());
+    await waitFor(() => expect(goBack).toHaveBeenCalled());
     const guestIds = guests.slice(1).map(g => g.id);
-    expect(client.setPartyIds).lastCalledWith(guestIds);
+    expect(client.setPartyIds).toHaveBeenLastCalledWith(guestIds);
     expect(loadPartyIds()).toEqual(guestIds);
 
     click('Book for all eligible guests');
     click('Save');
-    expect(client.setPartyIds).lastCalledWith([]);
+    expect(client.setPartyIds).toHaveBeenLastCalledWith([]);
     expect(loadPartyIds()).toEqual([]);
   });
 
@@ -71,12 +71,12 @@ describe('PartySelector', () => {
     const guestIds = (await client.guests()).eligible.map(g => g.id);
     localStorage.setItem(PARTY_IDS_KEY, JSON.stringify(guestIds));
     await renderComponent();
-    expect(client.setPartyIds).lastCalledWith(guestIds);
+    expect(client.setPartyIds).toHaveBeenLastCalledWith(guestIds);
   });
 
   it('ignores non-array values in localStorage', async () => {
     localStorage.setItem(PARTY_IDS_KEY, '{}');
     await renderComponent();
-    expect(client.setPartyIds).lastCalledWith([]);
+    expect(client.setPartyIds).toHaveBeenLastCalledWith([]);
   });
 });

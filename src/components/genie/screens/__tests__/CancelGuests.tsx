@@ -27,9 +27,9 @@ describe('CancelGuests', () => {
     renderComponent();
     click('Select All');
     click('Cancel Reservation');
-    expect(client.cancelBooking).lastCalledWith(guests);
+    expect(client.cancelBooking).toHaveBeenLastCalledWith(guests);
     await loading();
-    expect(onCancel).toBeCalledTimes(1);
+    expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
   it('cancels selected guests', async () => {
@@ -37,9 +37,12 @@ describe('CancelGuests', () => {
     click(mickey.name);
     click(pluto.name);
     click('Cancel Guests');
-    expect(client.cancelBooking).lastCalledWith([guests[0], guests[2]]);
+    expect(client.cancelBooking).toHaveBeenLastCalledWith([
+      guests[0],
+      guests[2],
+    ]);
     await loading();
-    expect(onCancel).toBeCalledTimes(1);
+    expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
   it('shows error on failure', async () => {

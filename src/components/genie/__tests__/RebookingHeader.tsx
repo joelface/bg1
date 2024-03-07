@@ -37,9 +37,9 @@ describe('RebookingHeader', () => {
     see(displayTime(booking.start.time as string));
     see(displayTime(booking.end.time as string));
     click('Keep');
-    expect(rebooking.end).toBeCalledTimes(1);
-    await waitFor(() => expect(goBack).toBeCalledTimes(1));
-    expect(goBack).lastCalledWith({ screen: Home });
+    expect(rebooking.end).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(goBack).toHaveBeenCalledTimes(1));
+    expect(goBack).toHaveBeenLastCalledWith({ screen: Home });
   });
 
   it('shows nothing if not modifying', () => {

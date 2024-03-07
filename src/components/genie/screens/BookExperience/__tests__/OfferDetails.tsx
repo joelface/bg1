@@ -13,7 +13,7 @@ describe('OfferDetails', () => {
     see(displayTime(offer.start.time));
     see(displayTime(offer.end.time));
     click('Book Lightning Lane');
-    expect(onBook).toBeCalledTimes(1);
+    expect(onBook).toHaveBeenCalledTimes(1);
   });
 
   it('tells if offer has been changed', async () => {

@@ -21,7 +21,10 @@ describe('ChooseParty', () => {
       </VQClientProvider>
     );
     await loading();
-    expect(StartTime).lastCalledWith({ queue: rotr, screen: ChooseParty }, {});
+    expect(StartTime).toHaveBeenLastCalledWith(
+      { queue: rotr, screen: ChooseParty },
+      {}
+    );
 
     click(pluto.name);
     click(fifi.name);
@@ -29,7 +32,7 @@ describe('ChooseParty', () => {
 
     click(minnie.name);
     click('Confirm Party');
-    expect(goTo).lastCalledWith(
+    expect(goTo).toHaveBeenLastCalledWith(
       <JoinQueue queue={rotr} guests={[mickey, pluto]} />
     );
   });

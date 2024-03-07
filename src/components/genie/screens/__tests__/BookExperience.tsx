@@ -103,10 +103,10 @@ describe('BookExperience', () => {
     await loading();
     see('Your Lightning Lane');
     see(hm.name);
-    expect(ping).toBeCalledTimes(1);
-    expect(client.guests).toBeCalledTimes(1);
-    expect(client.book).toBeCalledTimes(1);
-    expect(client.cancelBooking).lastCalledWith(
+    expect(ping).toHaveBeenCalledTimes(1);
+    expect(client.guests).toHaveBeenCalledTimes(1);
+    expect(client.book).toHaveBeenCalledTimes(1);
+    expect(client.cancelBooking).toHaveBeenLastCalledWith(
       booking.guests.filter(g => g.id === mickey.id)
     );
   });
@@ -176,7 +176,7 @@ describe('BookExperience', () => {
     await clickModify();
     click(mickey.name);
     await clickConfirm();
-    expect(client.offer).not.toBeCalled();
+    expect(client.offer).not.toHaveBeenCalled();
   });
 
   it('shows prebooking screen even if no eligible guests', async () => {
@@ -260,7 +260,11 @@ describe('BookExperience', () => {
     (client as any).maxPartySize = 2;
 
     await renderComponent();
-    expect(client.offer).lastCalledWith(hm, [mickey, minnie], undefined);
+    expect(client.offer).toHaveBeenLastCalledWith(
+      hm,
+      [mickey, minnie],
+      undefined
+    );
     see('Party size restricted');
 
     await clickModify();
@@ -272,6 +276,6 @@ describe('BookExperience', () => {
 
   it('can modify an existing reservation', async () => {
     await renderComponent({ modify: true });
-    expect(client.guests).not.toBeCalled();
+    expect(client.guests).not.toHaveBeenCalled();
   });
 });

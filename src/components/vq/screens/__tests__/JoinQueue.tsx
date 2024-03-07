@@ -27,7 +27,10 @@ describe('JoinQueue', () => {
         <JoinQueue queue={rotr} guests={guests} />
       </VQClientProvider>
     );
-    expect(StartTime).lastCalledWith({ queue: rotr, screen: JoinQueue }, {});
+    expect(StartTime).toHaveBeenLastCalledWith(
+      { queue: rotr, screen: JoinQueue },
+      {}
+    );
 
     await clickJoin();
     see('Queue not open yet');
@@ -36,7 +39,7 @@ describe('JoinQueue', () => {
       { ...rotr, isAcceptingJoins: true },
     ]);
     await clickJoin();
-    expect(goTo).lastCalledWith(
+    expect(goTo).toHaveBeenLastCalledWith(
       <BGResult
         queue={rotr}
         guests={guests}

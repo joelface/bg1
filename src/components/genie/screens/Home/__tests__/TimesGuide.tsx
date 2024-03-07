@@ -105,7 +105,7 @@ describe('TimesGuide', () => {
     renderComponent();
 
     click('Refresh Times');
-    expect(refreshExperiences).toBeCalledTimes(1);
+    expect(refreshExperiences).toHaveBeenCalledTimes(1);
 
     expectTimes({
       'Main Street, USA': {

@@ -19,18 +19,24 @@ describe('GuestList', () => {
 
   it('renders plain guest list', () => {
     render(<GuestList guests={guests} />);
-    screen.getAllByRole('listitem').forEach((li, i) => {
-      const g = guests[i];
-      expect(li).toHaveTextContent(g.name);
-      if (g.avatarImageUrl) {
+    const guestLIs = screen.getAllByRole('listitem');
+    guests
+      .filter(g => g.avatarImageUrl !== '')
+      .forEach((g, i) => {
+        const li = guestLIs[i];
+        expect(li).toHaveTextContent(g.name);
         expect(within(li).getByRole('img')).toHaveAttribute(
           'src',
           g.avatarImageUrl
         );
-      } else {
+      });
+    guests
+      .filter(g => g.avatarImageUrl === '')
+      .forEach((g, i) => {
+        const li = guestLIs[i];
+        expect(li).toHaveTextContent(g.name);
         within(li).getByText(g.name[0]);
-      }
-    });
+      });
     expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
   });
 

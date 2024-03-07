@@ -67,7 +67,7 @@ function loadClient(logging?: boolean) {
 describe('AuthClient', () => {
   it('properly responds to messages', async () => {
     const client = loadClient();
-    expect(self.addEventListener).toBeCalledTimes(1);
+    expect(self.addEventListener).toHaveBeenCalledTimes(1);
     // The next three messages should be ignored
     send({ type: 'handshake' });
     send('inner.loaded');
@@ -114,7 +114,7 @@ describe('AuthClient', () => {
       deferredUuid: 'd0b1e8eb-946d-4d79-a08c-60e870ce35b5',
     });
     await waitFor(() =>
-      expect(onLogin).lastCalledWith({
+      expect(onLogin).toHaveBeenLastCalledWith({
         swid: token.swid,
         accessToken: token.access_token,
         expires: new Date(token.exp),
@@ -122,9 +122,9 @@ describe('AuthClient', () => {
     );
 
     send({ type: 'message', eventName: 'lightbox.hide' });
-    await waitFor(() => expect(self.addEventListener).toBeCalledTimes(2));
+    await waitFor(() => expect(self.addEventListener).toHaveBeenCalledTimes(2));
 
-    expect(removeEventListener).not.toBeCalled();
+    expect(removeEventListener).not.toHaveBeenCalled();
     client.close();
     expect(removeEventListener.mock.calls[0][0]).toBe('message');
   });
@@ -138,6 +138,6 @@ describe('AuthClient', () => {
         data: { level: 'log' },
       })
     );
-    expect(console.log).toBeCalled();
+    expect(console.log).toHaveBeenCalled();
   });
 });

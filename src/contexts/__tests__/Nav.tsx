@@ -79,6 +79,6 @@ describe('Nav', () => {
     const beforeUnload = new Event('beforeunload');
     beforeUnload.preventDefault = jest.fn();
     dispatchEvent(beforeUnload);
-    expect(beforeUnload.preventDefault).toBeCalled();
+    expect(beforeUnload.preventDefault).toHaveBeenCalled();
   });
 });

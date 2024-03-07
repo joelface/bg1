@@ -58,7 +58,7 @@ function expectFetch(
   nthCall = 1
 ) {
   if (appendUserId) params = { ...params, userId: swid };
-  expect(fetchJson).nthCalledWith(
+  expect(fetchJson).toHaveBeenNthCalledWith(
     nthCall,
     expect.stringContaining(origin + path),
     {
@@ -163,8 +163,10 @@ describe('GenieClient', () => {
       setTime('15:00');
       expect(await getExpData()).toEqual([{ ...smExp, drop: false }]);
 
-      expect(console.warn).toBeCalledTimes(3);
-      expect(console.warn).lastCalledWith('Missing experience: not_a_real_id');
+      expect(console.warn).toHaveBeenCalledTimes(3);
+      expect(console.warn).toHaveBeenLastCalledWith(
+        'Missing experience: not_a_real_id'
+      );
       jest.mocked(console.warn).mockRestore();
     });
   });
@@ -583,7 +585,7 @@ describe('GenieClient', () => {
         .spyOn(global.console, 'error')
         .mockImplementation(() => null);
       expect(await client.bookings()).toEqual([booking]);
-      expect(spy).toBeCalled();
+      expect(spy).toHaveBeenCalled();
       spy.mockRestore();
     });
   });

@@ -15,6 +15,6 @@ describe('QueueHeading', () => {
     render(<QueueHeading queue={mtwr} queues={queues} onChange={onChange} />);
     const select = screen.getByRole('combobox') as HTMLSelectElement;
     fireEvent.change(select, { target: { value: rotr.id } });
-    expect(onChange).lastCalledWith(rotr.id);
+    expect(onChange).toHaveBeenLastCalledWith(rotr.id);
   });
 });

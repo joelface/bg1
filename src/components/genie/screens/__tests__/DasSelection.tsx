@@ -41,7 +41,7 @@ describe('DasSelection', () => {
     expect(bookBtn).toBeDisabled();
 
     click('Select Experience');
-    expect(goTo).lastCalledWith(
+    expect(goTo).toHaveBeenLastCalledWith(
       <DasExperienceList park={mk} onSelect={expect.any(Function)} />
     );
 
@@ -63,7 +63,7 @@ describe('DasSelection', () => {
       })
     );
     click(bookBtn);
-    expect(client.book).lastCalledWith({
+    expect(client.book).toHaveBeenLastCalledWith({
       park: mk,
       experience: hm,
       guests: [mickey, minnie],
@@ -71,20 +71,20 @@ describe('DasSelection', () => {
     await waitFor(() => see('NOT IN PARK'));
 
     click('Modify');
-    expect(goTo).toBeCalledTimes(2);
+    expect(goTo).toHaveBeenCalledTimes(2);
     onSelect = jest.mocked(goTo).mock.lastCall?.[0].props.onSelect;
     act(() => onSelect(jc));
     await waitFor(() => see(jc.name));
 
     click(bookBtn);
-    expect(client.book).lastCalledWith({
+    expect(client.book).toHaveBeenLastCalledWith({
       park: mk,
       experience: jc,
       guests: [mickey, minnie],
     });
-    await waitFor(() => expect(refreshPlans).toBeCalled());
-    expect(goBack).lastCalledWith({ screen: Home });
-    expect(goTo).lastCalledWith(
+    await waitFor(() => expect(refreshPlans).toHaveBeenCalled());
+    expect(goBack).toHaveBeenLastCalledWith({ screen: Home });
+    expect(goTo).toHaveBeenLastCalledWith(
       <BookingDetails booking={booking} isNew={true} />
     );
   });

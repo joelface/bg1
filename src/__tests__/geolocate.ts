@@ -6,11 +6,11 @@ const gcpMock = jest.spyOn(navigator.geolocation, 'getCurrentPosition');
 
 describe('geolocate()', () => {
   it('returns position', async () => {
-    withCoords([41.1074, -85.1548], async () => {
-      expect(geolocate()).resolves.toEqual({
+    await withCoords([41.1074, -85.1548], async () => {
+      await expect(geolocate()).resolves.toEqual({
         coords: { latitude: 41.1074, longitude: -85.1548 },
       });
-      expect(gcpMock).lastCalledWith(
+      expect(gcpMock).toHaveBeenLastCalledWith(
         expect.any(Function),
         expect.any(Function),
         {}
@@ -21,10 +21,10 @@ describe('geolocate()', () => {
         maximumAge: 60_000,
         timeout: 5_000,
       };
-      expect(geolocate(options)).resolves.toEqual({
+      await expect(geolocate(options)).resolves.toEqual({
         coords: { latitude: 41.1074, longitude: -85.1548 },
       });
-      expect(gcpMock).lastCalledWith(
+      expect(gcpMock).toHaveBeenLastCalledWith(
         expect.any(Function),
         expect.any(Function),
         options
@@ -33,8 +33,8 @@ describe('geolocate()', () => {
   });
 
   it('throws error on failure', async () => {
-    withCoords(undefined, () => {
-      expect(geolocate()).rejects.toEqual({
+    await withCoords(undefined, async () => {
+      await expect(geolocate()).rejects.toEqual({
         code: 2,
         message: 'Position unavailable',
       });

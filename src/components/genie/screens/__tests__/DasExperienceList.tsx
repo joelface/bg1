@@ -31,7 +31,7 @@ describe('DasExperienceList', () => {
       expect(container).toHaveTextContent(exp.name + waitTimeLabel(exp));
     }
     click(waitTimeLabel(jc));
-    expect(onSelect).lastCalledWith(jc);
+    expect(onSelect).toHaveBeenLastCalledWith(jc);
   });
 
   it('shows message if no experiences', async () => {

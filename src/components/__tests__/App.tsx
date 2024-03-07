@@ -75,7 +75,7 @@ describe('App', () => {
     });
     renderComponent();
     click(await screen.findByRole('button', { name: 'Log In' }));
-    expect(authStore.setData).lastCalledWith({
+    expect(authStore.setData).toHaveBeenLastCalledWith({
       swid: '{MINNIE}',
       accessToken: 'm1nn13',
       expires: new Date(2121, 12, 21, 12, 21, 12),

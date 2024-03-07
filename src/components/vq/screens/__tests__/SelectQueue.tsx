@@ -45,12 +45,14 @@ describe('SelectQueue', () => {
     expect(within(lis[2]).getByText('Closed')).toBeDisabled();
 
     click(screen.getAllByText('Join Queue')[0]);
-    expect(goTo).lastCalledWith(<ChooseParty queue={rotr} />);
+    expect(goTo).toHaveBeenLastCalledWith(<ChooseParty queue={rotr} />);
 
     client.getQueues.mockResolvedValueOnce([
       { ...rotr, isAcceptingJoins: false, isAcceptingPartyCreation: false },
     ]);
     revisitTab(0);
-    await waitFor(() => expect(goBack).lastCalledWith({ screen: SelectQueue }));
+    await waitFor(() =>
+      expect(goBack).toHaveBeenLastCalledWith({ screen: SelectQueue })
+    );
   });
 });
