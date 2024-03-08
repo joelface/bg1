@@ -1,5 +1,4 @@
 import { dateTimeStrings } from './datetime';
-import { fetchJson } from './fetch';
 
 const PING_URL = 'https://bg1.joelface.com/ping';
 const PING_KEY = 'bg1.ping';
@@ -12,14 +11,16 @@ export async function ping(service: ServiceCode): Promise<void> {
   let pings: LastPingDates = {};
   try {
     pings = JSON.parse(localStorage.getItem(PING_KEY) || '{}');
-  } catch (e) {
+  } catch {
     // pass through
   }
   if (pings[service] === date) return;
-  const { ok } = await fetchJson(PING_URL, {
+  const { ok } = await fetch(PING_URL, {
     method: 'POST',
-    data: { service },
+    body: new URLSearchParams({ service }),
   });
-  pings[service] = date;
-  if (ok) localStorage.setItem(PING_KEY, JSON.stringify(pings));
+  if (ok) {
+    pings[service] = date;
+    localStorage.setItem(PING_KEY, JSON.stringify(pings));
+  }
 }
