@@ -7,7 +7,6 @@ import { useNav } from '@/contexts/Nav';
 import { useVQClient } from '@/contexts/VQClient';
 import useDataLoader from '@/hooks/useDataLoader';
 
-import StartTime from '../StartTime';
 import JoinQueue from './JoinQueue';
 import QueueScreen from './QueueScreen';
 
@@ -43,7 +42,6 @@ export default function ChooseParty({ queue }: { queue: Queue }) {
       {queue.howToEnterMessage.split('\n\n').map((graf, i) => (
         <p key={i}>{graf}</p>
       ))}
-      <StartTime queue={queue} screen={ChooseParty} />
       <h3>Choose Your Party</h3>
       {guests.length > 0 ? (
         <GuestList
