@@ -334,6 +334,11 @@ export const experiences: Experiences = {
     geo: [33.811295, -117.9209785],
     priority: 3,
   },
+  411973631: {
+    id: '411973631',
+    name: 'Queenie & the Jambalaya Jazz Band',
+    land: newOrleans,
+  },
   19193461: {
     id: '19193461',
     name: 'Rise of the Resistance',
