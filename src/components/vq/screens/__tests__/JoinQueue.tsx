@@ -17,11 +17,12 @@ async function clickJoin() {
   await loading();
 }
 
+const guests = [mickey, pluto];
+
 describe('JoinQueue', () => {
   const { goTo } = useNav();
 
   it('shows VQ join screen', async () => {
-    const guests = [mickey, pluto];
     const { container } = render(
       <VQClientProvider value={client}>
         <JoinQueue queue={rotr} guests={guests} />
@@ -50,5 +51,18 @@ describe('JoinQueue', () => {
       />,
       { replace: true }
     );
+  });
+
+  it('shows "No boarding groups available" message when VQ closed', async () => {
+    render(
+      <VQClientProvider value={client}>
+        <JoinQueue queue={rotr} guests={guests} />
+      </VQClientProvider>
+    );
+    client.getQueues.mockResolvedValueOnce([
+      { ...rotr, isAcceptingPartyCreation: false },
+    ]);
+    await clickJoin();
+    see('No boarding groups available');
   });
 });

@@ -24,9 +24,13 @@ export default function JoinQueue({
   async function joinQueue() {
     await loadData(
       async flash => {
-        if (!queue || !(await client.getQueue(queue)).isAcceptingJoins) {
-          flash('Queue not open yet');
-          return;
+        const q = await client.getQueue(queue);
+        if (!q.isAcceptingJoins) {
+          return flash(
+            q.isAcceptingPartyCreation
+              ? 'Queue not open yet'
+              : 'No boarding groups available'
+          );
         }
         const result = await client.joinQueue(queue, guests);
         goTo(<BGResult queue={queue} guests={guests} result={result} />, {
