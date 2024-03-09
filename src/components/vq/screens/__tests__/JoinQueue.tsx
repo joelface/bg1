@@ -22,7 +22,7 @@ describe('JoinQueue', () => {
 
   it('shows VQ join screen', async () => {
     const guests = [mickey, pluto];
-    render(
+    const { container } = render(
       <VQClientProvider value={client}>
         <JoinQueue queue={rotr} guests={guests} />
       </VQClientProvider>
@@ -30,6 +30,9 @@ describe('JoinQueue', () => {
     expect(StartTime).toHaveBeenLastCalledWith(
       { queue: rotr, screen: JoinQueue },
       {}
+    );
+    expect(container).toHaveTextContent(
+      'Tap the Join Virtual Queue button when the clock reads 07:00:00.'
     );
 
     await clickJoin();
