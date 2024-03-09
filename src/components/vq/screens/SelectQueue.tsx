@@ -19,31 +19,21 @@ const isActive = (queue: Queue) =>
 
 export default function SelectQueue() {
   const client = useVQClient();
-  const { goTo, goBack } = useNav();
+  const { goTo } = useNav();
   const theme = useTheme();
   const { loadData, loaderElem } = useDataLoader();
-  const [queues, setQueues] = useState<Queue[]>([]);
-  const [queuesLoaded, setQueuesLoaded] = useState(false);
-  const [, setSelectedQueue] = useState<Queue>();
+  const [queues, setQueues] = useState<Queue[]>();
 
   const refreshQueues = useCallback(() => {
     loadData(async () => {
-      const queues = await client.getQueues();
-      queues.sort(
-        (a, b) =>
-          +isActive(b) - +isActive(a) || +isAttraction(b) - +isAttraction(a)
+      setQueues(
+        (await client.getQueues()).sort(
+          (a, b) =>
+            +isActive(b) - +isActive(a) || +isAttraction(b) - +isAttraction(a)
+        )
       );
-      setQueues(queues);
-      setSelectedQueue(queue => {
-        if (!queue) return queue;
-        const q = queues.find(q => q.id === queue.id);
-        if (q && isActive(q)) return queue;
-        setSelectedQueue(undefined);
-        goBack({ screen: SelectQueue });
-      });
-      setQueuesLoaded(true);
     });
-  }, [client, goBack, loadData]);
+  }, [client, loadData]);
 
   useEffect(() => {
     refreshQueues();
@@ -69,7 +59,7 @@ export default function SelectQueue() {
         </div>
       }
     >
-      {queues.length > 0 ? (
+      {!queues ? null : queues.length > 0 ? (
         <ul className="mt-1">
           {queues.map(q => (
             <li
@@ -98,10 +88,7 @@ export default function SelectQueue() {
                 <div className="pl-3">
                   <Button
                     disabled={!isActive(q)}
-                    onClick={() => {
-                      setSelectedQueue(q);
-                      goTo(<ChooseParty queue={q} />);
-                    }}
+                    onClick={() => goTo(<ChooseParty queue={q} />)}
                   >
                     {isActive(q) ? 'Join Queue' : 'Closed'}
                   </Button>
@@ -110,11 +97,13 @@ export default function SelectQueue() {
             </li>
           ))}
         </ul>
-      ) : queuesLoaded && !loaderElem ? (
-        <p className="text-gray-500 font-semibold text-center uppercase">
-          No virtual queues found
-        </p>
-      ) : null}
+      ) : (
+        !loaderElem && (
+          <p className="text-gray-500 font-semibold text-center uppercase">
+            No virtual queues found
+          </p>
+        )
+      )}
       {loaderElem}
     </Screen>
   );

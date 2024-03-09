@@ -8,7 +8,6 @@ import {
   revisitTab,
   screen,
   see,
-  waitFor,
   within,
 } from '@/testing';
 
@@ -19,7 +18,7 @@ jest.mock('@/contexts/Nav');
 jest.useFakeTimers();
 
 describe('SelectQueue', () => {
-  const { goTo, goBack } = useNav();
+  const { goTo } = useNav();
 
   it('shows VQ selection screen', async () => {
     client.getQueues.mockResolvedValueOnce([]);
@@ -31,7 +30,7 @@ describe('SelectQueue', () => {
     await loading();
     see('No virtual queues found');
 
-    click('Refresh Queues');
+    revisitTab(0);
     await loading();
     const lis = screen.getAllByRole('listitem');
     within(lis[0]).getByText(rotr.name);
@@ -50,9 +49,8 @@ describe('SelectQueue', () => {
     client.getQueues.mockResolvedValueOnce([
       { ...rotr, isAcceptingJoins: false, isAcceptingPartyCreation: false },
     ]);
-    revisitTab(0);
-    await waitFor(() =>
-      expect(goBack).toHaveBeenLastCalledWith({ screen: SelectQueue })
-    );
+
+    click('Refresh Queues');
+    await loading();
   });
 });
