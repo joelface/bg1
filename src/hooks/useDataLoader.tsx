@@ -36,35 +36,29 @@ export default function useDataLoader(): {
       };
       flash('');
 
-      let doFlash: () => void = () => null;
-      const completion = new Promise(resolve => {
-        doFlash = () => resolve(null);
-      });
-
-      async function delayFlash(...args: Parameters<typeof flash>) {
-        await completion;
-        flash(...args);
+      let flashArgs: Parameters<typeof flash> = [''];
+      function setFlashArgs(...args: Parameters<typeof flash>) {
+        flashArgs = args;
       }
 
       setLoadCount(count => count + 1);
       const awaken = sleep(minLoadTime);
       try {
-        await callback(delayFlash);
+        await callback(setFlashArgs);
       } catch (error: any) {
         const status = error?.response?.status;
         if (msgs[error.name] !== undefined) {
-          delayFlash(msgs[error.name], 'error');
+          setFlashArgs(msgs[error.name], 'error');
         } else if (Number.isInteger(status)) {
-          delayFlash(status in msgs ? msgs[status] : msgs.request, 'error');
+          setFlashArgs(status in msgs ? msgs[status] : msgs.request, 'error');
         } else {
           console.error(error);
-          delayFlash(msgs.error, 'error');
+          setFlashArgs(msgs.error, 'error');
         }
       }
       await awaken;
-      await sleep(0);
       setLoadCount(count => count - 1);
-      doFlash();
+      flash(...flashArgs);
     },
     [flash]
   );
