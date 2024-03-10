@@ -1,15 +1,15 @@
 import { client, mickey, pluto, rotr } from '@/__fixtures__/vq';
+import TimeBoard from '@/components/TimeBoard';
 import { useNav } from '@/contexts/Nav';
 import { VQClientProvider } from '@/contexts/VQClient';
 import { click, loading, render, see } from '@/testing';
 
-import StartTime from '../../StartTime';
 import BGResult from '../BGResult';
 import JoinQueue from '../JoinQueue';
 
+jest.mock('@/components/TimeBoard');
 jest.mock('@/contexts/Nav');
 jest.mock('@/ping');
-jest.mock('../../StartTime');
 jest.useFakeTimers();
 
 async function clickJoin() {
@@ -28,8 +28,8 @@ describe('JoinQueue', () => {
         <JoinQueue queue={rotr} guests={guests} />
       </VQClientProvider>
     );
-    expect(StartTime).toHaveBeenLastCalledWith(
-      { queue: rotr, screen: JoinQueue },
+    expect(TimeBoard).toHaveBeenLastCalledWith(
+      { time: rotr.nextScheduledOpenTime, label: 'Next queue opening' },
       {}
     );
     expect(container).toHaveTextContent(

@@ -1,12 +1,12 @@
 import { Guest, Queue } from '@/api/vq';
 import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
+import TimeBoard from '@/components/TimeBoard';
 import { useNav } from '@/contexts/Nav';
 import { useVQClient } from '@/contexts/VQClient';
 import useDataLoader from '@/hooks/useDataLoader';
 import { ping } from '@/ping';
 
-import StartTime from '../StartTime';
 import BGResult from './BGResult';
 import QueueScreen from './QueueScreen';
 
@@ -44,7 +44,12 @@ export default function JoinQueue({
 
   return (
     <QueueScreen queue={queue} heading="Virtual Queue">
-      <StartTime queue={queue} screen={JoinQueue} />
+      {!queue.isAcceptingJoins && (
+        <TimeBoard
+          time={queue.nextScheduledOpenTime}
+          label="Next queue opening"
+        />
+      )}
       {!queue.isAcceptingJoins && queue.nextScheduledOpenTime !== null && (
         <p>
           Tap the <b>Join Virtual Queue</b> button when the clock reads{' '}
