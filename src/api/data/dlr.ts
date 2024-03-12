@@ -272,7 +272,7 @@ export const experiences: Experiences = {
     name: 'Matterhorn Bobsleds',
     land: fantasyland,
     geo: [33.8127838, -117.9182386],
-    priority: 3.0,
+    priority: 2.0,
   },
   18738682: {
     id: '18738682',
@@ -297,7 +297,7 @@ export const experiences: Experiences = {
     name: "Mickey and Minnie's Runaway Railway",
     land: toontown,
     geo: [33.8154852, -117.9183938],
-    priority: 2.2,
+    priority: 1.2,
   },
   19193459: {
     id: '19193459',
@@ -363,7 +363,7 @@ export const experiences: Experiences = {
     name: 'Space Mountain',
     land: tomorrowland,
     geo: [33.8112647, -117.9175892],
-    priority: 2.1,
+    priority: 2.2,
   },
   18237368: {
     id: '18237368',
@@ -444,7 +444,7 @@ export const experiences: Experiences = {
     name: "Goofy's Sky School",
     land: paradise,
     geo: [33.8062523, -117.9228425],
-    priority: 2.0,
+    priority: 2.1,
   },
   353345: {
     id: '353345',
@@ -458,7 +458,7 @@ export const experiences: Experiences = {
     name: 'Guardians of the Galaxy - Mission: BREAKOUT',
     land: avengers,
     geo: [33.8068606, -117.9172434],
-    priority: 1.2,
+    priority: 1.1,
   },
   18774860: {
     id: '18774860',
@@ -552,7 +552,7 @@ export const experiences: Experiences = {
     name: 'Monsters, Inc.',
     land: hollywood,
     geo: [33.8081471, -117.9175137],
-    priority: 3.0,
+    priority: 2.2,
   },
   353379: {
     id: '353379',
@@ -581,21 +581,21 @@ export const experiences: Experiences = {
     name: "Soarin' Around the World",
     land: grizzly,
     geo: [33.8085516, -117.9204917],
-    priority: 2.1,
+    priority: 2.0,
   },
   19324604: {
     id: '19324604',
     name: "Soarin' Over California",
     land: grizzly,
     geo: [33.8085516, -117.9204917],
-    priority: 2.1,
+    priority: 2.0,
   },
   353453: {
     id: '353453',
     name: 'Toy Story Midway Mania',
     land: pixar,
     geo: [33.804614, -117.9216383],
-    priority: 1.1,
+    priority: 1.2,
   },
   353457: {
     id: '353457',

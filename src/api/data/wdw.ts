@@ -178,7 +178,7 @@ export const experiences: Experiences = {
     name: 'Barnstormer',
     land: fantasyland,
     geo: [28.4208394, -81.5784733],
-    priority: 4.0,
+    priority: 4.1,
   },
   80010110: {
     id: '80010110',
@@ -231,7 +231,7 @@ export const experiences: Experiences = {
     land: fantasyland,
     geo: [28.4207354, -81.5807867],
     type: 'CHARACTER',
-    priority: 3.4,
+    priority: 3.2,
   },
   16124144: {
     id: '16124144',
@@ -277,7 +277,7 @@ export const experiences: Experiences = {
     name: "it's a small world",
     land: fantasyland,
     geo: [28.4205055, -81.582156],
-    priority: 4.1,
+    priority: 4.0,
   },
   412010035: {
     id: '412010035',
@@ -291,7 +291,7 @@ export const experiences: Experiences = {
     name: 'Jungle Cruise',
     land: adventureland,
     geo: [28.4180339, -81.5834548],
-    priority: 1.3,
+    priority: 1.2,
   },
   8336: {
     id: '8336',
@@ -325,7 +325,7 @@ export const experiences: Experiences = {
     name: 'Many Adventures of Winnie the Pooh',
     land: fantasyland,
     geo: [28.4202297, -81.5801966],
-    priority: 3.2,
+    priority: 3.3,
   },
   16874126: {
     id: '16874126',
@@ -333,7 +333,7 @@ export const experiences: Experiences = {
     land: fantasyland,
     geo: [28.4208803, -81.5796853],
     type: 'CHARACTER',
-    priority: 3.3,
+    priority: 3.0,
   },
   15850196: {
     id: '15850196',
@@ -341,7 +341,7 @@ export const experiences: Experiences = {
     land: mainStreet,
     geo: [28.4167334, -81.5803937],
     type: 'CHARACTER',
-    priority: 3.0,
+    priority: 3.4,
   },
   18498503: {
     id: '18498503',
@@ -419,7 +419,7 @@ export const experiences: Experiences = {
     name: "Peter Pan's Flight",
     land: fantasyland,
     geo: [28.4203332, -81.5818676],
-    priority: 1.2,
+    priority: 1.3,
   },
   80010177: {
     id: '80010177',
