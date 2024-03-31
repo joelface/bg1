@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { AuthStore, ReauthNeeded } from '@/api/auth/store';
+import { AuthStore, ReauthNeeded } from '@/api/auth';
 import { InvalidOrigin } from '@/api/client';
 import { DasClient } from '@/api/das';
 import { GenieClient } from '@/api/genie';

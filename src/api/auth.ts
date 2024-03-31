@@ -1,9 +1,13 @@
 import { dateTimeStrings } from '@/datetime';
 import kvdb from '@/kvdb';
 
-import { AuthData } from './client';
-
 export const AUTH_KEY = ['bg1', 'auth'];
+
+export interface AuthData {
+  swid: string;
+  accessToken: string;
+  expires: number;
+}
 
 export class ReauthNeeded extends Error {
   name = 'ReauthNeeded';

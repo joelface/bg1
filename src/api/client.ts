@@ -1,6 +1,6 @@
 import { JsonOK, fetchJson } from '@/fetch';
 
-import { AuthStore } from './auth/store';
+import { AuthStore } from './auth';
 import { Resort, loadResort } from './resort';
 
 export class InvalidOrigin extends Error {

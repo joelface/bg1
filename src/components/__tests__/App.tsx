@@ -1,5 +1,4 @@
-import { AuthData } from '@/api/auth/client';
-import { ReauthNeeded } from '@/api/auth/store';
+import { AuthData, ReauthNeeded } from '@/api/auth';
 import { fetchJson } from '@/fetch';
 import { DISCLAIMER_ACCEPTED_KEY } from '@/hooks/useDisclaimer';
 import { NEWS_VERSION_KEY } from '@/hooks/useNews';

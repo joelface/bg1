@@ -1,7 +1,7 @@
 import { dateTimeStrings, parkDate, splitDateTime } from '@/datetime';
 import kvdb from '@/kvdb';
 
-import { AuthStore } from './auth/store';
+import { AuthStore } from './auth';
 import { avatarUrl } from './avatar';
 import { ApiClient } from './client';
 import {

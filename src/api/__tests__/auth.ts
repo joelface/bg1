@@ -1,7 +1,7 @@
 import kvdb from '@/kvdb';
 import { TODAY, setTime } from '@/testing';
 
-import { AUTH_KEY, AuthStore, ReauthNeeded } from '../store';
+import { AUTH_KEY, AuthStore, ReauthNeeded } from '../auth';
 
 setTime('12:30');
 

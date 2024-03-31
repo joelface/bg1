@@ -1,7 +1,24 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
-import { AuthClient, AuthData } from '@/api/auth/client';
+import { AuthData } from '@/api/auth';
 import { Resort } from '@/api/resort';
+
+declare global {
+  interface Window {
+    OneID?: {
+      get: (config: any) => {
+        init: () => Promise<void>;
+        launchLogin: () => void;
+        on: (eventName: string, callback: (result: any) => void) => void;
+      };
+    };
+  }
+}
+
+const SCRIPT_URL = 'https://cdn.registerdisney.go.com/v4/OneID.js';
+const SCRIPT_ID = 'oneid-script';
+const WRAPPER_ID = 'oneid-wrapper';
+const RESPONDER_ID = 'oneid-secure-responder';
 
 export default function LoginForm({
   resort,
@@ -10,20 +27,50 @@ export default function LoginForm({
   resort: Pick<Resort, 'id'>;
   onLogin: (data: AuthData) => void;
 }) {
-  const iframe = useRef<HTMLIFrameElement>(null);
-
   useEffect(() => {
-    if (!iframe.current) return;
-    const authClient = new AuthClient(iframe.current, onLogin, resort);
-    authClient.open();
-    return () => authClient.close();
-  }, [resort, onLogin, iframe]);
+    let timeoutId = 0;
 
-  return (
-    <iframe
-      title="Disney Login Form"
-      ref={iframe}
-      className="fixed top-0 left-0 w-full h-full border-0"
-    />
-  );
+    async function launchLogin() {
+      if (!window.OneID) {
+        timeoutId = self.setTimeout(launchLogin, 100);
+        return;
+      }
+      const os = navigator.userAgent.includes('Android') ? 'AND' : 'IOS';
+      const OneID = window.OneID.get({
+        clientId: `TPR-${resort.id}-LBSDK.${os}`,
+        responderPage: 'https://bg1.joelface.com/responder.html',
+      });
+      OneID.on('login', ({ token }) => {
+        onLogin({
+          swid: token.swid,
+          accessToken: token.access_token,
+          expires: new Date(token.exp).getTime(),
+        });
+      });
+      OneID.on('close', () => {
+        OneID.launchLogin();
+      });
+      await OneID.init();
+      OneID.launchLogin();
+    }
+
+    if (!document.getElementById(SCRIPT_ID)) {
+      const script = document.createElement('script');
+      script.id = SCRIPT_ID;
+      script.src = SCRIPT_URL;
+      document.head.appendChild(script);
+    }
+
+    launchLogin();
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      for (const id of [WRAPPER_ID, RESPONDER_ID, SCRIPT_ID]) {
+        const elem = document.getElementById(id);
+        elem?.parentNode?.removeChild(elem);
+      }
+    };
+  }, [resort, onLogin]);
+
+  return <div className="fixed top-0 left-0 w-full h-full border-0" />;
 }

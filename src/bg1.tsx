@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client';
 
-import { AuthStore } from './api/auth/store';
+import { AuthStore } from './api/auth';
 import App from './components/App';
 
 main();
