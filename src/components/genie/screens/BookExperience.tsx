@@ -7,6 +7,7 @@ import { useNav } from '@/contexts/Nav';
 import { Party, PartyProvider } from '@/contexts/Party';
 import { usePlans } from '@/contexts/Plans';
 import { useRebooking } from '@/contexts/Rebooking';
+import { useResortData } from '@/contexts/ResortData';
 import useDataLoader from '@/hooks/useDataLoader';
 import { ping } from '@/ping';
 
@@ -26,6 +27,7 @@ export default function BookExperience({
   experience: PlusExperience;
 }) {
   const { goTo } = useNav();
+  const { resort } = useResortData();
   const client = useGenieClient();
   const { refreshPlans } = usePlans();
   const rebooking = useRebooking();
@@ -60,7 +62,7 @@ export default function BookExperience({
           });
         }
         refreshPlans();
-        ping('G');
+        ping(resort, 'G');
       },
       {
         messages: { 410: 'Offer expired' },

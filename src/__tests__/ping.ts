@@ -11,19 +11,19 @@ const ONE_DAY = 24 * ONE_HOUR;
 
 describe('ping()', () => {
   it('pings once per day', async () => {
-    await ping('G');
+    await ping('WDW', 'G');
     jest.advanceTimersByTime(ONE_HOUR);
-    await ping('G');
+    await ping('WDW', 'G');
     expect(fetch).toHaveBeenCalledTimes(1);
     expect(fetch).toHaveBeenLastCalledWith('https://bg1.joelface.com/ping', {
       method: 'POST',
-      body: new URLSearchParams({ service: 'G' }),
+      body: new URLSearchParams({ resort: 'WDW', service: 'G' }),
     });
 
     jest.advanceTimersByTime(ONE_DAY);
-    await ping('G');
+    await ping('WDW', 'G');
     jest.advanceTimersByTime(ONE_HOUR);
-    await ping('G');
+    await ping('WDW', 'G');
     expect(fetch).toHaveBeenCalledTimes(2);
   });
 });

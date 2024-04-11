@@ -3,6 +3,7 @@ import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
 import TimeBoard from '@/components/TimeBoard';
 import { useNav } from '@/contexts/Nav';
+import { useResortData } from '@/contexts/ResortData';
 import { useVQClient } from '@/contexts/VQClient';
 import useDataLoader from '@/hooks/useDataLoader';
 import { ping } from '@/ping';
@@ -18,6 +19,7 @@ export default function JoinQueue({
   guests: Guest[];
 }) {
   const { goTo } = useNav();
+  const { resort } = useResortData();
   const client = useVQClient();
   const { loadData, loaderElem } = useDataLoader();
 
@@ -36,7 +38,7 @@ export default function JoinQueue({
         goTo(<BGResult queue={queue} guests={guests} result={result} />, {
           replace: true,
         });
-        if (result.boardingGroup !== null) ping('V');
+        if (result.boardingGroup !== null) ping(resort, 'V');
       },
       { minLoadTime: 999 }
     );

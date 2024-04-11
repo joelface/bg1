@@ -16,6 +16,7 @@ import Screen from '@/components/Screen';
 import { useDasClient } from '@/contexts/DasClient';
 import { useNav } from '@/contexts/Nav';
 import { usePlans } from '@/contexts/Plans';
+import { useResortData } from '@/contexts/ResortData';
 import useDataLoader from '@/hooks/useDataLoader';
 import { ping } from '@/ping';
 
@@ -31,6 +32,7 @@ export default function DasSelection({
   party: DasParty;
 }) {
   const { goTo, goBack } = useNav();
+  const { resort } = useResortData();
   const client = useDasClient();
   const { refreshPlans } = usePlans();
   const [experience, setExperience] = useState<Experience>();
@@ -49,7 +51,7 @@ export default function DasSelection({
             guests: [...selected],
           });
           refreshPlans();
-          ping('D');
+          ping(resort, 'D');
           await goBack({ screen: Home });
           goTo(<BookingDetails booking={booking} isNew={true} />);
         } catch (e) {
