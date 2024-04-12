@@ -1,5 +1,6 @@
 import { ep, mk, wdw } from '@/__fixtures__/genie';
 import { parkDate } from '@/datetime';
+import kvdb from '@/kvdb';
 import { click, render, see } from '@/testing';
 
 import { PARK_KEY, useParkState } from '../Park';
@@ -24,9 +25,6 @@ describe('useParkState()', () => {
     see(mk.name);
     click(`Hop to ${ep.name}`);
     see(ep.name);
-    expect(JSON.parse(localStorage.getItem(PARK_KEY) || '{}')).toEqual({
-      id: ep.id,
-      date: parkDate(),
-    });
+    expect(kvdb.get(PARK_KEY)).toEqual({ id: ep.id, date: parkDate() });
   });
 });

@@ -1,17 +1,18 @@
 import { booking, hs, mk, wdw } from '@/__fixtures__/genie';
 import { DasClientProvider } from '@/contexts/DasClient';
 import { ResortDataProvider } from '@/contexts/ResortData';
+import kvdb from '@/kvdb';
 import { click, loading, render, revisitTab, see, setTime } from '@/testing';
 
 import Merlock from '../../Merlock';
-import { DEFAULT_TAB_KEY, getDefaultTab } from '../Home';
+import { TAB_KEY, getDefaultTab } from '../Home';
 
 jest.mock('@/contexts/GenieClient');
 jest.mock('@/contexts/LiveDataClient');
 jest.mock('@/ping');
 
 beforeEach(() => {
-  localStorage.clear();
+  kvdb.clear();
 });
 
 describe('Home', () => {
@@ -34,7 +35,7 @@ describe('Home', () => {
     await loading();
 
     click('Times');
-    expect(localStorage.getItem(DEFAULT_TAB_KEY)).toBe('Times');
+    expect(kvdb.get(TAB_KEY)).toBe('Times');
 
     click(`Park: ${mk.name}`);
     click(hs.name, 'radio');
@@ -54,7 +55,7 @@ describe('Home', () => {
 describe('getDefaultTab()', () => {
   it('returns default tab', () => {
     expect(getDefaultTab()).toBe('Genie+');
-    localStorage.setItem(DEFAULT_TAB_KEY, 'Times');
+    kvdb.set(TAB_KEY, 'Times');
     expect(getDefaultTab()).toBe('Times');
   });
 });

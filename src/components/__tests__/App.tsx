@@ -2,6 +2,7 @@ import { AuthData } from '@/api/auth/client';
 import { ReauthNeeded } from '@/api/auth/store';
 import { DISCLAIMER_ACCEPTED_KEY } from '@/hooks/useDisclaimer';
 import { NEWS_VERSION_KEY } from '@/hooks/useNews';
+import kvdb from '@/kvdb';
 import { act, click, render, screen, see } from '@/testing';
 
 import App, { NEWS_VERSION } from '../App';
@@ -18,7 +19,7 @@ jest.mock('../LoginForm', () => {
       onLogin({
         swid: '{MINNIE}',
         accessToken: 'm1nn13',
-        expires: new Date(2121, 12, 21, 12, 21, 12),
+        expires: new Date(2121, 12, 21, 12, 21, 12).getTime(),
       });
     return <button onClick={onClick}>Log In</button>;
   }
@@ -44,24 +45,24 @@ describe('App', () => {
       swid: '{MICKEY}',
       accessToken: 'm1ck3y',
     });
-    localStorage.setItem(DISCLAIMER_ACCEPTED_KEY, '1');
-    localStorage.setItem(NEWS_VERSION_KEY, '1');
+    kvdb.set(DISCLAIMER_ACCEPTED_KEY, 1);
+    kvdb.set(NEWS_VERSION_KEY, 1);
   });
 
   it('shows Disclaimer if not yet accepted', async () => {
-    localStorage.removeItem(DISCLAIMER_ACCEPTED_KEY);
+    kvdb.delete(DISCLAIMER_ACCEPTED_KEY);
     renderComponent();
     await see.screen('Warning!');
     click('Accept');
-    expect(localStorage.getItem(DISCLAIMER_ACCEPTED_KEY)).toBe('1');
+    expect(kvdb.get(DISCLAIMER_ACCEPTED_KEY)).toBe(1);
   });
 
   it('shows News if newer than last seen', async () => {
-    localStorage.setItem(NEWS_VERSION_KEY, '-1');
+    kvdb.set(NEWS_VERSION_KEY, -1);
     renderComponent();
     await see.screen('BG1 News');
     click('Close');
-    expect(localStorage.getItem(NEWS_VERSION_KEY)).toBe(String(NEWS_VERSION));
+    expect(kvdb.get(NEWS_VERSION_KEY)).toBe(NEWS_VERSION);
   });
 
   it('loads client if auth data valid', async () => {
@@ -71,14 +72,14 @@ describe('App', () => {
 
   it('shows LoginForm if auth data expired', async () => {
     authStore.getData.mockImplementationOnce(() => {
-      throw new ReauthNeeded('auth');
+      throw new ReauthNeeded();
     });
     renderComponent();
     click(await screen.findByRole('button', { name: 'Log In' }));
     expect(authStore.setData).toHaveBeenLastCalledWith({
       swid: '{MINNIE}',
       accessToken: 'm1nn13',
-      expires: new Date(2121, 12, 21, 12, 21, 12),
+      expires: new Date(2121, 12, 21, 12, 21, 12).getTime(),
     });
     await see.screen('Genie+');
   });

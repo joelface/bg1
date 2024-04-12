@@ -1,5 +1,6 @@
 import { client } from '@/__fixtures__/genie';
 import { useNav } from '@/contexts/Nav';
+import kvdb from '@/kvdb';
 import { click, loading, render, see, waitFor } from '@/testing';
 
 import PartySelector, {
@@ -27,7 +28,7 @@ describe('PartySelector', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    localStorage.clear();
+    kvdb.clear();
   });
 
   it('renders party selection screen', async () => {
@@ -69,13 +70,13 @@ describe('PartySelector', () => {
 
   it('loads party IDs from localStorage', async () => {
     const guestIds = (await client.guests()).eligible.map(g => g.id);
-    localStorage.setItem(PARTY_IDS_KEY, JSON.stringify(guestIds));
+    kvdb.set(PARTY_IDS_KEY, guestIds);
     await renderComponent();
     expect(client.setPartyIds).toHaveBeenLastCalledWith(guestIds);
   });
 
   it('ignores non-array values in localStorage', async () => {
-    localStorage.setItem(PARTY_IDS_KEY, '{}');
+    kvdb.set(PARTY_IDS_KEY, {});
     await renderComponent();
     expect(client.setPartyIds).toHaveBeenLastCalledWith([]);
   });

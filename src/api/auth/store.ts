@@ -1,38 +1,31 @@
 import { dateTimeStrings } from '@/datetime';
+import kvdb from '@/kvdb';
 
 import { AuthData } from './client';
+
+export const AUTH_KEY = ['bg1', 'auth'];
 
 export class ReauthNeeded extends Error {
   name = 'ReauthNeeded';
 
-  constructor(storageKey: string) {
-    super(`Auth data "${storageKey}" missing or expired`);
+  constructor() {
+    super(`Auth data missing or expired`);
   }
 }
 
 export class AuthStore {
   onUnauthorized: () => void = () => undefined;
 
-  constructor(
-    protected storageKey: string,
-    protected storage: Pick<
-      Storage,
-      'getItem' | 'setItem' | 'removeItem'
-    > = localStorage
-  ) {}
-
   getData(): Pick<AuthData, 'swid' | 'accessToken'> {
     try {
-      const json = this.storage.getItem(this.storageKey);
-      if (json) {
-        const { swid, accessToken, expires: expiresStr } = JSON.parse(json);
-        const expires = dateTimeStrings(new Date(expiresStr));
+      const data = kvdb.get<AuthData>(AUTH_KEY);
+      if (data) {
+        const { swid, accessToken, expires } = data;
+        const exp = dateTimeStrings(expires);
         const now = dateTimeStrings();
         if (
-          expires.date > now.date ||
-          (expires.date === now.date &&
-            expires.time > now.time &&
-            expires.time >= '17')
+          exp.date > now.date ||
+          (exp.date === now.date && exp.time > now.time && exp.time >= '17')
         ) {
           return { swid, accessToken };
         }
@@ -41,15 +34,15 @@ export class AuthStore {
       console.error(error);
     }
     this.deleteData();
-    throw new ReauthNeeded(this.storageKey);
+    throw new ReauthNeeded();
   }
 
   setData(data: AuthData): void {
-    this.storage.setItem(this.storageKey, JSON.stringify(data));
+    kvdb.set<AuthData>(AUTH_KEY, data);
   }
 
   deleteData(): void {
-    this.storage.removeItem(this.storageKey);
+    kvdb.delete(AUTH_KEY);
     setTimeout(this.onUnauthorized);
   }
 }

@@ -1,12 +1,13 @@
+import kvdb from '@/kvdb';
 import { click, render, see } from '@/testing';
 
-import useDisclaimer from '../useDisclaimer';
+import useDisclaimer, { DISCLAIMER_ACCEPTED_KEY } from '../useDisclaimer';
 
 const Disclaimer = () => useDisclaimer();
 
 describe('useDisclaimer()', () => {
   beforeEach(() => {
-    localStorage.clear();
+    kvdb.clear();
   });
 
   it('is accepted after Accept button clicked', () => {
@@ -14,11 +15,11 @@ describe('useDisclaimer()', () => {
     see('Warning!');
     click('Accept');
     expect(container).toBeEmptyDOMElement();
-    expect(localStorage.getItem('bg1.disclaimer.accepted')).toBe('1');
+    expect(kvdb.get(DISCLAIMER_ACCEPTED_KEY)).toBe(1);
   });
 
   it('is accepted when bg1.disclaimer.accepted is set', () => {
-    localStorage.setItem('bg1.disclaimer.accepted', '1');
+    kvdb.set(DISCLAIMER_ACCEPTED_KEY, 1);
     const { container } = render(<Disclaimer />);
     expect(container).toBeEmptyDOMElement();
   });

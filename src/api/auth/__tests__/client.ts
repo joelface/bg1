@@ -117,7 +117,7 @@ describe('AuthClient', () => {
       expect(onLogin).toHaveBeenLastCalledWith({
         swid: token.swid,
         accessToken: token.access_token,
-        expires: new Date(token.exp),
+        expires: new Date(token.exp).getTime(),
       })
     );
 

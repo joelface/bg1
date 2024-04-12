@@ -14,7 +14,7 @@ function main() {
   document.close();
   addViewportMeta();
   addBlankFavicon();
-  createAppRoot().render(<App authStore={new AuthStore('bg1.auth')} />);
+  createAppRoot().render(<App authStore={new AuthStore()} />);
 }
 
 function addViewportMeta() {

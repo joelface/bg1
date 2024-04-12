@@ -6,6 +6,7 @@ import { useGenieClient } from '@/contexts/GenieClient';
 import { Nav } from '@/contexts/Nav';
 import { ParkProvider } from '@/contexts/Park';
 import { displayTime } from '@/datetime';
+import kvdb from '@/kvdb';
 import {
   click,
   loading,
@@ -62,7 +63,7 @@ describe('GeniePlusList', () => {
   const client = useGenieClient();
 
   it('shows Genie+ availability', async () => {
-    localStorage.setItem(STARRED_KEY, JSON.stringify([bz.id]));
+    kvdb.set(STARRED_KEY, [bz.id]);
     render(
       <ParkProvider value={{ park: mk, setPark: () => null }}>
         <ExperiencesProvider

@@ -1,4 +1,5 @@
 import { dateTimeStrings, parkDate, splitDateTime } from '@/datetime';
+import kvdb from '@/kvdb';
 
 import { AuthStore } from './auth/store';
 import { avatarUrl } from './avatar';
@@ -874,7 +875,7 @@ export class GenieClient extends ApiClient {
   }
 }
 
-export const BOOKINGS_KEY = 'bg1.genie.bookings';
+export const BOOKINGS_KEY = ['bg1', 'genie', 'bookings'];
 
 interface BookingTrackerData {
   date: string;
@@ -892,9 +893,7 @@ export class BookingTracker {
       date = parkDate(),
       expIds: expIds = [],
       experiencedExpIds = [],
-    }: BookingTrackerData = JSON.parse(
-      localStorage.getItem(BOOKINGS_KEY) || '{}'
-    );
+    } = kvdb.get<BookingTrackerData>(BOOKINGS_KEY) ?? {};
     this.date = date;
     this.expIds = new Set(expIds);
     this.experiencedExpIds = new Set(experiencedExpIds);
@@ -926,14 +925,11 @@ export class BookingTracker {
       );
       this.experiencedExpIds[limitReached ? 'add' : 'delete'](id);
     }
-    localStorage.setItem(
-      BOOKINGS_KEY,
-      JSON.stringify({
-        date: this.date,
-        expIds: [...this.expIds],
-        experiencedExpIds: [...this.experiencedExpIds],
-      } as BookingTrackerData)
-    );
+    kvdb.set<BookingTrackerData>(BOOKINGS_KEY, {
+      date: this.date,
+      expIds: [...this.expIds],
+      experiencedExpIds: [...this.experiencedExpIds],
+    });
   }
 
   protected checkDate() {

@@ -3,7 +3,7 @@ const BUILD_ID = '181874e5af6';
 export interface AuthData {
   swid: string;
   accessToken: string;
-  expires: Date;
+  expires: number;
 }
 
 interface PartialMessage {
@@ -68,7 +68,7 @@ export class AuthClient {
       onLogin({
         swid: token.swid,
         accessToken: token.access_token,
-        expires: new Date(token.exp),
+        expires: token.exp,
       });
     });
   }

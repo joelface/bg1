@@ -6,13 +6,12 @@ import GuestList from '@/components/GuestList';
 import Screen from '@/components/Screen';
 import { useGenieClient } from '@/contexts/GenieClient';
 import useDataLoader from '@/hooks/useDataLoader';
+import kvdb from '@/kvdb';
 
-export const PARTY_IDS_KEY = 'bg1.genie.partyIds';
+export const PARTY_IDS_KEY = ['bg1', 'genie', 'partyIds'];
 
 export function loadPartyIds(): string[] {
-  const partyIds = JSON.parse(
-    localStorage.getItem(PARTY_IDS_KEY) || '[]'
-  ) as unknown;
+  const partyIds = kvdb.get(PARTY_IDS_KEY) ?? [];
   return Array.isArray(partyIds) ? partyIds : [];
 }
 
@@ -34,7 +33,7 @@ export default function PartySelector() {
 
   function save() {
     const pids = [...partyIds];
-    localStorage.setItem(PARTY_IDS_KEY, JSON.stringify(pids));
+    kvdb.set<string[]>(PARTY_IDS_KEY, pids);
     client.setPartyIds(pids);
   }
 

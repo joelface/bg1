@@ -1,0 +1,26 @@
+export type Key = string | string[];
+
+const keyStr = (key: Key) => (Array.isArray(key) ? key.join('.') : key);
+
+export default {
+  get<T = unknown>(key: Key) {
+    const json = localStorage.getItem(keyStr(key));
+    try {
+      return JSON.parse(json ?? '') as T;
+    } catch {
+      return;
+    }
+  },
+
+  set<T = unknown>(key: Key, value?: T) {
+    localStorage.setItem(keyStr(key), JSON.stringify(value));
+  },
+
+  delete(key: Key) {
+    localStorage.removeItem(keyStr(key));
+  },
+
+  clear() {
+    localStorage.clear();
+  },
+};

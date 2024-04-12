@@ -1,18 +1,18 @@
+import kvdb from '@/kvdb';
 import { TODAY, setTime } from '@/testing';
 
-import { AuthStore, ReauthNeeded } from '../store';
+import { AUTH_KEY, AuthStore, ReauthNeeded } from '../store';
 
 setTime('12:30');
 
-const storageKey = 'testAuth';
-const store = new AuthStore(storageKey);
+const store = new AuthStore();
 
 let tokenId = 0;
 function makeData(timestamp: number) {
   return {
     swid: '{SWID}',
     accessToken: `token-${++tokenId}`,
-    expires: new Date(timestamp),
+    expires: new Date(timestamp).getTime(),
   };
 }
 
@@ -46,14 +46,9 @@ describe('AuthStore', () => {
 
   describe('setData()', () => {
     it('stores auth data', () => {
-      const { swid, accessToken, expires } = makeData(Date.now() + 86400_000);
-      store.setData({ swid, accessToken, expires });
-      const stored = JSON.parse(localStorage.getItem(storageKey) as string);
-      expect(stored).toEqual({
-        swid,
-        accessToken,
-        expires: expires.toISOString(),
-      });
+      const data = makeData(Date.now() + 86400_000);
+      store.setData(data);
+      expect(kvdb.get(AUTH_KEY)).toEqual(data);
     });
   });
 

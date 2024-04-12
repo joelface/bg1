@@ -2,20 +2,21 @@ import { useState } from 'react';
 
 import FloatingButton from '@/components/FloatingButton';
 import Screen from '@/components/Screen';
+import kvdb from '@/kvdb';
 
-export const DISCLAIMER_ACCEPTED_KEY = 'bg1.disclaimer.accepted';
+export const DISCLAIMER_ACCEPTED_KEY = ['bg1', 'disclaimer', 'accepted'];
 
 const theme = { bg: 'bg-red-600', text: 'text-red-600' };
 
 export default function useDisclaimer() {
   const [accepted, setAccepted] = useState(
-    !!localStorage.getItem(DISCLAIMER_ACCEPTED_KEY)
+    !!kvdb.get<number>(DISCLAIMER_ACCEPTED_KEY)
   );
 
   return accepted ? null : (
     <Disclaimer
       onAccept={() => {
-        localStorage.setItem(DISCLAIMER_ACCEPTED_KEY, '1');
+        kvdb.set<number>(DISCLAIMER_ACCEPTED_KEY, 1);
         setAccepted(true);
       }}
     />

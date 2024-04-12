@@ -13,6 +13,7 @@ import {
   tracker,
 } from '@/__fixtures__/genie';
 import { fetchJson } from '@/fetch';
+import kvdb from '@/kvdb';
 import { TODAY, YESTERDAY, setTime } from '@/testing';
 
 import { RequestError } from '../client';
@@ -721,7 +722,7 @@ describe('GenieClient', () => {
 });
 
 describe('BookingTracker', () => {
-  localStorage.clear();
+  kvdb.clear();
   const tracker = new BookingTracker();
 
   describe('update()', () => {

@@ -13,6 +13,7 @@ import { ThemeProvider } from '@/contexts/Theme';
 import CalendarIcon from '@/icons/CalendarIcon';
 import ClockIcon from '@/icons/ClockIcon';
 import LightningIcon from '@/icons/LightningIcon';
+import kvdb from '@/kvdb';
 import onVisible from '@/onVisible';
 
 import GeniePlusList from './Home/GeniePlusList';
@@ -21,10 +22,9 @@ import TimesGuide from './Home/TimesGuide';
 import Plans from './Plans';
 
 const AUTO_REFRESH_MIN_MS = 60_000;
-export const DEFAULT_TAB_KEY = 'bg1.genie.merlock.tab';
+export const TAB_KEY = ['bg1', 'genie', 'merlock', 'tab'];
 
-export const getDefaultTab = () =>
-  localStorage.getItem(DEFAULT_TAB_KEY) ?? 'Genie+';
+export const getDefaultTab = () => kvdb.get<string>(TAB_KEY) ?? 'Genie+';
 
 export interface HomeTabProps {
   contentRef: React.MutableRefObject<HTMLDivElement | null>;
@@ -60,7 +60,7 @@ const Home = withTabs({ tabs, footer }, ({ tab }) => {
   const contentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    localStorage.setItem(DEFAULT_TAB_KEY, tab.name);
+    kvdb.set<string>(TAB_KEY, tab.name);
   }, [tab]);
 
   useEffect(() => {

@@ -13,6 +13,7 @@ import CheckmarkIcon from '@/icons/CheckmarkIcon';
 import DropIcon from '@/icons/DropIcon';
 import LightningIcon from '@/icons/LightningIcon';
 import StarIcon from '@/icons/StarIcon';
+import kvdb from '@/kvdb';
 
 import { ExperienceList } from '../../ExperienceList';
 import RebookingHeader from '../../RebookingHeader';
@@ -28,7 +29,7 @@ import useSort, { Sorter } from './useSort';
 
 const LP_MIN_STANDBY = 30;
 const LP_MAX_LL_WAIT = 60;
-export const STARRED_KEY = 'bg1.genie.tipBoard.starred';
+export const STARRED_KEY = ['bg1', 'genie', 'tipBoard', 'starred'];
 const LIGHTNING_PICK = 'Lightning Pick';
 const UPCOMING_DROP = 'Upcoming Drop';
 const BOOKED = 'Booked';
@@ -101,7 +102,7 @@ const Experiences = memo(function Experiences({
   const { goTo } = useNav();
   const theme = useTheme();
   const [starred, setStarred] = useState<Set<string>>(() => {
-    const ids = JSON.parse(localStorage.getItem(STARRED_KEY) || '[]');
+    const ids = kvdb.get<string[]>(STARRED_KEY) ?? [];
     return new Set(Array.isArray(ids) ? ids : []);
   });
   const nowMinutes = timeToMinutes(dateTimeStrings().time);
@@ -114,7 +115,7 @@ const Experiences = memo(function Experiences({
       } else {
         starred.add(id);
       }
-      localStorage.setItem(STARRED_KEY, JSON.stringify([...starred]));
+      kvdb.set<string[]>(STARRED_KEY, [...starred]);
       return starred;
     });
   }
