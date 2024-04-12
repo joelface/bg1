@@ -75,6 +75,8 @@ describe('GeniePlusList', () => {
               { ...sm, drop: true },
             ],
             refreshExperiences,
+            park: mk,
+            setPark: () => null,
             loaderElem: null,
           }}
         >

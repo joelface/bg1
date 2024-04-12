@@ -6,6 +6,7 @@ import {
   useState,
 } from 'react';
 
+import { Park } from '@/api/data';
 import { Experience } from '@/api/genie';
 import { useGenieClient } from '@/contexts/GenieClient';
 import useDataLoader from '@/hooks/useDataLoader';
@@ -17,12 +18,16 @@ import { usePark } from './Park';
 interface ExperiencesState {
   experiences: Experience[];
   refreshExperiences: ReturnType<typeof useThrottleable>;
+  park: Park;
+  setPark: (park: Park) => void;
   loaderElem: ReturnType<typeof useDataLoader>['loaderElem'];
 }
 
 export const ExperiencesContext = createContext<ExperiencesState>({
   experiences: [],
   refreshExperiences: () => undefined,
+  park: {} as Park,
+  setPark: () => null,
   loaderElem: null,
 });
 export const ExperiencesProvider = ExperiencesContext.Provider;
@@ -31,7 +36,7 @@ export const useExperiences = () => useContext(ExperiencesContext);
 export function useExperiencesState() {
   const genie = useGenieClient();
   const livedata = useLiveDataClient();
-  const { park } = usePark();
+  const { park, setPark } = usePark();
   const { loadData, loaderElem } = useDataLoader();
   const [experiences, setExperiences] = useState<Experience[]>([]);
 
@@ -56,7 +61,14 @@ export function useExperiencesState() {
 
   useEffect(refreshExperiences, [refreshExperiences]);
 
-  useEffect(() => setExperiences([]), [park]);
-
-  return { experiences, refreshExperiences, loaderElem };
+  return {
+    experiences,
+    park,
+    refreshExperiences,
+    loaderElem,
+    setPark: (park: Park) => {
+      setPark(park);
+      setExperiences([]);
+    },
+  };
 }

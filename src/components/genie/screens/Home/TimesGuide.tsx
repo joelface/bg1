@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 import { Land } from '@/api/data';
 import { Experience } from '@/api/genie';
 import Button from '@/components/Button';
@@ -18,6 +20,38 @@ export default function TimesGuide({ contentRef }: HomeTabProps) {
   const { goTo } = useNav();
   const { experiences, refreshExperiences, loaderElem } = useExperiences();
   const parties = useDasParties();
+
+  return (
+    <Tab
+      heading="Times Guide"
+      buttons={
+        <>
+          {parties.length > 0 && (
+            <Button
+              title="Disability Access Service"
+              onClick={() => goTo(<DasPartyList parties={parties} />)}
+            >
+              DAS
+            </Button>
+          )}
+          <ParkSelect />
+          <RefreshButton name="Times" onClick={refreshExperiences} />
+        </>
+      }
+      contentRef={contentRef}
+    >
+      <Experiences experiences={experiences} />
+      {loaderElem}
+    </Tab>
+  );
+}
+
+const Experiences = memo(function Experiences({
+  experiences,
+}: {
+  experiences: Experience[];
+}) {
+  const { goTo } = useNav();
   const showExpInfo = (exp: Experience) => goTo(<ExperienceInfo exp={exp} />);
 
   const expsByLand = new Map<Land, Record<Experience['type'], Experience[]>>();
@@ -42,24 +76,7 @@ export default function TimesGuide({ contentRef }: HomeTabProps) {
     });
 
   return (
-    <Tab
-      heading="Times Guide"
-      buttons={
-        <>
-          {parties.length > 0 && (
-            <Button
-              title="Disability Access Service"
-              onClick={() => goTo(<DasPartyList parties={parties} />)}
-            >
-              DAS
-            </Button>
-          )}
-          <ParkSelect />
-          <RefreshButton name="Times" onClick={refreshExperiences} />
-        </>
-      }
-      contentRef={contentRef}
-    >
+    <>
       {[...expsByLand].map(([land, expsByType]) => (
         <div key={land.name}>
           <h2
@@ -102,10 +119,9 @@ export default function TimesGuide({ contentRef }: HomeTabProps) {
           <Symbol sym="VQ" def="Virtual queue" />
         </Legend>
       )}
-      {loaderElem}
-    </Tab>
+    </>
   );
-}
+});
 
 function ExperienceList({
   title,

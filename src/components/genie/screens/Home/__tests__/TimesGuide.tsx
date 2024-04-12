@@ -87,6 +87,8 @@ function renderComponent(dasParties: DasParty[] = []) {
             value={{
               experiences,
               refreshExperiences,
+              park: mk,
+              setPark: () => null,
               loaderElem: null,
             }}
           >

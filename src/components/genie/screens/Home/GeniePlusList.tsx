@@ -1,12 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 
-import { PlusExperience as BasePlusExp } from '@/api/genie';
+import { Park } from '@/api/data';
+import { PlusExperience as BasePlusExp, Experience } from '@/api/genie';
 import Screen from '@/components/Screen';
 import Tab from '@/components/Tab';
 import { useExperiences } from '@/contexts/Experiences';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { useNav } from '@/contexts/Nav';
-import { usePark } from '@/contexts/Park';
 import { useTheme } from '@/contexts/Theme';
 import { dateTimeStrings, displayTime, timeToMinutes } from '@/datetime';
 import CheckmarkIcon from '@/icons/CheckmarkIcon';
@@ -24,7 +24,7 @@ import Legend, { Symbol } from './Legend';
 import ParkSelect from './ParkSelect';
 import StandbyTime from './StandbyTime';
 import TimeBanner from './TimeBanner';
-import useSort from './useSort';
+import useSort, { Sorter } from './useSort';
 
 const LP_MIN_STANDBY = 30;
 const LP_MAX_LL_WAIT = 60;
@@ -42,123 +42,21 @@ const isExperienced = (exp: PlusExperience) => exp.experienced && !exp.starred;
 
 export default function GeniePlusList({ contentRef }: HomeTabProps) {
   useSelectedParty();
-  const { goTo } = useNav();
   const client = useGenieClient();
-  const { park } = usePark();
-  const { experiences, refreshExperiences, loaderElem } = useExperiences();
+  const { experiences, refreshExperiences, park, loaderElem } =
+    useExperiences();
   const { sorter, SortSelect } = useSort();
-  const theme = useTheme();
-  const [starred, setStarred] = useState<Set<string>>(() => {
-    const ids = JSON.parse(localStorage.getItem(STARRED_KEY) || '[]');
-    return new Set(Array.isArray(ids) ? ids : []);
-  });
   const firstUpdate = useRef(true);
-  const plusExps = useRef<{
-    experienced: PlusExperience[];
-    unexperienced: PlusExperience[];
-  }>({ experienced: [], unexperienced: [] });
 
   useEffect(() => {
-    plusExps.current = { experienced: [], unexperienced: [] };
-  }, [park]);
-
-  useEffect(() => {
-    if (firstUpdate.current) {
-      firstUpdate.current = false;
-    } else {
-      contentRef.current?.scroll(0, 0);
-    }
+    if (!firstUpdate.current) contentRef.current?.scroll(0, 0);
   }, [SortSelect, contentRef]);
 
-  function toggleStar({ id }: { id: string }) {
-    setStarred(starred => {
-      starred = new Set(starred);
-      if (starred.has(id)) {
-        starred.delete(id);
-      } else {
-        starred.add(id);
-      }
-      localStorage.setItem(STARRED_KEY, JSON.stringify([...starred]));
-      return starred;
-    });
-  }
+  useEffect(() => {
+    firstUpdate.current = false;
+  }, []);
 
   const dropTime = client.nextDropTime(park);
-
-  const showLightningPickDesc = () => goTo(<LightningPickDesc />);
-  const showDropTimeDesc = () =>
-    goTo(<DropTimeDesc dropTime={dropTime} park={park} />);
-  const showBookedDesc = () => goTo(<BookedDesc />);
-
-  const expListItem = (exp: PlusExperience) => (
-    <li
-      className="pb-3 first:border-0 border-t-4 border-gray-300"
-      key={exp.id + (exp.starred ? '*' : '')}
-    >
-      <div className="flex items-center gap-x-2 mt-2">
-        <StarButton experience={exp} toggleStar={toggleStar} />
-        <h3 className="flex-1 mt-0 text-lg font-semibold leading-tight truncate">
-          {exp.name}
-        </h3>
-        {exp.lp ? (
-          <InfoButton
-            name={LIGHTNING_PICK}
-            icon={LightningIcon}
-            onClick={showLightningPickDesc}
-          />
-        ) : dropTime && exp.drop ? (
-          <InfoButton
-            name={UPCOMING_DROP}
-            icon={DropIcon}
-            onClick={showDropTimeDesc}
-          />
-        ) : null}
-        {exp.flex.preexistingPlan && (
-          <InfoButton
-            name={BOOKED}
-            icon={CheckmarkIcon}
-            onClick={showBookedDesc}
-          />
-        )}
-      </div>
-      <div className="flex flex-wrap gap-1.5 mt-2">
-        <StandbyTime experience={exp} />
-        <GeniePlusButton experience={exp} />
-      </div>
-    </li>
-  );
-
-  if (!loaderElem) {
-    const nowMinutes = timeToMinutes(dateTimeStrings().time);
-    const allPlusExps = experiences
-      .filter((exp): exp is BasePlusExp => !!exp.flex)
-      .map(exp => {
-        const standby = exp.standby.waitTime || 0;
-        const returnTime = exp?.flex?.nextAvailableTime;
-        return {
-          ...exp,
-          lp:
-            !!returnTime &&
-            standby >= LP_MIN_STANDBY &&
-            timeToMinutes(returnTime) - nowMinutes <=
-              Math.min(
-                LP_MAX_LL_WAIT,
-                ((4 - Math.trunc(exp.priority || 4)) / 3) * standby
-              ),
-          starred: starred.has(exp.id),
-        };
-      })
-      .sort(
-        (a, b) => +!a.starred - +!b.starred || +!a.lp - +!b.lp || sorter(a, b)
-      );
-    plusExps.current = {
-      unexperienced: allPlusExps.filter(exp => !isExperienced(exp)),
-      experienced: allPlusExps
-        .filter(isExperienced)
-        .sort((a, b) => a.name.localeCompare(b.name)),
-    };
-  }
-  const { unexperienced, experienced } = plusExps.current;
 
   return (
     <Tab
@@ -174,7 +72,131 @@ export default function GeniePlusList({ contentRef }: HomeTabProps) {
     >
       <RebookingHeader />
       <TimeBanner bookTime={client.nextBookTime} dropTime={dropTime} />
-      <ul data-testid="unexperienced">{unexperienced.map(expListItem)}</ul>
+      <Experiences
+        experiences={experiences}
+        park={park}
+        dropTime={dropTime}
+        sorter={sorter}
+      />
+      {loaderElem}
+    </Tab>
+  );
+}
+
+const Experiences = memo(function Experiences({
+  experiences,
+  park,
+  dropTime,
+  sorter,
+}: {
+  experiences: Experience[];
+  park: Park;
+  sorter: Sorter;
+  dropTime?: string;
+}) {
+  const { goTo } = useNav();
+  const theme = useTheme();
+  const [starred, setStarred] = useState<Set<string>>(() => {
+    const ids = JSON.parse(localStorage.getItem(STARRED_KEY) || '[]');
+    return new Set(Array.isArray(ids) ? ids : []);
+  });
+  const nowMinutes = timeToMinutes(dateTimeStrings().time);
+
+  function toggleStar({ id }: { id: string }) {
+    setStarred(starred => {
+      starred = new Set(starred);
+      if (starred.has(id)) {
+        starred.delete(id);
+      } else {
+        starred.add(id);
+      }
+      localStorage.setItem(STARRED_KEY, JSON.stringify([...starred]));
+      return starred;
+    });
+  }
+
+  const showLightningPickDesc = () => goTo(<LightningPickDesc />);
+  const showDropTimeDesc = () =>
+    goTo(<DropTimeDesc dropTime={dropTime} park={park} />);
+  const showBookedDesc = () => goTo(<BookedDesc />);
+
+  const ExperienceList = ({
+    experiences,
+    type,
+  }: {
+    experiences: PlusExperience[];
+    type: string;
+  }) => (
+    <ul data-testid={type}>
+      {experiences.map(exp => (
+        <li
+          className="pb-3 first:border-0 border-t-4 border-gray-300"
+          key={exp.id + (exp.starred ? '*' : '')}
+        >
+          <div className="flex items-center gap-x-2 mt-2">
+            <StarButton experience={exp} toggleStar={toggleStar} />
+            <h3 className="flex-1 mt-0 text-lg font-semibold leading-tight truncate">
+              {exp.name}
+            </h3>
+            {exp.lp ? (
+              <InfoButton
+                name={LIGHTNING_PICK}
+                icon={LightningIcon}
+                onClick={showLightningPickDesc}
+              />
+            ) : dropTime && exp.drop ? (
+              <InfoButton
+                name={UPCOMING_DROP}
+                icon={DropIcon}
+                onClick={showDropTimeDesc}
+              />
+            ) : null}
+            {exp.flex.preexistingPlan && (
+              <InfoButton
+                name={BOOKED}
+                icon={CheckmarkIcon}
+                onClick={showBookedDesc}
+              />
+            )}
+          </div>
+          <div className="flex flex-wrap gap-1.5 mt-2">
+            <StandbyTime experience={exp} />
+            <GeniePlusButton experience={exp} />
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+
+  const plusExps = experiences
+    .filter((exp): exp is PlusExperience => !!exp.flex)
+    .map(exp => {
+      const standby = exp.standby.waitTime || 0;
+      const returnTime = exp?.flex?.nextAvailableTime;
+      return {
+        ...exp,
+        lp:
+          !!returnTime &&
+          standby >= LP_MIN_STANDBY &&
+          timeToMinutes(returnTime) - nowMinutes <=
+            Math.min(
+              LP_MAX_LL_WAIT,
+              ((4 - Math.trunc(exp.priority || 4)) / 3) * standby
+            ),
+        starred: starred.has(exp.id),
+      };
+    })
+    .sort(
+      (a, b) => +!a.starred - +!b.starred || +!a.lp - +!b.lp || sorter(a, b)
+    );
+  const unexperienced = plusExps.filter(exp => !isExperienced(exp));
+  const experienced = plusExps
+    .filter(isExperienced)
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  return (
+    <>
+      <ExperienceList experiences={unexperienced} type="unexperienced" />
       {experienced.length > 0 && (
         <>
           <h2
@@ -182,7 +204,7 @@ export default function GeniePlusList({ contentRef }: HomeTabProps) {
           >
             Previously Experienced
           </h2>
-          <ul data-testid="experienced">{experienced.map(expListItem)}</ul>
+          <ExperienceList experiences={experienced} type="experienced" />
         </>
       )}
       {(unexperienced.length > 0 || experienced.length > 0) && (
@@ -204,10 +226,9 @@ export default function GeniePlusList({ contentRef }: HomeTabProps) {
           />
         </Legend>
       )}
-      {loaderElem}
-    </Tab>
+    </>
   );
-}
+});
 
 function InfoButton({
   name,

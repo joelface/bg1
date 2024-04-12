@@ -4,11 +4,14 @@ import { Park } from '@/api/data';
 import { PlusExperience } from '@/api/genie';
 import Select from '@/components/Select';
 import { useExperiences } from '@/contexts/Experiences';
-import { usePark } from '@/contexts/Park';
 import { timeToMinutes } from '@/datetime';
 import useCoords, { Coords } from '@/hooks/useCoords';
 
-type Sorter = (a: PlusExperience, b: PlusExperience, coords?: Coords) => number;
+export type Sorter = (
+  a: PlusExperience,
+  b: PlusExperience,
+  coords?: Coords
+) => number;
 
 const sortByPriority: Sorter = (a, b) =>
   (a.priority || Infinity) - (b.priority || Infinity);
@@ -61,8 +64,7 @@ function inPark(park: Park, coords: Coords) {
 }
 
 export default function useSort() {
-  const { park } = usePark();
-  const { experiences } = useExperiences();
+  const { experiences, park } = useExperiences();
   const [coords, updateCoords] = useCoords();
   const [sortType, setSortType] = useState<SortType>('priority');
 
@@ -70,14 +72,17 @@ export default function useSort() {
     if (sortType === 'nearby') updateCoords();
   }, [experiences, sortType, updateCoords]);
 
-  const sorter = (a: PlusExperience, b: PlusExperience) =>
-    Number(b?.flex?.available) - Number(a?.flex?.available) ||
-    sorters[
-      sortType === 'nearby' && !(coords && inPark(park, coords))
-        ? 'priority'
-        : sortType
-    ](a, b, coords) ||
-    sortByName(a, b);
+  const sorter = useCallback(
+    (a: PlusExperience, b: PlusExperience) =>
+      Number(b?.flex?.available) - Number(a?.flex?.available) ||
+      sorters[
+        sortType === 'nearby' && !(coords && inPark(park, coords))
+          ? 'priority'
+          : sortType
+      ](a, b, coords) ||
+      sortByName(a, b),
+    [coords, park, sortType]
+  );
 
   const SortSelect = useCallback(
     (props: { className?: string }) => (
