@@ -7,12 +7,13 @@ import {
   hm,
   mickey,
   minnie,
+  multiExp,
   pluto,
   sm,
   tracker,
 } from '@/__fixtures__/genie';
 import { fetchJson } from '@/fetch';
-import { TODAY, setTime } from '@/testing';
+import { TODAY, YESTERDAY, setTime } from '@/testing';
 
 import { RequestError } from '../client';
 import { Experience as ExpData } from '../data';
@@ -587,6 +588,17 @@ describe('GenieClient', () => {
       expect(await client.bookings()).toEqual([booking]);
       expect(spy).toHaveBeenCalled();
       spy.mockRestore();
+    });
+
+    it('shows MEP carried over from previous day as starting today', async () => {
+      respond(
+        createBookingsResponse([
+          { ...multiExp, start: { date: YESTERDAY, time: '23:00:00' } },
+        ])
+      );
+      expect(await client.bookings()).toEqual([
+        { ...multiExp, start: { date: TODAY } },
+      ]);
     });
   });
 

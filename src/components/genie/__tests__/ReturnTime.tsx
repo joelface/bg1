@@ -1,5 +1,5 @@
 import { displayDate } from '@/datetime';
-import { TODAY, TOMORROW, YESTERDAY, render, setTime } from '@/testing';
+import { TODAY, TOMORROW, render, setTime } from '@/testing';
 
 import ReturnTime from '../ReturnTime';
 
@@ -30,10 +30,7 @@ describe('ReturnTime', () => {
 
   it('shows return time from park open to close', () => {
     const { container } = render(
-      <ReturnTime
-        start={{ date: YESTERDAY, time: '10:00:00' }}
-        end={{ date: TODAY }}
-      />
+      <ReturnTime start={{ date: TODAY }} end={{ date: TODAY }} />
     );
     expect(container).toHaveTextContent('Arrive by: Park Open – Park Close');
   });

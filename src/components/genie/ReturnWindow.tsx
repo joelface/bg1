@@ -7,25 +7,18 @@ export default function ReturnWindow({
   start,
   end,
 }: Pick<Booking, 'start' | 'end'>) {
-  const today = parkDate();
   const startParkDate = parkDate(start);
   const endParkDate = parkDate(end);
 
   if (!end) return <Time time={start.time} />;
 
-  const rt = {
-    start: startParkDate < today ? undefined : start.time,
-    end: end?.time,
-  };
   return (
     <>
-      {rt.start ? <Time time={rt.start} /> : <span>Park Open</span>} –{' '}
-      {rt.end ? (
-        endParkDate === startParkDate || endParkDate === today ? (
-          <Time time={rt.end} />
-        ) : (
-          <Time date={endParkDate} type="short" />
-        )
+      {start.time ? <Time time={start.time} /> : <span>Park Open</span>} –{' '}
+      {endParkDate > startParkDate ? (
+        <Time date={endParkDate} type="short" />
+      ) : end.time ? (
+        <Time time={end.time} />
       ) : (
         <span>Park Close</span>
       )}

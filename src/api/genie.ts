@@ -571,6 +571,7 @@ export class GenieClient extends ApiClient {
   async bookings(): Promise<Booking[]> {
     const { swid } = this.authStore.getData();
     const today = dateTimeStrings().date;
+    const parkDay = parkDate();
     const itineraryApiName = RESORT_TO_ITINERARY_API_NAME[this.data.resort];
     const {
       data: { items = [], assets = {}, profiles = {} },
@@ -636,10 +637,13 @@ export class GenieClient extends ApiClient {
           (expAsset as Required<Asset>).location,
           expAsset.name
         ),
-        start: {
-          date: item.displayStartDate ?? today,
-          time: item.displayStartTime,
-        },
+        start:
+          (item.displayStartDate ?? today) < parkDay
+            ? { date: parkDay }
+            : {
+                date: item.displayStartDate ?? today,
+                time: item.displayStartTime,
+              },
         end: {
           date: item.displayEndDate,
           time: item.displayEndTime,
