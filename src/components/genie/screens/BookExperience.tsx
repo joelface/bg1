@@ -187,8 +187,8 @@ export default function BookExperience({
           )}
         </>
       }
+      subhead={<RebookingHeader />}
     >
-      <RebookingHeader />
       <h2>{experience.name}</h2>
       <div>{experience.park.name}</div>
       {party && (

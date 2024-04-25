@@ -6,6 +6,7 @@ export interface ScreenProps {
   heading: React.ReactNode;
   children: React.ReactNode;
   buttons?: React.ReactNode;
+  subhead?: React.ReactNode;
   footer?: React.ReactNode;
   theme?: Theme;
   contentRef?: React.MutableRefObject<HTMLDivElement | null>;
@@ -18,6 +19,7 @@ export interface ScreenRef {
 export default function Screen({
   heading,
   buttons,
+  subhead,
   footer,
   theme,
   children,
@@ -29,7 +31,9 @@ export default function Screen({
   return (
     <ThemeProvider value={theme}>
       <div className="fixed inset-0 flex flex-col">
-        <HeaderBar title={heading}>{buttons}</HeaderBar>
+        <HeaderBar title={heading} subhead={subhead}>
+          {buttons}
+        </HeaderBar>
         <div
           ref={contentRef}
           className="relative flex-1 overflow-auto px-3 pb-3"

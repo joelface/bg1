@@ -59,6 +59,7 @@ function TabButton({ name, icon }: TabDef) {
 export default function Tab({
   heading,
   buttons,
+  subhead,
   children,
   contentRef,
 }: ScreenProps) {
@@ -79,6 +80,7 @@ export default function Tab({
     <Screen
       heading={heading}
       buttons={buttons}
+      subhead={subhead}
       footer={
         <>
           <div className="flex items-center justify-center">

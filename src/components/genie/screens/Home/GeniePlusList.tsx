@@ -68,10 +68,14 @@ export default function GeniePlusList({ contentRef }: HomeTabProps) {
           <RefreshButton name="Experiences" onClick={refreshExperiences} />
         </>
       }
+      subhead={
+        <>
+          <RebookingHeader />
+          <TimeBanner bookTime={client.nextBookTime} dropTime={dropTime} />
+        </>
+      }
       contentRef={contentRef}
     >
-      <RebookingHeader />
-      <TimeBanner bookTime={client.nextBookTime} dropTime={dropTime} />
       <Experiences
         experiences={experiences}
         park={park}

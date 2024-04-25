@@ -81,7 +81,9 @@ describe('BookingDetails', () => {
 
   it('shows Multiple Experiences LL details', async () => {
     renderComponent(multiExp);
-    expect(see('Your Lightning Lane').parentNode).toHaveClass(DEFAULT_THEME.bg);
+    expect(see('Your Lightning Lane').parentNode?.parentNode).toHaveClass(
+      DEFAULT_THEME.bg
+    );
     see('Multiple Experiences');
     see(`${displayTime(multiExp.start.time || '')}`);
     see('Park Close');
@@ -108,7 +110,9 @@ describe('BookingDetails', () => {
       choices: multiExp.choices?.filter(exp => exp.park === mk),
     });
     see('Multiple Experiences');
-    expect(see('Your Lightning Lane').parentNode).toHaveClass(mk.theme.bg);
+    expect(see('Your Lightning Lane').parentNode?.parentNode).toHaveClass(
+      mk.theme.bg
+    );
   });
 
   it('shows all-day experience redemption details', async () => {

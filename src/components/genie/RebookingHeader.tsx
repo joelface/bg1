@@ -10,8 +10,8 @@ export default function RebookingHeader() {
   const theme = useTheme();
   if (!rebooking.current) return null;
   return (
-    <div className={`sticky top-0 -mx-3 pb-1 ${theme.bg}`}>
-      <div className="pb-3 bg-white">
+    <div className={`${theme.bg}`}>
+      <div className="-mx-3 pb-3 bg-white text-black">
         <div
           className={`pb-1 ${theme.bg} text-white text-sm font-semibold uppercase text-center`}
         >
