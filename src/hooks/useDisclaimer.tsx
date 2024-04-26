@@ -25,7 +25,7 @@ export default function useDisclaimer() {
 
 function Disclaimer({ onAccept }: { onAccept: () => void }) {
   return (
-    <Screen heading="Warning!" theme={theme}>
+    <Screen title="Warning!" theme={theme}>
       <p>
         Use at your own risk. BG1 is highly experimental, for demonstration
         purposes only, and provided &quot;as is&quot; without warranty of any

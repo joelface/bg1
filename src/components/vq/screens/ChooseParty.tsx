@@ -38,7 +38,7 @@ export default function ChooseParty({ queue }: { queue: Queue }) {
   }
 
   return (
-    <QueueScreen queue={queue} heading="Choose Your Party">
+    <QueueScreen queue={queue} title="Choose Your Party">
       {queue.howToEnterMessage.split('\n\n').map((graf, i) => (
         <p key={i}>{graf}</p>
       ))}

@@ -58,7 +58,7 @@ export default function BookingDetails({
   const theme =
     (!choices ? park : parkChoices.length === 1 ? parkChoices[0] : {}).theme ??
     DEFAULT_THEME;
-  const headings = {
+  const titles = {
     LL: 'Lightning Lane',
     DAS: 'DAS Selection',
     BG: 'Boarding Group',
@@ -68,7 +68,7 @@ export default function BookingDetails({
 
   return (
     <Screen
-      heading={'Your ' + headings[type]}
+      title={'Your ' + titles[type]}
       theme={theme}
       buttons={
         booking.modifiable && (

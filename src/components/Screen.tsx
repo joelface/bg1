@@ -3,7 +3,7 @@ import { Theme, ThemeProvider, useTheme } from '@/contexts/Theme';
 import HeaderBar from './HeaderBar';
 
 export interface ScreenProps {
-  heading: React.ReactNode;
+  title: React.ReactNode;
   children: React.ReactNode;
   buttons?: React.ReactNode;
   subhead?: React.ReactNode;
@@ -17,7 +17,7 @@ export interface ScreenRef {
 }
 
 export default function Screen({
-  heading,
+  title,
   buttons,
   subhead,
   footer,
@@ -31,7 +31,7 @@ export default function Screen({
   return (
     <ThemeProvider value={theme}>
       <div className="fixed inset-0 flex flex-col">
-        <HeaderBar title={heading} subhead={subhead}>
+        <HeaderBar title={title} subhead={subhead}>
           {buttons}
         </HeaderBar>
         <div

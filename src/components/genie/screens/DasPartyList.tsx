@@ -48,7 +48,7 @@ export default function DasPartyList({ parties }: { parties: DasParty[] }) {
 
   return (
     <Screen
-      heading={`DAS ${parties.length === 1 ? 'Selection' : 'Parties'}`}
+      title={`DAS ${parties.length === 1 ? 'Selection' : 'Parties'}`}
       theme={park.theme}
     >
       {loaderElem ? (

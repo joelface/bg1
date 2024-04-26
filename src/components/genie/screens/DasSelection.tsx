@@ -69,7 +69,7 @@ export default function DasSelection({
   }
 
   return (
-    <Screen heading="DAS Selection" theme={park.theme}>
+    <Screen title="DAS Selection" theme={park.theme}>
       <h3>Experience</h3>
       {experience ? (
         <div className="flex items-center mt-3">

@@ -61,7 +61,7 @@ export default function GeniePlusList({ contentRef }: HomeTabProps) {
 
   return (
     <Tab
-      heading="Genie+"
+      title="Genie+"
       buttons={
         <>
           <SortSelect />
@@ -277,7 +277,7 @@ function StarButton({
 
 function LightningPickDesc() {
   return (
-    <Screen heading={LIGHTNING_PICK}>
+    <Screen title={LIGHTNING_PICK}>
       <p>
         When an attraction with a long standby wait has a Lightning Lane return
         time in the near future, it's highlighted as a Lightning Pick. Book
@@ -297,7 +297,7 @@ function DropTimeDesc({
   const client = useGenieClient();
   const { bg } = useTheme();
   return (
-    <Screen heading={UPCOMING_DROP}>
+    <Screen title={UPCOMING_DROP}>
       <p>
         This attraction may be part of the{' '}
         {dropTime ? (
@@ -325,7 +325,7 @@ function DropTimeDesc({
 
 function BookedDesc() {
   return (
-    <Screen heading={BOOKED}>
+    <Screen title={BOOKED}>
       <p>
         You currently have a Lightning Lane reservation for this attraction.
       </p>

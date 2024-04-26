@@ -57,7 +57,7 @@ function TabButton({ name, icon }: TabDef) {
 }
 
 export default function Tab({
-  heading,
+  title,
   buttons,
   subhead,
   children,
@@ -78,7 +78,7 @@ export default function Tab({
 
   return (
     <Screen
-      heading={heading}
+      title={title}
       buttons={buttons}
       subhead={subhead}
       footer={

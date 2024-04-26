@@ -20,7 +20,7 @@ export default function Plans({ ...props }: Partial<ScreenProps>) {
 
   return (
     <Tab
-      heading="Your Plans"
+      title="Your Plans"
       buttons={<RefreshButton name="Plans" onClick={refreshPlans} />}
       theme={DEFAULT_THEME}
       {...props}

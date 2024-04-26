@@ -71,7 +71,7 @@ export default function PartySelector() {
   );
 
   return (
-    <Screen heading="Party Selection">
+    <Screen title="Party Selection">
       <p>
         By default, all eligible guests (up to a maximum of 12) are
         automatically selected when you book a Lightning Lane. If you would like

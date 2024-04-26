@@ -31,7 +31,7 @@ export default function ModifyParty({ party }: { party: Party }) {
 
   return (
     <PartyProvider value={party}>
-      <Screen heading="Modify Party" theme={experience.park.theme}>
+      <Screen title="Modify Party" theme={experience.park.theme}>
         <h2>{experience.name}</h2>
         <div>{experience.park.name}</div>
         <h3>Your Party</h3>

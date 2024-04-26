@@ -45,7 +45,7 @@ export default function JoinQueue({
   }
 
   return (
-    <QueueScreen queue={queue} heading="Virtual Queue">
+    <QueueScreen queue={queue} title="Virtual Queue">
       {!queue.isAcceptingJoins && (
         <TimeBoard
           time={queue.nextScheduledOpenTime}

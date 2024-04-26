@@ -6,7 +6,7 @@ import { Nav, useNav } from '../Nav';
 function Screen1() {
   const { goTo } = useNav();
   return (
-    <Screen heading="Screen 1">
+    <Screen title="Screen 1">
       <button onClick={() => goTo(<Screen2 sub={1} />)}>Screen 2.1</button>
     </Screen>
   );
@@ -15,7 +15,7 @@ function Screen1() {
 function Screen2({ sub }: { sub: number }) {
   const { goTo } = useNav();
   return (
-    <Screen heading={`Screen 2.${sub}`}>
+    <Screen title={`Screen 2.${sub}`}>
       <button onClick={() => goTo(<Screen3 />)}>Screen 3</button>
     </Screen>
   );
@@ -24,7 +24,7 @@ function Screen2({ sub }: { sub: number }) {
 function Screen3() {
   const { goTo, goBack } = useNav();
   return (
-    <Screen heading="Screen 3">
+    <Screen title="Screen 3">
       <button onClick={() => goBack({ screen: Screen1 })}>Screen 1</button>
       <button onClick={() => goBack()}>Screen 2.1</button>
       <button onClick={() => goTo(<Screen4 />, { replace: true })}>
@@ -37,7 +37,7 @@ function Screen3() {
 function Screen4() {
   const { goBack } = useNav();
   return (
-    <Screen heading="Screen 4">
+    <Screen title="Screen 4">
       <button onClick={() => goBack({ screen: Screen2, props: { sub: 2 } })}>
         Screen 2.2
       </button>
@@ -54,9 +54,9 @@ function renderComponent() {
 }
 
 async function click(screenNum: number, sub?: number) {
-  const heading = `Screen ${screenNum}.${sub ?? ''}`.replace(/\.$/, '');
-  _click(heading);
-  await see.screen(heading);
+  const title = `Screen ${screenNum}.${sub ?? ''}`.replace(/\.$/, '');
+  _click(title);
+  await see.screen(title);
   if (screenNum > 1) see('Go Back');
 }
 

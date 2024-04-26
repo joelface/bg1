@@ -3,15 +3,15 @@ import Screen from '@/components/Screen';
 
 export default function QueueScreen({
   queue,
-  heading,
+  title,
   children,
 }: {
   queue: Queue;
-  heading: string;
+  title: string;
   children: React.ReactNode;
 }) {
   return (
-    <Screen heading={heading} theme={queue.park?.theme}>
+    <Screen title={title} theme={queue.park?.theme}>
       <h2>{queue.name}</h2>
       {children}
     </Screen>

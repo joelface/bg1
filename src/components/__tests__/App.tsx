@@ -10,7 +10,7 @@ import Screen from '../Screen';
 
 jest.mock('../genie/Merlock', () => {
   return function Merlock() {
-    return <Screen heading="Genie+">test</Screen>;
+    return <Screen title="Genie+">test</Screen>;
   };
 });
 jest.mock('../LoginForm', () => {

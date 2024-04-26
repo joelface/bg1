@@ -79,11 +79,11 @@ export const see = Object.assign(
         throw getQueryError(`Found element with text: ${text}`);
       }
     },
-    async screen(heading: string) {
+    async screen(title: string) {
       try {
-        await screen.findByRole('heading', { name: heading, level: 1 });
+        await screen.findByRole('heading', { name: title, level: 1 });
       } catch {
-        throw getQueryError(`Unable to find screen with heading: ${heading}`);
+        throw getQueryError(`Unable to find screen with title: ${title}`);
       }
     },
   }

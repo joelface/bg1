@@ -42,7 +42,7 @@ export default function SelectQueue() {
 
   return (
     <Screen
-      heading="Virtual Queues"
+      title="Virtual Queues"
       buttons={
         <Button title="Refresh Queues" onClick={refreshQueues}>
           <RefreshIcon />

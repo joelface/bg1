@@ -31,7 +31,7 @@ export default function BGResult({
   }, [hasBG]);
 
   return (
-    <QueueScreen queue={queue} heading="Boarding Group">
+    <QueueScreen queue={queue} title="Boarding Group">
       {hasBG ? (
         <>
           <h3>Congratulations! 🎉</h3>

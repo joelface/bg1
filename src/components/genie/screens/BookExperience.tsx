@@ -168,7 +168,7 @@ export default function BookExperience({
 
   return (
     <Screen
-      heading="Lightning Lane"
+      title="Lightning Lane"
       theme={experience.park.theme}
       buttons={
         <>

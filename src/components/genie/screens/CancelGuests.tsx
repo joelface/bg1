@@ -43,7 +43,7 @@ export default function CancelGuests<B extends LightningLane | DasBooking>({
   }
 
   return (
-    <Screen heading="Cancel Guests" theme={park.theme}>
+    <Screen title="Cancel Guests" theme={park.theme}>
       <h2>{name}</h2>
       <div>{park.name}</div>
       <ReturnTime {...booking} />

@@ -23,7 +23,7 @@ export default function TimesGuide({ contentRef }: HomeTabProps) {
 
   return (
     <Tab
-      heading="Times Guide"
+      title="Times Guide"
       buttons={
         <>
           {parties.length > 0 && (
@@ -210,7 +210,7 @@ function ExperienceList({
 }
 
 const ExperienceInfo = ({ exp }: { exp: Experience }) => (
-  <Screen heading="Experience Info">
+  <Screen title="Experience Info">
     <h2>{exp.name}</h2>
     <div>{exp.park.name}</div>
     <h3>Upcoming {exp.type === 'CHARACTER' ? 'Appearances' : 'Shows'}</h3>

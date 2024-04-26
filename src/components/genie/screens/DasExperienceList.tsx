@@ -44,7 +44,7 @@ export default function DasExperienceList({
   ];
 
   return (
-    <Screen heading="Select Experience" theme={park.theme}>
+    <Screen title="Select Experience" theme={park.theme}>
       {experiences ? (
         experiences.length === 0 ? (
           <p>No DAS experiences available</p>
