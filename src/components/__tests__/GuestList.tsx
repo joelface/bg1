@@ -25,7 +25,7 @@ describe('GuestList', () => {
       .forEach((g, i) => {
         const li = guestLIs[i];
         expect(li).toHaveTextContent(g.name);
-        expect(within(li).getByRole('img')).toHaveAttribute(
+        expect(within(li).getByRole('presentation')).toHaveAttribute(
           'src',
           g.avatarImageUrl
         );
