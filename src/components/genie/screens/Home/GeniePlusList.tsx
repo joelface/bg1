@@ -251,7 +251,7 @@ function InfoButton({
       className={`-mx-2 px-2 ${theme.text}`}
       onClick={onClick}
     >
-      {<Icon />}
+      <Icon />
     </button>
   );
 }
