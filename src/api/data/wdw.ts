@@ -458,6 +458,13 @@ export const experiences: Experiences = {
     name: 'Swiss Family Treehouse',
     land: adventureland,
   },
+  412021364:
+    id: '412021364',
+    name: "Tiana's Bayou Adventure",
+    land: frontierland,
+    geo: [28.419418, -81.58498],
+    priority: 1.4,
+  },
   80010220: {
     id: '80010220',
     name: "Tom Sawyer's Island",
