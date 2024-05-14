@@ -393,6 +393,11 @@ export const experiences: Experiences = {
     name: 'Tale of the Lion King',
     land: fantasyland,
   },
+  412113817: {
+    id: '412113817',
+    name: 'Together Forever - Pixar Nighttime Spectacular',
+    land: fantasyland,
+  },
   15756384: {
     id: '15756384',
     name: 'Wintertime Enchantment',
@@ -408,6 +413,11 @@ export const experiences: Experiences = {
     id: '19630107',
     name: 'Avengers Assemble!',
     land: avengers,
+  },
+  411459995: {
+    id: '411459995',
+    name: 'Better Together - Pixar Parade',
+    land: buenaVista,
   },
   18781959: {
     id: '18781959',
