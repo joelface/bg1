@@ -284,14 +284,14 @@ export const experiences: Experiences = {
     name: 'Jingle Cruise',
     land: adventureland,
     geo: [28.4180339, -81.5834548],
-    priority: 1.2,
+    priority: 1.3,
   },
   80010153: {
     id: '80010153',
     name: 'Jungle Cruise',
     land: adventureland,
     geo: [28.4180339, -81.5834548],
-    priority: 1.2,
+    priority: 1.3,
   },
   8336: {
     id: '8336',
@@ -419,7 +419,7 @@ export const experiences: Experiences = {
     name: "Peter Pan's Flight",
     land: fantasyland,
     geo: [28.4203332, -81.5818676],
-    priority: 1.3,
+    priority: 1.4,
   },
   80010177: {
     id: '80010177',
@@ -457,6 +457,13 @@ export const experiences: Experiences = {
     id: '80010196',
     name: 'Swiss Family Treehouse',
     land: adventureland,
+  },
+  412021364: {
+    id: '412021364',
+    name: "Tiana's Bayou Adventure",
+    land: frontierland,
+    geo: [28.419418, -81.58498],
+    priority: 1.2,
   },
   80010220: {
     id: '80010220',
