@@ -3,7 +3,7 @@ import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
 import TimeBoard from '@/components/TimeBoard';
 import { useNav } from '@/contexts/Nav';
-import { useResortData } from '@/contexts/ResortData';
+import { useResort } from '@/contexts/Resort';
 import { useVQClient } from '@/contexts/VQClient';
 import useDataLoader from '@/hooks/useDataLoader';
 import { ping } from '@/ping';
@@ -19,7 +19,7 @@ export default function JoinQueue({
   guests: Guest[];
 }) {
   const { goTo } = useNav();
-  const { resort } = useResortData();
+  const resort = useResort();
   const client = useVQClient();
   const { loadData, loaderElem } = useDataLoader();
 

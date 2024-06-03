@@ -1,7 +1,7 @@
 import { memo } from 'react';
 
-import { Park } from '@/api/data';
 import { Booking } from '@/api/genie';
+import { Park } from '@/api/resort';
 import Tab from '@/components/Tab';
 import { Time } from '@/components/Time';
 import { useNav } from '@/contexts/Nav';

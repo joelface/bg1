@@ -1,7 +1,7 @@
 import { memo } from 'react';
 
-import { Land } from '@/api/data';
 import { Experience } from '@/api/genie';
+import { Land } from '@/api/resort';
 import Button from '@/components/Button';
 import Screen from '@/components/Screen';
 import Tab from '@/components/Tab';

@@ -17,8 +17,7 @@ import kvdb from '@/kvdb';
 import { TODAY, YESTERDAY, setTime } from '@/testing';
 
 import { RequestError } from '../client';
-import { Experience as ExpData } from '../data';
-import { experiences, parks } from '../data/wdw';
+import * as data from '../data/wdw';
 import {
   Booking,
   BookingTracker,
@@ -29,6 +28,7 @@ import {
   ModifyNotAllowed,
   PlusExperience,
 } from '../genie';
+import { Park, Resort } from '../resort';
 
 jest.mock('@/fetch');
 const diu = {
@@ -88,21 +88,14 @@ describe('GenieClient', () => {
     deleteData: jest.fn(),
     onUnauthorized: () => null,
   };
-  const [mk, , , ak] = [...parks.values()];
+  const [mk, , , ak] = data.parks as Park[];
   const mkDrops = [
     { time: '11:30', experiences: [sm] },
     { time: '14:30', experiences: [sm, hm] },
     { time: '17:30', experiences: [hm] },
   ];
-  const data = {
-    resort: 'WDW' as const,
-    parks,
-    experiences,
-    drops: { [mk.id]: mkDrops },
-  };
-  const smData = data.experiences[sm.id] as ExpData;
-  smData.priority = sm.priority;
-  const client = new GenieClient(data, authStore, tracker);
+  const wdw = new Resort('WDW', { ...data, drops: { [mk.id]: mkDrops } });
+  const client = new GenieClient(wdw, authStore, tracker);
   const onUnauthorized = jest.fn();
   client.onUnauthorized = onUnauthorized;
   const guests = [mickey, minnie, pluto];

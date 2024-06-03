@@ -3,19 +3,20 @@ import { fetchJson } from '@/fetch';
 import { TODAY } from '@/testing';
 
 import { DasClient } from '../das';
-import { Experience } from '../data';
-import { experiences, parks } from '../data/wdw';
+import * as data from '../data/wdw';
+import { Experience, Resort } from '../resort';
 
 jest.mock('@/fetch');
 
-const [mk] = [...parks.values()];
+const wdw = new Resort('WDW', data);
+const [mk] = [...wdw.parks.values()];
 const accessToken = 'access_token_123';
 const swid = '{abc}';
 const origin = 'https://disneyworld.disney.go.com';
 
-const hm = experiences[80010208] as Experience;
-const sm = experiences[80010190] as Experience;
-const jc = experiences[80010153] as Experience;
+const hm = wdw.experience('80010208') as Experience;
+const sm = wdw.experience('80010190') as Experience;
+const jc = wdw.experience('80010153') as Experience;
 
 const booking = {
   type: 'DAS',
@@ -78,13 +79,7 @@ describe('DasClient', () => {
     deleteData: jest.fn(),
     onUnauthorized: () => null,
   };
-  const data = {
-    resort: 'WDW' as const,
-    parks,
-    experiences,
-    drops: {},
-  };
-  const client = new DasClient(data, authStore);
+  const client = new DasClient(wdw, authStore);
 
   beforeEach(() => {
     jest.resetAllMocks();

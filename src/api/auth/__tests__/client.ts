@@ -55,7 +55,7 @@ function messages() {
 }
 
 function loadClient(logging?: boolean) {
-  const client = new AuthClient(iframe, onLogin, 'WDW', logging);
+  const client = new AuthClient(iframe, onLogin, { id: 'WDW' }, logging);
   client.open();
   expect(iframe.src.startsWith('https://cdn.registerdisney.go.com/')).toBe(
     true

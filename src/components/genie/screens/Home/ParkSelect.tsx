@@ -3,10 +3,10 @@ import { useMemo } from 'react';
 import Select from '@/components/Select';
 import { useExperiences } from '@/contexts/Experiences';
 import { useRebooking } from '@/contexts/Rebooking';
-import { useResortData } from '@/contexts/ResortData';
+import { useResort } from '@/contexts/Resort';
 
 export default function ParkSelect(props: { className?: string }) {
-  const { parks } = useResortData();
+  const { parks } = useResort();
   const { park, setPark } = useExperiences();
   const rebooking = useRebooking();
 

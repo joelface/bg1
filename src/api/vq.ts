@@ -1,7 +1,7 @@
 import { JsonResponse } from '@/fetch';
 
 import { ApiClient, RequestError } from './client';
-import { Park } from './data';
+import { InvalidId, Park } from './resort';
 
 interface BaseQueue {
   name: string;
@@ -135,11 +135,15 @@ export class VQClient extends ApiClient {
     if (!Array.isArray(response.data?.queues)) throw new RequestError(response);
     return response.data.queues
       .filter(q => !!q.categoryContentId)
-      .map(({ queueId, tabContentId = '', ...queue }) => ({
-        ...queue,
-        id: queueId,
-        park: this.data.parks.get(tabContentId.split(';')[0]),
-      }));
+      .map(({ queueId, tabContentId = '', ...queue }) => {
+        const q: Queue = { ...queue, id: queueId };
+        try {
+          q.park = this.resort.park(tabContentId.split(';')[0]);
+        } catch (error) {
+          if (!(error instanceof InvalidId)) throw error;
+        }
+        return q;
+      });
   }
 
   async getQueue(queue: Pick<Queue, 'id'>): Promise<Queue> {

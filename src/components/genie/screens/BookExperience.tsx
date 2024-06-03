@@ -7,7 +7,7 @@ import { useNav } from '@/contexts/Nav';
 import { Party, PartyProvider } from '@/contexts/Party';
 import { usePlans } from '@/contexts/Plans';
 import { useRebooking } from '@/contexts/Rebooking';
-import { useResortData } from '@/contexts/ResortData';
+import { useResort } from '@/contexts/Resort';
 import useDataLoader from '@/hooks/useDataLoader';
 import { ping } from '@/ping';
 
@@ -27,7 +27,7 @@ export default function BookExperience({
   experience: PlusExperience;
 }) {
   const { goTo } = useNav();
-  const { resort } = useResortData();
+  const resort = useResort();
   const client = useGenieClient();
   const { refreshPlans } = usePlans();
   const rebooking = useRebooking();

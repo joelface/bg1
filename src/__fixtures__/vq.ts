@@ -1,5 +1,8 @@
 import * as data from '@/api/data/wdw';
+import { Resort } from '@/api/resort';
 import { Guest, Queue, VQClient } from '@/api/vq';
+
+export const wdw = new Resort('WDW', data);
 
 export const rotr: Queue = {
   id: '3720fcab-537c-4b2b-b3b2-37918ac7df8f',
@@ -11,6 +14,7 @@ export const rotr: Queue = {
   maxPartySize: 3,
   howToEnterMessage: 'lol nm just stand in line',
   categoryContentId: 'attraction',
+  park: wdw.park('80007998'),
 };
 export const mtwr: Queue = {
   id: 'mtwr',
@@ -66,7 +70,6 @@ export const pluto: Guest = {
 };
 export const guests = [mickey, minnie, fifi, pluto];
 
-export const wdw = { resort: 'WDW' as const, ...data };
 export const client = jest.mocked(
   new VQClient(wdw, {
     getData: () => ({ swid: '', accessToken: '' }),

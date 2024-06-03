@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { Experience } from '@/api/das';
-import { Park } from '@/api/data';
+import { Park } from '@/api/resort';
 import Button from '@/components/Button';
 import Screen from '@/components/Screen';
 import { useDasClient } from '@/contexts/DasClient';

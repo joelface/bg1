@@ -1,13 +1,15 @@
 import { AuthData } from '@/api/auth/client';
 import { ReauthNeeded } from '@/api/auth/store';
+import { fetchJson } from '@/fetch';
 import { DISCLAIMER_ACCEPTED_KEY } from '@/hooks/useDisclaimer';
 import { NEWS_VERSION_KEY } from '@/hooks/useNews';
 import kvdb from '@/kvdb';
-import { act, click, render, screen, see } from '@/testing';
+import { act, click, render, screen, see, waitFor } from '@/testing';
 
 import App, { NEWS_VERSION } from '../App';
 import Screen from '../Screen';
 
+jest.mock('@/fetch');
 jest.mock('../genie/Merlock', () => {
   return function Merlock() {
     return <Screen title="Genie+">test</Screen>;
@@ -26,8 +28,6 @@ jest.mock('../LoginForm', () => {
   return LoginForm;
 });
 
-window.origin = 'https://disneyworld.disney.go.com';
-
 const authStore = {
   getData: jest.fn(),
   setData: jest.fn(),
@@ -41,6 +41,8 @@ function renderComponent() {
 
 describe('App', () => {
   beforeEach(() => {
+    self.origin = 'https://disneyworld.disney.go.com';
+    jest.clearAllMocks();
     authStore.getData.mockReturnValue({
       swid: '{MICKEY}',
       accessToken: 'm1ck3y',
@@ -89,5 +91,27 @@ describe('App', () => {
     await see.screen('Genie+');
     act(() => authStore.onUnauthorized());
     see('Log In');
+  });
+
+  it('loads DLR VQ component', async () => {
+    jest
+      .mocked(fetchJson)
+      .mockResolvedValue({ ok: true, status: 200, data: { queues: [] } });
+    self.origin = 'https://vqguest-svc.wdprapps.disney.com';
+    renderComponent();
+    await see.screen('Virtual Queues');
+  });
+
+  it('redirects to start page if BG1 cannot be run from this origin', async () => {
+    self.origin = 'https://example.com';
+    Object.defineProperty(self, 'location', {
+      value: { assign: jest.fn() },
+    });
+    renderComponent();
+    await waitFor(() => {
+      expect(self.location.assign).toHaveBeenCalledWith(
+        'https://joelface.github.io/bg1/start.html'
+      );
+    });
   });
 });

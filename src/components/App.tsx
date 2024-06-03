@@ -3,14 +3,14 @@ import { useEffect, useState } from 'react';
 import { AuthStore, ReauthNeeded } from '@/api/auth/store';
 import { InvalidOrigin } from '@/api/client';
 import { DasClient } from '@/api/das';
-import { Resort, loadResortData } from '@/api/data';
 import { GenieClient } from '@/api/genie';
 import { LiveDataClient } from '@/api/livedata';
+import { Resort } from '@/api/resort';
 import { VQClient } from '@/api/vq';
 import { DasClientProvider } from '@/contexts/DasClient';
 import { GenieClientProvider } from '@/contexts/GenieClient';
 import { LiveDataClientProvider } from '@/contexts/LiveDataClient';
-import { ResortDataProvider } from '@/contexts/ResortData';
+import { ResortProvider } from '@/contexts/Resort';
 import { VQClientProvider } from '@/contexts/VQClient';
 import { setDefaultTimeZone } from '@/datetime';
 import useDisclaimer from '@/hooks/useDisclaimer';
@@ -48,41 +48,40 @@ export default function App({ authStore }: { authStore: Public<AuthStore> }) {
 
   useEffect(() => {
     authStore.onUnauthorized = () => requireLogin(true);
-
-    for (const [Client, Component] of [
-      [GenieClient, Merlock],
-      [VQClient, BGClient],
-    ] as const) {
-      try {
-        const resort = Client.originToResort(origin);
-        setResort(resort);
-        setDefaultTimeZone(
-          {
-            WDW: 'America/New_York',
-            DLR: 'America/Los_Angeles',
-          }[resort]
-        );
-        loadResortData(resort).then(data => {
+    (async () => {
+      for (const [Client, Component] of [
+        [GenieClient, Merlock],
+        [VQClient, BGClient],
+      ] as const) {
+        try {
+          const resort = await Client.originToResort(origin);
+          setResort(resort);
+          setDefaultTimeZone(
+            {
+              WDW: 'America/New_York',
+              DLR: 'America/Los_Angeles',
+            }[resort.id]
+          );
           setContent(
-            <ResortDataProvider value={data}>
-              <LiveDataClientProvider value={new LiveDataClient(data)}>
-                <GenieClientProvider value={new GenieClient(data, authStore)}>
-                  <DasClientProvider value={new DasClient(data, authStore)}>
-                    <VQClientProvider value={new VQClient(data, authStore)}>
+            <ResortProvider value={resort}>
+              <LiveDataClientProvider value={new LiveDataClient(resort)}>
+                <GenieClientProvider value={new GenieClient(resort, authStore)}>
+                  <DasClientProvider value={new DasClient(resort, authStore)}>
+                    <VQClientProvider value={new VQClient(resort, authStore)}>
                       <Component />
                     </VQClientProvider>
                   </DasClientProvider>
                 </GenieClientProvider>
               </LiveDataClientProvider>
-            </ResortDataProvider>
+            </ResortProvider>
           );
-        });
-        return;
-      } catch (e) {
-        if (!(e instanceof InvalidOrigin)) throw e;
+          return;
+        } catch (error) {
+          if (!(error instanceof InvalidOrigin)) throw error;
+        }
       }
-    }
-    location.href = 'https://joelface.github.io/bg1/start.html';
+      location.assign('https://joelface.github.io/bg1/start.html');
+    })();
   }, [authStore]);
 
   useEffect(() => {

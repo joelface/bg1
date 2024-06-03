@@ -1,7 +1,7 @@
 import { JsonOK, fetchJson } from '@/fetch';
 
 import { AuthStore } from './auth/store';
-import { Resort, ResortData } from './data';
+import { Resort, loadResort } from './resort';
 
 export class InvalidOrigin extends Error {
   name = 'InvalidOrigin';
@@ -19,7 +19,7 @@ export class RequestError extends Error {
 }
 
 export abstract class ApiClient {
-  protected data: ResortData;
+  protected resort: Resort;
   protected authStore: Public<AuthStore>;
   protected origin: string;
 
@@ -28,17 +28,17 @@ export abstract class ApiClient {
     DLR: 'https://disneyland.disney.go.com',
   };
 
-  static originToResort(origin: string): Resort {
-    const entries = Object.entries(this.origins) as [Resort, string][];
-    const abbr = entries.find(([, o]) => o === origin)?.[0];
-    if (abbr) return abbr;
+  static async originToResort(origin: string): Promise<Resort> {
+    const entries = Object.entries(this.origins) as [Resort['id'], string][];
+    const id = entries.find(([, o]) => o === origin)?.[0];
+    if (id) return loadResort(id);
     throw new InvalidOrigin(origin);
   }
 
-  constructor(data: ResortData, authStore: Public<AuthStore>) {
-    this.data = data;
+  constructor(resort: Resort, authStore: Public<AuthStore>) {
+    this.resort = resort;
     this.origin = (this.constructor as typeof ApiClient).origins[
-      this.data.resort
+      this.resort.id
     ];
     this.authStore = authStore;
   }

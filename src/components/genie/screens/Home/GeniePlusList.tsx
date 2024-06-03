@@ -1,7 +1,7 @@
 import { memo, useEffect, useRef, useState } from 'react';
 
-import { Park } from '@/api/data';
 import { PlusExperience as BasePlusExp, Experience } from '@/api/genie';
+import { Park } from '@/api/resort';
 import Screen from '@/components/Screen';
 import Tab from '@/components/Tab';
 import { useExperiences } from '@/contexts/Experiences';

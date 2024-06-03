@@ -1,10 +1,11 @@
 import { hm, jc, mk, sm, wdw } from '@/__fixtures__/genie';
-import { Experience } from '@/api/data';
 import { PlusExperience } from '@/api/genie';
+import { Experience } from '@/api/resort';
 import { ExperiencesProvider } from '@/contexts/Experiences';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { Nav } from '@/contexts/Nav';
 import { ParkProvider } from '@/contexts/Park';
+import { ResortProvider } from '@/contexts/Resort';
 import { displayTime } from '@/datetime';
 import kvdb from '@/kvdb';
 import {
@@ -37,8 +38,7 @@ const getExperiences = (
 const names = (exps: { name: string }[]) => exps.map(({ name }) => name);
 
 const bz: PlusExperience = {
-  ...(wdw.experiences['80010114'] as Experience),
-  id: '80010114',
+  ...(wdw.experience('80010114') as Experience),
   park: mk,
   type: 'ATTRACTION',
   standby: { available: false },
@@ -46,8 +46,7 @@ const bz: PlusExperience = {
 };
 
 const db: PlusExperience = {
-  ...(wdw.experiences['80010129'] as Experience),
-  id: '80010129',
+  ...(wdw.experience('80010129') as Experience),
   park: mk,
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 25 },
@@ -65,27 +64,29 @@ describe('GeniePlusList', () => {
   it('shows Genie+ availability', async () => {
     kvdb.set(STARRED_KEY, [bz.id]);
     render(
-      <ParkProvider value={{ park: mk, setPark: () => null }}>
-        <ExperiencesProvider
-          value={{
-            experiences: [
-              { ...hm, experienced: true, drop: true },
-              { ...db, experienced: true },
-              { ...bz, experienced: true },
-              { ...jc },
-              { ...sm, drop: true },
-            ],
-            refreshExperiences,
-            park: mk,
-            setPark: () => null,
-            loaderElem: null,
-          }}
-        >
-          <Nav>
-            <GeniePlusList contentRef={{ current: null }} />
-          </Nav>
-        </ExperiencesProvider>
-      </ParkProvider>
+      <ResortProvider value={wdw}>
+        <ParkProvider value={{ park: mk, setPark: () => null }}>
+          <ExperiencesProvider
+            value={{
+              experiences: [
+                { ...hm, experienced: true, drop: true },
+                { ...db, experienced: true },
+                { ...bz, experienced: true },
+                { ...jc },
+                { ...sm, drop: true },
+              ],
+              refreshExperiences,
+              park: mk,
+              setPark: () => null,
+              loaderElem: null,
+            }}
+          >
+            <Nav>
+              <GeniePlusList contentRef={{ current: null }} />
+            </Nav>
+          </ExperiencesProvider>
+        </ParkProvider>
+      </ResortProvider>
     );
 
     click('Refresh Experiences');

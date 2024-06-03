@@ -2,7 +2,7 @@ import { splitDateTime } from '@/datetime';
 
 import { avatarUrl } from './avatar';
 import { ApiClient } from './client';
-import { ExperienceType, Park } from './data';
+import { ExperienceType, Park } from './resort';
 
 interface ApiExperience {
   id: string;
@@ -145,7 +145,13 @@ export class DasClient extends ApiClient {
       .filter(
         (exp): exp is Experience => exp.available && !!exp.nextAvailableTime
       )
-      .map(exp => ({ ...exp, ...this.data.experiences[exp.id] }))
+      .map(exp => {
+        try {
+          return { ...exp, ...this.resort.experience(exp.id) };
+        } catch {
+          return exp;
+        }
+      })
       .sort((a, b) => a.name.localeCompare(b.name));
   }
 

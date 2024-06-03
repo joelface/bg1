@@ -5,20 +5,20 @@ import { AuthStore } from './auth/store';
 import { avatarUrl } from './avatar';
 import { ApiClient } from './client';
 import {
-  Drop,
   Experience as ExpData,
   ExperienceType,
+  InvalidId,
   Park,
-  ResortData,
-} from './data';
+  Resort,
+} from './resort';
 
 const RESORT_TO_ITINERARY_API_NAME = {
   WDW: 'wdw-itinerary-api',
   DLR: 'dlr-itinerary-web-api',
 } as const;
 
-export interface Experience extends ExpData {
-  park: Park;
+interface ApiExperience {
+  id: string;
   type: ExperienceType;
   standby: {
     available: boolean;
@@ -45,19 +45,18 @@ export interface Experience extends ExpData {
     available: boolean;
     waitTime: number;
   };
-  experienced?: boolean;
-  drop?: boolean;
 }
+
+export type Experience = ExpData &
+  ApiExperience & {
+    park: Park;
+    experienced?: boolean;
+    drop?: boolean;
+  };
 
 export type PlusExperience = Experience & Required<Pick<Experience, 'flex'>>;
 export type IllExperience = Experience &
   Required<Pick<Experience, 'individual'>>;
-
-type ApiExperience = Omit<
-  Experience,
-  'name' | 'park' | 'priority' | 'geo' | 'drop'
->;
-
 interface ExperiencesResponse {
   availableExperiences: ApiExperience[];
   eligibility?: {
@@ -360,11 +359,11 @@ export class GenieClient extends ApiClient {
   protected primaryGuestId = '';
 
   constructor(
-    data: ResortData,
+    resort: Resort,
     authStore: Public<AuthStore>,
     tracker?: Public<BookingTracker>
   ) {
-    super(data, authStore);
+    super(resort, authStore);
     this.tracker = tracker ?? new BookingTracker();
   }
 
@@ -387,27 +386,29 @@ export class GenieClient extends ApiClient {
         ?.flexEligibilityWindows || []
     ).sort((a, b) => a.time.time.localeCompare(b.time.time))[0]?.time.time;
     const { experiences: dropExps = [] } = this.upcomingDrops(park)[0] ?? {};
-    return data.availableExperiences
-      .filter(exp => {
-        const expData = this.data.experiences[exp.id];
-        if (expData) return true;
-        if (expData !== null) console.warn(`Missing experience: ${exp.id}`);
-        return false;
-      })
-      .map(exp => ({
-        ...exp,
-        ...(this.data.experiences[exp.id] as ExpData),
-        park,
-        experienced: this.tracker.experienced(exp),
-        drop: !!dropExps.find(({ id }) => id === exp.id),
-      }));
+    return data.availableExperiences.flatMap(exp => {
+      try {
+        return [
+          {
+            ...exp,
+            ...this.resort.experience(exp.id),
+            park,
+            experienced: this.tracker.experienced(exp),
+            drop: !!dropExps.find(({ id }) => id === exp.id),
+          },
+        ];
+      } catch (error) {
+        if (error instanceof InvalidId) return [];
+        throw error;
+      }
+    });
   }
 
   async guests(experience?: {
     id: string;
     park?: { id: string };
   }): Promise<Guests> {
-    const ids = FALLBACK_IDS[this.data.resort];
+    const ids = FALLBACK_IDS[this.resort.id];
     const { data } = await this.request<GuestsResponse>({
       path: '/ea-vas/api/v1/guests',
       params: {
@@ -541,7 +542,7 @@ export class GenieClient extends ApiClient {
     return {
       type: 'LL',
       subtype: 'G+',
-      ...this.getExperience(experienceId, parkId),
+      ...this.getBookingExperienceData(experienceId, parkId),
       bookingId: entitlements[0]?.id,
       start: splitDateTime(startDateTime),
       end: splitDateTime(endDateTime),
@@ -573,13 +574,13 @@ export class GenieClient extends ApiClient {
     const { swid } = this.authStore.getData();
     const today = dateTimeStrings().date;
     const parkDay = parkDate();
-    const itineraryApiName = RESORT_TO_ITINERARY_API_NAME[this.data.resort];
+    const itineraryApiName = RESORT_TO_ITINERARY_API_NAME[this.resort.id];
     const {
       data: { items = [], assets = {}, profiles = {} },
     } = await this.request<Itinerary>({
       path: `/plan/${itineraryApiName}/api/v1/itinerary-items/${swid}?item-types=FASTPASS&item-types=DINING&item-types=ACTIVITY&item-types=VIRTUAL_QUEUE_POSITION`,
       params: {
-        destination: this.data.resort,
+        destination: this.resort.id,
         fields: 'items,profiles,assets',
         'guest-locators': swid + ';type=swid',
         'guest-locator-groups': 'MY_FAMILY',
@@ -633,7 +634,7 @@ export class GenieClient extends ApiClient {
       const expAsset = assets[item.facility];
       const guestIds = new Set();
       return {
-        ...this.getExperience(
+        ...this.getBookingExperienceData(
           item.facility,
           (expAsset as Required<Asset>).location,
           expAsset.name
@@ -698,7 +699,7 @@ export class GenieClient extends ApiClient {
         if (origAsset) {
           booking = {
             ...booking,
-            ...this.getExperience(
+            ...this.getBookingExperienceData(
               origAsset.content,
               (assets[origAsset.content] as Required<Asset>).location
             ),
@@ -708,7 +709,7 @@ export class GenieClient extends ApiClient {
           .filter(a => !a.excluded && !a.original)
           .map(({ content }) => {
             const { name, location } = assets[content] as Required<Asset>;
-            return this.getExperience(content, location, name);
+            return this.getBookingExperienceData(content, location, name);
           })
           .sort((a, b) => a.name.localeCompare(b.name));
       }
@@ -732,7 +733,7 @@ export class GenieClient extends ApiClient {
     const getBoardingGroup = (item: BoardingGroupItem): BoardingGroup => {
       const vqAsset = assets[item.asset];
       const facilityAsset = assets[vqAsset.facility];
-      const exp = this.getExperience(
+      const exp = this.getBookingExperienceData(
         vqAsset.facility,
         (facilityAsset as Required<Asset>).location,
         vqAsset.name
@@ -750,8 +751,8 @@ export class GenieClient extends ApiClient {
     };
 
     const getParkPass = (item: FastPassItem): ParkPass | undefined => {
-      const park = this.data.parks.get(
-        idNum((assets[item.facility] as Required<Asset>).location)
+      const park = this.getPark(
+        (assets[item.facility] as Required<Asset>).location
       );
       if (!park) return;
       return {
@@ -798,9 +799,9 @@ export class GenieClient extends ApiClient {
     return bookings;
   }
 
-  upcomingDrops(park: Pick<Park, 'id'>): Drop[] {
+  upcomingDrops(park: Pick<Park, 'id'>) {
     const now = dateTimeStrings().time.slice(0, 5);
-    const drops = this.data.drops[park.id] ?? [];
+    const drops = this.resort.drops(park) ?? [];
     const idx = drops.findIndex(({ time }) => time >= now);
     return idx >= 0 ? drops.slice(idx) : [];
   }
@@ -811,24 +812,38 @@ export class GenieClient extends ApiClient {
 
   protected getPark(id: string) {
     id = idNum(id);
-    return (
-      this.data.parks.get(id) ?? {
-        id,
-        name: '',
-        icon: '',
-        geo: { n: 0, s: 0, e: 0, w: 0 },
-        theme: { bg: 'bg-blue-500', text: 'text-blue-500' },
+    try {
+      return this.resort.park(id);
+    } catch (error) {
+      if (error instanceof InvalidId) {
+        return {
+          id,
+          name: '',
+          icon: '',
+          geo: { n: 0, s: 0, e: 0, w: 0 },
+          theme: { bg: 'bg-blue-500', text: 'text-blue-500' },
+          dropTimes: [],
+        };
       }
-    );
+      throw error;
+    }
   }
 
-  protected getExperience(id: string, parkId: string, name?: string) {
+  protected getBookingExperienceData(
+    id: string,
+    parkId: string,
+    name: string = 'Experience'
+  ): Pick<Experience, 'id' | 'name' | 'park'> {
     id = idNum(id);
-    return {
-      id,
-      name: (this.data.experiences[id]?.name || name) as string,
-      park: this.getPark(parkId),
-    };
+    try {
+      const exp = this.resort.experience(id);
+      return { id, name: exp.name, park: exp.park };
+    } catch (error) {
+      if (error instanceof InvalidId) {
+        return { id, name, park: this.getPark(parkId) };
+      }
+      throw error;
+    }
   }
 
   protected convertGuest = (guest: ApiGuest) => {

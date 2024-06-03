@@ -1,6 +1,6 @@
 import { booking, hs, mk, wdw } from '@/__fixtures__/genie';
 import { DasClientProvider } from '@/contexts/DasClient';
-import { ResortDataProvider } from '@/contexts/ResortData';
+import { ResortProvider } from '@/contexts/Resort';
 import kvdb from '@/kvdb';
 import { click, loading, render, revisitTab, see, setTime } from '@/testing';
 
@@ -23,11 +23,11 @@ describe('Home', () => {
 
   it('shows Genie+ home screen', async () => {
     render(
-      <ResortDataProvider value={wdw}>
+      <ResortProvider value={wdw}>
         <DasClientProvider value={{ parties: async () => [] } as any}>
           <Merlock />
         </DasClientProvider>
-      </ResortDataProvider>
+      </ResortProvider>
     );
     await loading();
 

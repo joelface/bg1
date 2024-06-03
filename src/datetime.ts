@@ -92,3 +92,13 @@ export function timeToMinutes(time: string) {
   const [h, m] = time.split(':').map(Number);
   return ((h + 17) % 24) * 60 + m;
 }
+
+/**
+ * Returns an array of non-past times from a sorted array of time strings
+ */
+export function upcomingTimes(times: string[]) {
+  if (!Array.isArray(times)) return [];
+  const now = dateTimeStrings().time.slice(0, 5);
+  const nextIdx = times.findIndex(t => t >= now);
+  return nextIdx >= 0 ? times.slice(nextIdx) : [];
+}

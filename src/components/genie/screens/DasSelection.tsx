@@ -8,7 +8,7 @@ import {
   ExperienceUnavailable,
   Guest,
 } from '@/api/das';
-import { Park } from '@/api/data';
+import { Park } from '@/api/resort';
 import Button from '@/components/Button';
 import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
@@ -16,7 +16,7 @@ import Screen from '@/components/Screen';
 import { useDasClient } from '@/contexts/DasClient';
 import { useNav } from '@/contexts/Nav';
 import { usePlans } from '@/contexts/Plans';
-import { useResortData } from '@/contexts/ResortData';
+import { useResort } from '@/contexts/Resort';
 import useDataLoader from '@/hooks/useDataLoader';
 import { ping } from '@/ping';
 
@@ -32,7 +32,7 @@ export default function DasSelection({
   party: DasParty;
 }) {
   const { goTo, goBack } = useNav();
-  const { resort } = useResortData();
+  const resort = useResort();
   const client = useDasClient();
   const { refreshPlans } = usePlans();
   const [experience, setExperience] = useState<Experience>();

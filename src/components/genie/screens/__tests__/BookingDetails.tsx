@@ -19,7 +19,7 @@ import { Booking, DasBooking } from '@/api/genie';
 import { useNav } from '@/contexts/Nav';
 import { ParkProvider } from '@/contexts/Park';
 import { RebookingProvider } from '@/contexts/Rebooking';
-import { ResortDataProvider } from '@/contexts/ResortData';
+import { ResortProvider } from '@/contexts/Resort';
 import { DEFAULT_THEME } from '@/contexts/Theme';
 import { displayTime } from '@/datetime';
 import { act, click, render, screen, see, setTime, waitFor } from '@/testing';
@@ -35,13 +35,13 @@ const setPark = jest.fn();
 
 function renderComponent(b: Booking = booking) {
   render(
-    <ResortDataProvider value={wdw}>
+    <ResortProvider value={wdw}>
       <ParkProvider value={{ park: mk, setPark }}>
         <RebookingProvider value={rebooking}>
           <BookingDetails booking={b} />
         </RebookingProvider>
       </ParkProvider>
-    </ResortDataProvider>
+    </ResortProvider>
   );
 }
 

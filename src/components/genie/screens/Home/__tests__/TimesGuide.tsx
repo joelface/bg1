@@ -1,13 +1,13 @@
 import { party } from '@/__fixtures__/das';
 import { mk, wdw } from '@/__fixtures__/genie';
 import { DasParty } from '@/api/das';
-import { Experience as ExpData, ExperienceType } from '@/api/data';
 import { Experience } from '@/api/genie';
+import { Experience as ExpData, ExperienceType } from '@/api/resort';
 import { DasPartiesProvider } from '@/contexts/DasParties';
 import { ExperiencesProvider } from '@/contexts/Experiences';
 import { Nav } from '@/contexts/Nav';
 import { ParkProvider } from '@/contexts/Park';
-import { ResortDataProvider } from '@/contexts/ResortData';
+import { ResortProvider } from '@/contexts/Resort';
 import { click, render, screen, see, within } from '@/testing';
 
 import TimesGuide from '../TimesGuide';
@@ -46,7 +46,7 @@ function exp(
   } = {}
 ): Experience {
   return {
-    ...(wdw.experiences[id] as ExpData),
+    ...(wdw.experience(id) as ExpData),
     id,
     park: mk,
     type: args.type || 'ATTRACTION',
@@ -80,7 +80,7 @@ const refreshExperiences = jest.fn();
 
 function renderComponent(dasParties: DasParty[] = []) {
   render(
-    <ResortDataProvider value={wdw}>
+    <ResortProvider value={wdw}>
       <ParkProvider value={{ park: mk, setPark: () => null }}>
         <DasPartiesProvider value={dasParties}>
           <ExperiencesProvider
@@ -98,7 +98,7 @@ function renderComponent(dasParties: DasParty[] = []) {
           </ExperiencesProvider>
         </DasPartiesProvider>
       </ParkProvider>
-    </ResortDataProvider>
+    </ResortProvider>
   );
 }
 

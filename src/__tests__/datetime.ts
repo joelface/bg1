@@ -7,6 +7,7 @@ import {
   parkDate,
   setDefaultTimeZone,
   splitDateTime,
+  upcomingTimes,
 } from '../datetime';
 
 beforeEach(() => {
@@ -71,9 +72,9 @@ describe('splitDateTime()', () => {
 });
 
 describe('setDefaultTimeZone()', () => {
-  beforeEach(() => {
-    setDefaultTimeZone('America/New_York');
-  });
+  const resetTZ = () => setDefaultTimeZone('America/New_York');
+  beforeEach(resetTZ);
+  afterAll(resetTZ);
 
   it('sets default time zone', () => {
     setDefaultTimeZone('America/Los_Angeles');
@@ -81,5 +82,19 @@ describe('setDefaultTimeZone()', () => {
       date: '1998-04-22',
       time: '13:35:40',
     });
+  });
+});
+
+const times = ['11:30', '14:30', '17:30'];
+
+describe('upcomingTimes()', () => {
+  it('returns upcoming times', () => {
+    expect(upcomingTimes(times)).toEqual(times);
+    setTime('12:00');
+    expect(upcomingTimes(times)).toEqual(times.slice(1));
+    setTime('15:00');
+    expect(upcomingTimes(times)).toEqual(times.slice(2));
+    setTime('18:00');
+    expect(upcomingTimes(times)).toEqual([]);
   });
 });

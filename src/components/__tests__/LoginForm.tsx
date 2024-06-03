@@ -8,9 +8,10 @@ jest.mock('@/api/auth/client');
 describe('LoginForm', () => {
   it('starts AuthClient', () => {
     const onLogin = jest.fn();
-    render(<LoginForm onLogin={onLogin} resort="WDW" />);
+    const resort = { id: 'WDW' as const };
+    render(<LoginForm onLogin={onLogin} resort={resort} />);
     const iframe = see('Disney Login Form');
-    expect(AuthClient).toHaveBeenCalledWith(iframe, onLogin, 'WDW');
+    expect(AuthClient).toHaveBeenCalledWith(iframe, onLogin, resort);
     expect(AuthClient.prototype.open).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,10 +1,10 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
-import { Park } from '@/api/data';
+import { InvalidId, Park } from '@/api/resort';
 import { parkDate } from '@/datetime';
 import kvdb from '@/kvdb';
 
-import { useResortData } from './ResortData';
+import { useResort } from './Resort';
 
 export const PARK_KEY = ['bg1', 'genie', 'park'];
 
@@ -34,17 +34,22 @@ export const ParkProvider = ({
 export const usePark = () => useContext(ParkContext);
 
 export function useParkState() {
-  const { resort, parks } = useResortData();
+  const resort = useResort();
   const [park, setPark] = useState(() => {
-    const firstPark: Park = [...parks.values()][0]!;
+    const firstPark: Park = resort.parks[0]!;
     const { id = firstPark.id, date = '' } =
       kvdb.get<CurrentPark>(PARK_KEY) ?? {};
-    return (date === parkDate() && parks.get(id)) || firstPark;
+    try {
+      return date === parkDate() ? resort.park(id) : firstPark;
+    } catch (error) {
+      if (!(error instanceof InvalidId)) console.error(error);
+      return firstPark;
+    }
   });
 
   useEffect(() => {
     kvdb.set<CurrentPark>(PARK_KEY, { id: park.id, date: parkDate() });
-  }, [park, resort]);
+  }, [park]);
 
   return { park, setPark };
 }

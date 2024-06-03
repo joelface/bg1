@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { Park } from '@/api/data';
 import { PlusExperience } from '@/api/genie';
+import { Park } from '@/api/resort';
 import Select from '@/components/Select';
 import { useExperiences } from '@/contexts/Experiences';
 import { timeToMinutes } from '@/datetime';

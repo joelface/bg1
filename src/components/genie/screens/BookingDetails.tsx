@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-import { Park } from '@/api/data';
 import { Booking } from '@/api/genie';
+import { Park } from '@/api/resort';
 import Button from '@/components/Button';
 import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
@@ -12,7 +12,7 @@ import { useDasParties } from '@/contexts/DasParties';
 import { useNav } from '@/contexts/Nav';
 import { usePark } from '@/contexts/Park';
 import { useRebooking } from '@/contexts/Rebooking';
-import { useResortData } from '@/contexts/ResortData';
+import { useResort } from '@/contexts/Resort';
 import { DEFAULT_THEME } from '@/contexts/Theme';
 import { parkDate } from '@/datetime';
 
@@ -30,7 +30,7 @@ export default function BookingDetails({
 }) {
   const { goTo, goBack } = useNav();
   const { setPark } = usePark();
-  const { parks } = useResortData();
+  const resort = useResort();
   const dasParties = useDasParties();
   const { name, park, choices, type, subtype, start } = booking;
   const dasGuest =
@@ -46,7 +46,7 @@ export default function BookingDetails({
 
   const choicesByPark = new Map([
     [park as Park, []],
-    ...[...parks.values()].map(
+    ...resort.parks.map(
       park => [park, []] as [Park, Required<typeof booking>['choices']]
     ),
   ]);

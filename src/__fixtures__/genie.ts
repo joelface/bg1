@@ -1,4 +1,3 @@
-import { Experience as ExpData } from '@/api/data';
 import * as data from '@/api/data/wdw';
 import {
   BoardingGroup,
@@ -11,9 +10,10 @@ import {
   PlusExperience,
   Reservation,
 } from '@/api/genie';
+import { Resort } from '@/api/resort';
 import { TODAY, TOMORROW } from '@/testing';
 
-export const wdw = { resort: 'WDW' as const, ...data };
+export const wdw = new Resort('WDW', data);
 export const [mk, ep, hs, ak] = [...wdw.parks.values()];
 
 export const mickey = {
@@ -39,8 +39,7 @@ export const donald = {
 };
 
 export const hm: PlusExperience = {
-  ...(wdw.experiences['80010208'] as ExpData),
-  id: '80010208',
+  ...wdw.experience('80010208'),
   park: mk,
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 30 },
@@ -50,8 +49,7 @@ export const hm: PlusExperience = {
 };
 
 export const jc: PlusExperience = {
-  ...(wdw.experiences['80010153'] as ExpData),
-  id: '80010153',
+  ...wdw.experience('80010153'),
   park: mk,
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 45 },
@@ -65,8 +63,7 @@ export const jc: PlusExperience = {
 };
 
 export const sm: PlusExperience = {
-  ...(wdw.experiences['80010190'] as ExpData),
-  id: '80010190',
+  ...wdw.experience('80010190'),
   park: mk,
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 60 },
@@ -77,8 +74,7 @@ export const sm: PlusExperience = {
 };
 
 export const sdd: PlusExperience = {
-  ...(wdw.experiences['18904138'] as ExpData),
-  id: '18904138',
+  ...wdw.experience('18904138'),
   park: hs,
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 75 },
@@ -150,7 +146,7 @@ export const allDayExp: LightningLane = {
 };
 
 const tron = {
-  ...(wdw.experiences['411504498'] as ExpData),
+  ...wdw.experience('411504498'),
   id: '411504498',
 };
 

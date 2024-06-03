@@ -5,8 +5,8 @@ import { click, render, see } from '@/testing';
 
 import { PARK_KEY, useParkState } from '../Park';
 
-jest.mock('@/contexts/ResortData', () => {
-  return { useResortData: () => wdw };
+jest.mock('@/contexts/Resort', () => {
+  return { useResort: () => wdw };
 });
 
 function ParkTest() {

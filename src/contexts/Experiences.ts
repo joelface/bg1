@@ -6,8 +6,8 @@ import {
   useState,
 } from 'react';
 
-import { Park } from '@/api/data';
 import { Experience } from '@/api/genie';
+import { Park } from '@/api/resort';
 import { useGenieClient } from '@/contexts/GenieClient';
 import useDataLoader from '@/hooks/useDataLoader';
 import useThrottleable from '@/hooks/useThrottleable';

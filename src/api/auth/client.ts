@@ -1,3 +1,5 @@
+import { Resort } from '../resort';
+
 const BUILD_ID = '181874e5af6';
 
 export interface AuthData {
@@ -50,7 +52,7 @@ export class AuthClient {
   constructor(
     protected iframe: HTMLIFrameElement,
     onLogin: (data: AuthData) => void,
-    protected resort: 'WDW' | 'DLR',
+    protected resort: Pick<Resort, 'id'>,
     protected logging = false
   ) {
     this.on('handshake', () => {
@@ -122,6 +124,6 @@ export class AuthClient {
   }
 
   protected get authPageUrl() {
-    return `https://cdn.registerdisney.go.com/v2/TPR-${this.resort}-LBSDK.IOS-PROD/en-US?include=l10n,config,html,js&buildId=${BUILD_ID}`;
+    return `https://cdn.registerdisney.go.com/v2/TPR-${this.resort.id}-LBSDK.IOS-PROD/en-US?include=l10n,config,html,js&buildId=${BUILD_ID}`;
   }
 }
