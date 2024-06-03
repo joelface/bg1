@@ -28,7 +28,7 @@ import {
   ModifyNotAllowed,
   PlusExperience,
 } from '../genie';
-import { Park, Resort } from '../resort';
+import { Resort } from '../resort';
 
 jest.mock('@/fetch');
 const diu = {
@@ -88,13 +88,9 @@ describe('GenieClient', () => {
     deleteData: jest.fn(),
     onUnauthorized: () => null,
   };
-  const [mk, , , ak] = data.parks as Park[];
-  const mkDrops = [
-    { time: '11:30', experiences: [sm] },
-    { time: '14:30', experiences: [sm, hm] },
-    { time: '17:30', experiences: [hm] },
-  ];
-  const wdw = new Resort('WDW', { ...data, drops: { [mk.id]: mkDrops } });
+  const wdw = new Resort('WDW', data);
+  const [mk, , , ak] = [...wdw.parks.values()];
+  wdw.experience(sm.id).priority = sm.priority;
   const client = new GenieClient(wdw, authStore, tracker);
   const onUnauthorized = jest.fn();
   client.onUnauthorized = onUnauthorized;
@@ -130,7 +126,6 @@ describe('GenieClient', () => {
       });
       const smExp: PlusExperience = {
         ...sm,
-        drop: true,
         experienced: false,
       };
       const getExpData = () => client.experiences(mk);
@@ -152,13 +147,7 @@ describe('GenieClient', () => {
         2
       );
 
-      setTime('13:00');
-      expect(await getExpData()).toEqual([smExp]);
-
-      setTime('15:00');
-      expect(await getExpData()).toEqual([{ ...smExp, drop: false }]);
-
-      expect(console.warn).toHaveBeenCalledTimes(3);
+      expect(console.warn).toHaveBeenCalledTimes(1);
       expect(console.warn).toHaveBeenLastCalledWith(
         'Missing experience: not_a_real_id'
       );
@@ -686,30 +675,6 @@ describe('GenieClient', () => {
         { method: 'DELETE' },
         false
       );
-    });
-  });
-
-  describe('upcomingDrops()', () => {
-    it('returns upcoming drops', () => {
-      expect(client.upcomingDrops(mk)).toStrictEqual(mkDrops);
-      setTime('12:00');
-      expect(client.upcomingDrops(mk)).toStrictEqual(mkDrops.slice(1));
-      setTime('15:00');
-      expect(client.upcomingDrops(mk)).toStrictEqual(mkDrops.slice(2));
-      setTime('18:00');
-      expect(client.upcomingDrops(mk)).toStrictEqual(mkDrops.slice(3));
-    });
-  });
-
-  describe('nextDropTime()', () => {
-    it('returns next drop time', () => {
-      expect(client.nextDropTime(mk)).toBe('11:30');
-      setTime('12:00');
-      expect(client.nextDropTime(mk)).toBe('14:30');
-      setTime('15:00');
-      expect(client.nextDropTime(mk)).toBe('17:30');
-      setTime('18:00');
-      expect(client.nextDropTime(mk)).toBe(undefined);
     });
   });
 });

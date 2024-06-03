@@ -7,15 +7,20 @@ import Tab from '@/components/Tab';
 import { useExperiences } from '@/contexts/Experiences';
 import { useGenieClient } from '@/contexts/GenieClient';
 import { useNav } from '@/contexts/Nav';
+import { useResort } from '@/contexts/Resort';
 import { useTheme } from '@/contexts/Theme';
-import { dateTimeStrings, displayTime, timeToMinutes } from '@/datetime';
+import {
+  dateTimeStrings,
+  displayTime,
+  timeToMinutes,
+  upcomingTimes,
+} from '@/datetime';
 import CheckmarkIcon from '@/icons/CheckmarkIcon';
 import DropIcon from '@/icons/DropIcon';
 import LightningIcon from '@/icons/LightningIcon';
 import StarIcon from '@/icons/StarIcon';
 import kvdb from '@/kvdb';
 
-import { ExperienceList } from '../../ExperienceList';
 import RebookingHeader from '../../RebookingHeader';
 import { HomeTabProps } from '../Home';
 import { useSelectedParty } from '../PartySelector';
@@ -57,7 +62,7 @@ export default function GeniePlusList({ contentRef }: HomeTabProps) {
     firstUpdate.current = false;
   }, []);
 
-  const dropTime = client.nextDropTime(park);
+  const dropTime = upcomingTimes(park.dropTimes)[0];
 
   return (
     <Tab
@@ -121,8 +126,8 @@ const Experiences = memo(function Experiences({
   }
 
   const showLightningPickDesc = () => goTo(<LightningPickDesc />);
-  const showDropTimeDesc = () =>
-    goTo(<DropTimeDesc dropTime={dropTime} park={park} />);
+  const showDropTimeDesc = (exp?: Experience) =>
+    goTo(<DropTimeDesc park={park} experience={exp} />);
   const showBookedDesc = () => goTo(<BookedDesc />);
 
   const ExperienceList = ({
@@ -133,43 +138,47 @@ const Experiences = memo(function Experiences({
     type: string;
   }) => (
     <ul data-testid={type}>
-      {experiences.map(exp => (
-        <li
-          className="pb-3 first:border-0 border-t-4 border-gray-300"
-          key={exp.id + (exp.starred ? '*' : '')}
-        >
-          <div className="flex items-center gap-x-2 mt-2">
-            <StarButton experience={exp} toggleStar={toggleStar} />
-            <h3 className="flex-1 mt-0 text-lg font-semibold leading-tight truncate">
-              {exp.name}
-            </h3>
-            {exp.lp ? (
-              <InfoButton
-                name={LIGHTNING_PICK}
-                icon={LightningIcon}
-                onClick={showLightningPickDesc}
-              />
-            ) : dropTime && exp.drop ? (
-              <InfoButton
-                name={UPCOMING_DROP}
-                icon={DropIcon}
-                onClick={showDropTimeDesc}
-              />
-            ) : null}
-            {exp.flex.preexistingPlan && (
-              <InfoButton
-                name={BOOKED}
-                icon={CheckmarkIcon}
-                onClick={showBookedDesc}
-              />
-            )}
-          </div>
-          <div className="flex flex-wrap gap-1.5 mt-2">
-            <StandbyTime experience={exp} />
-            <GeniePlusButton experience={exp} />
-          </div>
-        </li>
-      ))}
+      {experiences.map(exp => {
+        const [nextDropTime] = upcomingTimes(exp.dropTimes ?? []);
+        return (
+          <li
+            className="pb-3 first:border-0 border-t-4 border-gray-300"
+            key={exp.id + (exp.starred ? '*' : '')}
+          >
+            <div className="flex items-center gap-x-2 mt-2">
+              <StarButton experience={exp} toggleStar={toggleStar} />
+              <h3 className="flex-1 mt-0 text-lg font-semibold leading-tight truncate">
+                {exp.name}
+              </h3>
+              {exp.lp ? (
+                <InfoButton
+                  name={LIGHTNING_PICK}
+                  icon={LightningIcon}
+                  onClick={showLightningPickDesc}
+                />
+              ) : nextDropTime ? (
+                <InfoButton
+                  name={UPCOMING_DROP}
+                  icon={DropIcon}
+                  onClick={() => showDropTimeDesc(exp)}
+                  className={nextDropTime !== dropTime ? 'opacity-50' : ''}
+                />
+              ) : null}
+              {exp.flex.preexistingPlan && (
+                <InfoButton
+                  name={BOOKED}
+                  icon={CheckmarkIcon}
+                  onClick={showBookedDesc}
+                />
+              )}
+            </div>
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              <StandbyTime experience={exp} />
+              <GeniePlusButton experience={exp} />
+            </div>
+          </li>
+        );
+      })}
     </ul>
   );
 
@@ -219,11 +228,13 @@ const Experiences = memo(function Experiences({
             def={LIGHTNING_PICK}
             onInfo={showLightningPickDesc}
           />
-          <Symbol
-            sym={<DropIcon className={theme.text} />}
-            def={UPCOMING_DROP}
-            onInfo={showDropTimeDesc}
-          />
+          {park.dropTimes.length > 0 && (
+            <Symbol
+              sym={<DropIcon className={theme.text} />}
+              def={UPCOMING_DROP}
+              onInfo={showDropTimeDesc}
+            />
+          )}
           <Symbol
             sym={<CheckmarkIcon className={theme.text} />}
             def={BOOKED}
@@ -239,16 +250,18 @@ function InfoButton({
   name,
   icon: Icon,
   onClick,
+  className,
 }: {
   name: string;
   icon: React.FunctionComponent;
   onClick: () => void;
+  className?: string;
 }) {
   const theme = useTheme();
   return (
     <button
       title={`${name} (more info)`}
-      className={`-mx-2 px-2 ${theme.text}`}
+      className={`-mx-2 px-2 ${theme.text} ${className}`}
       onClick={onClick}
     >
       <Icon />
@@ -288,37 +301,87 @@ function LightningPickDesc() {
 }
 
 function DropTimeDesc({
-  dropTime,
   park,
+  experience,
 }: {
-  dropTime?: string;
-  park: PlusExperience['park'];
+  park: Park;
+  experience?: Experience;
 }) {
-  const client = useGenieClient();
-  const { bg } = useTheme();
+  const resort = useResort();
+  const dropTime = upcomingTimes(experience?.dropTimes ?? [])[0];
+  const parks = resort.parks
+    .filter(p => p.dropTimes.length > 0)
+    .sort((a, b) => (a === park ? -1 : b === park ? 1 : 0));
   return (
     <Screen title={UPCOMING_DROP}>
       <p>
-        This attraction may be part of the{' '}
+        {experience ? <b>{experience.name}</b> : 'This attraction'} may be part
+        of{' '}
         {dropTime ? (
-          <time dateTime={dropTime} className="font-semibold">
-            {displayTime(dropTime)}
-          </time>
+          <>
+            the{' '}
+            <time dateTime={dropTime} className="font-semibold">
+              {displayTime(dropTime)}
+            </time>
+          </>
         ) : (
-          'next'
+          <>an upcoming</>
         )}{' '}
         drop of additional Lightning Lane inventory, with earlier return times
         than what's currently being offered. Availability varies but is always
         limited, so be sure you're ready to book when the drop time arrives!
       </p>
-      {client.upcomingDrops(park).map(drop => (
-        <ExperienceList
-          heading={displayTime(drop.time)}
-          experiences={drop.experiences}
-          bg={bg}
-          key={drop.time}
-        />
-      ))}
+      {parks.map(park => {
+        const [nextDropTime] = upcomingTimes(park.dropTimes);
+        return (
+          <div
+            className={`mt-5 rounded overflow-hidden ${park.theme.bg}`}
+            key={park.id}
+          >
+            <h2
+              className={`mt-0 py-1 ${park.theme.bg} text-white text-base text-center`}
+            >
+              {park.name}
+            </h2>
+            <div className="flex flex-col px-2 pb-3 bg-white bg-opacity-90">
+              {resort.dropExperiences(park).map((exp, i) => {
+                const isExp = i === 1 && park.name === 'Hollywood Studios';
+                const upcoming = new Set(upcomingTimes(exp.dropTimes ?? []));
+                return (
+                  <div key={exp.id}>
+                    <h3
+                      className={`mt-3 text-base ${isExp ? `${park.theme.text}font-bold` : ''}`}
+                    >
+                      {exp.name}
+                    </h3>
+                    <ul className="flex flex-wrap gap-y-2 mt-1 leading-tight">
+                      {exp.dropTimes?.map(time => {
+                        const isNextDrop = time === nextDropTime;
+                        return (
+                          <li className="min-w-[6em] text-center" key={time}>
+                            <div
+                              className={`${isNextDrop ? `${park.theme.text} font-bold` : upcoming.has(time) ? 'font-semibold' : 'text-gray-500'}`}
+                            >
+                              <time dateTime={time}>{displayTime(time)}</time>
+                            </div>
+                            {isNextDrop ? (
+                              <div
+                                className={`rounded-sm ${park.theme.bg} text-white text-opacity-90 text-xs font-semibold text-center uppercase`}
+                              >
+                                next
+                              </div>
+                            ) : null}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
     </Screen>
   );
 }

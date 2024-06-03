@@ -10,9 +10,13 @@ import {
   PlusExperience,
   Reservation,
 } from '@/api/genie';
-import { Resort } from '@/api/resort';
+import { Experience as ExpData, Resort } from '@/api/resort';
 import { TODAY, TOMORROW } from '@/testing';
 
+const hmId = '80010208';
+(data.experiences[hmId] as ExpData).dropTimes = ['11:30', '13:30'];
+const smId = '80010190';
+(data.experiences[smId] as ExpData).dropTimes = ['11:30', '13:30'];
 export const wdw = new Resort('WDW', data);
 export const [mk, ep, hs, ak] = [...wdw.parks.values()];
 
@@ -39,7 +43,7 @@ export const donald = {
 };
 
 export const hm: PlusExperience = {
-  ...wdw.experience('80010208'),
+  ...wdw.experience(hmId),
   park: mk,
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 30 },
@@ -63,14 +67,13 @@ export const jc: PlusExperience = {
 };
 
 export const sm: PlusExperience = {
-  ...wdw.experience('80010190'),
+  ...wdw.experience(smId),
   park: mk,
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 60 },
   flex: { available: true, nextAvailableTime: '10:40:00' },
   priority: 2.0,
   sort: 1,
-  drop: true,
 };
 
 export const sdd: PlusExperience = {
@@ -145,10 +148,7 @@ export const allDayExp: LightningLane = {
   bookingId: 'sm_01',
 };
 
-const tron = {
-  ...wdw.experience('411504498'),
-  id: '411504498',
-};
+const tron = wdw.experience('411504498');
 
 export const bg: BoardingGroup = {
   type: 'BG',
@@ -233,9 +233,4 @@ jest.spyOn(client, 'book').mockResolvedValue({ ...booking });
 jest.spyOn(client, 'cancelBooking').mockResolvedValue(undefined);
 jest.spyOn(client, 'bookings').mockResolvedValue([...bookings]);
 jest.spyOn(client, 'experiences').mockResolvedValue([hm, sm, jc]);
-const dropExps = [sm, hm];
-jest.spyOn(client, 'upcomingDrops').mockReturnValue([
-  { time: '11:30', experiences: dropExps },
-  { time: '13:30', experiences: dropExps },
-]);
 jest.spyOn(client, 'setPartyIds');

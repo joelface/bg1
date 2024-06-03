@@ -51,7 +51,6 @@ export type Experience = ExpData &
   ApiExperience & {
     park: Park;
     experienced?: boolean;
-    drop?: boolean;
   };
 
 export type PlusExperience = Experience & Required<Pick<Experience, 'flex'>>;
@@ -385,7 +384,6 @@ export class GenieClient extends ApiClient {
       data.eligibility?.geniePlusEligibility?.[parkDate()]
         ?.flexEligibilityWindows || []
     ).sort((a, b) => a.time.time.localeCompare(b.time.time))[0]?.time.time;
-    const { experiences: dropExps = [] } = this.upcomingDrops(park)[0] ?? {};
     return data.availableExperiences.flatMap(exp => {
       try {
         return [
@@ -394,7 +392,6 @@ export class GenieClient extends ApiClient {
             ...this.resort.experience(exp.id),
             park,
             experienced: this.tracker.experienced(exp),
-            drop: !!dropExps.find(({ id }) => id === exp.id),
           },
         ];
       } catch (error) {
@@ -797,17 +794,6 @@ export class GenieClient extends ApiClient {
 
     this.tracker.update(bookings, this);
     return bookings;
-  }
-
-  upcomingDrops(park: Pick<Park, 'id'>) {
-    const now = dateTimeStrings().time.slice(0, 5);
-    const drops = this.resort.drops(park) ?? [];
-    const idx = drops.findIndex(({ time }) => time >= now);
-    return idx >= 0 ? drops.slice(idx) : [];
-  }
-
-  nextDropTime(park: Pick<Park, 'id'>): string | undefined {
-    return this.upcomingDrops(park)[0]?.time;
   }
 
   protected getPark(id: string) {

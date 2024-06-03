@@ -29,11 +29,12 @@ export interface Experience {
   type?: ExperienceType;
   priority?: number;
   sort?: number;
+  dropTimes?: string[];
 }
 
 type ParkData = Omit<Park, 'dropTimes'>;
 type LandData = Omit<Land, 'park'> & { park: ParkData };
-export type ExperienceData = Omit<Experience, 'id' | 'land' | 'park'> & {
+type ExperienceData = Omit<Experience, 'id' | 'land' | 'park'> & {
   land: LandData;
 };
 
@@ -41,14 +42,6 @@ export interface ResortData {
   parks: ParkData[];
   experiences: {
     [id: string | number]: ExperienceData | null | undefined;
-  };
-  drops: {
-    [parkId: string]:
-      | {
-          time: string;
-          experiences: ExperienceData[];
-        }[]
-      | undefined;
   };
 }
 
@@ -60,18 +53,11 @@ export class InvalidId extends Error {
   }
 }
 
-export interface Drop {
-  time: string;
-  experiences: Experience[];
-}
-
 export class Resort {
   readonly parks: Park[];
   protected parksById: { [id: string]: Park | undefined };
   protected expsById: { [id: string]: Experience | null | undefined };
-  protected dropsByParkId: {
-    [parkId: string]: Drop[] | undefined;
-  };
+  protected dropExpsByPark: Map<Park, Experience[]>;
 
   constructor(
     readonly id: 'WDW' | 'DLR',
@@ -80,13 +66,24 @@ export class Resort {
     this.parks = data.parks as Park[];
     this.parksById = Object.fromEntries(this.parks.map(p => [p.id, p]));
     this.expsById = data.experiences as Resort['expsById'];
+    this.dropExpsByPark = new Map(this.parks.map(p => [p, [] as Experience[]]));
     for (const [id, exp] of Object.entries(this.expsById)) {
       if (exp) {
         exp.id = id;
         exp.park = exp.land.park;
       }
+      if (exp?.dropTimes) this.dropExpsByPark.get(exp.land.park)?.push(exp);
     }
-    this.dropsByParkId = data.drops as typeof this.dropsByParkId;
+    for (const park of this.parks) {
+      park.dropTimes = [
+        ...new Set(
+          this.dropExpsByPark.get(park)?.flatMap(exp => exp.dropTimes ?? [])
+        ),
+      ].sort();
+      this.dropExpsByPark
+        .get(park)
+        ?.sort((a, b) => a.name.localeCompare(b.name));
+    }
   }
 
   experience(id: string) {
@@ -102,8 +99,8 @@ export class Resort {
     throw new InvalidId(id);
   }
 
-  drops(park: Pick<Park, 'id'>) {
-    return this.dropsByParkId[park.id] ?? [];
+  dropExperiences(park: Park) {
+    return this.dropExpsByPark.get(park) ?? [];
   }
 }
 

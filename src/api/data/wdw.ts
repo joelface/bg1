@@ -185,9 +185,6 @@ const dinoland = {
   park: ak,
 };
 
-type ExpData = ResortData['experiences'][string];
-let [fea, rra, tt, sdd, tsm, tot, ee, krr]: ExpData[] = [];
-
 export const experiences: ResortData['experiences'] = {
   // Magic Kingdom
   80010107: {
@@ -516,12 +513,13 @@ export const experiences: ResortData['experiences'] = {
     land: showcase,
     type: 'HOLIDAY',
   },
-  18375495: (fea = {
+  18375495: {
     name: 'Frozen Ever After',
     land: showcase,
     geo: [28.3706716, -81.5465556],
     priority: 1.2,
-  }),
+    dropTimes: ['11:47', '16:47', '18:47'],
+  },
   19242311: {
     name: 'Germany Gazebo Entertainment',
     land: showcase,
@@ -652,12 +650,13 @@ export const experiences: ResortData['experiences'] = {
     name: 'Reflections of China',
     land: showcase,
   },
-  19497835: (rra = {
+  19497835: {
     name: "Remy's Ratatouille Adventure",
     land: showcase,
     geo: [28.3680021, -81.5534178],
     priority: 1.1,
-  }),
+    dropTimes: ['13:47', '15:47', '18:47'],
+  },
   17490262: {
     name: 'Rose & Crown Pub Musician',
     land: showcase,
@@ -689,12 +688,13 @@ export const experiences: ResortData['experiences'] = {
     geo: [28.3754661, -81.5493961],
     priority: 4.1,
   },
-  80010199: (tt = {
+  80010199: {
     name: 'Test Track',
     land: discovery,
     geo: [28.3733374, -81.5474931],
     priority: 1.3,
-  }),
+    dropTimes: ['12:47', '14:47', '16:47'],
+  },
   62992: {
     name: 'Turtle Talk With Crush',
     land: nature,
@@ -807,12 +807,13 @@ export const experiences: ResortData['experiences'] = {
     geo: [28.3597607, -81.5606022],
     priority: 2.2,
   },
-  18904138: (sdd = {
+  18904138: {
     name: 'Slinky Dog Dash',
     land: toyStory,
     geo: [28.3562472, -81.5628474],
     priority: 1.1,
-  }),
+    dropTimes: ['13:17', '15:47'],
+  },
   80010193: {
     name: 'Star Tours',
     land: echoLake,
@@ -825,18 +826,20 @@ export const experiences: ResortData['experiences'] = {
     geo: [28.3548829, -81.5604682],
     priority: 1.0,
   },
-  209857: (tsm = {
+  209857: {
     name: 'Toy Story Mania',
     land: toyStory,
     geo: [28.3563865, -81.5619019],
     priority: 2.4,
-  }),
-  80010218: (tot = {
+    dropTimes: ['13:17', '15:47'],
+  },
+  80010218: {
     name: 'Twilight Zone Tower of Terror',
     land: hollywood,
     geo: [28.3595812, -81.5597695],
     priority: 2.3,
-  }),
+    dropTimes: ['13:17', '15:47'],
+  },
   // Animal Kingdom
   19330300: {
     name: 'Animation Experience',
@@ -855,12 +858,13 @@ export const experiences: ResortData['experiences'] = {
     geo: [28.3552805, -81.5884492],
     priority: 3.2,
   },
-  26068: (ee = {
+  26068: {
     name: 'Expedition Everest',
     land: asia,
     geo: [28.3584979, -81.587395],
     priority: 3.1,
-  }),
+    dropTimes: ['12:47', '16:17'],
+  },
   19581372: {
     name: 'Feathered Friends in Flight',
     land: asia,
@@ -889,12 +893,13 @@ export const experiences: ResortData['experiences'] = {
     land: discIsland,
     geo: [28.3574356, -81.5900851],
   },
-  80010154: (krr = {
+  80010154: {
     name: 'Kali River Rapids',
     land: asia,
     geo: [28.3592076, -81.5883195],
     priority: 4.0,
-  }),
+    dropTimes: ['12:47', '15:17'],
+  },
   80010157: {
     name: 'Kilimanjaro Safaris',
     land: africa,
@@ -943,57 +948,4 @@ export const experiences: ResortData['experiences'] = {
     name: 'Winged Encounters - The Kingdom Takes Flight',
     land: discIsland,
   },
-};
-
-export const drops: ResortData['drops'] = {
-  [ep.id]: [
-    {
-      time: '11:47',
-      experiences: [fea],
-    },
-    {
-      time: '12:47',
-      experiences: [tt],
-    },
-    {
-      time: '13:47',
-      experiences: [rra],
-    },
-    {
-      time: '14:47',
-      experiences: [tt],
-    },
-    {
-      time: '15:47',
-      experiences: [rra],
-    },
-    {
-      time: '16:47',
-      experiences: [fea, tt],
-    },
-    {
-      time: '18:47',
-      experiences: [fea, rra],
-    },
-  ],
-  [hs.id]: [
-    {
-      time: '13:17',
-      experiences: [sdd, tot, tsm],
-    },
-    {
-      time: '15:47',
-      experiences: [sdd, tot, tsm],
-    },
-  ],
-  [ak.id]: [
-    {
-      time: '12:47',
-      experiences: [ee, krr],
-    },
-    {
-      time: '15:17',
-      experiences: [krr],
-    },
-  ],
 };

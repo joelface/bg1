@@ -1,8 +1,6 @@
 import { hm, jc, mk, sm, wdw } from '@/__fixtures__/genie';
 import { PlusExperience } from '@/api/genie';
-import { Experience } from '@/api/resort';
 import { ExperiencesProvider } from '@/contexts/Experiences';
-import { useGenieClient } from '@/contexts/GenieClient';
 import { Nav } from '@/contexts/Nav';
 import { ParkProvider } from '@/contexts/Park';
 import { ResortProvider } from '@/contexts/Resort';
@@ -38,7 +36,7 @@ const getExperiences = (
 const names = (exps: { name: string }[]) => exps.map(({ name }) => name);
 
 const bz: PlusExperience = {
-  ...(wdw.experience('80010114') as Experience),
+  ...wdw.experience('80010114'),
   park: mk,
   type: 'ATTRACTION',
   standby: { available: false },
@@ -46,7 +44,7 @@ const bz: PlusExperience = {
 };
 
 const db: PlusExperience = {
-  ...(wdw.experience('80010129') as Experience),
+  ...wdw.experience('80010129'),
   park: mk,
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 25 },
@@ -59,8 +57,6 @@ async function goBack() {
 }
 
 describe('GeniePlusList', () => {
-  const client = useGenieClient();
-
   it('shows Genie+ availability', async () => {
     kvdb.set(STARRED_KEY, [bz.id]);
     render(
@@ -69,11 +65,11 @@ describe('GeniePlusList', () => {
           <ExperiencesProvider
             value={{
               experiences: [
-                { ...hm, experienced: true, drop: true },
+                { ...hm, experienced: true },
                 { ...db, experienced: true },
                 { ...bz, experienced: true },
-                { ...jc },
-                { ...sm, drop: true },
+                jc,
+                sm,
               ],
               refreshExperiences,
               park: mk,
@@ -111,12 +107,10 @@ describe('GeniePlusList', () => {
 
     click('Upcoming Drop (more info)');
     await see.screen('Upcoming Drop');
-    expect(see.all(displayTime(client.upcomingDrops(mk)[0].time))).toHaveLength(
-      2
-    );
-    see(displayTime(client.upcomingDrops(mk)[1].time));
-    expect(see.all(sm.name)).toHaveLength(2);
-    expect(see.all(hm.name)).toHaveLength(2);
+    expect(see.all(displayTime(mk.dropTimes[0]))).toHaveLength(3);
+    expect(see.all(displayTime(mk.dropTimes[1]))).toHaveLength(2);
+    see(hm.name, 'heading');
+    see(sm.name, 'heading');
     await goBack();
 
     expect(getExperiences()).toEqual(names([bz, sm, jc]));
