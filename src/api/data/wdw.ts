@@ -201,7 +201,7 @@ export const experiences: ResortData['experiences'] = {
     name: 'Big Thunder Mountain Railroad',
     land: frontierland,
     geo: [28.4197486, -81.5845092],
-    priority: 2.1,
+    priority: 2.0,
   },
   80010114: {
     name: "Buzz Lightyear's Space Ranger Spin",
@@ -239,7 +239,7 @@ export const experiences: ResortData['experiences'] = {
     land: fantasyland,
     geo: [28.4207354, -81.5807867],
     type: 'CHARACTER',
-    priority: 3.2,
+    priority: 3.5,
   },
   16124144: {
     name: 'Enchanted Tiki Room',
@@ -317,28 +317,28 @@ export const experiences: ResortData['experiences'] = {
     name: 'Many Adventures of Winnie the Pooh',
     land: fantasyland,
     geo: [28.4202297, -81.5801966],
-    priority: 3.3,
+    priority: 3.1,
   },
   16874126: {
     name: "Ariel (Ariel's Grotto)",
     land: fantasyland,
     geo: [28.4208803, -81.5796853],
     type: 'CHARACTER',
-    priority: 3.0,
+    priority: 3.2,
   },
   15850196: {
     name: 'Mickey (Town Square Theater)',
     land: mainStreet,
     geo: [28.4167334, -81.5803937],
     type: 'CHARACTER',
-    priority: 3.4,
+    priority: 3.3,
   },
   18498503: {
     name: 'Cinderella (Princess Fairytale Hall)',
     land: fantasyland,
     geo: [28.4199771, -81.5808316],
     type: 'CHARACTER',
-    priority: 3.1,
+    priority: 3.0,
   },
   387133: {
     name: "Donald & Goofy (Pete's Silly Side Show)",
@@ -360,7 +360,7 @@ export const experiences: ResortData['experiences'] = {
     land: fantasyland,
     geo: [28.4199771, -81.5808316],
     type: 'CHARACTER',
-    priority: 3.5,
+    priority: 3.4,
   },
   19579538: {
     name: "Mickey's Celebration Cavalcade",
@@ -423,7 +423,7 @@ export const experiences: ResortData['experiences'] = {
     name: 'Space Mountain',
     land: tomorrowland,
     geo: [28.4187869, -81.5782063],
-    priority: 2.0,
+    priority: 2.1,
   },
   80010196: {
     name: 'Swiss Family Treehouse',
@@ -635,7 +635,7 @@ export const experiences: ResortData['experiences'] = {
     name: 'Mission: SPACE',
     land: discovery,
     geo: [28.3739368, -81.5526389],
-    priority: 4.0,
+    priority: 3.0,
   },
   245274: {
     name: 'Père Noël (France)',
@@ -674,7 +674,7 @@ export const experiences: ResortData['experiences'] = {
     name: "Soarin' Around the World",
     land: nature,
     geo: [28.3735924, -81.5522783],
-    priority: 3.0,
+    priority: 4.0,
   },
   412001587: {
     name: "Soarin' Over California",
@@ -818,7 +818,6 @@ export const experiences: ResortData['experiences'] = {
     name: 'Star Tours',
     land: echoLake,
     geo: [28.3557799, -81.5588696],
-    priority: 4.1,
   },
   19263736: {
     name: 'Rise of the Resistance',
@@ -830,14 +829,14 @@ export const experiences: ResortData['experiences'] = {
     name: 'Toy Story Mania',
     land: toyStory,
     geo: [28.3563865, -81.5619019],
-    priority: 2.4,
+    priority: 2.3,
     dropTimes: ['13:17', '15:47'],
   },
   80010218: {
     name: 'Twilight Zone Tower of Terror',
     land: hollywood,
     geo: [28.3595812, -81.5597695],
-    priority: 2.3,
+    priority: 2.4,
     dropTimes: ['13:17', '15:47'],
   },
   // Animal Kingdom
@@ -856,13 +855,13 @@ export const experiences: ResortData['experiences'] = {
     name: 'DINOSAUR',
     land: dinoland,
     geo: [28.3552805, -81.5884492],
-    priority: 3.2,
+    priority: 4.2,
   },
   26068: {
     name: 'Expedition Everest',
     land: asia,
     geo: [28.3584979, -81.587395],
-    priority: 3.1,
+    priority: 3.0,
     dropTimes: ['12:47', '16:17'],
   },
   19581372: {
@@ -904,7 +903,7 @@ export const experiences: ResortData['experiences'] = {
     name: 'Kilimanjaro Safaris',
     land: africa,
     geo: [28.3592779, -81.5921478],
-    priority: 3.0,
+    priority: 4.1,
   },
   18435910: {
     name: 'Kora Tinga Tinga',
