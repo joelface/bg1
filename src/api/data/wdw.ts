@@ -465,6 +465,11 @@ export const experiences: ResortData['experiences'] = {
     land: showcase,
     type: 'ENTERTAINMENT',
   },
+  412026226: {
+    name: 'Asha (World Showcase Plaza)',
+    land: showcase,
+    type: 'CHARACTER',
+  },
   19496225: {
     name: 'Atlas Fusion (Morocco)',
     land: showcase,
@@ -700,6 +705,10 @@ export const experiences: ResortData['experiences'] = {
     land: nature,
     geo: [28.3753989, -81.5511449],
   },
+  209984: {
+    name: 'Viva Mexico',
+    land: showcase,
+  },
   80010879: {
     name: 'Voices of Liberty',
     land: showcase,
@@ -839,6 +848,10 @@ export const experiences: ResortData['experiences'] = {
     priority: 2.4,
     dropTimes: ['13:17', '15:47'],
   },
+  19260580: {
+    name: 'Wonderful World of Animation',
+    land: hollywood,
+  },
   // Animal Kingdom
   19330300: {
     name: 'Animation Experience',
@@ -850,6 +863,10 @@ export const experiences: ResortData['experiences'] = {
     land: pandora,
     geo: [28.3555698, -81.592292],
     priority: 1.0,
+  },
+  19581371: {
+    name: 'Discovery Island Drummers Flotilla',
+    land: discIsland,
   },
   80010123: {
     name: 'DINOSAUR',

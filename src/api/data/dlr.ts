@@ -362,9 +362,13 @@ export const experiences: ResortData['experiences'] = {
     name: 'Tale of the Lion King',
     land: fantasyland,
   },
+  412109781: {
+    name: 'Together Forever - Pixar Nighttime Spectacular (Fireworks)',
+    land: mainStreet,
+  },
   412113817: {
-    name: 'Together Forever - Pixar Nighttime Spectacular',
-    land: fantasyland,
+    name: 'Together Forever - Pixar Nighttime Spectacular (Projections)',
+    land: mainStreet,
   },
   15756384: {
     name: 'Wintertime Enchantment',
