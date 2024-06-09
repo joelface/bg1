@@ -3,4 +3,4 @@ coverage
 dist
 src/api/diu
 tsconfig.tsbuildinfo
-.*
+.vite
