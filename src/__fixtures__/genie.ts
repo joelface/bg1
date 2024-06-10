@@ -18,7 +18,7 @@ const hmId = '80010208';
 const smId = '80010190';
 (data.experiences[smId] as ExpData).dropTimes = ['11:30', '13:30'];
 export const wdw = new Resort('WDW', data);
-export const [mk, ep, hs, ak] = [...wdw.parks.values()];
+export const [mk, ep, hs, ak] = wdw.parks;
 
 export const mickey = {
   id: 'mickey',

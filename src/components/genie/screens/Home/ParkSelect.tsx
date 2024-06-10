@@ -13,7 +13,7 @@ export default function ParkSelect(props: { className?: string }) {
   const parkOptions = useMemo(
     () =>
       new Map(
-        [...parks.values()].map(park => [
+        parks.map(park => [
           park.id,
           {
             value: park,

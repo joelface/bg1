@@ -6,7 +6,7 @@ import { TODAY } from '@/testing';
 
 export const wdw = new Resort('WDW', data);
 
-export const [mk] = [...wdw.parks.values()];
+export const [mk] = wdw.parks;
 
 export const mickey = {
   id: 'mickey',

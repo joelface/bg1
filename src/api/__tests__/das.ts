@@ -9,7 +9,7 @@ import { Experience, Resort } from '../resort';
 jest.mock('@/fetch');
 
 const wdw = new Resort('WDW', data);
-const [mk] = [...wdw.parks.values()];
+const [mk] = wdw.parks;
 const accessToken = 'access_token_123';
 const swid = '{abc}';
 const origin = 'https://disneyworld.disney.go.com';

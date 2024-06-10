@@ -89,7 +89,7 @@ describe('GenieClient', () => {
     onUnauthorized: () => null,
   };
   const wdw = new Resort('WDW', data);
-  const [mk, , , ak] = [...wdw.parks.values()];
+  const [mk, , , ak] = wdw.parks;
   wdw.experience(sm.id).priority = sm.priority;
   const client = new GenieClient(wdw, authStore, tracker);
   const onUnauthorized = jest.fn();
