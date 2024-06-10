@@ -509,6 +509,10 @@ export const experiences: ResortData['experiences'] = {
     land: celebration,
     geo: [28.3720463, -81.5508243],
   },
+  412126654: {
+    name: 'Encanto Celebration',
+    land: celebration,
+  },
   19258170: {
     name: 'Epcot Forever',
     land: showcase,
@@ -610,6 +614,11 @@ export const experiences: ResortData['experiences'] = {
   80010865: {
     name: 'Matsuriza (Japan)',
     land: showcase,
+  },
+  412126613: {
+    name: 'Mickey & Friends',
+    land: celebration,
+    type: 'CHARACTER',
   },
   15695444: {
     name: 'Mary Poppins (UK)',
