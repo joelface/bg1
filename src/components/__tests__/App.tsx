@@ -14,6 +14,11 @@ jest.mock('../genie/Merlock', () => {
     return <Screen title="Genie+">test</Screen>;
   };
 });
+jest.mock('../vq/BGClient', () => {
+  return function BGClient() {
+    return <Screen title="Virtual Queues">test</Screen>;
+  };
+});
 jest.mock('../LoginForm', () => {
   function LoginForm({ onLogin }: { onLogin: (data: AuthData) => void }) {
     const onClick = () =>
