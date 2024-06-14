@@ -11,13 +11,14 @@ import {
   pluto,
   sm,
   tracker,
+  wdw,
 } from '@/__fixtures__/genie';
 import { fetchJson } from '@/fetch';
 import kvdb from '@/kvdb';
 import { TODAY, YESTERDAY, setTime } from '@/testing';
 
+import { authStore } from '../auth';
 import { RequestError } from '../client';
-import * as data from '../data/wdw';
 import {
   Booking,
   BookingTracker,
@@ -28,7 +29,6 @@ import {
   ModifyNotAllowed,
   PlusExperience,
 } from '../genie';
-import { Resort } from '../resort';
 
 jest.mock('@/fetch');
 const diu = {
@@ -37,9 +37,10 @@ const diu = {
   disneyInternalUse03: '3',
 };
 jest.mock('../diu', () => ({ __esModule: true, default: () => diu }));
+const accessToken = 'ACCESS_TOKEN';
+const swid = 'SWID';
+jest.spyOn(authStore, 'getData').mockReturnValue({ accessToken, swid });
 
-const accessToken = 'access_token_123';
-const swid = '{abc}';
 const origin = 'https://disneyworld.disney.go.com';
 hm.priority = undefined;
 
@@ -70,7 +71,7 @@ function expectFetch(
       headers: {
         'Accept-Language': 'en-US',
         Authorization: `BEARER ${accessToken}`,
-        'x-user-id': '{abc}',
+        'x-user-id': swid,
       },
     }
   );
@@ -82,16 +83,9 @@ function splitName({ name, ...rest }: Guest) {
 }
 
 describe('GenieClient', () => {
-  const authStore = {
-    getData: () => ({ accessToken, swid }),
-    setData: () => null,
-    deleteData: jest.fn(),
-    onUnauthorized: () => null,
-  };
-  const wdw = new Resort('WDW', data);
   const [mk, , , ak] = wdw.parks;
   wdw.experience(sm.id).priority = sm.priority;
-  const client = new GenieClient(wdw, authStore, tracker);
+  const client = new GenieClient(wdw, tracker);
   const onUnauthorized = jest.fn();
   client.onUnauthorized = onUnauthorized;
   const guests = [mickey, minnie, pluto];
@@ -103,7 +97,7 @@ describe('GenieClient', () => {
   });
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
     setTime('10:00');
   });
 
@@ -129,7 +123,7 @@ describe('GenieClient', () => {
         experienced: false,
       };
       const getExpData = () => client.experiences(mk);
-      respond(guestsRes, ...Array(4).fill(res));
+      respond(guestsRes, res);
       expect(await getExpData()).toEqual([smExp]);
       expect(client.nextBookTime).toBe('11:00:00');
       const ids = FALLBACK_IDS.WDW;
@@ -620,7 +614,7 @@ describe('GenieClient', () => {
           parkId: mk.id,
         },
       };
-      respond(response({ booking: newBooking }, 201), guestsRes);
+      respond(response({ booking: newBooking }, 201));
       expect(await client.book(offer)).toEqual({
         type: 'LL',
         subtype: 'G+',

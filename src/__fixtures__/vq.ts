@@ -70,14 +70,7 @@ export const pluto: Guest = {
 };
 export const guests = [mickey, minnie, fifi, pluto];
 
-export const client = jest.mocked(
-  new VQClient(wdw, {
-    getData: () => ({ swid: '', accessToken: '' }),
-    setData: () => null,
-    deleteData: () => null,
-    onUnauthorized: () => null,
-  })
-);
+export const client = jest.mocked(new VQClient(wdw));
 jest.spyOn(client, 'getQueues').mockResolvedValue(queues);
 jest.spyOn(client, 'getLinkedGuests').mockResolvedValue(guests);
 jest.spyOn(client, 'joinQueue').mockResolvedValue({

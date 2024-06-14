@@ -1,6 +1,6 @@
 import { JsonOK, fetchJson } from '@/fetch';
 
-import { AuthStore } from './auth';
+import { authStore } from './auth';
 import { Resort, loadResort } from './resort';
 
 export class InvalidOrigin extends Error {
@@ -20,7 +20,6 @@ export class RequestError extends Error {
 
 export abstract class ApiClient {
   protected resort: Resort;
-  protected authStore: Public<AuthStore>;
   protected origin: string;
 
   protected static origins = {
@@ -35,16 +34,11 @@ export abstract class ApiClient {
     throw new InvalidOrigin(origin);
   }
 
-  constructor(resort: Resort, authStore: Public<AuthStore>) {
+  constructor(resort: Resort) {
     this.resort = resort;
     this.origin = (this.constructor as typeof ApiClient).origins[
       this.resort.id
     ];
-    this.authStore = authStore;
-  }
-
-  logOut() {
-    this.authStore.deleteData();
   }
 
   protected async request<T = any>(request: {
@@ -55,7 +49,7 @@ export abstract class ApiClient {
     key?: string;
     ignoreUnauth?: boolean;
   }): Promise<JsonOK<T>> {
-    const { swid, accessToken } = this.authStore.getData();
+    const { swid, accessToken } = authStore.getData();
     const url = this.origin + request.path;
     const res = await fetchJson(url, {
       method: request.method,
@@ -68,7 +62,7 @@ export abstract class ApiClient {
       },
     });
     if (res.status === 401 && !request.ignoreUnauth) {
-      setTimeout(() => this.authStore.deleteData());
+      setTimeout(() => authStore.deleteData());
     } else {
       const { key } = request;
       if (res.ok && (!key || res.data[key])) {

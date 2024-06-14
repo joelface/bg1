@@ -2,10 +2,14 @@ import { wdw } from '@/__fixtures__/vq';
 import { guests, mtwr, queues, rotr, santa } from '@/__fixtures__/vq';
 import { fetchJson } from '@/fetch';
 
+import { authStore } from '../auth';
 import { RequestError } from '../client';
 import { Guest, VQClient, sortGuests } from '../vq';
 
 jest.mock('@/fetch');
+const accessToken = 'ACCESS_TOKEN';
+const swid = 'SWID';
+jest.spyOn(authStore, 'getData').mockReturnValue({ accessToken, swid });
 
 function response(
   data: { [key: string]: unknown },
@@ -28,7 +32,7 @@ function expectFetch(resource: string, data?: unknown) {
       method: data ? 'POST' : 'GET',
       data,
       headers: expect.objectContaining({
-        Authorization: 'BEARER access_token_123',
+        Authorization: `BEARER ${accessToken}`,
       }),
     },
   ];
@@ -36,16 +40,10 @@ function expectFetch(resource: string, data?: unknown) {
 }
 
 describe('VQClient', () => {
-  const authStore = {
-    getData: () => ({ swid: '', accessToken: 'access_token_123' }),
-    setData: () => null,
-    deleteData: jest.fn(),
-    onUnauthorized: () => null,
-  };
-  const client = new VQClient(wdw, authStore);
+  const client = new VQClient(wdw);
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
   });
 
   const queueClosedRes = response({

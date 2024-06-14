@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react';
 
+import { authStore } from '@/api/auth';
 import Overlay from '@/components/Overlay';
 import News from '@/components/screens/News';
-import { useGenieClient } from '@/contexts/GenieClient';
 import { useNav } from '@/contexts/Nav';
 import ExitIcon from '@/icons/ExitIcon';
 import NewsIcon from '@/icons/NewsIcon';
@@ -13,7 +13,6 @@ import PartySelector from '../PartySelector';
 
 export default function SettingsButton() {
   const { goTo } = useNav();
-  const client = useGenieClient();
   const [options] = useState([
     {
       text: 'Party Selection',
@@ -23,7 +22,7 @@ export default function SettingsButton() {
     {
       text: 'Log Out',
       icon: <ExitIcon />,
-      action: () => client.logOut(),
+      action: () => authStore.deleteData(),
     },
     {
       text: 'BG1 News',

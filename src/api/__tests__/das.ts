@@ -2,16 +2,18 @@ import { mickey, minnie, party } from '@/__fixtures__/das';
 import { fetchJson } from '@/fetch';
 import { TODAY } from '@/testing';
 
+import { authStore } from '../auth';
 import { DasClient } from '../das';
 import * as data from '../data/wdw';
 import { Experience, Resort } from '../resort';
 
 jest.mock('@/fetch');
+const accessToken = 'ACCESS_TOKEN';
+const swid = 'SWID';
+jest.spyOn(authStore, 'getData').mockReturnValue({ accessToken, swid });
 
 const wdw = new Resort('WDW', data);
 const [mk] = wdw.parks;
-const accessToken = 'access_token_123';
-const swid = '{abc}';
 const origin = 'https://disneyworld.disney.go.com';
 
 const hm = wdw.experience('80010208') as Experience;
@@ -66,23 +68,17 @@ function expectFetch(
       headers: {
         'Accept-Language': 'en-US',
         Authorization: `BEARER ${accessToken}`,
-        'x-user-id': '{abc}',
+        'x-user-id': swid,
       },
     }
   );
 }
 
 describe('DasClient', () => {
-  const authStore = {
-    getData: () => ({ accessToken, swid }),
-    setData: () => null,
-    deleteData: jest.fn(),
-    onUnauthorized: () => null,
-  };
-  const client = new DasClient(wdw, authStore);
+  const client = new DasClient(wdw);
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
   });
 
   describe('parties()', () => {

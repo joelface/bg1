@@ -1,5 +1,6 @@
 import { splitDateTime } from '@/datetime';
 
+import { authStore } from './auth';
 import { avatarUrl } from './avatar';
 import { ApiClient } from './client';
 import { ExperienceType, Park } from './resort';
@@ -156,7 +157,7 @@ export class DasClient extends ApiClient {
   }
 
   async parties(): Promise<DasParty[]> {
-    const { swid } = this.authStore.getData();
+    const { swid } = authStore.getData();
     encodeURIComponent(swid);
     const {
       data: { bookingGuestId, parties },

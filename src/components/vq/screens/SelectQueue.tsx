@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { authStore } from '@/api/auth';
 import { Queue } from '@/api/vq';
 import Button from '@/components/Button';
 import Screen from '@/components/Screen';
@@ -52,7 +53,7 @@ export default function SelectQueue() {
         <div className="p-2 text-right">
           <Button
             className={`bg-opacity-90 bg-white ${theme.text}`}
-            onClick={() => client.logOut()}
+            onClick={() => authStore.deleteData()}
           >
             Log Out
           </Button>

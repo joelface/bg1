@@ -1,6 +1,5 @@
 import { createRoot } from 'react-dom/client';
 
-import { AuthStore } from './api/auth';
 import App from './components/App';
 
 main();
@@ -14,7 +13,7 @@ function main() {
   document.close();
   addViewportMeta();
   addBlankFavicon();
-  createAppRoot().render(<App authStore={new AuthStore()} />);
+  createAppRoot().render(<App />);
 }
 
 function addViewportMeta() {

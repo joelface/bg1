@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { AuthStore, ReauthNeeded } from '@/api/auth';
+import { ReauthNeeded, authStore } from '@/api/auth';
 import { InvalidOrigin } from '@/api/client';
 import { DasClient } from '@/api/das';
 import { GenieClient } from '@/api/genie';
@@ -27,7 +27,7 @@ function disableDoubleTapZoom() {
   document.body.addEventListener('click', () => null);
 }
 
-export default function App({ authStore }: { authStore: Public<AuthStore> }) {
+export default function App() {
   const [resort, setResort] = useState<Resort>();
   const [content, setContent] = useState(<div />);
   const disclaimer = useDisclaimer();
@@ -65,9 +65,9 @@ export default function App({ authStore }: { authStore: Public<AuthStore> }) {
           setContent(
             <ResortProvider value={resort}>
               <LiveDataClientProvider value={new LiveDataClient(resort)}>
-                <GenieClientProvider value={new GenieClient(resort, authStore)}>
-                  <DasClientProvider value={new DasClient(resort, authStore)}>
-                    <VQClientProvider value={new VQClient(resort, authStore)}>
+                <GenieClientProvider value={new GenieClient(resort)}>
+                  <DasClientProvider value={new DasClient(resort)}>
+                    <VQClientProvider value={new VQClient(resort)}>
                       <Component />
                     </VQClientProvider>
                   </DasClientProvider>
@@ -82,7 +82,7 @@ export default function App({ authStore }: { authStore: Public<AuthStore> }) {
       }
       location.assign('https://joelface.github.io/bg1/start.html');
     })();
-  }, [authStore]);
+  }, []);
 
   useEffect(() => {
     function checkAuth() {
@@ -96,7 +96,7 @@ export default function App({ authStore }: { authStore: Public<AuthStore> }) {
     }
     checkAuth();
     return onVisible(checkAuth);
-  }, [authStore, loginRequired]);
+  }, [loginRequired]);
 
   return (
     disclaimer ||

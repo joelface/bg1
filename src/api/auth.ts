@@ -50,3 +50,5 @@ export class AuthStore {
     setTimeout(this.onUnauthorized);
   }
 }
+
+export const authStore = new AuthStore();

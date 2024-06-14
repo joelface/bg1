@@ -1,4 +1,4 @@
-import { AuthData, ReauthNeeded } from '@/api/auth';
+import { AuthData, ReauthNeeded, authStore } from '@/api/auth';
 import { fetchJson } from '@/fetch';
 import { DISCLAIMER_ACCEPTED_KEY } from '@/hooks/useDisclaimer';
 import { NEWS_VERSION_KEY } from '@/hooks/useNews';
@@ -31,26 +31,16 @@ jest.mock('../LoginForm', () => {
   }
   return LoginForm;
 });
-
-const authStore = {
-  getData: jest.fn(),
-  setData: jest.fn(),
-  deleteData: jest.fn(),
-  onUnauthorized: jest.fn(),
-};
+jest.spyOn(authStore, 'getData').mockReturnValue({ accessToken: '', swid: '' });
 
 function renderComponent() {
-  render(<App authStore={authStore} />);
+  render(<App />);
 }
 
 describe('App', () => {
   beforeEach(() => {
     self.origin = 'https://disneyworld.disney.go.com';
     jest.clearAllMocks();
-    authStore.getData.mockReturnValue({
-      swid: '{MICKEY}',
-      accessToken: 'm1ck3y',
-    });
     kvdb.set(DISCLAIMER_ACCEPTED_KEY, 1);
     kvdb.set(NEWS_VERSION_KEY, 1);
   });
@@ -77,9 +67,10 @@ describe('App', () => {
   });
 
   it('shows LoginForm if auth data expired', async () => {
-    authStore.getData.mockImplementationOnce(() => {
+    jest.mocked(authStore.getData).mockImplementationOnce(() => {
       throw new ReauthNeeded();
     });
+    jest.spyOn(authStore, 'setData');
     renderComponent();
     click(await screen.findByRole('button', { name: 'Log In' }));
     expect(authStore.setData).toHaveBeenLastCalledWith({

@@ -1,7 +1,7 @@
 import { dateTimeStrings, parkDate, splitDateTime } from '@/datetime';
 import kvdb from '@/kvdb';
 
-import { AuthStore } from './auth';
+import { authStore } from './auth';
 import { avatarUrl } from './avatar';
 import { ApiClient } from './client';
 import {
@@ -357,12 +357,8 @@ export class GenieClient extends ApiClient {
   protected tracker: Public<BookingTracker>;
   protected primaryGuestId = '';
 
-  constructor(
-    resort: Resort,
-    authStore: Public<AuthStore>,
-    tracker?: Public<BookingTracker>
-  ) {
-    super(resort, authStore);
+  constructor(resort: Resort, tracker?: Public<BookingTracker>) {
+    super(resort);
     this.tracker = tracker ?? new BookingTracker();
   }
 
@@ -568,7 +564,7 @@ export class GenieClient extends ApiClient {
   }
 
   async bookings(): Promise<Booking[]> {
-    const { swid } = this.authStore.getData();
+    const { swid } = authStore.getData();
     const today = dateTimeStrings().date;
     const parkDay = parkDate();
     const itineraryApiName = RESORT_TO_ITINERARY_API_NAME[this.resort.id];
@@ -868,7 +864,7 @@ export class GenieClient extends ApiClient {
     request: Parameters<ApiClient['request']>[0] & { userId?: boolean }
   ) {
     if (request.userId ?? true) {
-      const { swid } = this.authStore.getData();
+      const { swid } = authStore.getData();
       request = { ...request };
       request.params = { ...request.params, userId: swid };
     }
