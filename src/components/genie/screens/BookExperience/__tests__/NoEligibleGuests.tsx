@@ -1,8 +1,7 @@
-import { booking, client } from '@/__fixtures__/genie';
-import { GenieClientProvider } from '@/contexts/GenieClient';
+import { booking, genie, wdw } from '@/__fixtures__/genie';
 import { RebookingProvider } from '@/contexts/Rebooking';
 import { displayTime } from '@/datetime';
-import { render, see, setTime } from '@/testing';
+import { see, setTime } from '@/testing';
 
 import IneligibleGuestList from '../../../IneligibleGuestList';
 import NoEligibleGuests from '../NoEligibleGuests';
@@ -19,12 +18,10 @@ function renderComponent({
     begin: jest.fn(),
     end: jest.fn(),
   };
-  render(
-    <GenieClientProvider value={client}>
-      <RebookingProvider value={rebooking}>
-        <NoEligibleGuests />
-      </RebookingProvider>
-    </GenieClientProvider>
+  wdw.render(
+    <RebookingProvider value={rebooking}>
+      <NoEligibleGuests />
+    </RebookingProvider>
   );
 }
 
@@ -37,7 +34,7 @@ describe('NoEligibleGuests', () => {
     renderComponent();
     see('No Eligible Guests');
     expect(see('Eligible at')).toHaveTextContent(
-      displayTime(client.nextBookTime as string)
+      displayTime(genie.nextBookTime as string)
     );
     expect(IneligibleGuestList).toHaveBeenCalled();
   });
@@ -50,7 +47,7 @@ describe('NoEligibleGuests', () => {
   });
 
   it(`doesn't show "Eligible at" time if eligible now`, () => {
-    setTime(client.nextBookTime as string);
+    setTime(genie.nextBookTime as string);
     renderComponent();
     see.no('Eligible at');
   });

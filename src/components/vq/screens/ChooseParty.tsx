@@ -4,7 +4,7 @@ import { Guest, Queue } from '@/api/vq';
 import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
 import { useNav } from '@/contexts/Nav';
-import { useVQClient } from '@/contexts/VQClient';
+import { useResort } from '@/contexts/Resort';
 import useDataLoader from '@/hooks/useDataLoader';
 
 import JoinQueue from './JoinQueue';
@@ -12,18 +12,18 @@ import QueueScreen from './QueueScreen';
 
 export default function ChooseParty({ queue }: { queue: Queue }) {
   const { goTo } = useNav();
-  const client = useVQClient();
+  const { vq } = useResort();
   const { loadData, loaderElem, flash } = useDataLoader();
   const [guests, setGuests] = useState<Guest[]>([]);
   const [party, setParty] = useState<Set<Guest>>(new Set());
 
   useEffect(() => {
     loadData(async () => {
-      const guests = await client.getLinkedGuests(queue);
+      const guests = await vq.getLinkedGuests(queue);
       setGuests(guests);
       setParty(new Set(guests.filter(g => g.preselected)));
     });
-  }, [queue, client, loadData]);
+  }, [queue, vq, loadData]);
 
   function toggleGuest(guest: Guest) {
     const newParty = new Set(party);

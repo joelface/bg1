@@ -3,8 +3,8 @@ import { useState } from 'react';
 import FloatingButton from '@/components/FloatingButton';
 import GuestList, { Guest } from '@/components/GuestList';
 import Screen from '@/components/Screen';
-import { useGenieClient } from '@/contexts/GenieClient';
 import { Party, PartyProvider } from '@/contexts/Party';
+import { useResort } from '@/contexts/Resort';
 import useFlash from '@/hooks/useFlash';
 
 import IneligibleGuestList from '../IneligibleGuestList';
@@ -13,7 +13,7 @@ export default function ModifyParty({ party }: { party: Party }) {
   const { eligible, ineligible, selected, setSelected, experience } = party;
   const [newParty, setNewParty] = useState<Set<Guest>>(new Set(selected));
   const [flashElem, flash] = useFlash();
-  const { maxPartySize } = useGenieClient();
+  const { maxPartySize } = useResort().genie;
 
   function toggleGuest(guest: Guest) {
     setNewParty(party => {

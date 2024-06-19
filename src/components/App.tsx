@@ -2,16 +2,10 @@ import { useEffect, useState } from 'react';
 
 import { ReauthNeeded, authStore } from '@/api/auth';
 import { InvalidOrigin } from '@/api/client';
-import { DasClient } from '@/api/das';
 import { GenieClient } from '@/api/genie';
-import { LiveDataClient } from '@/api/livedata';
-import { Resort } from '@/api/resort';
+import { Resort, loadResort } from '@/api/resort';
 import { VQClient } from '@/api/vq';
-import { DasClientProvider } from '@/contexts/DasClient';
-import { GenieClientProvider } from '@/contexts/GenieClient';
-import { LiveDataClientProvider } from '@/contexts/LiveDataClient';
 import { ResortProvider } from '@/contexts/Resort';
-import { VQClientProvider } from '@/contexts/VQClient';
 import { setDefaultTimeZone } from '@/datetime';
 import useDisclaimer from '@/hooks/useDisclaimer';
 import useNews from '@/hooks/useNews';
@@ -54,7 +48,7 @@ export default function App() {
         [VQClient, BGClient],
       ] as const) {
         try {
-          const resort = await Client.originToResort(origin);
+          const resort = await loadResort(Client.originToResortId(origin));
           setResort(resort);
           setDefaultTimeZone(
             {
@@ -64,15 +58,7 @@ export default function App() {
           );
           setContent(
             <ResortProvider value={resort}>
-              <LiveDataClientProvider value={new LiveDataClient(resort)}>
-                <GenieClientProvider value={new GenieClient(resort)}>
-                  <DasClientProvider value={new DasClient(resort)}>
-                    <VQClientProvider value={new VQClient(resort)}>
-                      <Component />
-                    </VQClientProvider>
-                  </DasClientProvider>
-                </GenieClientProvider>
-              </LiveDataClientProvider>
+              <Component />
             </ResortProvider>
           );
           return;

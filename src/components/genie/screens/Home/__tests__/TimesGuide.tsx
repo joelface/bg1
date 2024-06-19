@@ -7,12 +7,9 @@ import { DasPartiesProvider } from '@/contexts/DasParties';
 import { ExperiencesProvider } from '@/contexts/Experiences';
 import { Nav } from '@/contexts/Nav';
 import { ParkProvider } from '@/contexts/Park';
-import { ResortProvider } from '@/contexts/Resort';
-import { click, render, screen, see, within } from '@/testing';
+import { click, screen, see, within } from '@/testing';
 
 import TimesGuide from '../TimesGuide';
-
-jest.mock('@/contexts/GenieClient');
 
 function expectTimes(def: { [key: string]: { [key: string]: Experience[] } }) {
   for (const [land, subdef] of Object.entries(def)) {
@@ -79,26 +76,24 @@ const experiences = [dd, fof, potc, tiki, btmr, tiana, uts];
 const refreshExperiences = jest.fn();
 
 function renderComponent(dasParties: DasParty[] = []) {
-  render(
-    <ResortProvider value={wdw}>
-      <ParkProvider value={{ park: mk, setPark: () => null }}>
-        <DasPartiesProvider value={dasParties}>
-          <ExperiencesProvider
-            value={{
-              experiences,
-              refreshExperiences,
-              park: mk,
-              setPark: () => null,
-              loaderElem: null,
-            }}
-          >
-            <Nav>
-              <TimesGuide contentRef={{ current: null }} />
-            </Nav>
-          </ExperiencesProvider>
-        </DasPartiesProvider>
-      </ParkProvider>
-    </ResortProvider>
+  wdw.render(
+    <ParkProvider value={{ park: mk, setPark: () => null }}>
+      <DasPartiesProvider value={dasParties}>
+        <ExperiencesProvider
+          value={{
+            experiences,
+            refreshExperiences,
+            park: mk,
+            setPark: () => null,
+            loaderElem: null,
+          }}
+        >
+          <Nav>
+            <TimesGuide contentRef={{ current: null }} />
+          </Nav>
+        </ExperiencesProvider>
+      </DasPartiesProvider>
+    </ParkProvider>
   );
 }
 

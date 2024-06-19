@@ -4,7 +4,6 @@ import GuestList from '@/components/GuestList';
 import TimeBoard from '@/components/TimeBoard';
 import { useNav } from '@/contexts/Nav';
 import { useResort } from '@/contexts/Resort';
-import { useVQClient } from '@/contexts/VQClient';
 import useDataLoader from '@/hooks/useDataLoader';
 import { ping } from '@/ping';
 
@@ -20,13 +19,13 @@ export default function JoinQueue({
 }) {
   const { goTo } = useNav();
   const resort = useResort();
-  const client = useVQClient();
+  const { vq } = resort;
   const { loadData, loaderElem } = useDataLoader();
 
   async function joinQueue() {
     await loadData(
       async flash => {
-        const q = await client.getQueue(queue);
+        const q = await vq.getQueue(queue);
         if (!q.isAcceptingJoins) {
           return flash(
             q.isAcceptingPartyCreation
@@ -34,7 +33,7 @@ export default function JoinQueue({
               : 'No boarding groups available'
           );
         }
-        const result = await client.joinQueue(queue, guests);
+        const result = await vq.joinQueue(queue, guests);
         goTo(<BGResult queue={queue} guests={guests} result={result} />, {
           replace: true,
         });

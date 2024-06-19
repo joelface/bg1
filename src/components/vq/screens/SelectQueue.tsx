@@ -5,8 +5,8 @@ import { Queue } from '@/api/vq';
 import Button from '@/components/Button';
 import Screen from '@/components/Screen';
 import { useNav } from '@/contexts/Nav';
+import { useResort } from '@/contexts/Resort';
 import { useTheme } from '@/contexts/Theme';
-import { useVQClient } from '@/contexts/VQClient';
 import { displayTime } from '@/datetime';
 import useDataLoader from '@/hooks/useDataLoader';
 import RefreshIcon from '@/icons/RefreshIcon';
@@ -19,7 +19,7 @@ const isActive = (queue: Queue) =>
   queue.isAcceptingPartyCreation || queue.isAcceptingJoins;
 
 export default function SelectQueue() {
-  const client = useVQClient();
+  const { vq } = useResort();
   const { goTo } = useNav();
   const theme = useTheme();
   const { loadData, loaderElem } = useDataLoader();
@@ -28,13 +28,13 @@ export default function SelectQueue() {
   const refreshQueues = useCallback(() => {
     loadData(async () => {
       setQueues(
-        (await client.getQueues()).sort(
+        (await vq.getQueues()).sort(
           (a, b) =>
             +isActive(b) - +isActive(a) || +isAttraction(b) - +isAttraction(a)
         )
       );
     });
-  }, [client, loadData]);
+  }, [vq, loadData]);
 
   useEffect(() => {
     refreshQueues();

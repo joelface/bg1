@@ -1,3 +1,8 @@
+import { DasClient } from './das';
+import { GenieClient } from './genie';
+import { LiveDataClient } from './livedata';
+import { VQClient } from './vq';
+
 export interface Park {
   id: string;
   name: string;
@@ -55,6 +60,10 @@ export class InvalidId extends Error {
 
 export class Resort {
   readonly parks: Park[];
+  readonly genie: GenieClient;
+  readonly vq: VQClient;
+  readonly das: DasClient;
+  readonly liveData: LiveDataClient;
   protected parksById: { [id: string]: Park | undefined };
   protected expsById: { [id: string]: Experience | null | undefined };
   protected dropExpsByPark: Map<Park, Experience[]>;
@@ -84,6 +93,10 @@ export class Resort {
         .get(park)
         ?.sort((a, b) => a.name.localeCompare(b.name));
     }
+    this.genie = new GenieClient(this);
+    this.vq = new VQClient(this);
+    this.das = new DasClient(this);
+    this.liveData = new LiveDataClient(this);
   }
 
   experience(id: string) {

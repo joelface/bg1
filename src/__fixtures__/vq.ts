@@ -1,8 +1,8 @@
-import * as data from '@/api/data/wdw';
-import { Resort } from '@/api/resort';
-import { Guest, Queue, VQClient } from '@/api/vq';
+import { Guest, Queue } from '@/api/vq';
 
-export const wdw = new Resort('WDW', data);
+import { vq, wdw } from './resort';
+
+export * from './resort';
 
 export const rotr: Queue = {
   id: '3720fcab-537c-4b2b-b3b2-37918ac7df8f',
@@ -70,10 +70,9 @@ export const pluto: Guest = {
 };
 export const guests = [mickey, minnie, fifi, pluto];
 
-export const client = jest.mocked(new VQClient(wdw));
-jest.spyOn(client, 'getQueues').mockResolvedValue(queues);
-jest.spyOn(client, 'getLinkedGuests').mockResolvedValue(guests);
-jest.spyOn(client, 'joinQueue').mockResolvedValue({
+jest.spyOn(vq, 'getQueues').mockResolvedValue(queues);
+jest.spyOn(vq, 'getLinkedGuests').mockResolvedValue(guests);
+jest.spyOn(vq, 'joinQueue').mockResolvedValue({
   boardingGroup: 33,
   conflicts: {},
   closed: false,

@@ -3,22 +3,11 @@ import { PlusExperience } from '@/api/genie';
 import { ExperiencesProvider } from '@/contexts/Experiences';
 import { Nav } from '@/contexts/Nav';
 import { ParkProvider } from '@/contexts/Park';
-import { ResortProvider } from '@/contexts/Resort';
 import { displayTime } from '@/datetime';
 import kvdb from '@/kvdb';
-import {
-  click,
-  loading,
-  render,
-  screen,
-  see,
-  setTime,
-  within,
-} from '@/testing';
+import { click, loading, screen, see, setTime, within } from '@/testing';
 
 import GeniePlusList, { STARRED_KEY } from '../GeniePlusList';
-
-jest.mock('@/contexts/GenieClient');
 
 setTime('10:00');
 const refreshExperiences = jest.fn();
@@ -59,30 +48,28 @@ async function goBack() {
 describe('GeniePlusList', () => {
   it('shows Genie+ availability', async () => {
     kvdb.set(STARRED_KEY, [bz.id]);
-    render(
-      <ResortProvider value={wdw}>
-        <ParkProvider value={{ park: mk, setPark: () => null }}>
-          <ExperiencesProvider
-            value={{
-              experiences: [
-                { ...hm, experienced: true },
-                { ...db, experienced: true },
-                { ...bz, experienced: true },
-                jc,
-                sm,
-              ],
-              refreshExperiences,
-              park: mk,
-              setPark: () => null,
-              loaderElem: null,
-            }}
-          >
-            <Nav>
-              <GeniePlusList contentRef={{ current: null }} />
-            </Nav>
-          </ExperiencesProvider>
-        </ParkProvider>
-      </ResortProvider>
+    wdw.render(
+      <ParkProvider value={{ park: mk, setPark: () => null }}>
+        <ExperiencesProvider
+          value={{
+            experiences: [
+              { ...hm, experienced: true },
+              { ...db, experienced: true },
+              { ...bz, experienced: true },
+              jc,
+              sm,
+            ],
+            refreshExperiences,
+            park: mk,
+            setPark: () => null,
+            loaderElem: null,
+          }}
+        >
+          <Nav>
+            <GeniePlusList contentRef={{ current: null }} />
+          </Nav>
+        </ExperiencesProvider>
+      </ParkProvider>
     );
 
     click('Refresh Experiences');

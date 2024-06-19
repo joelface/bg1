@@ -8,12 +8,11 @@ import {
 
 import { Experience } from '@/api/genie';
 import { Park } from '@/api/resort';
-import { useGenieClient } from '@/contexts/GenieClient';
 import useDataLoader from '@/hooks/useDataLoader';
 import useThrottleable from '@/hooks/useThrottleable';
 
-import { useLiveDataClient } from './LiveDataClient';
 import { usePark } from './Park';
+import { useResort } from './Resort';
 
 interface ExperiencesState {
   experiences: Experience[];
@@ -34,8 +33,7 @@ export const ExperiencesProvider = ExperiencesContext.Provider;
 export const useExperiences = () => useContext(ExperiencesContext);
 
 export function useExperiencesState() {
-  const genie = useGenieClient();
-  const livedata = useLiveDataClient();
+  const { genie, liveData } = useResort();
   const { park, setPark } = usePark();
   const { loadData, loaderElem } = useDataLoader();
   const [experiences, setExperiences] = useState<Experience[]>([]);
@@ -43,7 +41,7 @@ export function useExperiencesState() {
   const refreshExperiences = useThrottleable(
     useCallback(() => {
       loadData(async () => {
-        const showsPromise = livedata.shows(park);
+        const showsPromise = liveData.shows(park);
         let exps = {
           ...Object.fromEntries(
             (await genie.experiences(park)).map(exp => [exp.id, exp])
@@ -56,7 +54,7 @@ export function useExperiencesState() {
         }
         setExperiences(Object.values(exps));
       });
-    }, [park, genie, livedata, loadData])
+    }, [park, genie, liveData, loadData])
   );
 
   useEffect(refreshExperiences, [refreshExperiences]);

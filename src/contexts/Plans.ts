@@ -7,9 +7,10 @@ import {
 } from 'react';
 
 import { Booking } from '@/api/genie';
-import { useGenieClient } from '@/contexts/GenieClient';
 import useDataLoader from '@/hooks/useDataLoader';
 import useThrottleable from '@/hooks/useThrottleable';
+
+import { useResort } from './Resort';
 
 interface PlansState {
   plans: Booking[];
@@ -26,16 +27,16 @@ export const PlansProvider = PlansContext.Provider;
 export const usePlans = () => useContext(PlansContext);
 
 export function usePlansState() {
-  const client = useGenieClient();
+  const { genie } = useResort();
   const { loadData, loaderElem } = useDataLoader();
   const [plans, setPlans] = useState<Booking[]>([]);
 
   const refreshPlans = useThrottleable(
     useCallback(() => {
       loadData(async () => {
-        setPlans(await client.bookings());
+        setPlans(await genie.bookings());
       });
-    }, [client, loadData])
+    }, [genie, loadData])
   );
 
   useEffect(refreshPlans, [refreshPlans]);

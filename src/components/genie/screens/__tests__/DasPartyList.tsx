@@ -1,11 +1,9 @@
-import { booking, mickey, minnie, party } from '@/__fixtures__/das';
-import { client } from '@/__fixtures__/genie';
+import { booking, genie, mickey, minnie, party, wdw } from '@/__fixtures__/das';
 import { DasParty } from '@/api/das';
 import { DasBooking } from '@/api/genie';
-import { GenieClientProvider } from '@/contexts/GenieClient';
 import { Nav } from '@/contexts/Nav';
 import { PlansProvider, usePlansState } from '@/contexts/Plans';
-import { click, loading, render, see, setTime } from '@/testing';
+import { click, loading, see, setTime } from '@/testing';
 
 import DasPartyList from '../DasPartyList';
 
@@ -35,13 +33,11 @@ function DasPartyListTest({ parties }: { parties: DasParty[] }) {
 }
 
 async function renderComponent(parties: DasParty[], plans: DasBooking[]) {
-  client.bookings.mockResolvedValueOnce([]);
-  client.bookings.mockResolvedValueOnce(plans);
-  render(
-    <GenieClientProvider value={client}>
-      <DasPartyListTest parties={parties} />
-    </GenieClientProvider>
-  );
+  jest
+    .spyOn(genie, 'bookings')
+    .mockResolvedValueOnce([])
+    .mockResolvedValueOnce(plans);
+  wdw.render(<DasPartyListTest parties={parties} />);
   await loading();
 }
 

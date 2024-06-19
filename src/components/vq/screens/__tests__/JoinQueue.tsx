@@ -1,8 +1,7 @@
-import { client, mickey, pluto, rotr } from '@/__fixtures__/vq';
+import { mickey, pluto, rotr, vq, wdw } from '@/__fixtures__/vq';
 import TimeBoard from '@/components/TimeBoard';
 import { useNav } from '@/contexts/Nav';
-import { VQClientProvider } from '@/contexts/VQClient';
-import { click, loading, render, see } from '@/testing';
+import { click, loading, see } from '@/testing';
 
 import BGResult from '../BGResult';
 import JoinQueue from '../JoinQueue';
@@ -17,16 +16,14 @@ async function clickJoin() {
   await loading();
 }
 
-const guests = [mickey, pluto];
-
 describe('JoinQueue', () => {
   const { goTo } = useNav();
 
+  const guests = [mickey, pluto];
+
   it('shows VQ join screen', async () => {
-    const { container } = render(
-      <VQClientProvider value={client}>
-        <JoinQueue queue={rotr} guests={guests} />
-      </VQClientProvider>
+    const { container } = wdw.render(
+      <JoinQueue queue={rotr} guests={guests} />
     );
     expect(TimeBoard).toHaveBeenLastCalledWith(
       { time: rotr.nextScheduledOpenTime, label: 'Next queue opening' },
@@ -39,9 +36,9 @@ describe('JoinQueue', () => {
     await clickJoin();
     see('Queue not open yet');
 
-    client.getQueues.mockResolvedValueOnce([
-      { ...rotr, isAcceptingJoins: true },
-    ]);
+    jest
+      .spyOn(vq, 'getQueues')
+      .mockResolvedValueOnce([{ ...rotr, isAcceptingJoins: true }]);
     await clickJoin();
     expect(goTo).toHaveBeenLastCalledWith(
       <BGResult
@@ -54,14 +51,10 @@ describe('JoinQueue', () => {
   });
 
   it('shows "No boarding groups available" message when VQ closed', async () => {
-    render(
-      <VQClientProvider value={client}>
-        <JoinQueue queue={rotr} guests={guests} />
-      </VQClientProvider>
-    );
-    client.getQueues.mockResolvedValueOnce([
-      { ...rotr, isAcceptingPartyCreation: false },
-    ]);
+    wdw.render(<JoinQueue queue={rotr} guests={guests} />);
+    jest
+      .spyOn(vq, 'getQueues')
+      .mockResolvedValueOnce([{ ...rotr, isAcceptingPartyCreation: false }]);
     await clickJoin();
     see('No boarding groups available');
   });

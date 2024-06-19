@@ -1,7 +1,7 @@
 import { JsonOK, fetchJson } from '@/fetch';
 
 import { authStore } from './auth';
-import { Resort, loadResort } from './resort';
+import { Resort } from './resort';
 
 export class InvalidOrigin extends Error {
   name = 'InvalidOrigin';
@@ -27,10 +27,10 @@ export abstract class ApiClient {
     DLR: 'https://disneyland.disney.go.com',
   };
 
-  static async originToResort(origin: string): Promise<Resort> {
+  static originToResortId(origin: string): Resort['id'] {
     const entries = Object.entries(this.origins) as [Resort['id'], string][];
     const id = entries.find(([, o]) => o === origin)?.[0];
-    if (id) return loadResort(id);
+    if (id) return id;
     throw new InvalidOrigin(origin);
   }
 

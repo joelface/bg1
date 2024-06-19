@@ -1,7 +1,6 @@
-import { booking, client, mickey, pluto } from '@/__fixtures__/genie';
+import { booking, genie, mickey, pluto, wdw } from '@/__fixtures__/genie';
 import { RequestError } from '@/api/client';
-import { GenieClientProvider } from '@/contexts/GenieClient';
-import { click, loading, render, see } from '@/testing';
+import { click, loading, see } from '@/testing';
 
 import CancelGuests from '../CancelGuests';
 
@@ -11,11 +10,7 @@ const { guests } = booking;
 const onCancel = jest.fn();
 
 function renderComponent() {
-  render(
-    <GenieClientProvider value={client}>
-      <CancelGuests booking={booking} onCancel={onCancel} />
-    </GenieClientProvider>
-  );
+  wdw.render(<CancelGuests booking={booking} onCancel={onCancel} />);
 }
 
 describe('CancelGuests', () => {
@@ -27,7 +22,7 @@ describe('CancelGuests', () => {
     renderComponent();
     click('Select All');
     click('Cancel Reservation');
-    expect(client.cancelBooking).toHaveBeenLastCalledWith(guests);
+    expect(genie.cancelBooking).toHaveBeenLastCalledWith(guests);
     await loading();
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
@@ -37,7 +32,7 @@ describe('CancelGuests', () => {
     click(mickey.name);
     click(pluto.name);
     click('Cancel Guests');
-    expect(client.cancelBooking).toHaveBeenLastCalledWith([
+    expect(genie.cancelBooking).toHaveBeenLastCalledWith([
       guests[0],
       guests[2],
     ]);
@@ -47,7 +42,7 @@ describe('CancelGuests', () => {
 
   it('shows error on failure', async () => {
     renderComponent();
-    client.cancelBooking.mockRejectedValueOnce(
+    genie.cancelBooking.mockRejectedValueOnce(
       new RequestError({ ok: false, status: 0, data: {} })
     );
     click('Select All');

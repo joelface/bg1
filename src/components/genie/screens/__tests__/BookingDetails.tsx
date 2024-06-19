@@ -19,29 +19,25 @@ import { Booking, DasBooking } from '@/api/genie';
 import { useNav } from '@/contexts/Nav';
 import { ParkProvider } from '@/contexts/Park';
 import { RebookingProvider } from '@/contexts/Rebooking';
-import { ResortProvider } from '@/contexts/Resort';
 import { DEFAULT_THEME } from '@/contexts/Theme';
 import { displayTime } from '@/datetime';
-import { act, click, render, screen, see, setTime, waitFor } from '@/testing';
+import { act, click, screen, see, setTime, waitFor } from '@/testing';
 
 import BookingDetails from '../BookingDetails';
 import CancelGuests from '../CancelGuests';
 
-jest.mock('@/contexts/GenieClient');
 jest.mock('@/contexts/Nav');
 setTime('09:00');
 const rebooking = { begin: jest.fn(), end: jest.fn(), current: undefined };
 const setPark = jest.fn();
 
 function renderComponent(b: Booking = booking) {
-  render(
-    <ResortProvider value={wdw}>
-      <ParkProvider value={{ park: mk, setPark }}>
-        <RebookingProvider value={rebooking}>
-          <BookingDetails booking={b} />
-        </RebookingProvider>
-      </ParkProvider>
-    </ResortProvider>
+  wdw.render(
+    <ParkProvider value={{ park: mk, setPark }}>
+      <RebookingProvider value={rebooking}>
+        <BookingDetails booking={b} />
+      </RebookingProvider>
+    </ParkProvider>
   );
 }
 

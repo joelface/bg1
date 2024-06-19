@@ -5,7 +5,6 @@ import { Park } from '@/api/resort';
 import Screen from '@/components/Screen';
 import Tab from '@/components/Tab';
 import { useExperiences } from '@/contexts/Experiences';
-import { useGenieClient } from '@/contexts/GenieClient';
 import { useNav } from '@/contexts/Nav';
 import { useResort } from '@/contexts/Resort';
 import { useTheme } from '@/contexts/Theme';
@@ -48,7 +47,7 @@ const isExperienced = (exp: PlusExperience) => exp.experienced && !exp.starred;
 
 export default function GeniePlusList({ contentRef }: HomeTabProps) {
   useSelectedParty();
-  const client = useGenieClient();
+  const { genie } = useResort();
   const { experiences, refreshExperiences, park, loaderElem } =
     useExperiences();
   const { sorter, SortSelect } = useSort();
@@ -77,7 +76,7 @@ export default function GeniePlusList({ contentRef }: HomeTabProps) {
       subhead={
         <>
           <RebookingHeader />
-          <TimeBanner bookTime={client.nextBookTime} dropTime={dropTime} />
+          <TimeBanner bookTime={genie.nextBookTime} dropTime={dropTime} />
         </>
       }
       contentRef={contentRef}

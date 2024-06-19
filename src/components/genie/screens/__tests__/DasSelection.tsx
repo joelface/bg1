@@ -1,9 +1,18 @@
-import { booking, hm, jc, mickey, minnie, mk, party } from '@/__fixtures__/das';
+import {
+  booking,
+  das,
+  hm,
+  jc,
+  mickey,
+  minnie,
+  mk,
+  party,
+  wdw,
+} from '@/__fixtures__/das';
 import { ConflictsError } from '@/api/das';
-import { DasClientProvider } from '@/contexts/DasClient';
 import { useNav } from '@/contexts/Nav';
 import { PlansProvider } from '@/contexts/Plans';
-import { act, click, render, screen, see, waitFor, within } from '@/testing';
+import { act, click, screen, see, waitFor, within } from '@/testing';
 
 import BookingDetails from '../BookingDetails';
 import DasExperienceList from '../DasExperienceList';
@@ -13,16 +22,13 @@ import Home from '../Home';
 jest.mock('@/contexts/Nav');
 jest.mock('@/ping');
 const refreshPlans = jest.fn();
-const client = { book: jest.fn() };
-client.book.mockResolvedValue(booking);
+jest.spyOn(das, 'book').mockResolvedValue(booking);
 
 function renderComponent() {
-  render(
-    <DasClientProvider value={client as any}>
-      <PlansProvider value={{ plans: [], refreshPlans, loaderElem: null }}>
-        <DasSelection park={mk} party={party} />
-      </PlansProvider>
-    </DasClientProvider>
+  wdw.render(
+    <PlansProvider value={{ plans: [], refreshPlans, loaderElem: null }}>
+      <DasSelection park={mk} party={party} />
+    </PlansProvider>
   );
 }
 
@@ -57,13 +63,13 @@ describe('DasSelection', () => {
     await waitFor(() => see(hm.name));
     expect(bookBtn).toBeEnabled();
 
-    client.book.mockRejectedValueOnce(
+    das.book.mockRejectedValueOnce(
       new ConflictsError({
         [minnie.id]: 'NOT_IN_PARK',
       })
     );
     click(bookBtn);
-    expect(client.book).toHaveBeenLastCalledWith({
+    expect(das.book).toHaveBeenLastCalledWith({
       park: mk,
       experience: hm,
       guests: [mickey, minnie],
@@ -77,7 +83,7 @@ describe('DasSelection', () => {
     await waitFor(() => see(jc.name));
 
     click(bookBtn);
-    expect(client.book).toHaveBeenLastCalledWith({
+    expect(das.book).toHaveBeenLastCalledWith({
       park: mk,
       experience: jc,
       guests: [mickey, minnie],

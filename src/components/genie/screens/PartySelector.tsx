@@ -4,7 +4,7 @@ import { Guest } from '@/api/genie';
 import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
 import Screen from '@/components/Screen';
-import { useGenieClient } from '@/contexts/GenieClient';
+import { useResort } from '@/contexts/Resort';
 import useDataLoader from '@/hooks/useDataLoader';
 import kvdb from '@/kvdb';
 
@@ -16,12 +16,12 @@ export function loadPartyIds(): string[] {
 }
 
 export function useSelectedParty() {
-  const client = useGenieClient();
-  useEffect(() => client.setPartyIds(loadPartyIds()), [client]);
+  const { genie } = useResort();
+  useEffect(() => genie.setPartyIds(loadPartyIds()), [genie]);
 }
 
 export default function PartySelector() {
-  const client = useGenieClient();
+  const { genie } = useResort();
   const { loadData, loaderElem } = useDataLoader();
   const [auto, setAuto] = useState(true);
   const [guests, setGuests] = useState<Guest[]>();
@@ -34,19 +34,19 @@ export default function PartySelector() {
   function save() {
     const pids = [...partyIds];
     kvdb.set<string[]>(PARTY_IDS_KEY, pids);
-    client.setPartyIds(pids);
+    genie.setPartyIds(pids);
   }
 
   useEffect(() => {
     loadData(async () => {
-      const guests = await client.guests();
+      const guests = await genie.guests();
       setGuests(
         [...guests.eligible, ...guests.ineligible].sort(
           (a, b) => +!a.primary - +!b.primary || a.name.localeCompare(b.name)
         )
       );
     });
-  }, [client, loadData]);
+  }, [genie, loadData]);
 
   useEffect(() => {
     if (auto) setPartyIds(new Set());

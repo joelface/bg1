@@ -13,7 +13,6 @@ import Button from '@/components/Button';
 import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
 import Screen from '@/components/Screen';
-import { useDasClient } from '@/contexts/DasClient';
 import { useNav } from '@/contexts/Nav';
 import { usePlans } from '@/contexts/Plans';
 import { useResort } from '@/contexts/Resort';
@@ -33,7 +32,7 @@ export default function DasSelection({
 }) {
   const { goTo, goBack } = useNav();
   const resort = useResort();
-  const client = useDasClient();
+  const { das } = resort;
   const { refreshPlans } = usePlans();
   const [experience, setExperience] = useState<Experience>();
   const [selected, setSelected] = useState<Set<Guest>>(new Set(party));
@@ -45,7 +44,7 @@ export default function DasSelection({
     loadData(
       async () => {
         try {
-          const booking = await client.book({
+          const booking = await das.book({
             park,
             experience,
             guests: [...selected],

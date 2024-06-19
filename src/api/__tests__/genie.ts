@@ -1,16 +1,15 @@
 import {
   booking,
   bookings,
-  client,
   donald,
   expiredLL,
+  genie,
   hm,
   mickey,
   minnie,
   multiExp,
   pluto,
   sm,
-  tracker,
   wdw,
 } from '@/__fixtures__/genie';
 import { fetchJson } from '@/fetch';
@@ -22,6 +21,7 @@ import { RequestError } from '../client';
 import {
   Booking,
   BookingTracker,
+  Experience,
   FALLBACK_IDS,
   GenieClient,
   Guest,
@@ -85,7 +85,10 @@ function splitName({ name, ...rest }: Guest) {
 describe('GenieClient', () => {
   const [mk, , , ak] = wdw.parks;
   wdw.experience(sm.id).priority = sm.priority;
-  const client = new GenieClient(wdw, tracker);
+  const client = new GenieClient(wdw, {
+    experienced: (exp: Experience) => exp.id === bookings[3].id,
+    update: async () => undefined,
+  });
   const onUnauthorized = jest.fn();
   client.onUnauthorized = onUnauthorized;
   const guests = [mickey, minnie, pluto];
@@ -679,18 +682,18 @@ describe('BookingTracker', () => {
 
   describe('update()', () => {
     it('updates tracking data', async () => {
-      await tracker.update([expiredLL], client);
-      await tracker.update(bookings, client);
+      await tracker.update([expiredLL], genie);
+      await tracker.update(bookings, genie);
       expect(tracker.experienced(booking)).toBe(false);
       expect(tracker.experienced(expiredLL)).toBe(true);
 
-      client.guests.mockResolvedValueOnce({
+      genie.guests.mockResolvedValueOnce({
         eligible: [],
         ineligible: [
           { ...mickey, ineligibleReason: 'EXPERIENCE_LIMIT_REACHED' },
         ],
       });
-      await tracker.update([expiredLL], client);
+      await tracker.update([expiredLL], genie);
       expect(tracker.experienced(booking)).toBe(true);
       expect(tracker.experienced(expiredLL)).toBe(true);
     });

@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { Guest, LightningLane, Offer, PlusExperience } from '@/api/genie';
 import Screen from '@/components/Screen';
-import { useGenieClient } from '@/contexts/GenieClient';
 import { useNav } from '@/contexts/Nav';
 import { Party, PartyProvider } from '@/contexts/Party';
 import { usePlans } from '@/contexts/Plans';
@@ -28,7 +27,7 @@ export default function BookExperience({
 }) {
   const { goTo } = useNav();
   const resort = useResort();
-  const client = useGenieClient();
+  const { genie } = resort;
   const { refreshPlans } = usePlans();
   const rebooking = useRebooking();
   const [party, setParty] = useState<Party>();
@@ -46,14 +45,14 @@ export default function BookExperience({
     loadData(
       async () => {
         let booking: LightningLane | null = null;
-        booking = await client.book(offer, rebooking.current, party.selected);
+        booking = await genie.book(offer, rebooking.current, party.selected);
         rebooking.end();
         const selectedIds = new Set(party.selected.map(g => g.id));
         const guestsToCancel = booking.guests.filter(
           g => !selectedIds.has(g.id)
         );
         if (guestsToCancel.length > 0) {
-          await client.cancelBooking(guestsToCancel);
+          await genie.cancelBooking(guestsToCancel);
           booking.guests = booking.guests.filter(g => selectedIds.has(g.id));
         }
         if (booking) {
@@ -72,7 +71,7 @@ export default function BookExperience({
 
   function checkAvailability() {
     loadData(async flash => {
-      const exps = await client.experiences(experience.park);
+      const exps = await genie.experiences(experience.park);
       const exp = exps.find(exp => exp.id === experience.id);
       if (exp?.flex?.available) {
         setPrebooking(false);
@@ -87,10 +86,10 @@ export default function BookExperience({
     loadData(async () => {
       const guests = rebooking.current
         ? { eligible: rebooking.current.guests, ineligible: [] }
-        : await client.guests(experience);
+        : await genie.guests(experience);
       setParty({
         ...guests,
-        selected: guests.eligible.slice(0, client.maxPartySize),
+        selected: guests.eligible.slice(0, genie.maxPartySize),
         setSelected: (selected: Guest[]) =>
           setParty(party => {
             if (!party) return party;
@@ -110,7 +109,7 @@ export default function BookExperience({
         experience,
       });
     });
-  }, [client, experience, rebooking, loadData]);
+  }, [genie, experience, rebooking, loadData]);
 
   useEffect(() => {
     if (!party) loadParty();
@@ -122,7 +121,7 @@ export default function BookExperience({
       loadData(
         async () => {
           try {
-            const newOffer = await client.offer(
+            const newOffer = await genie.offer(
               experience,
               party.selected,
               rebooking.current
@@ -156,7 +155,7 @@ export default function BookExperience({
         }
       );
     },
-    [client, experience, party, offer, rebooking, loadData]
+    [genie, experience, party, offer, rebooking, loadData]
   );
 
   useEffect(() => {

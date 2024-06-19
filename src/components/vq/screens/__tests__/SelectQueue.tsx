@@ -1,15 +1,6 @@
-import { client, mtwr, rotr, santa } from '@/__fixtures__/vq';
+import { mtwr, rotr, santa, vq, wdw } from '@/__fixtures__/vq';
 import { useNav } from '@/contexts/Nav';
-import { VQClientProvider } from '@/contexts/VQClient';
-import {
-  click,
-  loading,
-  render,
-  revisitTab,
-  screen,
-  see,
-  within,
-} from '@/testing';
+import { click, loading, revisitTab, screen, see, within } from '@/testing';
 
 import ChooseParty from '../ChooseParty';
 import SelectQueue from '../SelectQueue';
@@ -21,12 +12,8 @@ describe('SelectQueue', () => {
   const { goTo } = useNav();
 
   it('shows VQ selection screen', async () => {
-    client.getQueues.mockResolvedValueOnce([]);
-    render(
-      <VQClientProvider value={client}>
-        <SelectQueue />
-      </VQClientProvider>
-    );
+    vq.getQueues.mockResolvedValueOnce([]);
+    wdw.render(<SelectQueue />);
     await loading();
     see('No virtual queues found');
 
@@ -46,7 +33,7 @@ describe('SelectQueue', () => {
     click(screen.getAllByText('Join Queue')[0]);
     expect(goTo).toHaveBeenLastCalledWith(<ChooseParty queue={rotr} />);
 
-    client.getQueues.mockResolvedValueOnce([
+    vq.getQueues.mockResolvedValueOnce([
       { ...rotr, isAcceptingJoins: false, isAcceptingPartyCreation: false },
     ]);
 

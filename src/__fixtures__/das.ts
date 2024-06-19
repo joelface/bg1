@@ -1,12 +1,10 @@
 import { avatarUrl } from '@/api/avatar';
 import { DasBooking, Experience } from '@/api/das';
-import * as data from '@/api/data/wdw';
-import { Experience as ExpData, Resort } from '@/api/resort';
 import { TODAY } from '@/testing';
 
-export const wdw = new Resort('WDW', data);
+import { mk, wdw } from './resort';
 
-export const [mk] = wdw.parks;
+export * from './resort';
 
 export const mickey = {
   id: 'mickey',
@@ -24,19 +22,19 @@ export const minnie = {
 export const party = [mickey, minnie];
 
 export const hm: Experience = {
-  ...(wdw.experience('80010208') as ExpData),
+  ...wdw.experience('80010208'),
   type: 'ATTRACTION',
   available: true,
   nextAvailableTime: '10:30:00',
 };
 export const jc: Experience = {
-  ...(wdw.experience('80010153') as ExpData),
+  ...wdw.experience('80010153'),
   type: 'ATTRACTION',
   available: true,
   nextAvailableTime: '10:45:00',
 };
 export const sm: Experience = {
-  ...(wdw.experience('80010190') as ExpData),
+  ...wdw.experience('80010190'),
   type: 'ATTRACTION',
   available: true,
   nextAvailableTime: '10:40:00',

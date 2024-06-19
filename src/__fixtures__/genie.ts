@@ -1,24 +1,17 @@
-import * as data from '@/api/data/wdw';
 import {
   BoardingGroup,
   Booking,
-  Experience,
-  GenieClient,
   LightningLane,
   Offer,
   ParkPass,
   PlusExperience,
   Reservation,
 } from '@/api/genie';
-import { Experience as ExpData, Resort } from '@/api/resort';
 import { TODAY, TOMORROW } from '@/testing';
 
-const hmId = '80010208';
-(data.experiences[hmId] as ExpData).dropTimes = ['11:30', '13:30'];
-const smId = '80010190';
-(data.experiences[smId] as ExpData).dropTimes = ['11:30', '13:30'];
-export const wdw = new Resort('WDW', data);
-export const [mk, ep, hs, ak] = wdw.parks;
+import { ak, genie, hs, mk, wdw } from './resort';
+
+export * from './resort';
 
 export const mickey = {
   id: 'mickey',
@@ -43,7 +36,7 @@ export const donald = {
 };
 
 export const hm: PlusExperience = {
-  ...wdw.experience(hmId),
+  ...wdw.experience('80010208'),
   park: mk,
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 30 },
@@ -67,7 +60,7 @@ export const jc: PlusExperience = {
 };
 
 export const sm: PlusExperience = {
-  ...wdw.experience(smId),
+  ...wdw.experience('80010190'),
   park: mk,
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 60 },
@@ -211,20 +204,15 @@ export const bookings: Booking[] = [
   akApr,
 ];
 
-export const tracker = {
-  experienced: (exp: Experience) => exp.id === bookings[3].id,
-  update: async () => undefined,
-};
-export const client = jest.mocked(new GenieClient(wdw, tracker));
-client.nextBookTime = '11:00:00';
+genie.nextBookTime = '11:00:00';
 
-jest.spyOn(client, 'guests').mockResolvedValue({
+jest.spyOn(genie, 'guests').mockResolvedValue({
   eligible: [mickey, minnie, pluto],
   ineligible: [donald],
 });
-jest.spyOn(client, 'offer').mockResolvedValue(offer);
-jest.spyOn(client, 'book').mockResolvedValue({ ...booking });
-jest.spyOn(client, 'cancelBooking').mockResolvedValue(undefined);
-jest.spyOn(client, 'bookings').mockResolvedValue([...bookings]);
-jest.spyOn(client, 'experiences').mockResolvedValue([hm, sm, jc]);
-jest.spyOn(client, 'setPartyIds');
+jest.spyOn(genie, 'offer').mockResolvedValue(offer);
+jest.spyOn(genie, 'book').mockResolvedValue({ ...booking });
+jest.spyOn(genie, 'cancelBooking').mockResolvedValue(undefined);
+jest.spyOn(genie, 'bookings').mockResolvedValue([...bookings]);
+jest.spyOn(genie, 'experiences').mockResolvedValue([hm, sm, jc]);
+jest.spyOn(genie, 'setPartyIds');

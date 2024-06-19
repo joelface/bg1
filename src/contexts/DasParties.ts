@@ -2,19 +2,19 @@ import { createContext, useContext, useEffect, useState } from 'react';
 
 import { DasParty } from '@/api/das';
 
-import { useDasClient } from './DasClient';
+import { useResort } from './Resort';
 
 const DasPartiesContext = createContext<Public<DasParty[]>>([]);
 export const DasPartiesProvider = DasPartiesContext.Provider;
 export const useDasParties = () => useContext(DasPartiesContext);
 
 export function useDasPartiesState() {
-  const client = useDasClient();
+  const { das } = useResort();
   const [parties, setParties] = useState<DasParty[]>([]);
 
   useEffect(() => {
-    client.parties().then(setParties);
-  }, [client]);
+    das.parties().then(setParties);
+  }, [das]);
 
   return parties;
 }

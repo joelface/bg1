@@ -1,15 +1,13 @@
 import { booking, hs, mk, wdw } from '@/__fixtures__/genie';
-import { DasClientProvider } from '@/contexts/DasClient';
-import { ResortProvider } from '@/contexts/Resort';
 import kvdb from '@/kvdb';
-import { click, loading, render, revisitTab, see, setTime } from '@/testing';
+import { click, loading, revisitTab, see, setTime } from '@/testing';
 
 import Merlock from '../../Merlock';
 import { TAB_KEY, getDefaultTab } from '../Home';
 
-jest.mock('@/contexts/GenieClient');
-jest.mock('@/contexts/LiveDataClient');
 jest.mock('@/ping');
+jest.spyOn(wdw.das, 'parties').mockResolvedValue([]);
+jest.spyOn(wdw.liveData, 'shows').mockResolvedValue({});
 
 beforeEach(() => {
   kvdb.clear();
@@ -22,13 +20,7 @@ describe('Home', () => {
   });
 
   it('shows Genie+ home screen', async () => {
-    render(
-      <ResortProvider value={wdw}>
-        <DasClientProvider value={{ parties: async () => [] } as any}>
-          <Merlock />
-        </DasClientProvider>
-      </ResortProvider>
-    );
+    wdw.render(<Merlock />);
     await loading();
 
     revisitTab(60);

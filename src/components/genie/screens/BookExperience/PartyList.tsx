@@ -1,9 +1,9 @@
 import Button from '@/components/Button';
 import GuestList from '@/components/GuestList';
 import Warning from '@/components/Warning';
-import { useGenieClient } from '@/contexts/GenieClient';
 import { useNav } from '@/contexts/Nav';
 import { useParty } from '@/contexts/Party';
+import { useResort } from '@/contexts/Resort';
 
 import IneligibleGuestList from '../../IneligibleGuestList';
 import ModifyParty from '../ModifyParty';
@@ -12,7 +12,7 @@ export default function PartyList({ button }: { button?: JSX.Element }) {
   const { goTo } = useNav();
   const party = useParty();
   const { eligible, selected } = party;
-  const { maxPartySize } = useGenieClient();
+  const { maxPartySize } = useResort().genie;
   return (
     <>
       {eligible.length > maxPartySize && selected.length === maxPartySize && (
