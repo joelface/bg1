@@ -611,6 +611,10 @@ export const experiences: ResortData['experiences'] = {
     name: 'Mariachi Cobre',
     land: showcase,
   },
+  19277873: {
+    name: 'Marimba de las Américas',
+    land: showcase,
+  },
   80010865: {
     name: 'Matsuriza (Japan)',
     land: showcase,
