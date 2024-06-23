@@ -81,12 +81,7 @@ export default function GeniePlusList({ contentRef }: HomeTabProps) {
       }
       contentRef={contentRef}
     >
-      <Experiences
-        experiences={experiences}
-        park={park}
-        dropTime={dropTime}
-        sorter={sorter}
-      />
+      <Experiences experiences={experiences} park={park} sorter={sorter} />
       {loaderElem}
     </Tab>
   );
@@ -95,13 +90,11 @@ export default function GeniePlusList({ contentRef }: HomeTabProps) {
 const Experiences = memo(function Experiences({
   experiences,
   park,
-  dropTime,
   sorter,
 }: {
   experiences: Experience[];
   park: Park;
   sorter: Sorter;
-  dropTime?: string;
 }) {
   const { goTo } = useNav();
   const theme = useTheme();
@@ -109,6 +102,7 @@ const Experiences = memo(function Experiences({
     const ids = kvdb.get<string[]>(STARRED_KEY) ?? [];
     return new Set(Array.isArray(ids) ? ids : []);
   });
+  const dropTime = upcomingTimes(park.dropTimes)[0];
   const nowMinutes = timeToMinutes(dateTimeStrings().time);
 
   function toggleStar({ id }: { id: string }) {
