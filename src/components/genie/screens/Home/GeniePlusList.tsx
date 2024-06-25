@@ -50,12 +50,12 @@ export default function GeniePlusList({ contentRef }: HomeTabProps) {
   const { genie } = useResort();
   const { experiences, refreshExperiences, park, loaderElem } =
     useExperiences();
-  const { sorter, SortSelect } = useSort();
+  const { sortType, sorter, SortSelect } = useSort();
   const firstUpdate = useRef(true);
 
   useEffect(() => {
     if (!firstUpdate.current) contentRef.current?.scroll(0, 0);
-  }, [SortSelect, contentRef]);
+  }, [sortType, contentRef]);
 
   useEffect(() => {
     firstUpdate.current = false;

@@ -84,18 +84,15 @@ export default function useSort() {
     [coords, park, sortType]
   );
 
-  const SortSelect = useCallback(
-    (props: { className?: string }) => (
-      <Select
-        {...props}
-        options={sortOptions}
-        selected={sortType}
-        onChange={setSortType}
-        title="Sort By"
-      />
-    ),
-    [sortType]
+  const SortSelect = (props: { className?: string }) => (
+    <Select
+      {...props}
+      options={sortOptions}
+      selected={sortType}
+      onChange={setSortType}
+      title="Sort By"
+    />
   );
 
-  return { sorter, SortSelect };
+  return { sortType, sorter, SortSelect };
 }
