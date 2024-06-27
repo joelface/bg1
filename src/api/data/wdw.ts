@@ -706,13 +706,13 @@ export const experiences: ResortData['experiences'] = {
     geo: [28.3754661, -81.5493961],
     priority: 4.1,
   },
-  80010199: {
-    name: 'Test Track',
-    land: discovery,
-    geo: [28.3733374, -81.5474931],
-    priority: 1.3,
-    dropTimes: ['12:47', '14:47', '16:47'],
-  },
+  // 80010199: {
+  //   name: 'Test Track',
+  //   land: discovery,
+  //   geo: [28.3733374, -81.5474931],
+  //   priority: 1.3,
+  //   dropTimes: ['12:47', '14:47', '16:47'],
+  // },
   62992: {
     name: 'Turtle Talk With Crush',
     land: nature,
