@@ -113,7 +113,7 @@ export function withTabs<T extends TabDef>(
       [tabName, goTo]
     );
     const scrollPos = useRef(Object.fromEntries(tabs.map(t => [t.name, 0])));
-    const active = tabs.find(({ name: title }) => title === tabName);
+    const active = tabs.find(({ name }) => name === tabName) ?? tabs[0];
 
     if (!active) return null;
 
