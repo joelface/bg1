@@ -59,8 +59,8 @@ const Experiences = memo(function Experiences({
     .filter(
       exp =>
         exp.standby.available ||
-        exp.individual ||
-        exp.standby.unavailableReason === 'TEMPORARILY_DOWN'
+        exp.standby.unavailableReason === 'TEMPORARILY_DOWN' ||
+        exp.individual
     )
     .sort((a, b) => a.land.sort - b.land.sort || a.name.localeCompare(b.name))
     .forEach(exp => {
