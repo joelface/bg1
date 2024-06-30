@@ -7,6 +7,7 @@ import { DasPartiesProvider } from '@/contexts/DasParties';
 import { ExperiencesProvider } from '@/contexts/Experiences';
 import { Nav } from '@/contexts/Nav';
 import { ParkProvider } from '@/contexts/Park';
+import { displayTime } from '@/datetime';
 import { click, screen, see, within } from '@/testing';
 
 import TimesGuide from '../TimesGuide';
@@ -22,8 +23,11 @@ function expectTimes(def: { [key: string]: { [key: string]: Experience[] } }) {
           .map(exp => [
             String(
               exp.standby.waitTime ??
-                exp.standby.displayNextShowTime ??
-                (exp.standby.available ? '*' : '❌')
+                (exp.standby.nextShowTime
+                  ? displayTime(exp.standby.nextShowTime)
+                  : exp.standby.available
+                    ? '*'
+                    : '❌')
             ),
             exp.name,
           ])
@@ -50,19 +54,19 @@ function exp(
     standby: {
       available: !args.down,
       waitTime: args.waitTime,
-      displayNextShowTime: args.showTimes?.[0],
+      nextShowTime: args.showTimes?.[0],
       unavailableReason: args.down && 'TEMPORARILY_DOWN',
     },
-    displayAdditionalShowTimes: args.showTimes?.slice(1),
+    additionalShowTimes: args.showTimes?.slice(1),
   };
 }
 
-const ddShowTimes = ['2:30 PM', '3:30 PM'];
+const ddShowTimes = ['14:30:00', '15:30:00'];
 const dd = exp('8075', {
   type: 'ENTERTAINMENT',
   showTimes: ddShowTimes,
 });
-const fofShowTime = '3:00 PM';
+const fofShowTime = '15:00:00';
 const fof = exp('17718925', {
   type: 'ENTERTAINMENT',
   showTimes: [fofShowTime],
@@ -119,18 +123,18 @@ describe('TimesGuide', () => {
         Characters: [tiana],
       },
     });
-    click(fofShowTime);
+    click(displayTime(fofShowTime));
     expect(
       screen.queryByRole('heading', { name: fof.name, level: 2 })
     ).not.toBeInTheDocument();
 
-    click(ddShowTimes[0]);
+    click(displayTime(ddShowTimes[0]));
     await see.screen('Experience Info');
     see(dd.name, 'heading', { level: 2 });
     see('Upcoming Shows');
     expect(
       screen.getAllByRole('listitem').map(elem => elem.textContent)
-    ).toEqual(ddShowTimes);
+    ).toEqual(ddShowTimes.map(t => displayTime(t)));
 
     see.no('DAS');
   });

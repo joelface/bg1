@@ -27,9 +27,9 @@ interface ApiExperience {
       | 'NOT_STANDBY_ENABLED'
       | 'NO_MORE_SHOWS';
     waitTime?: number;
-    displayNextShowTime?: string;
+    nextShowTime?: string;
   };
-  displayAdditionalShowTimes?: string[];
+  additionalShowTimes?: string[];
   flex?: {
     available: boolean;
     nextAvailableTime?: string;

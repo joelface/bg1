@@ -38,7 +38,7 @@ describe('StandbyTime', () => {
       <StandbyTime
         experience={{
           type: 'ENTERTAINMENT',
-          standby: { available: true, displayNextShowTime: '3:00 PM' },
+          standby: { available: true, nextShowTime: '15:00:00' },
         }}
       />
     );

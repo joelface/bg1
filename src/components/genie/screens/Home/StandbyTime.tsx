@@ -8,7 +8,7 @@ export default function StandbyTime({
 }: {
   experience: Pick<Experience, 'type' | 'standby' | 'virtualQueue'>;
 }) {
-  return standby.displayNextShowTime ||
+  return standby.nextShowTime ||
     (type === 'ENTERTAINMENT' && !standby.waitTime) ? (
     <NextShowTime standby={standby} />
   ) : virtualQueue ? (
@@ -40,8 +40,8 @@ const NextShowTime = ({ standby }: Pick<Experience, 'standby'>) => (
       </>
     }
   >
-    {standby.displayNextShowTime ? (
-      <Available time={standby.displayNextShowTime} />
+    {standby.nextShowTime ? (
+      <Available time={displayTime(standby.nextShowTime)} />
     ) : (
       <Unavailable text="none" />
     )}

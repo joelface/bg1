@@ -1,4 +1,4 @@
-import { dateTimeStrings, displayTime } from '@/datetime';
+import { dateTimeStrings } from '@/datetime';
 import { fetchJson } from '@/fetch';
 
 import { Experience } from './genie';
@@ -21,12 +21,10 @@ export class LiveDataClient {
     const { time: now } = dateTimeStrings();
     return Object.fromEntries(
       Object.entries(showtimesByExpId).flatMap(([id, showtimes]) => {
-        const upcomingTimes = showtimes
-          .filter(t => t >= now)
-          .map(t => displayTime(t));
-        const displayNextShowTime = upcomingTimes[0];
-        const displayAdditionalShowTimes = upcomingTimes.slice(1);
-        const available = displayNextShowTime !== undefined;
+        const upcomingTimes = showtimes.filter(t => t >= now);
+        const nextShowTime = upcomingTimes[0];
+        const additionalShowTimes = upcomingTimes.slice(1);
+        const available = nextShowTime !== undefined;
         const unavailableReason = available ? undefined : 'NO_MORE_SHOWS';
         try {
           return [
@@ -36,8 +34,8 @@ export class LiveDataClient {
                 type: 'ENTERTAINMENT',
                 ...this.resort.experience(id),
                 park,
-                standby: { available, unavailableReason, displayNextShowTime },
-                displayAdditionalShowTimes,
+                standby: { available, unavailableReason, nextShowTime },
+                additionalShowTimes,
               },
             ],
           ];

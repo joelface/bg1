@@ -146,21 +146,21 @@ function ExperienceList({
             <tr className="group" key={exp.id}>
               <td
                 className={`${
-                  exp.standby.displayNextShowTime
+                  exp.standby.nextShowTime
                     ? 'min-w-[5.625rem]'
                     : 'min-w-[2.75rem]'
                 } px-2 py-0.5 group-first:pt-1 group-last:pb-1 bg-white bg-opacity-80 font-bold text-center uppercase whitespace-nowrap`}
               >
-                {exp.standby.displayNextShowTime ? (
-                  (exp.displayAdditionalShowTimes?.length ?? 0) > 0 ? (
+                {exp.standby.nextShowTime ? (
+                  (exp.additionalShowTimes?.length ?? 0) > 0 ? (
                     <button
                       onClick={() => onInfoClick(exp)}
                       className="underline"
                     >
-                      {exp.standby.displayNextShowTime}
+                      {displayTime(exp.standby.nextShowTime)}
                     </button>
                   ) : (
-                    exp.standby.displayNextShowTime
+                    displayTime(exp.standby.nextShowTime)
                   )
                 ) : exp.standby.available ? (
                   exp.standby.waitTime ?? '*'
@@ -215,10 +215,12 @@ const ExperienceInfo = ({ exp }: { exp: Experience }) => (
     <div>{exp.park.name}</div>
     <h3>Upcoming {exp.type === 'CHARACTER' ? 'Appearances' : 'Shows'}</h3>
     <ul className="list-disc mt-2 pl-6">
-      {!!exp.standby.displayNextShowTime && (
-        <li>{exp.standby.displayNextShowTime}</li>
+      {!!exp.standby.nextShowTime && (
+        <li>{displayTime(exp.standby.nextShowTime)}</li>
       )}
-      {exp.displayAdditionalShowTimes?.map(time => <li key={time}>{time}</li>)}
+      {exp.additionalShowTimes?.map(time => (
+        <li key={time}>{displayTime(time)}</li>
+      ))}
     </ul>
   </Screen>
 );
