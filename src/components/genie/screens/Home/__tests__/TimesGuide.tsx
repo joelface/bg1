@@ -114,6 +114,7 @@ function renderComponent({
 describe('TimesGuide', () => {
   it('renders times guide', async () => {
     renderComponent();
+    see.no('DAS');
 
     click('Refresh Times');
     expect(refreshExperiences).toHaveBeenCalledTimes(1);
@@ -147,8 +148,6 @@ describe('TimesGuide', () => {
     expect(
       screen.getAllByRole('listitem').map(elem => elem.textContent)
     ).toEqual(ddShowTimes.map(t => displayTime(t)));
-
-    see.no('DAS');
   });
 
   it("doesn't show ILL after park close", async () => {
