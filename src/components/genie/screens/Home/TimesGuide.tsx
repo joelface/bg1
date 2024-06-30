@@ -60,7 +60,7 @@ const Experiences = memo(function Experiences({
       exp =>
         exp.standby.available ||
         exp.standby.unavailableReason === 'TEMPORARILY_DOWN' ||
-        exp.individual
+        exp.individual?.available
     )
     .sort((a, b) => a.land.sort - b.land.sort || a.name.localeCompare(b.name))
     .forEach(exp => {
@@ -190,7 +190,7 @@ function ExperienceList({
                     >
                       <div>
                         <abbr title="Individual Lightning Lane">ILL</abbr>
-                        {'\u200a: ' + exp.individual.displayPrice}
+                        {': ' + exp.individual.displayPrice}
                       </div>
                       {exp.individual.nextAvailableTime && (
                         <div>

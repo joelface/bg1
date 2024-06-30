@@ -19,19 +19,20 @@ function expectTimes(def: { [key: string]: { [key: string]: Experience[] } }) {
       const c = within(screen.getByTestId(`${land}-${expType}`));
       c.getByRole('heading', { name: expType });
       expect(c.getAllByRole('cell').map(elem => elem.textContent)).toEqual(
-        exps
-          .map(exp => [
-            String(
-              exp.standby.waitTime ??
-                (exp.standby.nextShowTime
-                  ? displayTime(exp.standby.nextShowTime)
-                  : exp.standby.available
-                    ? '*'
-                    : '❌')
-            ),
-            exp.name,
-          ])
-          .flat(1)
+        exps.flatMap(exp => [
+          String(
+            exp.standby.waitTime ??
+              (exp.standby.nextShowTime
+                ? displayTime(exp.standby.nextShowTime)
+                : exp.standby.available
+                  ? '*'
+                  : '❌')
+          ),
+          exp.name +
+            (exp.individual?.available
+              ? 'ILL: ' + exp.individual.displayPrice
+              : ''),
+        ])
       );
     }
   }
@@ -44,6 +45,9 @@ function exp(
     waitTime?: number;
     showTimes?: string[];
     down?: true;
+    individual?: {
+      available?: boolean;
+    };
   } = {}
 ): Experience {
   return {
@@ -58,6 +62,9 @@ function exp(
       unavailableReason: args.down && 'TEMPORARILY_DOWN',
     },
     additionalShowTimes: args.showTimes?.slice(1),
+    individual: args.individual
+      ? { available: true, displayPrice: '$12', ...args.individual }
+      : undefined,
   };
 }
 
@@ -74,12 +81,15 @@ const fof = exp('17718925', {
 const potc = exp('80010177', { waitTime: 30 });
 const tiki = exp('16124144');
 const btmr = exp('80010110', { waitTime: 60 });
+const sdmt = exp('16767284', { waitTime: 85, individual: {} });
 const uts = exp('16767263', { down: true });
 const tiana = exp('17505397', { type: 'CHARACTER', waitTime: 45 });
-const experiences = [dd, fof, potc, tiki, btmr, tiana, uts];
 const refreshExperiences = jest.fn();
 
-function renderComponent(dasParties: DasParty[] = []) {
+function renderComponent({
+  experiences = [sdmt, dd, fof, potc, tiki, btmr, tiana, uts],
+  dasParties = [],
+}: { experiences?: Experience[]; dasParties?: DasParty[] } = {}) {
   wdw.render(
     <ParkProvider value={{ park: mk, setPark: () => null }}>
       <DasPartiesProvider value={dasParties}>
@@ -119,10 +129,11 @@ describe('TimesGuide', () => {
         Attractions: [btmr],
       },
       Fantasyland: {
-        Attractions: [uts],
+        Attractions: [sdmt, uts],
         Characters: [tiana],
       },
     });
+
     click(displayTime(fofShowTime));
     expect(
       screen.queryByRole('heading', { name: fof.name, level: 2 })
@@ -131,6 +142,7 @@ describe('TimesGuide', () => {
     click(displayTime(ddShowTimes[0]));
     await see.screen('Experience Info');
     see(dd.name, 'heading', { level: 2 });
+
     see('Upcoming Shows');
     expect(
       screen.getAllByRole('listitem').map(elem => elem.textContent)
@@ -139,8 +151,24 @@ describe('TimesGuide', () => {
     see.no('DAS');
   });
 
+  it("doesn't show ILL after park close", async () => {
+    renderComponent({
+      experiences: [
+        {
+          ...sdmt,
+          standby: {
+            available: false,
+            unavailableReason: 'NOT_STANDBY_ENABLED',
+          },
+          individual: { available: false, displayPrice: '$12' },
+        },
+      ],
+    });
+    see.no(sdmt.name);
+  });
+
   it('shows DAS button if eligible', async () => {
-    renderComponent([party]);
+    renderComponent({ dasParties: [party] });
     see('DAS', 'button');
   });
 });
