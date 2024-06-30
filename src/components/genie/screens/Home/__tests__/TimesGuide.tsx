@@ -167,6 +167,19 @@ describe('TimesGuide', () => {
     see.no(sdmt.name);
   });
 
+  it('always shows VQs', async () => {
+    renderComponent({
+      experiences: [
+        {
+          ...potc,
+          standby: { available: false },
+          virtualQueue: { available: false },
+        },
+      ],
+    });
+    see(potc.name);
+  });
+
   it('shows DAS button if eligible', async () => {
     renderComponent({ dasParties: [party] });
     see('DAS', 'button');
