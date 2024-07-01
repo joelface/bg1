@@ -689,15 +689,15 @@ export class GenieClient extends ApiClient {
       booking.modifiable = isModifiable(booking);
       if (item.multipleExperiences) {
         const origAsset = item.assets.find(a => a.original);
-        if (origAsset) {
-          booking = {
-            ...booking,
-            ...this.getBookingExperienceData(
-              origAsset.content,
-              (assets[origAsset.content] as Required<Asset>).location
-            ),
-          };
-        }
+        booking = {
+          ...booking,
+          ...(origAsset
+            ? this.getBookingExperienceData(
+                origAsset.content,
+                (assets[origAsset.content] as Required<Asset>).location
+              )
+            : { id: '', name: '' }),
+        };
         booking.choices = item.assets
           .filter(a => !a.excluded && !a.original)
           .map(({ content }) => {

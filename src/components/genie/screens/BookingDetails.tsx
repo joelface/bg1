@@ -119,7 +119,12 @@ export default function BookingDetails({
       {choices && (
         <>
           <p>
-            <b>{name}</b> was temporarily unavailable during your return time.
+            {name && (
+              <>
+                <b>{name}</b> was temporarily unavailable during your return
+                time.
+              </>
+            )}
             You may redeem this Lightning Lane at one of these replacement
             experiences:
           </p>

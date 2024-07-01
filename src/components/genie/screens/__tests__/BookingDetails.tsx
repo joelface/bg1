@@ -32,7 +32,7 @@ const rebooking = { begin: jest.fn(), end: jest.fn(), current: undefined };
 const setPark = jest.fn();
 
 function renderComponent(b: Booking = booking) {
-  wdw.render(
+  return wdw.render(
     <ParkProvider value={{ park: mk, setPark }}>
       <RebookingProvider value={rebooking}>
         <BookingDetails booking={b} />
@@ -76,7 +76,7 @@ describe('BookingDetails', () => {
   });
 
   it('shows Multiple Experiences LL details', async () => {
-    renderComponent(multiExp);
+    const { container } = renderComponent(multiExp);
     expect(see('Your Lightning Lane').parentNode?.parentNode).toHaveClass(
       DEFAULT_THEME.bg
     );
@@ -95,15 +95,24 @@ describe('BookingDetails', () => {
         .map(li => li.textContent)
         .slice(0, 4)
     ).toEqual([sdd.name, hm.name, jc.name, sm.name]);
+    expect(container).toHaveTextContent(
+      `${sdd.name} was temporarily unavailable during your return time.`
+    );
     see.no('Redemptions left: 1');
     see.no('Modify');
     see.no('Cancel');
   });
 
+  it('omits "temporarily unavailable" message if unknown original experience', async () => {
+    const { container } = renderComponent({ ...multiExp, id: '', name: '' });
+    see('Multiple Experiences');
+    expect(container).not.toHaveTextContent('was temporarily unavailable');
+  });
+
   it('uses park theme for single-park Multiple Experiences LL', async () => {
     renderComponent({
       ...multiExp,
-      choices: multiExp.choices?.filter(exp => exp.park === mk),
+      choices: multiExp.choices?.filter(exp => exp.park === booking.park),
     });
     see('Multiple Experiences');
     expect(see('Your Lightning Lane').parentNode?.parentNode).toHaveClass(
