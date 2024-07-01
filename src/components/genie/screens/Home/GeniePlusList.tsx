@@ -180,16 +180,15 @@ const Experiences = memo(function Experiences({
     .map(exp => {
       const standby = exp.standby.waitTime || 0;
       const returnTime = exp?.flex?.nextAvailableTime;
+      const priorityLevel = Math.trunc(exp.priority || 4);
       return {
         ...exp,
         lp:
           !!returnTime &&
           standby >= LP_MIN_STANDBY &&
+          priorityLevel < 3 &&
           timeToMinutes(returnTime) - nowMinutes <=
-            Math.min(
-              LP_MAX_LL_WAIT,
-              ((4 - Math.trunc(exp.priority || 4)) / 3) * standby
-            ),
+            Math.min(LP_MAX_LL_WAIT, ((4 - priorityLevel) / 3) * standby),
         starred: starred.has(exp.id),
       };
     })
