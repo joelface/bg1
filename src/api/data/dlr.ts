@@ -261,7 +261,7 @@ export const experiences: ResortData['experiences'] = {
     name: 'Matterhorn Bobsleds',
     land: fantasyland,
     geo: [33.8127838, -117.9182386],
-    priority: 2.1,
+    priority: 2.0,
   },
   18738682: {
     name: 'Disney Princesses (Royal Hall)',
@@ -282,7 +282,7 @@ export const experiences: ResortData['experiences'] = {
     name: "Mickey and Minnie's Runaway Railway",
     land: toontown,
     geo: [33.8154852, -117.9183938],
-    priority: 2.0,
+    priority: 2.1,
   },
   19193459: {
     name: 'Millennium Falcon: Smugglers Run',
