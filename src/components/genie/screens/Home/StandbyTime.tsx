@@ -1,15 +1,18 @@
 import { Experience } from '@/api/genie';
+import { displayTime } from '@/datetime';
 
 import LabeledItem from './LabeledItem';
 
 export default function StandbyTime({
-  experience: { type, standby },
+  experience: { type, standby, virtualQueue },
 }: {
-  experience: Pick<Experience, 'type' | 'standby'>;
+  experience: Pick<Experience, 'type' | 'standby' | 'virtualQueue'>;
 }) {
   return standby.displayNextShowTime ||
     (type === 'ENTERTAINMENT' && !standby.waitTime) ? (
     <NextShowTime standby={standby} />
+  ) : virtualQueue ? (
+    <VQStatus virtualQueue={virtualQueue} />
   ) : (
     <WaitTime standby={standby} />
   );
@@ -42,6 +45,20 @@ const NextShowTime = ({ standby }: Pick<Experience, 'standby'>) => (
     ) : (
       <Unavailable text="none" />
     )}
+  </LabeledItem>
+);
+
+const VQStatus = ({
+  virtualQueue,
+}: Required<Pick<Experience, 'virtualQueue'>>) => (
+  <LabeledItem label={<abbr title="Virtual Queue">VQ</abbr>}>
+    <Available
+      time={
+        virtualQueue.nextAvailableTime
+          ? displayTime(virtualQueue.nextAvailableTime)
+          : 'closed'
+      }
+    />
   </LabeledItem>
 );
 

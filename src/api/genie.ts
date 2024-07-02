@@ -43,7 +43,7 @@ interface ApiExperience {
   };
   virtualQueue?: {
     available: boolean;
-    waitTime: number;
+    nextAvailableTime?: string;
   };
 }
 
