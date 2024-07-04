@@ -229,6 +229,10 @@ export const experiences: ResortData['experiences'] = {
     name: 'Disney Adventure Friends Cavalcade',
     land: mainStreet,
   },
+  276291: {
+    name: 'Fourth of July Fireworks',
+    land: mainStreet,
+  },
   80010129: {
     name: 'Dumbo the Flying Elephant',
     land: fantasyland,
