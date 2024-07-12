@@ -657,7 +657,7 @@ export const experiences: ResortData['experiences'] = {
     name: 'Mission: SPACE',
     land: discovery,
     geo: [28.3739368, -81.5526389],
-    priority: 3.0,
+    priority: 3.1,
   },
   245274: {
     name: 'Père Noël (France)',
@@ -696,7 +696,7 @@ export const experiences: ResortData['experiences'] = {
     name: "Soarin' Around the World",
     land: nature,
     geo: [28.3735924, -81.5522783],
-    priority: 3.1,
+    priority: 3.0,
   },
   412001587: {
     name: "Soarin' Over California",
