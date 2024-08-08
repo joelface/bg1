@@ -30,16 +30,6 @@ const nextKey = () => ++keyInc;
 const getHashPos = () => Number(location.hash.slice(1)) || 0;
 
 let hashChanged = () => undefined as void;
-class HashChangedPromise extends Promise<void> {
-  constructor() {
-    super(resolve => {
-      hashChanged = () => {
-        resolve();
-        hashChanged = () => undefined;
-      };
-    });
-  }
-}
 
 export function Nav({ children }: { children: JSX.Element }) {
   const [screens, setScreens] = useState<Screens>({ current: children });
@@ -79,7 +69,12 @@ export function Nav({ children }: { children: JSX.Element }) {
       } else {
         history.back();
       }
-      return new HashChangedPromise();
+      return new Promise<void>(resolve => {
+        hashChanged = () => {
+          resolve();
+          hashChanged = () => undefined;
+        };
+      });
     },
   });
 
