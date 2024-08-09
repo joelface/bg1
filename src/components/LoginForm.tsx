@@ -28,6 +28,10 @@ export default function LoginForm({
   onLogin: (data: AuthData) => void;
 }) {
   useEffect(() => {
+    const os = navigator.userAgent.includes('Android') ? 'AND' : 'IOS';
+    const clientId = `TPR-${resort.id}-LBSDK.${os}`;
+    const deleteGuestData = () =>
+      localStorage.removeItem(clientId + '-PROD.guest');
     let timeoutId = 0;
 
     async function launchLogin() {
@@ -35,12 +39,13 @@ export default function LoginForm({
         timeoutId = self.setTimeout(launchLogin, 100);
         return;
       }
-      const os = navigator.userAgent.includes('Android') ? 'AND' : 'IOS';
+      deleteGuestData();
       const OneID = window.OneID.get({
-        clientId: `TPR-${resort.id}-LBSDK.${os}`,
+        clientId,
         responderPage: 'https://bg1.joelface.com/responder.html',
       });
       OneID.on('login', ({ token }) => {
+        deleteGuestData();
         onLogin({
           swid: token.swid,
           accessToken: token.access_token,
