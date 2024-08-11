@@ -6,6 +6,9 @@ import Select from '@/components/Select';
 import { useExperiences } from '@/contexts/Experiences';
 import { timeToMinutes } from '@/datetime';
 import useCoords, { Coords } from '@/hooks/useCoords';
+import kvdb from '@/kvdb';
+
+export const SORT_KEY = ['bg1', 'genie', 'sort'];
 
 export type Sorter = (
   a: PlusExperience,
@@ -66,7 +69,10 @@ function inPark(park: Park, coords: Coords) {
 export default function useSort() {
   const { experiences, park } = useExperiences();
   const [coords, updateCoords] = useCoords();
-  const [sortType, setSortType] = useState<SortType>('priority');
+  const [sortType, setSortType] = useState(() => {
+    const type = kvdb.get<SortType>(SORT_KEY);
+    return type && sortOptions.has(type) ? type : 'priority';
+  });
 
   useEffect(() => {
     if (sortType === 'nearby') updateCoords();
@@ -89,7 +95,10 @@ export default function useSort() {
       {...props}
       options={sortOptions}
       selected={sortType}
-      onChange={setSortType}
+      onChange={type => {
+        setSortType(type);
+        kvdb.set<SortType>(SORT_KEY, type);
+      }}
       title="Sort By"
     />
   );
