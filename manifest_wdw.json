@@ -7,6 +7,7 @@
     "orientation": "portrait",
     "description": "BG1 is an unofficial, experimental client for obtaining Genie+ Lightning Lane reservations and virtual queue boarding groups at Disney theme parks in the United States. Read the BG1 documentation to learn more.",
     "handle_links": "preferred",
+    "start_url": "https://disneyworld.disney.go.com",
     "icons":[
       {
         "src": "https://joelface.github.io/bg1/icon-512.png",
