@@ -24,7 +24,11 @@ if (window.location.href === bg1Url + 'start.html') {
     `<!doctype html><link rel=stylesheet href="${bg1Url}bg1.css"><body>`
   );
   const script = document.createElement('script');
+  const manifest = document.createElement('link');
   script.type = 'module';
   script.src = bg1Url + 'bg1.js';
+  manifest.rel = 'manifest';
+  manifest.href = bg1Url + 'manifest.json';
   document.head.appendChild(script);
+  document.head.appendChild(manifest);
 }

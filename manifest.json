@@ -1,0 +1,35 @@
+{
+    "name": "Boarding Group 1",
+    "id": "/",
+    "short_name": "BG1",
+    "theme_color": "#2196f3",
+    "background_color": "#2196f3",
+    "display": "standalone",
+    "orientation": "portrait",
+    "scope": "/",
+    "start_url": "/",
+    "description": "BG1 is an unofficial, experimental client for obtaining Genie+ Lightning Lane reservations and virtual queue boarding groups at Disney theme parks in the United States. Read the BG1 documentation to learn more.",
+    "handle_links": "preferred",
+    "icons":[
+      {
+        "src": "https://joelface.github.io/bg1/icon-512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any"
+      }
+    ],
+    "screenshots": [
+      {
+        "src": "https://joelface.github.io/bg1/screenshot_desktop.png",
+        "type": "image/png",
+        "sizes": "1919x921",
+        "form_factor": "wide"
+      },
+      {
+        "src": "https://joelface.github.io/bg1/screenshot_mobile.png",
+        "type": "image/png",
+        "sizes": "1080x1938",
+        "form_factor": "narrow"
+      }
+    ]  
+  }
