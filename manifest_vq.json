@@ -10,7 +10,7 @@
     "start_url": "https://vqguest-svc-wdw.wdprapps.disney.com",
     "icons":[
       {
-        "src": "https://joelface.github.io/bg1/icon-512.png",
+        "src": "https://engineer152.github.io/bg1/icon-512.png",
         "sizes": "512x512",
         "type": "image/png",
         "purpose": "any"
@@ -18,13 +18,13 @@
     ],
     "screenshots": [
       {
-        "src": "https://joelface.github.io/bg1/screenshot_desktop.png",
+        "src": "https://engineer152.github.io/bg1/screenshot_desktop.png",
         "type": "image/png",
         "sizes": "1919x921",
         "form_factor": "wide"
       },
       {
-        "src": "https://joelface.github.io/bg1/screenshot_mobile.png",
+        "src": "https://engineer152.github.io/bg1/screenshot_mobile.png",
         "type": "image/png",
         "sizes": "1080x1938",
         "form_factor": "narrow"
