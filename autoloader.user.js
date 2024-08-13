@@ -5,6 +5,7 @@
 // @description  Automatically loads the BG1 interface
 // @author       Joel Bruick
 // @match        https://joelface.github.io/bg1/start.html
+// @match        https://engineer152.github.io/bg1/start.html
 // @match        https://disneyworld.disney.go.com/vas/
 // @match        https://disneyworld.disney.go.com/*/vas/
 // @match        https://disneyland.disney.go.com/vas/
