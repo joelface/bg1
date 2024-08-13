@@ -1,13 +1,13 @@
 {
-    "name": "Boarding Group 1",
-    "short_name": "BG1",
+    "name": "BG1: Disneyland Virtual Queue",
+    "short_name": "BG1: DLR VQ",
     "theme_color": "#2196f3",
     "background_color": "#2196f3",
     "display": "standalone",
     "orientation": "portrait",
     "description": "BG1 is an unofficial, experimental client for obtaining Genie+ Lightning Lane reservations and virtual queue boarding groups at Disney theme parks in the United States. Read the BG1 documentation to learn more.",
     "handle_links": "preferred",
-    "start_url": "https://vqguest-svc-wdw.wdprapps.disney.com",
+    "start_url": "https://vqguest-svc.wdprapps.disney.com/application/v1/guest/getQueues",
     "icons":[
       {
         "src": "https://engineer152.github.io/bg1/icon-512.png",

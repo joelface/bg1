@@ -16,6 +16,7 @@
 'use strict';
 
 const bg1Url = 'https://joelface.github.io/bg1/';
+const bg1EUrl = 'https://engineer152.github.io/bg1/';
 if (window.location.href === bg1Url + 'start.html') {
   document.body.classList.add('autoload');
 } else {
@@ -28,7 +29,17 @@ if (window.location.href === bg1Url + 'start.html') {
   script.type = 'module';
   script.src = bg1Url + 'bg1.js';
   manifest.rel = 'manifest';
-  manifest.href = bg1Url + 'manifest.json';
-  document.head.appendChild(script);
+  if (window.location.href.indexOf("disneyworld") > -1) {
+      manifest.href = bg1EUrl + 'manifest_wdw.json';
+  } else if (window.location.href.indexOf("disneyland") > -1) {
+      manifest.href = bg1EUrl + 'manifest_dlr.json';
+  } else if (window.location.href.indexOf("vqguest-svc-wdw") > -1) {
+      manifest.href = bg1EUrl + 'manifest_wdw_vq.json';
+  } else if (window.location.href.indexOf("vqguest-svc") > -1) {
+    manifest.href = bg1EUrl + 'manifest_dlr_vq.json';
+  } else {
+    manifest.href = bg1EUrl + 'manifest.json';
+  }
   document.head.appendChild(manifest);
+  document.head.appendChild(script);
 }
