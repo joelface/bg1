@@ -42,7 +42,7 @@ export default function LoginForm({
       deleteGuestData();
       const OneID = window.OneID.get({
         clientId,
-        responderPage: 'https://bg1.joelface.com/responder.html',
+        responderPage: 'https://joelface.github.io/bg1/responder.html',
       });
       OneID.on('login', ({ token }) => {
         deleteGuestData();

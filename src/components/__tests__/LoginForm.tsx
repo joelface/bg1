@@ -39,7 +39,7 @@ describe('LoginForm', () => {
     if (!window.OneID) return;
     expect(window.OneID.get).toHaveBeenCalledWith({
       clientId: 'TPR-WDW-LBSDK.IOS',
-      responderPage: 'https://bg1.joelface.com/responder.html',
+      responderPage: 'https://joelface.github.io/bg1/responder.html',
     });
     expect(
       document.querySelector(
