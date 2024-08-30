@@ -205,6 +205,14 @@ export const experiences: ResortData['experiences'] = {
     name: 'Finding Nemo Submarine Voyage',
     land: tomorrowland,
   },
+  19348571: {
+    name: 'Halloween Screams (Fireworks)',
+    land: mainStreet,
+  },
+  19348570: {
+    name: 'Halloween Screams (Projections)',
+    land: mainStreet,
+  },
   353347: {
     name: 'Haunted Mansion',
     land: newOrleans,
