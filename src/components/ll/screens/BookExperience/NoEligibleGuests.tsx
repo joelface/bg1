@@ -1,14 +1,20 @@
+import FloatingButton from '@/components/FloatingButton';
 import Notice from '@/components/Notice';
 import { Time } from '@/components/Time';
+import { useBookingDate } from '@/contexts/BookingDate';
 import { useClients } from '@/contexts/Clients';
+import { useNav } from '@/contexts/Nav';
 import { useRebooking } from '@/contexts/Rebooking';
-import { dateTimeStrings } from '@/datetime';
+import { dateTimeStrings, parkDate } from '@/datetime';
 
 import IneligibleGuestList from '../../IneligibleGuestList';
 
 export default function NoEligibleGuests() {
+  const { goBack } = useNav();
   const { ll } = useClients();
   const rebooking = useRebooking();
+  const { bookingDate, setBookingDate } = useBookingDate();
+  const today = parkDate();
   return (
     <>
       {rebooking.current ? (
@@ -35,6 +41,16 @@ export default function NoEligibleGuests() {
         </>
       )}
       <IneligibleGuestList />
+      {bookingDate !== today && (
+        <FloatingButton
+          onClick={() => {
+            setBookingDate(today);
+            goBack();
+          }}
+        >
+          Switch to Today
+        </FloatingButton>
+      )}
     </>
   );
 }
