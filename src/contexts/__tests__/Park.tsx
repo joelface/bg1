@@ -1,38 +1,54 @@
-import { ep, mk, wdw } from '@/__fixtures__/ll';
-import { click, render, see } from '@/testing';
+import { ak, ep, mk, renderResort } from '@/__fixtures__/ll';
+import Screen from '@/components/Screen';
+import { TODAY, TOMORROW, click, loading, see } from '@/testing';
 
+import { BookingDateContext } from '../BookingDate';
 import { ParkProvider, usePark } from '../Park';
-import { ResortProvider } from '../Resort';
-
-function Test() {
-  return (
-    <ResortProvider value={wdw}>
-      <ParkProvider>
-        <ParkConsumer />
-      </ParkProvider>
-    </ResortProvider>
-  );
-}
+import { PlansProvider } from '../Plans';
 
 function ParkConsumer() {
   const { park, setPark } = usePark();
   return (
-    <div>
-      <h1>{park.name}</h1>
+    <Screen title={park.name}>
       <button onClick={() => setPark(ep)}>Hop to {ep.name}</button>
-    </div>
+    </Screen>
   );
 }
 
-describe('useParkState()', () => {
+function Test({ date = TODAY }: { date?: string }) {
+  return (
+    <PlansProvider>
+      <BookingDateContext.Provider
+        value={{ bookingDate: date, setBookingDate: () => {} }}
+      >
+        <ParkProvider>
+          <ParkConsumer />
+        </ParkProvider>
+      </BookingDateContext.Provider>
+    </PlansProvider>
+  );
+}
+
+describe('ParkProvider', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
   it('saves selected park', async () => {
-    const { unmount } = render(<Test />);
-    see(mk.name, 'heading');
+    const { unmount } = renderResort(<Test />);
+    await loading();
+    await see.screen(mk.name);
     click(`Hop to ${ep.name}`);
-    see(ep.name, 'heading');
+    await see.screen(ep.name);
 
     unmount();
-    render(<Test />);
-    see(ep.name, 'heading');
+    renderResort(<Test />);
+    await see.screen(ep.name);
+  });
+
+  it('loads park based on plans', async () => {
+    renderResort(<Test date={TOMORROW} />);
+    await loading();
+    await see.screen(ak.name);
   });
 });

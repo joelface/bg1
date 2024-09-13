@@ -11,7 +11,7 @@ import kvdb from '@/kvdb';
 
 import { useClients } from './Clients';
 
-export const BOOKING_DATE_KEY = ['bg1', 'bookingDate'];
+export const BOOKING_DATE_KEY = ['bg1', 'date'];
 const NUM_BOOKING_DAYS = 22;
 
 interface BookingDateState {

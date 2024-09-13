@@ -2,11 +2,13 @@ import { useMemo } from 'react';
 
 import MenuButton, { MenuProps } from '@/components/MenuButton';
 import { getBookingDates, useBookingDate } from '@/contexts/BookingDate';
+import { useUpdateParkFromPlans } from '@/contexts/Park';
 import { useTheme } from '@/contexts/Theme';
 import { DateFormat, dateObject, modifyDate, parkDate } from '@/datetime';
 
 export default function BookingDateSelect(props: { className?: string }) {
   const { bookingDate, setBookingDate } = useBookingDate();
+  const updateParkFromPlans = useUpdateParkFromPlans();
   const today = parkDate();
 
   const options = useMemo(() => {
@@ -26,7 +28,11 @@ export default function BookingDateSelect(props: { className?: string }) {
       title="Booking Date"
       options={options}
       selected={bookingDate}
-      onChange={setBookingDate}
+      onChange={(date: string) => {
+        if (date === bookingDate) return;
+        setBookingDate(date);
+        updateParkFromPlans(date);
+      }}
       menuType={CalendarMenu}
     />
   );
