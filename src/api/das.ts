@@ -5,39 +5,31 @@ import { avatarUrl } from './avatar';
 import { ApiClient } from './client';
 import { ExperienceType, Park } from './resort';
 
-interface ApiExperience {
+export interface Experience {
   id: string;
   name: string;
   type: ExperienceType;
   available: boolean;
-  nextAvailableTime?: string;
+  time: string;
 }
 
-export type Experience = Required<ApiExperience>;
+interface ApiExperience extends Omit<Experience, 'time'> {
+  nextAvailableStartDateTime?: string;
+  nextAvailableEndDateTime?: string;
+}
 
 export interface Guest {
   id: string;
   name: string;
-  primary?: boolean;
   avatarImageUrl?: string;
+  characterId?: string;
 }
 
-interface ApiGuest extends Omit<Guest, 'avatarImageUrl'> {
-  characterId: string;
-}
-
-interface ApiParty {
-  primaryGuest: ApiGuest;
-  linkedGuests: ApiGuest[];
+export type DasParty = {
+  primaryGuest: Guest;
+  linkedGuests: Guest[];
   selectionLimit: number;
-}
-
-type PartiesResponse = {
-  bookingGuestId: string;
-  parties: ApiParty[];
 };
-
-export type DasParty = Guest[];
 
 interface EligibilityConflictSet {
   type:
@@ -59,24 +51,13 @@ type EligibilityResponse = (
   | EligibilityConflictSet
 )[];
 
-type AvailabilityResponse = Omit<Experience, 'name'>;
-
 interface NewSelectionResponse {
   id: string;
-  assignmentDetails: {
-    product: 'DISABILITY_ACCESS_SERVICE';
-    reason: 'DISABILITY_ACCESS';
-  };
   startDateTime: string;
   endDateTime: string;
   entitlements: {
     id: string;
     guestId: string;
-    usageDetails: {
-      status: 'BOOKED';
-      modifiable: false;
-      redeemable: boolean;
-    };
   }[];
   singleExperienceDetails: {
     experienceId: string;
@@ -105,14 +86,20 @@ export interface DasBooking {
   bookingId: string;
 }
 
-const path = (subpath: string) => `/das-vas/api/v1/${subpath}`;
+const path = (subpath: string, v: number) => `/das-vas/api/v${v}/${subpath}`;
 
-function convertGuest(guest: ApiGuest): Guest {
+function convertGuest(guest: Guest): Guest {
   return {
     id: guest.id,
     name: guest.name.replace(/ \(Me\)$/, ''),
     avatarImageUrl: avatarUrl(guest.characterId),
-    primary: guest.primary,
+  };
+}
+
+function guestIdParams(primaryGuest: Guest, guests: Guest[]) {
+  return {
+    primaryGuestId: primaryGuest.id,
+    guestIds: guests.map(g => g.id).join(','),
   };
 }
 
@@ -139,18 +126,20 @@ export class DasClient extends ApiClient {
   async experiences(park: Park): Promise<Experience[]> {
     const parkId = encodeURIComponent(park.id);
     const { data: experiences } = await this.request<ApiExperience[]>({
-      path: path(`availability/parks/${parkId}/experiences`),
+      path: path(`availability/parks/${parkId}/experiences`, 2),
       key: 'experiences',
     });
     return experiences
       .filter(
-        (exp): exp is Experience => exp.available && !!exp.nextAvailableTime
+        (exp): exp is Required<ApiExperience> =>
+          exp.available && !!exp.nextAvailableStartDateTime
       )
-      .map(exp => {
+      .map(({ id, name, type, available, nextAvailableStartDateTime }) => {
+        const { time } = splitDateTime(nextAvailableStartDateTime);
         try {
-          return { ...exp, ...this.resort.experience(exp.id) };
+          return { type, ...this.resort.experience(id), available, time };
         } catch {
-          return exp;
+          return { id, name, type, available, time };
         }
       })
       .sort((a, b) => a.name.localeCompare(b.name));
@@ -161,27 +150,37 @@ export class DasClient extends ApiClient {
     encodeURIComponent(swid);
     const {
       data: { bookingGuestId, parties },
-    } = await this.request<PartiesResponse>({
-      path: path(`users/${encodeURIComponent(swid)}/parties`),
+    } = await this.request<{
+      bookingGuestId: string;
+      parties: DasParty[];
+    }>({
+      path: path(`users/${encodeURIComponent(swid)}/parties`, 1),
     });
     this.bookingGuestId = bookingGuestId;
-    return parties.map(p =>
-      [{ ...p.primaryGuest, primary: true }, ...p.linkedGuests].map(
-        convertGuest
-      )
-    );
+    return parties.map(p => ({
+      primaryGuest: convertGuest(p.primaryGuest),
+      linkedGuests: p.linkedGuests.map(convertGuest),
+      selectionLimit: p.selectionLimit,
+    }));
   }
 
   async book({
     park,
     experience,
+    primaryGuest,
     guests,
   }: {
     park: Park;
     experience: Pick<Experience, 'id' | 'name'>;
+    primaryGuest: Guest;
     guests: Guest[];
   }): Promise<DasBooking> {
-    const eligibility = await this.eligibility({ park, experience, guests });
+    const eligibility = await this.eligibility({
+      park,
+      experience,
+      primaryGuest,
+      guests,
+    });
     const eligibleIds = new Set(
       eligibility.find(({ type }) => type === 'ELIGIBLE')?.guestIds
     );
@@ -194,18 +193,16 @@ export class DasClient extends ApiClient {
         )
       );
     }
-    const startTime = await this.availability({ park, experience });
-    const primaryGuestId = guests.find(g => g.primary)?.id;
     const guestsById = new Map(guests.map(g => [g.id, g]));
     const { data: booking } = await this.request<NewSelectionResponse>({
-      path: path('bookings'),
+      path: path('bookings', 2),
       key: 'booking',
       data: {
         bookingGuestId: this.bookingGuestId,
-        primaryGuestId,
+        primaryGuestId: primaryGuest.id,
         guestIds: guests.map(g => g.id),
         experienceId: experience.id,
-        startTime,
+        ...(await this.availability({ experience, primaryGuest, guests })),
       },
     });
     return {
@@ -233,7 +230,7 @@ export class DasClient extends ApiClient {
     const ids = guests.map(g => g.entitlementId);
     const idParam = ids.map(encodeURIComponent).join(',');
     await this.request({
-      path: path(`entitlements/${idParam}`),
+      path: path(`entitlements/${idParam}`, 1),
       method: 'DELETE',
     });
   }
@@ -241,24 +238,20 @@ export class DasClient extends ApiClient {
   protected async eligibility({
     park,
     experience,
+    primaryGuest,
     guests,
-  }:
-    | {
-        park: Park;
-        experience: Pick<Experience, 'id'>;
-        guests: Guest[];
-      }
-    | Record<string, never> = {}): Promise<EligibilityResponse> {
-    const primary = guests.find(g => !!g.primary);
-    if (!primary) throw new NoPrimaryGuest();
-
+  }: {
+    park: Park;
+    experience: Pick<Experience, 'id'>;
+    primaryGuest: Guest;
+    guests: Guest[];
+  }): Promise<EligibilityResponse> {
     const { data: eligibility } = await this.request<EligibilityResponse>({
-      path: path('eligibility'),
+      path: path('eligibility', 1),
       params: {
         experienceId: experience.id,
         parkId: park.id,
-        primaryGuestId: primary.id,
-        guestIds: guests.map(g => g.id).join(','),
+        ...guestIdParams(primaryGuest, guests),
       },
       key: 'eligibility',
     });
@@ -266,21 +259,25 @@ export class DasClient extends ApiClient {
   }
 
   protected async availability({
-    park,
     experience,
+    primaryGuest,
+    guests,
   }: {
-    park: Park;
     experience: Pick<Experience, 'id'>;
-  }) {
+    primaryGuest: Guest;
+    guests: Guest[];
+  }): Promise<{
+    startDateTime: string;
+    endDateTime: string;
+  }> {
     const expId = encodeURIComponent(experience.id);
-    const parkId = encodeURIComponent(park.id);
     const {
-      data: { available, nextAvailableTime },
-    } = await this.request<AvailabilityResponse>({
-      path: path(`availability/parks/${parkId}/experiences/${expId}`),
-      key: 'experience',
+      data: { startDateTime, endDateTime },
+    } = await this.request<{ startDateTime: string; endDateTime: string }>({
+      path: path(`availability/experiences/${expId}`, 3),
+      params: guestIdParams(primaryGuest, guests),
     });
-    if (!available || !nextAvailableTime) throw new ExperienceUnavailable();
-    return nextAvailableTime;
+    if (!startDateTime || !endDateTime) throw new ExperienceUnavailable();
+    return { startDateTime, endDateTime };
   }
 }

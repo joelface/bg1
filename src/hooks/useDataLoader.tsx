@@ -12,8 +12,7 @@ export type DataLoader = (
     messages?: {
       error?: string;
       request?: string;
-      [status: number]: string;
-    };
+    } & { [httpStatusOrErrorName: string | number]: string };
     minLoadTime?: number;
   }
 ) => Promise<void>;
@@ -47,7 +46,7 @@ export default function useDataLoader(): {
         await callback(setFlashArgs);
       } catch (error: any) {
         const status = error?.response?.status;
-        if (msgs[error.name] !== undefined) {
+        if (error instanceof Error && msgs[error.name]) {
           setFlashArgs(msgs[error.name], 'error');
         } else if (Number.isInteger(status)) {
           setFlashArgs(status in msgs ? msgs[status] : msgs.request, 'error');

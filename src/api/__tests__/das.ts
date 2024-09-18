@@ -1,11 +1,11 @@
-import { mickey, minnie, party } from '@/__fixtures__/das';
+import { hm, jc, mickey, minnie, sm } from '@/__fixtures__/das';
 import { fetchJson } from '@/fetch';
 import { TODAY } from '@/testing';
 
 import { authStore } from '../auth';
 import { DasClient } from '../das';
 import * as data from '../data/wdw';
-import { Experience, Resort } from '../resort';
+import { Resort } from '../resort';
 
 jest.mock('@/fetch');
 const accessToken = 'ACCESS_TOKEN';
@@ -15,10 +15,6 @@ jest.spyOn(authStore, 'getData').mockReturnValue({ accessToken, swid });
 const wdw = new Resort('WDW', data);
 const [mk] = wdw.parks;
 const origin = 'https://disneyworld.disney.go.com';
-
-const hm = wdw.experience('80010208') as Experience;
-const sm = wdw.experience('80010190') as Experience;
-const jc = wdw.experience('80010153') as Experience;
 
 const booking = {
   type: 'DAS',
@@ -99,12 +95,18 @@ describe('DasClient', () => {
                 characterId: '90004486',
               },
             ],
-            selectionLimit: 6,
+            selectionLimit: 4,
           },
         ],
       });
       respond(res);
-      expect(await client.parties()).toEqual([party]);
+      expect(await client.parties()).toEqual([
+        {
+          primaryGuest: mickey,
+          linkedGuests: [minnie],
+          selectionLimit: 4,
+        },
+      ]);
       expectFetch(`/das-vas/api/v1/users/${encodeURIComponent(swid)}/parties`);
     });
   });
@@ -114,42 +116,24 @@ describe('DasClient', () => {
       const res = response({
         experiences: [
           {
-            id: jc.id,
+            ...jc,
             name: 'Jungle',
-            type: 'ATTRACTION',
             available: false,
           },
           {
-            id: sm.id,
+            ...sm,
             name: 'Space',
-            type: 'ATTRACTION',
-            available: true,
-            nextAvailableTime: '10:55:00',
+            nextAvailableStartDateTime: `${TODAY}T${sm.time}`,
           },
           {
-            id: hm.id,
+            ...hm,
             name: 'Haunted',
-            type: 'ATTRACTION',
-            available: true,
-            nextAvailableTime: '10:20:00',
+            nextAvailableStartDateTime: `${TODAY}T${hm.time}`,
           },
         ],
       });
       respond(res);
-      expect(await client.experiences(mk)).toEqual([
-        {
-          ...hm,
-          type: 'ATTRACTION',
-          available: true,
-          nextAvailableTime: '10:20:00',
-        },
-        {
-          ...sm,
-          type: 'ATTRACTION',
-          available: true,
-          nextAvailableTime: '10:55:00',
-        },
-      ]);
+      expect(await client.experiences(mk)).toEqual([hm, sm]);
     });
   });
 
@@ -164,13 +148,10 @@ describe('DasClient', () => {
         ],
       });
       const availRes = response({
-        experience: {
-          id: hm.id,
-          name: hm.name,
-          type: 'ATTRACTION',
-          available: true,
-          nextAvailableTime: '10:30:00',
-        },
+        id: hm.id,
+        type: 'ATTRACTION',
+        startDateTime: `${TODAY}T10:30:00`,
+        endDateTime: `${TODAY}T21:00:00`,
       });
       const bookRes = response({
         booking: {
@@ -179,34 +160,14 @@ describe('DasClient', () => {
             {
               id: 'jc1030_mickey',
               guestId: mickey.id,
-              usageDetails: {
-                status: 'BOOKED',
-                redeemable: true,
-                modifiable: false,
-                validityEndDate: TODAY,
-                usesAllowed: 1,
-                usesRemaining: 1,
-              },
             },
             {
               id: 'jc1030_minnie',
               guestId: minnie.id,
-              usageDetails: {
-                status: 'BOOKED',
-                redeemable: true,
-                modifiable: false,
-                validityEndDate: TODAY,
-                usesAllowed: 1,
-                usesRemaining: 1,
-              },
             },
           ],
           startDateTime: `${TODAY}T10:30:00`,
           endDateTime: `${TODAY}T02:00:00`,
-          assignmentDetails: {
-            product: 'DISABILITY_ACCESS_SERVICE',
-            reason: 'DISABILITY_ACCESS',
-          },
           singleExperienceDetails: {
             experienceId: jc.id,
             parkId: mk.id,
@@ -215,7 +176,12 @@ describe('DasClient', () => {
       });
       respond(eligRes, availRes, bookRes);
       expect(
-        await client.book({ park: mk, experience: jc, guests: party })
+        await client.book({
+          park: mk,
+          experience: jc,
+          primaryGuest: mickey,
+          guests: [mickey, minnie],
+        })
       ).toEqual(booking);
     });
   });

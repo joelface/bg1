@@ -10,7 +10,6 @@ export const mickey = {
   id: 'mickey',
   name: 'Mickey Mouse',
   avatarImageUrl: avatarUrl('17532228'),
-  primary: true,
 };
 
 export const minnie = {
@@ -19,25 +18,29 @@ export const minnie = {
   avatarImageUrl: avatarUrl('90004486'),
 };
 
-export const party = [mickey, minnie];
+export const party = {
+  primaryGuest: mickey,
+  linkedGuests: [minnie],
+  selectionLimit: 4,
+};
 
 export const hm: Experience = {
   ...wdw.experience('80010208'),
   type: 'ATTRACTION',
   available: true,
-  nextAvailableTime: '10:30:00',
+  time: '10:30:00',
 };
 export const jc: Experience = {
   ...wdw.experience('80010153'),
   type: 'ATTRACTION',
   available: true,
-  nextAvailableTime: '10:45:00',
+  time: '10:45:00',
 };
 export const sm: Experience = {
   ...wdw.experience('80010190'),
   type: 'ATTRACTION',
   available: true,
-  nextAvailableTime: '10:40:00',
+  time: '10:40:00',
 };
 
 export const booking: DasBooking = {

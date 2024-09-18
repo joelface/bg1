@@ -8,8 +8,7 @@ setTime('10:00');
 jest.spyOn(das, 'experiences');
 const onSelect = jest.fn();
 
-const waitTimeLabel = (exp: Experience) =>
-  exp.nextAvailableTime.slice(3, 5) + ' min.';
+const waitTimeLabel = (exp: Experience) => exp.time.slice(3, 5) + ' min.';
 
 async function renderComponent() {
   const view = wdw.render(<DasExperienceList park={mk} onSelect={onSelect} />);

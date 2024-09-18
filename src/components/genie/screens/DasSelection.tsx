@@ -5,7 +5,6 @@ import {
   DasParty,
   EligibilityConflicts,
   Experience,
-  ExperienceUnavailable,
   Guest,
 } from '@/api/das';
 import { Park } from '@/api/resort';
@@ -35,7 +34,11 @@ export default function DasSelection({
   const { das } = resort;
   const { refreshPlans } = usePlans();
   const [experience, setExperience] = useState<Experience>();
-  const [selected, setSelected] = useState<Set<Guest>>(new Set(party));
+  const [selected, setSelected] = useState<Set<Guest>>(
+    new Set(
+      [party.primaryGuest, ...party.linkedGuests].slice(0, party.selectionLimit)
+    )
+  );
   const [conflicts, setConflicts] = useState<EligibilityConflicts>({});
   const { loadData, loaderElem } = useDataLoader();
 
@@ -47,6 +50,7 @@ export default function DasSelection({
           const booking = await das.book({
             park,
             experience,
+            primaryGuest: party.primaryGuest,
             guests: [...selected],
           });
           refreshPlans();
@@ -60,8 +64,8 @@ export default function DasSelection({
       },
       {
         messages: {
-          [ConflictsError.name]: 'Some guests not eligible',
-          [ExperienceUnavailable.name]: 'Experience currently unavailable',
+          ConflictsError: 'Some guests not eligible',
+          ExperienceUnavailable: 'Experience currently unavailable',
         },
       }
     );
@@ -90,7 +94,7 @@ export default function DasSelection({
                 )
               }
             >
-              Modify
+              Change
             </Button>
           </div>
         </div>
@@ -114,22 +118,19 @@ export default function DasSelection({
         </div>
       )}
       <h3>DAS Guest</h3>
-      <GuestList guests={party.slice(0, 1)} conflicts={conflicts} />
-      {party.length > 1 && (
+      <GuestList guests={[party.primaryGuest]} conflicts={conflicts} />
+      {party.linkedGuests.length > 0 && (
         <>
           <h3>Additional Guests</h3>
           <GuestList
-            guests={party.slice(1)}
+            guests={party.linkedGuests}
             selectable={{
               isSelected: g => selected.has(g),
               onToggle: g => {
-                if (selected.has(g)) {
-                  selected.delete(g);
-                } else {
-                  selected.add(g);
-                }
+                selected[selected.has(g) ? 'delete' : 'add'](g);
                 setSelected(new Set(selected));
               },
+              limit: party.selectionLimit - 1,
             }}
             conflicts={conflicts}
           />

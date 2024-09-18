@@ -31,7 +31,7 @@ export default function DasExperienceList({
       const exps = await das.experiences(park);
       setExperiences(
         exps
-          .filter(exp => exp.available && !!exp.nextAvailableTime)
+          .filter(exp => exp.available && !!exp.time)
           .sort((a, b) => a.name.localeCompare(b.name))
       );
     });
@@ -45,23 +45,21 @@ export default function DasExperienceList({
 
   return (
     <Screen title="Select Experience" theme={park.theme}>
-      {experiences ? (
-        experiences.length === 0 ? (
-          <p>No DAS experiences available</p>
-        ) : (
-          <>
-            {sublists.map(sl => (
-              <Sublist
-                park={park}
-                experiences={experiences.filter(exp => exp.type === sl.type)}
-                heading={sl.heading}
-                onSelect={onSelect}
-                key={sl.type}
-              />
-            ))}
-          </>
-        )
-      ) : null}
+      {!experiences ? null : experiences.length > 0 ? (
+        <>
+          {sublists.map(sl => (
+            <Sublist
+              park={park}
+              experiences={experiences.filter(exp => exp.type === sl.type)}
+              heading={sl.heading}
+              onSelect={onSelect}
+              key={sl.type}
+            />
+          ))}
+        </>
+      ) : (
+        <p>No DAS experiences available</p>
+      )}
       {loaderElem}
     </Screen>
   );
@@ -92,8 +90,7 @@ function Sublist({
             <div className="px-2">
               <Button onClick={() => onSelect(exp)}>
                 <span className="min-w-[4rem]">
-                  {waitTime(exp.nextAvailableTime, now)}{' '}
-                  <abbr title="minutes">min.</abbr>
+                  {waitTime(exp.time, now)} <abbr title="minutes">min.</abbr>
                 </span>
               </Button>
             </div>

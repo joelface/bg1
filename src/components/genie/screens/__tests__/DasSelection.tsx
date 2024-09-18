@@ -72,11 +72,12 @@ describe('DasSelection', () => {
     expect(das.book).toHaveBeenLastCalledWith({
       park: mk,
       experience: hm,
+      primaryGuest: mickey,
       guests: [mickey, minnie],
     });
     await waitFor(() => see('NOT IN PARK'));
 
-    click('Modify');
+    click('Change');
     expect(goTo).toHaveBeenCalledTimes(2);
     onSelect = jest.mocked(goTo).mock.lastCall?.[0].props.onSelect;
     act(() => onSelect(jc));
@@ -86,6 +87,7 @@ describe('DasSelection', () => {
     expect(das.book).toHaveBeenLastCalledWith({
       park: mk,
       experience: jc,
+      primaryGuest: mickey,
       guests: [mickey, minnie],
     });
     await waitFor(() => expect(refreshPlans).toHaveBeenCalled());

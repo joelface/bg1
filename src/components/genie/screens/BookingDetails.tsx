@@ -35,7 +35,9 @@ export default function BookingDetails({
   const { name, park, choices, type, subtype, start } = booking;
   const dasGuest =
     type === 'DAS' && subtype === 'IN_PARK'
-      ? booking.guests.find(g => dasParties.find(p => p[0].id === g.id))
+      ? booking.guests.find(g =>
+          dasParties.find(p => p.primaryGuest.id === g.id)
+        )
       : undefined;
   const rebooking = useRebooking();
   const [guests, setGuests] = useState(

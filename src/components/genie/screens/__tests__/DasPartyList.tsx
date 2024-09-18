@@ -1,6 +1,5 @@
 import { booking, genie, mickey, minnie, party, wdw } from '@/__fixtures__/das';
-import { DasParty } from '@/api/das';
-import { DasBooking } from '@/api/genie';
+import { DasBooking, DasParty } from '@/api/das';
 import { Nav } from '@/contexts/Nav';
 import { PlansProvider, usePlansState } from '@/contexts/Plans';
 import { click, loading, see, setTime } from '@/testing';
@@ -12,7 +11,6 @@ setTime('10:00');
 const donald = {
   id: 'donald',
   name: 'Donald Duck',
-  primary: true,
 };
 
 const daisy = {
@@ -20,7 +18,10 @@ const daisy = {
   name: 'Daisy Duck',
 };
 
-const parties: DasParty[] = [party, [donald, daisy]];
+const parties: DasParty[] = [
+  party,
+  { primaryGuest: daisy, linkedGuests: [donald], selectionLimit: 4 },
+];
 
 function DasPartyListTest({ parties }: { parties: DasParty[] }) {
   return (
@@ -59,7 +60,7 @@ describe('DasPartyList', () => {
   it('shows party list if multiple DAS parties', async () => {
     await renderComponent(parties, [booking]);
     see(mickey.name);
-    see(donald.name);
+    see(daisy.name);
     click('Select');
     await see.screen('DAS Selection');
     see(donald.name);

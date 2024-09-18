@@ -19,7 +19,7 @@ export default function DasPartyList({ parties }: { parties: DasParty[] }) {
 
   useLayoutEffect(refreshPlans, [refreshPlans]);
 
-  const dasGuestIds = new Set(parties.map(p => p[0]).map(g => g.id));
+  const dasGuestIds = new Set(parties.map(p => p.primaryGuest.id));
   const selections = plans.filter(
     (b): b is DasBooking => b.type === 'DAS' && b.subtype === 'IN_PARK'
   );
@@ -33,7 +33,7 @@ export default function DasPartyList({ parties }: { parties: DasParty[] }) {
 
   if (!loaderElem && parties.length === 1) {
     const party = parties[0];
-    const selection = selectionByGuestId.get(party[0].id);
+    const selection = selectionByGuestId.get(party.primaryGuest.id);
     if (selection) {
       return <BookingDetails booking={selection} />;
     } else {
@@ -42,9 +42,11 @@ export default function DasPartyList({ parties }: { parties: DasParty[] }) {
   }
 
   const unbookedParties = parties.filter(
-    p => !selectionByGuestId?.has(p[0].id)
+    p => !selectionByGuestId?.has(p.primaryGuest.id)
   );
-  const bookedParties = parties.filter(p => selectionByGuestId?.has(p[0].id));
+  const bookedParties = parties.filter(p =>
+    selectionByGuestId?.has(p.primaryGuest.id)
+  );
 
   return (
     <Screen
@@ -61,26 +63,28 @@ export default function DasPartyList({ parties }: { parties: DasParty[] }) {
               <ul className="mt-2">
                 {unbookedParties.map(p => (
                   <li
-                    key={p[0].id}
+                    key={p.primaryGuest.id}
                     className="flex items-center gap-x-3 pl-3 py-1"
                   >
                     <span
                       className="flex-shrink-0 w-[48px] h-[48px] leading-[48px] rounded-full text-3xl font-bold text-center bg-gray-400 text-white"
                       aria-hidden="true"
                     >
-                      {p[0].avatarImageUrl ? (
+                      {p.primaryGuest.avatarImageUrl ? (
                         <img
-                          src={p[0].avatarImageUrl}
+                          src={p.primaryGuest.avatarImageUrl}
                           alt=""
                           width="48"
                           height="48"
                           className="rounded-full"
                         />
                       ) : (
-                        p[0].name[0]
+                        p.primaryGuest.name[0]
                       )}
                     </span>
-                    <span className="flex-1 leading-tight">{p[0].name}</span>
+                    <span className="flex-1 leading-tight">
+                      {p.primaryGuest.name}
+                    </span>
                     <Button
                       type="small"
                       onClick={() =>
@@ -99,30 +103,30 @@ export default function DasPartyList({ parties }: { parties: DasParty[] }) {
               <h3>Current Selection</h3>
               <ul className="mt-2">
                 {bookedParties.map(p => {
-                  const selection = selectionByGuestId.get(p[0].id);
+                  const selection = selectionByGuestId.get(p.primaryGuest.id);
                   return (
                     <li
-                      key={p[0].id}
+                      key={p.primaryGuest.id}
                       className="flex items-center gap-x-3 pl-3 py-1"
                     >
                       <span
                         className="flex-shrink-0 w-[48px] h-[48px] leading-[48px] rounded-full text-3xl font-bold text-center bg-gray-400 text-white"
                         aria-hidden="true"
                       >
-                        {p[0].avatarImageUrl ? (
+                        {p.primaryGuest.avatarImageUrl ? (
                           <img
-                            src={p[0].avatarImageUrl}
+                            src={p.primaryGuest.avatarImageUrl}
                             alt=""
                             width="48"
                             height="48"
                             className="rounded-full"
                           />
                         ) : (
-                          p[0].name[0]
+                          p.primaryGuest.name[0]
                         )}
                       </span>
                       <div className="flex-1">
-                        <div>{p[0].name}</div>
+                        <div>{p.primaryGuest.name}</div>
                         {selection && (
                           <div className="text-gray-500 text-xs font-semibold uppercase">
                             {selection.name} @{' '}
