@@ -267,7 +267,7 @@ describe('BookExperience', () => {
 
     await clickModify();
     click(pluto.name);
-    see('Maximum party size: 2');
+    see('Selection limit reached');
 
     (genie as any).maxPartySize = maxPartySize;
   });

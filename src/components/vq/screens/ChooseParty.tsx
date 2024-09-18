@@ -13,7 +13,7 @@ import QueueScreen from './QueueScreen';
 export default function ChooseParty({ queue }: { queue: Queue }) {
   const { goTo } = useNav();
   const { vq } = useResort();
-  const { loadData, loaderElem, flash } = useDataLoader();
+  const { loadData, loaderElem } = useDataLoader();
   const [guests, setGuests] = useState<Guest[]>([]);
   const [party, setParty] = useState<Set<Guest>>(new Set());
 
@@ -26,15 +26,8 @@ export default function ChooseParty({ queue }: { queue: Queue }) {
   }, [queue, vq, loadData]);
 
   function toggleGuest(guest: Guest) {
-    const newParty = new Set(party);
-    newParty[newParty.has(guest) ? 'delete' : 'add'](guest);
-    const { maxPartySize } = queue;
-    if (maxPartySize > 0 && newParty.size > maxPartySize) {
-      flash(`Maximum party size: ${maxPartySize}`);
-    } else {
-      setParty(newParty);
-      flash('');
-    }
+    party[party.has(guest) ? 'delete' : 'add'](guest);
+    setParty(new Set(party));
   }
 
   return (
@@ -49,6 +42,7 @@ export default function ChooseParty({ queue }: { queue: Queue }) {
           selectable={{
             isSelected: g => party.has(g),
             onToggle: toggleGuest,
+            limit: queue.maxPartySize,
           }}
         />
       ) : (

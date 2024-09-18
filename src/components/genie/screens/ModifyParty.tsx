@@ -5,28 +5,17 @@ import GuestList, { Guest } from '@/components/GuestList';
 import Screen from '@/components/Screen';
 import { Party, PartyProvider } from '@/contexts/Party';
 import { useResort } from '@/contexts/Resort';
-import useFlash from '@/hooks/useFlash';
 
 import IneligibleGuestList from '../IneligibleGuestList';
 
 export default function ModifyParty({ party }: { party: Party }) {
   const { eligible, ineligible, selected, setSelected, experience } = party;
   const [newParty, setNewParty] = useState<Set<Guest>>(new Set(selected));
-  const [flashElem, flash] = useFlash();
   const { maxPartySize } = useResort().genie;
 
   function toggleGuest(guest: Guest) {
-    setNewParty(party => {
-      flash('');
-      party = new Set(party);
-      const method = party.has(guest) ? 'delete' : 'add';
-      if (method === 'add' && party.size >= maxPartySize) {
-        flash(`Maximum party size: ${maxPartySize}`);
-      } else {
-        party[method](guest);
-      }
-      return party;
-    });
+    newParty[newParty.has(guest) ? 'delete' : 'add'](guest);
+    setNewParty(new Set(newParty));
   }
 
   return (
@@ -40,6 +29,7 @@ export default function ModifyParty({ party }: { party: Party }) {
           selectable={{
             isSelected: g => newParty.has(g),
             onToggle: toggleGuest,
+            limit: maxPartySize,
           }}
         />
         {ineligible.length > 0 && (
@@ -57,7 +47,6 @@ export default function ModifyParty({ party }: { party: Party }) {
         >
           Confirm Party
         </FloatingButton>
-        {flashElem}
       </Screen>
     </PartyProvider>
   );

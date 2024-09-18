@@ -17,7 +17,7 @@ describe('ChooseParty', () => {
 
     click(pluto.name);
     click(fifi.name);
-    see('Maximum party size: 3');
+    see('Selection limit reached');
 
     click(minnie.name);
     click('Confirm Party');
