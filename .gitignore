@@ -3,4 +3,6 @@ coverage
 dist
 src/api/diu
 tsconfig.tsbuildinfo
+.coverage
+.DS_Store
 .vite
