@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
+import { RequestError } from '@/api/client';
 import { DasParty } from '@/api/das';
 
 import { useClients } from './Clients';
@@ -16,7 +17,14 @@ export function DasPartiesProvider({
   const [parties, setParties] = useState<DasParty[]>([]);
 
   useEffect(() => {
-    das.parties().then(setParties);
+    (async () => {
+      try {
+        setParties(await das.parties());
+      } catch (error) {
+        if (error instanceof RequestError) return;
+        throw error;
+      }
+    })();
   }, [das]);
 
   return (
