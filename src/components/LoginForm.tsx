@@ -35,12 +35,12 @@ export default function LoginForm({
     let timeoutId = 0;
 
     async function launchLogin() {
-      if (!window.OneID) {
+      if (!self.OneID) {
         timeoutId = self.setTimeout(launchLogin, 100);
         return;
       }
       deleteGuestData();
-      const OneID = window.OneID.get({
+      const OneID = self.OneID.get({
         clientId,
         responderPage: 'https://joelface.github.io/bg1/responder.html',
       });

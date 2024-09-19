@@ -22,7 +22,7 @@ const on = jest.fn(
     callbacks[name] = callback;
   }
 );
-window.OneID = {
+self.OneID = {
   get: jest.fn(() => ({ init, launchLogin, on })),
 };
 Object.defineProperty(navigator, 'userAgent', {
@@ -36,8 +36,8 @@ describe('LoginForm', () => {
     const onLogin = jest.fn();
     const wdw = { id: 'WDW' as const };
     render(<LoginForm onLogin={onLogin} resort={wdw} />);
-    if (!window.OneID) return;
-    expect(window.OneID.get).toHaveBeenCalledWith({
+    if (!self.OneID) return;
+    expect(self.OneID.get).toHaveBeenCalledWith({
       clientId: 'TPR-WDW-LBSDK.IOS',
       responderPage: 'https://joelface.github.io/bg1/responder.html',
     });
