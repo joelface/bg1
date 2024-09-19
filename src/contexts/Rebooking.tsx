@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from 'react';
 
-import { LightningLane } from '@/api/genie';
+import { LightningLane } from '@/api/ll';
 
 import { useBookingDate } from './BookingDate';
 

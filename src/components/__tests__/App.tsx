@@ -9,7 +9,7 @@ import App, { NEWS_VERSION } from '../App';
 import Screen from '../Screen';
 
 jest.mock('@/fetch');
-jest.mock('../genie/Merlock', () => {
+jest.mock('../ll/Merlock', () => {
   return function Merlock() {
     return <Screen title="LL">test</Screen>;
   };

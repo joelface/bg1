@@ -1,9 +1,9 @@
 import { createContext, useContext } from 'react';
 
 import { DasClient } from '@/api/das';
-import { LLClient } from '@/api/genie';
 import { ItineraryClient } from '@/api/itinerary';
 import { LiveDataClient } from '@/api/livedata';
+import { LLClient } from '@/api/ll';
 import { LLClientDLR } from '@/api/ll/dlr';
 import { LLClientWDW } from '@/api/ll/wdw';
 import { Resort } from '@/api/resort';

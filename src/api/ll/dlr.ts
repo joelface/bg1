@@ -1,5 +1,6 @@
 import { dateTimeStrings, parkDate, splitDateTime } from '@/datetime';
 
+import { LightningLane } from '../itinerary';
 import {
   ApiGuest,
   Guest,
@@ -9,8 +10,7 @@ import {
   Offer,
   OfferExperience,
   throwOnNotModifiable,
-} from '../genie';
-import { LightningLane } from '../itinerary';
+} from '../ll';
 import { Park } from '../resort';
 
 interface OfferResponse {

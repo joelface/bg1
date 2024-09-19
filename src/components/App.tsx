@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { ReauthNeeded, authStore } from '@/api/auth';
 import { InvalidOrigin } from '@/api/client';
-import { LLClient } from '@/api/genie';
+import { LLClient } from '@/api/ll';
 import { Resort, loadResort } from '@/api/resort';
 import { VQClient } from '@/api/vq';
 import { ClientsProvider, createClients } from '@/contexts/Clients';
@@ -13,7 +13,7 @@ import useNews from '@/hooks/useNews';
 import onVisible from '@/onVisible';
 
 import LoginForm from './LoginForm';
-import Merlock from './genie/Merlock';
+import Merlock from './ll/Merlock';
 import BGClient from './vq/BGClient';
 
 export const NEWS_VERSION = 0;

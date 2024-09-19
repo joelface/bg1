@@ -1,4 +1,4 @@
-import { ep, mk, wdw } from '@/__fixtures__/genie';
+import { ep, mk, wdw } from '@/__fixtures__/ll';
 import { click, render, see } from '@/testing';
 
 import { ParkProvider, usePark } from '../Park';

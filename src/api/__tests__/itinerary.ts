@@ -11,7 +11,7 @@ import {
   omitOrderDetails,
   pluto,
   wdw,
-} from '@/__fixtures__/genie';
+} from '@/__fixtures__/ll';
 import { TODAY, YESTERDAY, setTime } from '@/testing';
 
 import { Booking, ItineraryClient, LightningLane } from '../itinerary';

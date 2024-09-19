@@ -1,7 +1,7 @@
 import { dateTimeStrings } from '@/datetime';
 import { fetchJson } from '@/fetch';
 
-import { Experience } from './genie';
+import { Experience } from './ll';
 import { InvalidId, Park, Resort } from './resort';
 
 interface ShowtimesByParkId {

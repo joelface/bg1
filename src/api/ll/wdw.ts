@@ -19,7 +19,7 @@ import {
   OrderDetails,
   Slot,
   throwOnNotModifiable,
-} from '../genie';
+} from '../ll';
 
 interface GuestsResponse {
   guests: ApiGuest[];
