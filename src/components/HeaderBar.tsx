@@ -41,13 +41,11 @@ export default function HeaderBar({
         </h1>
         {changeButtonColors(children)}
       </div>
-      {subhead && (
-        <div
-          className={`flex flex-col gap-y-1 pb-1 ${bg} text-white text-sm font-semibold uppercase text-center`}
-        >
-          {subhead}
-        </div>
-      )}
+      <div
+        className={`empty:hidden flex flex-col gap-y-1 pb-1 ${bg} text-white text-sm font-semibold uppercase text-center`}
+      >
+        {subhead}
+      </div>
     </div>
   );
 }
