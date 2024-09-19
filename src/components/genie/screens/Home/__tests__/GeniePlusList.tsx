@@ -1,11 +1,21 @@
-import { hm, jc, mk, sm, wdw } from '@/__fixtures__/genie';
-import { PlusExperience } from '@/api/genie';
-import { ExperiencesProvider } from '@/contexts/Experiences';
+import {
+  booking,
+  hm,
+  jc,
+  mk,
+  renderResort,
+  sm,
+  wdw,
+} from '@/__fixtures__/genie';
+import { FlexExperience } from '@/api/genie';
+import { BookingDateContext } from '@/contexts/BookingDate';
+import { ExperiencesContext } from '@/contexts/Experiences';
 import { Nav } from '@/contexts/Nav';
-import { ParkProvider } from '@/contexts/Park';
+import { ParkContext } from '@/contexts/Park';
+import { PlansContext } from '@/contexts/Plans';
 import { displayTime } from '@/datetime';
 import kvdb from '@/kvdb';
-import { click, loading, screen, see, setTime, within } from '@/testing';
+import { TODAY, click, loading, screen, see, setTime, within } from '@/testing';
 
 import GeniePlusList, { STARRED_KEY } from '../GeniePlusList';
 
@@ -24,7 +34,7 @@ const getExperiences = (
 
 const names = (exps: { name: string }[]) => exps.map(({ name }) => name);
 
-const bz: PlusExperience = {
+const bz: FlexExperience = {
   ...wdw.experience('80010114'),
   park: mk,
   type: 'ATTRACTION',
@@ -32,7 +42,7 @@ const bz: PlusExperience = {
   flex: { available: false },
 };
 
-const db: PlusExperience = {
+const db: FlexExperience = {
   ...wdw.experience('80010129'),
   park: mk,
   type: 'ATTRACTION',
@@ -42,47 +52,59 @@ const db: PlusExperience = {
 
 async function goBack() {
   history.back();
-  await see.screen('Genie+');
+  await see.screen('LL');
 }
 
 describe('GeniePlusList', () => {
-  it('shows Genie+ availability', async () => {
+  it('shows LL availability', async () => {
     kvdb.set(STARRED_KEY, [bz.id]);
-    wdw.render(
-      <ParkProvider value={{ park: mk, setPark: () => null }}>
-        <ExperiencesProvider
-          value={{
-            experiences: [
-              { ...hm, experienced: true },
-              { ...db, experienced: true },
-              { ...bz, experienced: true },
-              jc,
-              sm,
-            ],
-            refreshExperiences,
-            park: mk,
-            setPark: () => null,
-            loaderElem: null,
-          }}
-        >
-          <Nav>
-            <GeniePlusList contentRef={{ current: null }} />
-          </Nav>
-        </ExperiencesProvider>
-      </ParkProvider>
+    renderResort(
+      <BookingDateContext.Provider
+        value={{ bookingDate: TODAY, setBookingDate: () => {} }}
+      >
+        <ParkContext.Provider value={{ park: mk, setPark: () => {} }}>
+          <PlansContext.Provider
+            value={{
+              plans: [booking],
+              refreshPlans: () => {},
+              loaderElem: null,
+            }}
+          >
+            <ExperiencesContext.Provider
+              value={{
+                experiences: [
+                  { ...hm },
+                  { ...db, experienced: true },
+                  { ...bz, experienced: true },
+                  { ...jc, experienced: true },
+                  sm,
+                ],
+                refreshExperiences,
+                loaderElem: null,
+              }}
+            >
+              <Nav>
+                <GeniePlusList contentRef={{ current: null }} />
+              </Nav>
+            </ExperiencesContext.Provider>
+          </PlansContext.Provider>
+        </ParkContext.Provider>
+      </BookingDateContext.Provider>
     );
 
     click('Refresh Experiences');
     expect(refreshExperiences).toHaveBeenCalledTimes(1);
-
-    const inJC = within(see(jc.name).closest('li') as HTMLElement);
-    inJC.getByTitle('Booked (more info)');
 
     const inSM = within(see(sm.name).closest('li') as HTMLElement);
     inSM.getByTitle('Lightning Pick (more info)');
 
     const inHM = within(see(hm.name).closest('li') as HTMLElement);
     inHM.getByTitle('Upcoming Drop (more info)');
+    inHM.getByTitle('Booked (more info)');
+
+    expect(see.all('Lightning Pick (more info)')).toHaveLength(1);
+    expect(see.all('Upcoming Drop (more info)')).toHaveLength(1);
+    expect(see.all('Booked (more info)')).toHaveLength(1);
 
     click('Booked (more info)');
     await see.screen('Booked');
@@ -94,20 +116,21 @@ describe('GeniePlusList', () => {
 
     click('Upcoming Drop (more info)');
     await see.screen('Upcoming Drop');
-    expect(see.all(displayTime(mk.dropTimes[0]))).toHaveLength(3);
-    expect(see.all(displayTime(mk.dropTimes[1]))).toHaveLength(2);
+    expect(see.all(displayTime(mk.dropTimes[0]))).toHaveLength(1);
+    expect(see.all(displayTime(mk.dropTimes[1]))).toHaveLength(3);
+    expect(see.all(displayTime(mk.dropTimes[2]))).toHaveLength(1);
     see(hm.name, 'heading');
     see(sm.name, 'heading');
     await goBack();
 
-    expect(getExperiences()).toEqual(names([bz, sm, jc]));
-    expect(getExperiences('experienced')).toEqual(names([db, hm]));
+    expect(getExperiences()).toEqual(names([bz, sm, hm]));
+    expect(getExperiences('experienced')).toEqual(names([db, jc]));
 
     click('Remove from Favorites');
-    expect(getExperiences()).toEqual(names([sm, jc]));
+    expect(getExperiences()).toEqual(names([sm, hm]));
 
     click(screen.getAllByTitle('Add to Favorites')[4]);
-    expect(getExperiences()).toEqual(names([hm, sm, jc]));
+    expect(getExperiences()).toEqual(names([jc, sm, hm]));
 
     click(displayTime(sm.flex.nextAvailableTime as string));
     await see.screen('Lightning Lane');

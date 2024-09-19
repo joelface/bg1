@@ -1,4 +1,4 @@
-import { das, hm, jc, mk, sm, wdw } from '@/__fixtures__/das';
+import { das, hm, jc, mk, renderResort, sm } from '@/__fixtures__/das';
 import { Experience } from '@/api/das';
 import { click, loading, see, setTime } from '@/testing';
 
@@ -11,7 +11,9 @@ const onSelect = jest.fn();
 const waitTimeLabel = (exp: Experience) => exp.time.slice(3, 5) + ' min.';
 
 async function renderComponent() {
-  const view = wdw.render(<DasExperienceList park={mk} onSelect={onSelect} />);
+  const view = renderResort(
+    <DasExperienceList park={mk} onSelect={onSelect} />
+  );
   await loading();
   return view;
 }

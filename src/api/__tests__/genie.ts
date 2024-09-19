@@ -1,154 +1,99 @@
+import { expectFetch, respond, response } from '@/__fixtures__/client';
 import {
   booking,
   bookings,
   donald,
   expiredLL,
-  genie,
   hm,
+  ll,
   mickey,
   minnie,
-  multiExp,
+  mk,
+  modOffer,
+  offer,
+  omitOrderDetails,
   pluto,
   sm,
+  times,
   wdw,
 } from '@/__fixtures__/genie';
-import { fetchJson } from '@/fetch';
 import kvdb from '@/kvdb';
-import { TODAY, YESTERDAY, setTime } from '@/testing';
+import { TODAY, TOMORROW, setTime } from '@/testing';
 
-import { authStore } from '../auth';
 import { RequestError } from '../client';
-import {
-  Booking,
-  BookingTracker,
-  Experience,
-  FALLBACK_IDS,
-  GenieClient,
-  Guest,
-  LightningLane,
-  ModifyNotAllowed,
-  PlusExperience,
-} from '../genie';
+import { LLTracker, ModifyNotAllowed } from '../genie';
+import { LLClientDLR } from '../ll/dlr';
+import { LLClientWDW } from '../ll/wdw';
 
-jest.mock('@/fetch');
 const diu = {
   disneyInternalUse01: '1',
   disneyInternalUse02: '2',
   disneyInternalUse03: '3',
 };
 jest.mock('../diu', () => ({ __esModule: true, default: () => diu }));
-const accessToken = 'ACCESS_TOKEN';
-const swid = 'SWID';
-jest.spyOn(authStore, 'getData').mockReturnValue({ accessToken, swid });
+const onUnauthorized = jest.fn();
 
-const origin = 'https://disneyworld.disney.go.com';
-hm.priority = undefined;
-
-function response(data: any, status = 200) {
-  return { ok: status >= 200 && status < 300, status, data: { ...data } };
-}
-
-function respond(...responses: ReturnType<typeof response>[]) {
-  for (const res of responses) {
-    jest.mocked(fetchJson).mockResolvedValueOnce(res);
-  }
-}
-
-function expectFetch(
-  path: string,
-  { method, params, data }: Parameters<typeof fetchJson>[1] = {},
-  appendUserId = true,
-  nthCall = 1
-) {
-  if (appendUserId) params = { ...params, userId: swid };
-  expect(fetchJson).toHaveBeenNthCalledWith(
-    nthCall,
-    expect.stringContaining(origin + path),
-    {
-      method,
-      params,
-      data,
-      headers: {
-        'Accept-Language': 'en-US',
-        Authorization: `BEARER ${accessToken}`,
-        'x-user-id': swid,
-      },
-    }
-  );
-}
-
-function splitName({ name, ...rest }: Guest) {
+function apiGuest<T extends { name: string }>({
+  name,
+  ...rest
+}: T): Omit<T, 'name'> {
   const [firstName, lastName = ''] = name.split(' ');
   return { ...rest, firstName, lastName };
 }
 
-describe('GenieClient', () => {
-  const [mk, , , ak] = wdw.parks;
-  wdw.experience(sm.id).priority = sm.priority;
-  const client = new GenieClient(wdw, {
-    experienced: (exp: Experience) => exp.id === bookings[3].id,
-    update: async () => undefined,
-  });
-  const onUnauthorized = jest.fn();
-  client.onUnauthorized = onUnauthorized;
-  const guests = [mickey, minnie, pluto];
-  const ineligibleGuests = [donald];
-  const guestsRes = response({
-    guests: guests.map(splitName),
-    ineligibleGuests: ineligibleGuests.map(splitName),
-    primaryGuestId: mickey.id,
-  });
+const guests = [mickey, minnie, pluto];
+const ineligibleGuests = [donald];
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    setTime('10:00');
+const tracker = {
+  experienced: (exp: { id: string }) => exp.id === booking.id,
+  update: jest.fn(),
+};
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  setTime('10:00');
+});
+
+describe('LLClientWDW', () => {
+  const client = new LLClientWDW(wdw, tracker);
+  client.onUnauthorized = onUnauthorized;
+  const guestsUrl = '/ea-vas/planning/api/v1/experiences/guest/guests';
+  const guestsRes = response({
+    guests: guests.map(apiGuest),
+    ineligibleGuests: ineligibleGuests.map(g =>
+      apiGuest({
+        ...g,
+        ineligibleReason: { ineligibleReason: g.ineligibleReason },
+      })
+    ),
   });
 
   describe('experiences()', () => {
     it('returns experience info', async () => {
-      jest.spyOn(console, 'warn').mockImplementation(() => null);
-      const nextBookTime = '11:00:00';
+      const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      jest.spyOn(client, 'guests');
       const res = response({
-        availableExperiences: [sm, { id: 'not_a_real_id' }],
-        eligibility: {
-          geniePlusEligibility: {
-            [TODAY]: {
-              flexEligibilityWindows: [
-                { time: { time: '13:30:00' } },
-                { time: { time: nextBookTime } },
-              ],
-            },
-          },
-        },
+        availableExperiences: [hm, sm, { id: 'not_a_real_id' }],
       });
-      const smExp: PlusExperience = {
-        ...sm,
-        experienced: false,
-      };
-      const getExpData = () => client.experiences(mk);
+      const getExpData = () => client.experiences(mk, TOMORROW);
       respond(guestsRes, res);
-      expect(await getExpData()).toEqual([smExp]);
-      expect(client.nextBookTime).toBe('11:00:00');
-      const ids = FALLBACK_IDS.WDW;
-      expectFetch('/ea-vas/api/v1/guests', {
-        params: {
-          productType: 'FLEX',
-          experienceId: ids.experience,
-          parkId: ids.park,
-        },
-      });
+      expect(await getExpData()).toEqual([
+        { ...hm, experienced: true },
+        { ...sm, experienced: false },
+      ]);
+      expect(client.guests).toHaveBeenCalledTimes(1);
       expectFetch(
-        `/tipboard-vas/api/v2/parks/${encodeURIComponent(mk.id)}/experiences`,
-        { params: { eligibilityGuestIds: guests.map(g => g.id).join(',') } },
+        `/tipboard-vas/planning/v1/parks/${encodeURIComponent(mk.id)}/experiences`,
+        { params: { date: TOMORROW, eligibilityGuestIds: mickey.id } },
         true,
         2
       );
 
-      expect(console.warn).toHaveBeenCalledTimes(1);
-      expect(console.warn).toHaveBeenLastCalledWith(
+      expect(warn).toHaveBeenCalledTimes(1);
+      expect(warn).toHaveBeenLastCalledWith(
         'Missing experience: not_a_real_id'
       );
-      jest.mocked(console.warn).mockRestore();
+      warn.mockRestore();
     });
   });
 
@@ -165,18 +110,16 @@ describe('GenieClient', () => {
   });
 
   describe('guests()', () => {
-    const guestsUrl = '/ea-vas/api/v1/guests';
-
-    it('returns eligible guests for experience', async () => {
+    it('returns eligible & ineligible guests for experience', async () => {
       respond(guestsRes);
       expect(await client.guests(hm)).toEqual({
         eligible: [mickey, minnie, pluto],
         ineligible: ineligibleGuests,
       });
       expectFetch(guestsUrl, {
-        params: {
-          productType: 'FLEX',
-          experienceId: hm.id,
+        data: {
+          date: TODAY,
+          facilityId: hm.id,
           parkId: mk.id,
         },
       });
@@ -186,10 +129,10 @@ describe('GenieClient', () => {
       respond(
         response({
           guests: [
-            { ...splitName(mickey), characterId: 19633995 },
-            { ...splitName(minnie), characterId: 18405224 },
-            { ...splitName(pluto), characterId: 90004625 },
-          ],
+            { ...mickey, characterId: 19633995 },
+            { ...minnie, characterId: 18405224 },
+            { ...pluto, characterId: 90004625 },
+          ].map(apiGuest),
           ineligibleGuests: [],
         })
       );
@@ -218,9 +161,8 @@ describe('GenieClient', () => {
     it('treats any guests with ineligibleReason as ineligible', async () => {
       respond(
         response({
-          guests: [donald].map(splitName),
+          guests: [donald].map(apiGuest),
           ineligibleGuests: [],
-          primaryGuestId: mickey.id,
         })
       );
       expect(await client.guests(hm)).toEqual({
@@ -232,15 +174,13 @@ describe('GenieClient', () => {
     it('sorts ineligible guests', async () => {
       const fifi = {
         id: 'fifi',
-        firstName: 'Fifi',
-        lastName: '',
+        name: 'Fifi',
         ineligibleReason: 'TOO_EARLY',
         eligibleAfter: '10:30:00',
       };
       const goofy = {
         id: 'goofy',
-        firstName: 'Goofy',
-        lastName: '',
+        name: 'Goofy',
         ineligibleReason: 'EXPERIENCE_LIMIT_REACHED',
       };
       respond(
@@ -266,398 +206,322 @@ describe('GenieClient', () => {
               eligibleAfter: '10:30:00',
               primary: true,
             },
-          ],
-          primaryGuestId: mickey.id,
+          ].map(apiGuest),
         })
       );
       const { ineligible } = await client.guests(hm);
       expect(ineligible.map(g => g.id)).toEqual(
-        [pluto, mickey, fifi, minnie, goofy, donald].map(g => g.id)
+        [pluto, mickey, fifi, minnie, donald, goofy].map(g => g.id)
       );
     });
   });
 
   describe('offer()', () => {
-    const offer = {
-      id: 'offer1',
-      date: TODAY,
-      startTime: '14:30:00',
-      endTime: '15:30:00',
-      status: 'ACTIVE',
-      changeStatus: 'NONE',
-    };
-    const offerGuests = [mickey, minnie].map(splitName);
+    function offerSetResponse(times?: [string, string]) {
+      const offerItem = {
+        facilityId: offer.experience.id,
+        type: 'OFFER_ITEM',
+        offerId: offer.id,
+        offerSetId: offer.offerSetId as string,
+        offerType: 'FLEX',
+        startDateTime: `${offer.start.date}T${times?.[0] ?? offer.start.time}`,
+        endDateTime: `${offer.end.date}T${times?.[1] ?? offer.end.time}`,
+        conflict: times ? 'ALTERNATIVE_TIME_FOUND' : undefined,
+      };
+      const offerSet = {
+        itinerary: {
+          items: [
+            {
+              type: 'EVENT_ITEM',
+              eventType: 'PARK_OPEN',
+              facilityId: '80007944',
+              startDateTime: `${TODAY}T08:00:00`,
+              endDateTime: `${TODAY}T08:00:00`,
+            },
+            offerItem,
+            {
+              type: 'EVENT_ITEM',
+              eventType: 'PARK_CLOSE',
+              facilityId: '80007944',
+              startDateTime: `${TODAY}T22:00:00`,
+              endDateTime: `${TODAY}T22:00:00`,
+            },
+          ],
+        },
+        party: {
+          guests: offer.guests.eligible.map(apiGuest),
+          ineligibleGuests: [],
+        },
+      };
+      return response(offerSet);
+    }
 
-    it('obtains Lightning Lane offer', async () => {
-      respond(
-        response(
-          {
-            offer,
-            eligibleGuests: offerGuests,
-            ineligibleGuests: [],
-          },
-          201
-        )
-      );
-      expect(await client.offer(hm, guests)).toEqual({
-        id: offer.id,
-        start: { date: offer.date, time: offer.startTime },
-        end: { date: offer.date, time: offer.endTime },
-        active: true,
-        changed: false,
-        guests: {
-          eligible: [mickey, minnie],
-          ineligible: [],
-        },
-        experience: hm,
-      });
-      expectFetch(
-        '/ea-vas/api/v2/products/flex/offers',
-        {
-          method: 'POST',
-          data: {
-            guestIds: guests.map(g => g.id),
-            ineligibleGuests: [],
-            primaryGuestId: mickey.id,
-            parkId: mk.id,
-            experienceId: hm.id,
-            selectedTime: hm.flex.nextAvailableTime,
-          },
-        },
-        false
-      );
+    const changeOfferTime = jest.spyOn(client, 'changeOfferTime');
+    changeOfferTime.mockResolvedValueOnce(offer);
+
+    afterAll(() => {
+      changeOfferTime.mockRestore();
     });
 
-    it('reports changes/failure', async () => {
-      respond(
-        response(
-          {
-            offer: { ...offer, status: 'DELETED', changeStatus: 'CHANGED' },
-            eligibleGuests: [],
-            ineligibleGuests: offerGuests.map(g => ({
-              ...g,
-              ineligibleReason: 'TOO_EARLY_FOR_PARK_HOPPING',
-            })),
-          },
-          201
-        )
-      );
-      expect(await client.offer(hm, guests)).toEqual({
-        id: offer.id,
-        start: { date: offer.date, time: offer.startTime },
-        end: { date: offer.date, time: offer.endTime },
-        active: false,
-        changed: true,
-        guests: {
-          eligible: [],
-          ineligible: [mickey, minnie].map(g => ({
-            ...g,
-            ineligibleReason: 'TOO_EARLY_FOR_PARK_HOPPING',
-          })),
+    it('obtains Lightning Lane offer', async () => {
+      respond(offerSetResponse());
+      expect(await client.offer(hm, guests, { date: TOMORROW })).toEqual(offer);
+      expectFetch('/ea-vas/planning/api/v1/experiences/offerset/generate', {
+        data: {
+          date: TOMORROW,
+          guestIds: guests.map(g => g.id),
+          parkId: mk.id,
+          experienceIds: [hm.id],
+          targetedTime: hm.flex.nextAvailableTime,
+          ignoredBookedExperienceIds: null,
         },
-        experience: hm,
       });
+    });
+
+    it('obtains offer to modify existing booking', async () => {
+      respond(offerSetResponse());
+      expect(await client.offer(sm, guests, { booking })).toEqual({
+        ...offer,
+        experience: sm,
+        booking,
+      });
+      expectFetch('/ea-vas/planning/api/v1/experiences/mod/offerset/generate', {
+        data: {
+          date: booking.start.date,
+          guestIds: guests.map(g => g.id),
+          parkId: mk.id,
+          experienceId: sm.id,
+          originalExperienceId: hm.id,
+          originalEntitlementIds: booking.guests.map(g => g.entitlementId),
+          targetedTime: sm.flex.nextAvailableTime,
+          ignoredBookedExperienceIds: null,
+        },
+      });
+    });
+
+    it('reports change', async () => {
+      const slot: [string, string] = ['11:20:00', '12:20:00'];
+      respond(offerSetResponse(slot));
+      expect(
+        await client.offer(hm, offer.guests.eligible, { date: TODAY })
+      ).toEqual({
+        ...offer,
+        start: { date: TODAY, time: slot[0] },
+        end: { date: TODAY, time: slot[1] },
+        changed: true,
+      });
+      expect(client.changeOfferTime).toHaveBeenCalledTimes(0);
+    });
+
+    it('checks for earlier time if later than expected', async () => {
+      respond(offerSetResponse(['11:25:00', '12:25:00']));
+      expect(
+        await client.offer(hm, offer.guests.eligible, { date: TODAY })
+      ).toEqual(offer);
+      expect(client.changeOfferTime).toHaveBeenCalledTimes(1);
+    });
+
+    it('returns original offer if changeOfferTime() fails', async () => {
+      const error = jest.spyOn(console, 'error');
+      error.mockImplementationOnce(() => {});
+      changeOfferTime.mockReset().mockRejectedValueOnce('oops');
+      respond(offerSetResponse(['11:25:00', '12:25:00']));
+      expect(
+        await client.offer(hm, offer.guests.eligible, { date: TODAY })
+      ).toEqual({
+        ...offer,
+        start: { date: TODAY, time: '11:25:00' },
+        end: { date: TODAY, time: '12:25:00' },
+        changed: true,
+      });
+      expect(client.changeOfferTime).toHaveBeenCalled();
+      expect(error).toHaveBeenCalledWith('oops');
     });
 
     it('throws ModifyNotAllowed when not allowed to modify', async () => {
       await expect(
-        client.offer(hm, guests, { ...booking, modifiable: false })
+        client.offer(hm, guests, {
+          booking: { ...booking, modifiable: false },
+        })
       ).rejects.toThrow(ModifyNotAllowed);
+    });
+  });
 
-      setTime(booking.end.time as string, 1);
-      await expect(client.offer(hm, guests, booking)).rejects.toThrow(
-        ModifyNotAllowed
+  describe('times()', () => {
+    const timesRes = response({
+      hourSegmentGroups: times.map(slots => ({
+        inventorySlotsAvailability: slots,
+      })),
+    });
+    const timesReq = {
+      data: {
+        date: TODAY,
+        experienceId: hm.id,
+        parkId: mk.id,
+        offerId: offer.id,
+        offerSetIds: [offer.offerSetId],
+        offerType: 'FLEX',
+        guestIds: offer.guests.eligible.map(g => g.id),
+        experienceIdsToIgnore: [],
+        originalOrderItemId: null,
+      },
+    };
+
+    it('uses mod endpoint when modifying', async () => {
+      respond(timesRes);
+      expect(await client.times(modOffer)).toEqual(times);
+      expectFetch(
+        '/ea-vas/planning/api/v1/experiences/mod/offerset/times',
+        timesReq
       );
     });
   });
 
-  describe('bookings()', () => {
-    const entId = ({ id }: { id: string }, type = 'Attraction') =>
-      `${id};entityType=${type}`;
-    const xid = (guest: { id: string }) => guest.id + ';type=xid';
-
-    function createBookingsResponse(bookings: Booking[]) {
-      const subtypeToKind = {
-        'G+': 'FLEX',
-        ILL: 'STANDARD',
-        DAS: 'DAS',
-        MEP: 'OTHER',
-        OTHER: 'OTHER',
-      };
-      return response({
-        items: [
-          ...bookings.map(b => ({
-            id: b.bookingId,
-            ...(b.type === 'LL'
-              ? {
-                  type: 'FASTPASS',
-                  kind: subtypeToKind[b.subtype],
-                  facility: entId(b.choices ? hm : b),
-                  displayStartDate: b.start.date,
-                  displayStartTime: b.start.time,
-                  displayEndDate: b.end.date,
-                  displayEndTime: b.end.time,
-                  guests: [
-                    ...b.guests.map(g => ({
-                      id: xid(g),
-                      redemptionsRemaining: 0,
-                    })),
-                    ...b.guests.map(g => ({
-                      id: xid(g),
-                      entitlementId: g.entitlementId,
-                      bookingId: g.bookingId,
-                      redemptionsRemaining:
-                        g.redemptions && g.redemptions > 1
-                          ? g.redemptions + 1
-                          : g.redemptions,
-                      redemptionsAllowed: g.redemptions,
-                    })),
-                    ...b.guests.map(g => ({ id: xid(g) })),
-                  ],
-                }
-              : b.type === 'BG'
-                ? {
-                    type: 'VIRTUAL_QUEUE_POSITION',
-                    status: b.status,
-                    boardingGroup: { id: b.boardingGroup },
-                    startDateTime: `${b.start.date}T${b.start.time}-0400`,
-                    guests: b.guests.map(g => ({ id: xid(g) })),
-                    asset:
-                      '90e81c93-b84c-48e0-a98d-121094fa842e;type=virtual-queue',
-                  }
-                : b.type === 'APR'
-                  ? {
-                      type: 'FASTPASS',
-                      kind: 'PARK_PASS',
-                      startDateTime: `${b.start.date}T${b.start.time}-0400`,
-                      guests: b.guests.map(g => ({ id: xid(g) })),
-                      facility: entId({ id: 'ak_apr' }),
-                    }
-                  : {
-                      type: 'DINING',
-                      guests: b.guests.map(g => ({ id: xid(g) })),
-                      asset: '90006947;entityType=table-service',
-                      startDateTime: `${b.start.date}T${b.start.time}-0400`,
-                    }),
-            ...(b.type !== 'BG' && {
-              cancellable: b.cancellable,
-              modifiable: b.modifiable,
-              multipleExperiences: !!b.choices,
-              assets: b.choices
-                ? [
-                    {
-                      content: entId(b),
-                      excluded: false,
-                      original: true,
-                    },
-                    ...b.choices.map(exp => ({
-                      content: entId(exp),
-                      excluded: false,
-                      original: false,
-                    })),
-                    { content: 'excluded-id', excluded: true, original: false },
-                  ]
-                : undefined,
-            }),
-          })),
-        ],
-        assets: {
-          [entId({ id: 'ak_apr' })]: {
-            location: entId(ak, 'theme-park'),
-          },
-          '90e81c93-b84c-48e0-a98d-121094fa842e;type=virtual-queue': {
-            name: 'Tron',
-            facility: '411504498;entityType=Attraction',
-          },
-          '411504498;entityType=Attraction': {
-            location: entId(mk, 'theme-park'),
-          },
-          '90006947;entityType=table-service': {
-            name: 'Liberty Tree Tavern Lunch',
-            facility: '90001819;entityType=restaurant',
-          },
-          '90001819;entityType=restaurant': {
-            location: entId(mk, 'theme-park'),
-          },
-          ...Object.fromEntries(
-            [booking, ...bookings, ...bookings.map(b => b.choices || [])]
-              .flat()
-              .map(b => [
-                entId(b),
-                {
-                  id: entId(b),
-                  name: b.name,
-                  location: entId(b.park, 'theme-park'),
-                },
-              ])
-          ),
-          ...Object.fromEntries(
-            guests.map(g => [
-              g.id,
-              {
-                media: {
-                  small: {
-                    url: `https://example.com/${g.id}.jpg`,
-                  },
-                },
-              },
-            ])
-          ),
-        },
-        profiles: Object.fromEntries(
-          guests.map(g => {
-            const [firstName, lastName = ''] = g.name.split(' ');
-            return [
-              xid(g),
-              {
-                id: xid(g),
-                name: { firstName, lastName },
-                avatarId: g.id,
-              },
-            ];
-          })
-        ),
-      });
-    }
-    const bookingsRes = createBookingsResponse(bookings);
-
-    it('overrides API-supplied modifiable property if end of return window', async () => {
-      setTime(booking.end.time as string, 1);
-      respond(bookingsRes);
-      const b = (await client.bookings()).filter(b => b.id === booking.id)[0];
-      expect(b.modifiable).toBe(false);
+  describe('changeOfferTime()', () => {
+    const slot = { startTime: '15:00:00', endTime: '16:00:00' };
+    const newOffer = {
+      ...offer,
+      id: 'changedOfferId',
+      offerSetId: 'changedOfferSetId',
+      start: { date: TODAY, time: slot.startTime },
+      end: { date: TODAY, time: slot.endTime },
+    };
+    const changeRes = response({
+      updatedPlanningOfferDisplayItem: {
+        offerId: newOffer.id,
+        offerSetId: newOffer.offerSetId,
+        startDateTime: `${TODAY}T${slot.startTime}`,
+        endDateTime: `${TODAY}T${slot.endTime}`,
+      },
     });
+    const changeReq = {
+      data: {
+        date: TODAY,
+        guestIds: offer.guests.eligible.map(g => g.id),
+        offerId: offer.id,
+        offerSetIds: [offer.offerSetId],
+        offerType: 'FLEX',
+        parkId: mk.id,
+        targetSlot: slot,
+        experienceIdsToIgnore: [],
+      },
+    };
 
-    it('includes park data', async () => {
-      const bs: LightningLane = {
-        type: 'LL',
-        subtype: 'G+',
-        id: '16491297',
-        name: 'The Barnstormer',
-        park: mk,
-        start: { date: TODAY, time: undefined },
-        end: { date: undefined, time: undefined },
-        cancellable: false,
-        modifiable: false,
-        guests: [
-          {
-            ...mickey,
-            entitlementId: 'bs_01',
-            bookingId: 'bs_bid_01',
-            redemptions: 1,
-          },
-        ],
-        bookingId: 'bs_01',
-      };
-      const bookings = [bs];
-      respond(createBookingsResponse(bookings));
-      const b = await client.bookings();
-      expect(b).toEqual([{ ...bs, name: 'Barnstormer' }]);
-    });
-
-    it(`skips itinerary items that can't be parsed`, async () => {
-      const bookingsRes = createBookingsResponse([booking]);
-      bookingsRes.data.items.unshift({
-        type: 'FASTPASS',
-        kind: 'FLEX',
-      });
-      respond(bookingsRes);
-      const spy = jest
-        .spyOn(global.console, 'error')
-        .mockImplementation(() => null);
-      expect(await client.bookings()).toEqual([booking]);
-      expect(spy).toHaveBeenCalled();
-      spy.mockRestore();
-    });
-
-    it('shows MEP carried over from previous day as starting today', async () => {
-      respond(
-        createBookingsResponse([
-          { ...multiExp, start: { date: YESTERDAY, time: '23:00:00' } },
-        ])
+    it('changes offer time', async () => {
+      respond(changeRes);
+      expect(await client.changeOfferTime(offer, slot)).toEqual(newOffer);
+      expectFetch(
+        '/ea-vas/planning/api/v1/experiences/offerset/times/fulfill',
+        changeReq
       );
-      expect(await client.bookings()).toEqual([
-        { ...multiExp, start: { date: TODAY } },
-      ]);
+    });
+
+    it('specifies if time was changed', async () => {
+      respond({
+        ...changeRes,
+        data: { ...changeRes.data, conflict: 'ALTERNATIVE_TIME_FOUND' },
+      });
+      expect(await client.changeOfferTime(offer, slot)).toEqual(newOffer);
+    });
+
+    it('uses mod endpoint when modifying', async () => {
+      respond(changeRes);
+      expect(await client.changeOfferTime(modOffer, slot)).toEqual({
+        ...newOffer,
+        booking,
+      });
+      expectFetch(
+        '/ea-vas/planning/api/v1/experiences/mod/offerset/times/fulfill',
+        {
+          ...changeReq,
+          data: {
+            ...changeReq.data,
+            offerSetId: offer.offerSetId,
+            offerSetIds: undefined,
+          },
+        }
+      );
     });
   });
 
   describe('book()', () => {
-    const guests = [mickey, minnie];
-    const offer = {
-      id: 'offer1',
-      start: { date: TODAY, time: '18:00:00' },
-      end: { date: TODAY, time: '19:00:00' },
-      changeStatus: 'NONE',
-      guests: { eligible: guests, ineligible: [] },
-      experience: hm,
-    };
-
     it('books Lightning Lanes', async () => {
-      const entitlement = (guest: { id: string }) => ({
-        id: 'ent-' + guest.id,
-        guestId: guest.id,
-        usageDetails: {
-          status: 'BOOKED',
-          redeemable: true,
-          modifiable: true,
-        },
-      });
-      const newBooking = {
-        id: 'NEW_BOOKING',
-        entitlements: guests.map(g => entitlement(g)),
-        startDateTime: `${offer.start.date}T${offer.start.time}`,
-        endDateTime: `${offer.end.date}T${offer.end.time}`,
-        assignmentDetails: {
-          product: 'INDIVIDUAL',
-          reason: 'OTHER',
-        },
-        singleExperienceDetails: {
-          experienceId: hm.id,
-          parkId: mk.id,
-        },
-      };
-      respond(response({ booking: newBooking }, 201));
-      expect(await client.book(offer)).toEqual({
-        type: 'LL',
-        subtype: 'G+',
-        id: hm.id,
-        name: hm.name,
-        park: mk,
-        start: offer.start,
-        end: offer.end,
-        cancellable: true,
-        modifiable: false,
-        guests: guests.map((g, i) => ({
-          ...g,
-          entitlementId: newBooking.entitlements[i].id,
-        })),
-        bookingId: 'ent-' + mickey.id,
-      });
-      expectFetch(
-        '/ea-vas/api/v2/products/flex/bookings',
-        {
-          method: 'POST',
-          data: { offerId: offer.id, ...diu },
-        },
-        false
+      respond(
+        response({
+          entitlementExperiences: [
+            {
+              experienceId: booking.id,
+              startDateTime: `${booking.start.date}T${booking.start.time}`,
+              endDateTime: `${booking.end.date}T${booking.end.time}`,
+              guests: booking.guests.map(g => ({
+                entitlementId: g.entitlementId,
+                guestId: g.id,
+              })),
+            },
+          ],
+          party: {
+            guests: booking.guests.map(apiGuest),
+            ineligibleGuests: [],
+          },
+        })
       );
+      expect(await client.book(offer)).toEqual(booking);
+      expectFetch('/ea-vas/planning/api/v1/experiences/entitlements/book', {
+        data: {
+          offerSetId: offer.offerSetId,
+          orderGuestDetails: guests.map(g => ({
+            orderId: g.orderDetails.orderId,
+            orderItemId: g.orderDetails.orderItemId,
+            guestDetails: [
+              {
+                guestId: g.id,
+                externalIdentifier: g.orderDetails.externalIdentifier,
+              },
+            ],
+          })),
+        },
+      });
+    });
+
+    it('modifies an existing LL', async () => {
+      const orderDetailsById = new Map(guests.map(g => [g.id, g.orderDetails]));
+      const modGuests = booking.guests.slice(0, 2);
+      respond(
+        response({
+          booking: {
+            experienceId: booking.id,
+            startDateTime: `${booking.start.date}T${booking.start.time}`,
+            endDateTime: `${booking.end.date}T${booking.end.time}`,
+            guests: modGuests.map(g => ({
+              guestId: g.id,
+              entitlementId: g.entitlementId,
+            })),
+          },
+          party: {
+            guests: modGuests.map(apiGuest),
+            ineligibleGuests: [],
+          },
+        })
+      );
+      expect(await client.book(modOffer, modGuests)).toEqual({
+        ...booking,
+        guests: modGuests,
+      });
+      expectFetch('/ea-vas/planning/api/v1/experiences/mod/entitlements/book', {
+        data: {
+          offerSetId: modOffer.offerSetId,
+          eligibleGuestsEntitlements: modGuests.map(g => ({
+            guestId: g.id,
+            entitlementId: g.entitlementId,
+            ...orderDetailsById.get(g.id),
+          })),
+        },
+      });
     });
 
     it('throws RequestError on failure', async () => {
       respond(response({}, 410));
       await expect(client.book(offer)).rejects.toThrow(RequestError);
-    });
-
-    it('throws ModifyNotAllowed when not allowed to modify', async () => {
-      await expect(
-        client.book(offer, { ...booking, modifiable: false })
-      ).rejects.toThrow(ModifyNotAllowed);
-
-      setTime(booking.end.time as string, 1);
-      await expect(client.book(offer, booking)).rejects.toThrow(
-        ModifyNotAllowed
-      );
     });
   });
 
@@ -669,31 +533,207 @@ describe('GenieClient', () => {
         `/ea-vas/api/v1/entitlements/${booking.guests
           .map(g => g.entitlementId)
           .join(',')}`,
-        { method: 'DELETE' },
-        false
+        { method: 'DELETE' }
       );
+    });
+  });
+
+  describe('track()', () => {
+    it('updates LL tracker', async () => {
+      client.track(bookings);
+      expect(tracker.update).toHaveBeenCalledTimes(1);
     });
   });
 });
 
-describe('BookingTracker', () => {
+describe('LLClientDLR', () => {
+  const client = new LLClientDLR(wdw, tracker);
+  client.onUnauthorized = onUnauthorized;
+  const guestsRes = response({
+    guests: guests.map(apiGuest),
+    ineligibleGuests: ineligibleGuests.map(apiGuest),
+  });
+
+  describe('setPartyIds()', () => {
+    it('sets booking party', async () => {
+      client.setPartyIds([mickey.id, pluto.id]);
+      respond(guestsRes);
+      const { eligible, ineligible } = await client.guests();
+      expect(eligible.map(g => g.id)).toEqual([mickey.id, pluto.id]);
+      expect(ineligible.map(g => g.id)).toEqual([donald.id, minnie.id]);
+      ineligible.forEach(g => expect(g.ineligibleReason).toBe('NOT_IN_PARTY'));
+      client.setPartyIds([]);
+    });
+  });
+
+  describe('guests()', () => {
+    const guestsUrl = '/ea-vas/api/v1/guests';
+
+    it('returns eligible & ineligible guests for experience', async () => {
+      respond(guestsRes);
+      expect(await client.guests(hm)).toEqual({
+        eligible: [mickey, minnie, pluto],
+        ineligible: ineligibleGuests,
+      });
+      expectFetch(
+        guestsUrl,
+        {
+          params: {
+            productType: 'FLEX',
+            experienceId: hm.id,
+            parkId: mk.id,
+          },
+        },
+        true
+      );
+    });
+  });
+
+  describe('offer()', () => {
+    const dlrOffer = { ...offer, offerSetId: undefined };
+    const offerData = {
+      id: offer.id,
+      date: offer.start.date,
+      startTime: offer.start.time,
+      endTime: offer.end.time,
+      status: 'ACTIVE',
+      changeStatus: 'NONE',
+    };
+
+    it('obtains Lightning Lane offer', async () => {
+      respond(
+        response(
+          {
+            offer: offerData,
+            eligibleGuests: offer.guests.eligible.map(apiGuest),
+            ineligibleGuests: [],
+          },
+          201
+        )
+      );
+      expect(await client.offer(hm, offer.guests.eligible)).toEqual(dlrOffer);
+      expectFetch('/ea-vas/api/v2/products/flex/offers', {
+        data: {
+          guestIds: offer.guests.eligible.map(g => g.id),
+          ineligibleGuests: [],
+          primaryGuestId: mickey.id,
+          parkId: mk.id,
+          experienceId: hm.id,
+          selectedTime: hm.flex.nextAvailableTime,
+        },
+      });
+    });
+
+    it('reports changes/failure', async () => {
+      respond(
+        response(
+          {
+            offer: { ...offerData, status: 'DELETED', changeStatus: 'CHANGED' },
+            eligibleGuests: [],
+            ineligibleGuests: offer.guests.eligible.map(g => ({
+              ...apiGuest(g),
+              ineligibleReason: 'TOO_EARLY_FOR_PARK_HOPPING',
+            })),
+          },
+          201
+        )
+      );
+      expect(await client.offer(hm, offer.guests.eligible)).toEqual({
+        ...dlrOffer,
+        active: false,
+        changed: true,
+        guests: {
+          eligible: [],
+          ineligible: offer.guests.eligible.map(g => ({
+            ...g,
+            ineligibleReason: 'TOO_EARLY_FOR_PARK_HOPPING',
+          })),
+        },
+      });
+    });
+
+    it('throws ModifyNotAllowed when not allowed to modify', async () => {
+      await expect(
+        client.offer(hm, guests, {
+          booking: { ...booking, modifiable: false },
+        })
+      ).rejects.toThrow(ModifyNotAllowed);
+    });
+  });
+
+  describe('times()', () => {
+    it('returns an empty array', async () => {
+      expect(await client.times()).toEqual([]);
+    });
+  });
+
+  describe('changeOfferTime()', () => {
+    it('is a no-op', async () => {
+      expect(await client.changeOfferTime(offer)).toBe(offer);
+    });
+  });
+
+  describe('book()', () => {
+    it('books Lightning Lanes', async () => {
+      respond(
+        response(
+          {
+            booking: {
+              id: 'NEW_BOOKING',
+              entitlements: booking.guests.map(g => ({
+                id: g.entitlementId,
+                guestId: g.id,
+              })),
+              startDateTime: `${booking.start.date}T${booking.start.time}`,
+              endDateTime: `${booking.end.date}T${booking.end.time}`,
+              singleExperienceDetails: {
+                experienceId: booking.id,
+                parkId: booking.park.id,
+              },
+            },
+          },
+          201
+        )
+      );
+      expect(
+        await client.book({
+          ...offer,
+          guests: {
+            eligible: offer.guests.eligible.map(omitOrderDetails),
+            ineligible: [],
+          },
+        })
+      ).toEqual(booking);
+      expectFetch('/ea-vas/api/v2/products/flex/bookings', {
+        data: { offerId: offer.id, ...diu },
+      });
+    });
+
+    it('throws RequestError on failure', async () => {
+      respond(response({}, 410));
+      await expect(client.book(offer)).rejects.toThrow(RequestError);
+    });
+  });
+});
+
+describe('LLTracker', () => {
   kvdb.clear();
-  const tracker = new BookingTracker();
+  const tracker = new LLTracker();
 
   describe('update()', () => {
     it('updates tracking data', async () => {
-      await tracker.update([expiredLL], genie);
-      await tracker.update(bookings, genie);
+      await tracker.update([expiredLL], ll);
+      await tracker.update(bookings, ll);
       expect(tracker.experienced(booking)).toBe(false);
       expect(tracker.experienced(expiredLL)).toBe(true);
 
-      genie.guests.mockResolvedValueOnce({
+      ll.guests.mockResolvedValueOnce({
         eligible: [],
         ineligible: [
           { ...mickey, ineligibleReason: 'EXPERIENCE_LIMIT_REACHED' },
         ],
       });
-      await tracker.update([expiredLL], genie);
+      await tracker.update([expiredLL], ll);
       expect(tracker.experienced(booking)).toBe(true);
       expect(tracker.experienced(expiredLL)).toBe(true);
     });

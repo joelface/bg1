@@ -3,15 +3,15 @@ import { useState } from 'react';
 import FloatingButton from '@/components/FloatingButton';
 import GuestList, { Guest } from '@/components/GuestList';
 import Screen from '@/components/Screen';
+import { useClients } from '@/contexts/Clients';
 import { Party, PartyProvider } from '@/contexts/Party';
-import { useResort } from '@/contexts/Resort';
 
 import IneligibleGuestList from '../IneligibleGuestList';
 
 export default function ModifyParty({ party }: { party: Party }) {
   const { eligible, ineligible, selected, setSelected, experience } = party;
   const [newParty, setNewParty] = useState<Set<Guest>>(new Set(selected));
-  const { maxPartySize } = useResort().genie;
+  const { maxPartySize } = useClients().ll.rules;
 
   function toggleGuest(guest: Guest) {
     newParty[newParty.has(guest) ? 'delete' : 'add'](guest);

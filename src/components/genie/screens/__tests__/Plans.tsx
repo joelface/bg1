@@ -1,7 +1,7 @@
 import { ak, booking, bookings, ep, hs, mk } from '@/__fixtures__/genie';
-import { Booking } from '@/api/genie';
+import { Booking } from '@/api/itinerary';
 import { useNav } from '@/contexts/Nav';
-import { PlansProvider } from '@/contexts/Plans';
+import { PlansContext } from '@/contexts/Plans';
 import { displayTime } from '@/datetime';
 import { click, render, screen, see, setTime, within } from '@/testing';
 
@@ -14,9 +14,9 @@ const refreshPlans = jest.fn();
 
 function renderComponent(plans: Booking[]) {
   render(
-    <PlansProvider value={{ plans, refreshPlans, loaderElem: null }}>
+    <PlansContext.Provider value={{ plans, refreshPlans, loaderElem: null }}>
       <Plans />
-    </PlansProvider>
+    </PlansContext.Provider>
   );
 }
 

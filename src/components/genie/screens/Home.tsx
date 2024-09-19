@@ -1,10 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { withTabs } from '@/components/Tab';
-import {
-  ExperiencesProvider,
-  useExperiencesState,
-} from '@/contexts/Experiences';
+import { useExperiences } from '@/contexts/Experiences';
 import { useScreens } from '@/contexts/Nav';
 import { usePark } from '@/contexts/Park';
 import { usePlans } from '@/contexts/Plans';
@@ -22,9 +19,9 @@ import TimesGuide from './Home/TimesGuide';
 import Plans from './Plans';
 
 const AUTO_REFRESH_MIN_MS = 60_000;
-export const TAB_KEY = ['bg1', 'genie', 'merlock', 'tab'];
+export const TAB_KEY = ['bg1', 'tab'];
 
-export const getDefaultTab = () => kvdb.get<string>(TAB_KEY) ?? 'Genie+';
+export const getDefaultTab = () => kvdb.get<string>(TAB_KEY) ?? 'LL';
 
 export interface HomeTabProps {
   contentRef: React.MutableRefObject<HTMLDivElement | null>;
@@ -32,7 +29,7 @@ export interface HomeTabProps {
 
 const tabs = [
   {
-    name: 'Genie+',
+    name: 'LL',
     icon: <LightningIcon />,
     component: GeniePlusList,
   },
@@ -54,8 +51,7 @@ const Home = withTabs({ tabs, footer }, ({ tab }) => {
   const { current } = useScreens();
   const rebooking = useRebooking();
   const { park } = usePark();
-  const exps = useExperiencesState();
-  const { refreshExperiences } = exps;
+  const { refreshExperiences } = useExperiences();
   const { refreshPlans } = usePlans();
   const contentRef = useRef<HTMLDivElement | null>(null);
 
@@ -77,9 +73,7 @@ const Home = withTabs({ tabs, footer }, ({ tab }) => {
 
   return (
     <ThemeProvider value={park.theme}>
-      <ExperiencesProvider value={exps}>
-        <tab.component contentRef={contentRef} />
-      </ExperiencesProvider>
+      <tab.component contentRef={contentRef} />
     </ThemeProvider>
   );
 });

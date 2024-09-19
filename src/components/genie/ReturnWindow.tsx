@@ -1,4 +1,4 @@
-import { Booking } from '@/api/genie';
+import { Booking } from '@/api/itinerary';
 import { parkDate } from '@/datetime';
 
 import { Time } from '../Time';
@@ -13,7 +13,7 @@ export default function ReturnWindow({
   if (!end) return <Time time={start.time} />;
 
   return (
-    <>
+    <span className="whitespace-nowrap">
       {start.time ? <Time time={start.time} /> : <span>Park Open</span>} –{' '}
       {endParkDate > startParkDate ? (
         <Time date={endParkDate} type="short" />
@@ -22,6 +22,6 @@ export default function ReturnWindow({
       ) : (
         <span>Park Close</span>
       )}
-    </>
+    </span>
   );
 }

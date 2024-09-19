@@ -7,11 +7,11 @@ import {
   minnie,
   mk,
   party,
-  wdw,
+  renderResort,
 } from '@/__fixtures__/das';
 import { ConflictsError } from '@/api/das';
 import { useNav } from '@/contexts/Nav';
-import { PlansProvider } from '@/contexts/Plans';
+import { PlansContext } from '@/contexts/Plans';
 import { act, click, screen, see, waitFor, within } from '@/testing';
 
 import BookingDetails from '../BookingDetails';
@@ -25,10 +25,12 @@ const refreshPlans = jest.fn();
 jest.spyOn(das, 'book').mockResolvedValue(booking);
 
 function renderComponent() {
-  wdw.render(
-    <PlansProvider value={{ plans: [], refreshPlans, loaderElem: null }}>
+  renderResort(
+    <PlansContext.Provider
+      value={{ plans: [], refreshPlans, loaderElem: null }}
+    >
       <DasSelection park={mk} party={party} />
-    </PlansProvider>
+    </PlansContext.Provider>
   );
 }
 

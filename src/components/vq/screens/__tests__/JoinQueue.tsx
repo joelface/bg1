@@ -1,4 +1,4 @@
-import { mickey, pluto, rotr, vq, wdw } from '@/__fixtures__/vq';
+import { mickey, pluto, renderResort, rotr, vq } from '@/__fixtures__/vq';
 import TimeBoard from '@/components/TimeBoard';
 import { useNav } from '@/contexts/Nav';
 import { click, loading, see } from '@/testing';
@@ -22,7 +22,7 @@ describe('JoinQueue', () => {
   const guests = [mickey, pluto];
 
   it('shows VQ join screen', async () => {
-    const { container } = wdw.render(
+    const { container } = renderResort(
       <JoinQueue queue={rotr} guests={guests} />
     );
     expect(TimeBoard).toHaveBeenLastCalledWith(
@@ -51,7 +51,7 @@ describe('JoinQueue', () => {
   });
 
   it('shows "No boarding groups available" message when VQ closed', async () => {
-    wdw.render(<JoinQueue queue={rotr} guests={guests} />);
+    renderResort(<JoinQueue queue={rotr} guests={guests} />);
     jest
       .spyOn(vq, 'getQueues')
       .mockResolvedValueOnce([{ ...rotr, isAcceptingPartyCreation: false }]);

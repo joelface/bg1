@@ -1,4 +1,4 @@
-import { mtwr, rotr, santa, vq, wdw } from '@/__fixtures__/vq';
+import { mtwr, renderResort, rotr, santa, vq } from '@/__fixtures__/vq';
 import { useNav } from '@/contexts/Nav';
 import { click, loading, revisitTab, screen, see, within } from '@/testing';
 
@@ -13,7 +13,7 @@ describe('SelectQueue', () => {
 
   it('shows VQ selection screen', async () => {
     vq.getQueues.mockResolvedValueOnce([]);
-    wdw.render(<SelectQueue />);
+    renderResort(<SelectQueue />);
     await loading();
     see('No virtual queues found');
 

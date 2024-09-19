@@ -1,13 +1,13 @@
 import Notice from '@/components/Notice';
 import { Time } from '@/components/Time';
+import { useClients } from '@/contexts/Clients';
 import { useRebooking } from '@/contexts/Rebooking';
-import { useResort } from '@/contexts/Resort';
 import { dateTimeStrings } from '@/datetime';
 
 import IneligibleGuestList from '../../IneligibleGuestList';
 
 export default function NoEligibleGuests() {
-  const { genie } = useResort();
+  const { ll } = useClients();
   const rebooking = useRebooking();
   return (
     <>
@@ -21,11 +21,11 @@ export default function NoEligibleGuests() {
         </>
       ) : (
         <>
-          {genie.nextBookTime &&
-            genie.nextBookTime.slice(0, 5) >
+          {ll.nextBookTime &&
+            ll.nextBookTime.slice(0, 5) >
               dateTimeStrings().time.slice(0, 5) && (
               <Notice>
-                Eligible at <Time time={genie.nextBookTime} />
+                Eligible at <Time time={ll.nextBookTime} />
               </Notice>
             )}
           <h3>No Eligible Guests</h3>

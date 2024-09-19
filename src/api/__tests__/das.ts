@@ -1,20 +1,8 @@
-import { hm, jc, mickey, minnie, sm } from '@/__fixtures__/das';
-import { fetchJson } from '@/fetch';
+import { expectFetch, respond, response, swid } from '@/__fixtures__/client';
+import { hm, jc, mickey, minnie, mk, sm, wdw } from '@/__fixtures__/das';
 import { TODAY } from '@/testing';
 
-import { authStore } from '../auth';
 import { DasClient } from '../das';
-import * as data from '../data/wdw';
-import { Resort } from '../resort';
-
-jest.mock('@/fetch');
-const accessToken = 'ACCESS_TOKEN';
-const swid = 'SWID';
-jest.spyOn(authStore, 'getData').mockReturnValue({ accessToken, swid });
-
-const wdw = new Resort('WDW', data);
-const [mk] = wdw.parks;
-const origin = 'https://disneyworld.disney.go.com';
 
 const booking = {
   type: 'DAS',
@@ -38,37 +26,6 @@ const booking = {
   end: {},
   bookingId: 'jc1030',
 };
-
-function response(data: any, status = 200) {
-  return { ok: status >= 200 && status < 300, status, data: { ...data } };
-}
-
-function respond(...responses: ReturnType<typeof response>[]) {
-  for (const res of responses) {
-    jest.mocked(fetchJson).mockResolvedValueOnce(res);
-  }
-}
-
-function expectFetch(
-  path: string,
-  { method, params, data }: Parameters<typeof fetchJson>[1] = {},
-  nthCall = 1
-) {
-  expect(fetchJson).toHaveBeenNthCalledWith(
-    nthCall,
-    expect.stringContaining(origin + path),
-    {
-      method,
-      params,
-      data,
-      headers: {
-        'Accept-Language': 'en-US',
-        Authorization: `BEARER ${accessToken}`,
-        'x-user-id': swid,
-      },
-    }
-  );
-}
 
 describe('DasClient', () => {
   const client = new DasClient(wdw);

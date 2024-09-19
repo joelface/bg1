@@ -1,7 +1,14 @@
-import { booking, genie, mickey, minnie, party, wdw } from '@/__fixtures__/das';
+import {
+  booking,
+  itinerary,
+  mickey,
+  minnie,
+  party,
+  renderResort,
+} from '@/__fixtures__/das';
 import { DasBooking, DasParty } from '@/api/das';
 import { Nav } from '@/contexts/Nav';
-import { PlansProvider, usePlansState } from '@/contexts/Plans';
+import { PlansProvider } from '@/contexts/Plans';
 import { click, loading, see, setTime } from '@/testing';
 
 import DasPartyList from '../DasPartyList';
@@ -25,7 +32,7 @@ const parties: DasParty[] = [
 
 function DasPartyListTest({ parties }: { parties: DasParty[] }) {
   return (
-    <PlansProvider value={usePlansState()}>
+    <PlansProvider>
       <Nav>
         <DasPartyList parties={parties} />
       </Nav>
@@ -35,10 +42,10 @@ function DasPartyListTest({ parties }: { parties: DasParty[] }) {
 
 async function renderComponent(parties: DasParty[], plans: DasBooking[]) {
   jest
-    .spyOn(genie, 'bookings')
+    .spyOn(itinerary, 'plans')
     .mockResolvedValueOnce([])
     .mockResolvedValueOnce(plans);
-  wdw.render(<DasPartyListTest parties={parties} />);
+  renderResort(<DasPartyListTest parties={parties} />);
   await loading();
 }
 

@@ -1,6 +1,5 @@
 import { bg, booking, multiExp } from '@/__fixtures__/genie';
-import { DasBooking } from '@/api/genie';
-import { displayTime } from '@/datetime';
+import { DasBooking } from '@/api/itinerary';
 import { render, see, setTime } from '@/testing';
 
 import BookingListing from '../BookingListing';
@@ -11,8 +10,8 @@ describe('BookingListing', () => {
   it('renders listing', () => {
     render(<BookingListing booking={booking} button={<button>Info</button>} />);
     see(booking.name);
-    see(displayTime(booking.start.time as string));
-    see(displayTime(booking.end.time as string));
+    see.time(booking.start.time as string);
+    see.time(booking.end.time as string);
     see.no('DAS');
     see('Info', 'button');
   });

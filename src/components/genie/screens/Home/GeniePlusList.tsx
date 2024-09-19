@@ -1,16 +1,21 @@
 import { memo, useEffect, useRef, useState } from 'react';
 
-import { PlusExperience as BasePlusExp, Experience } from '@/api/genie';
+import { Experience, FlexExperience } from '@/api/genie';
 import { Park } from '@/api/resort';
 import Screen from '@/components/Screen';
 import Tab from '@/components/Tab';
+import { useBookingDate } from '@/contexts/BookingDate';
+import { useClients } from '@/contexts/Clients';
 import { useExperiences } from '@/contexts/Experiences';
 import { useNav } from '@/contexts/Nav';
+import { usePark } from '@/contexts/Park';
+import { usePlans } from '@/contexts/Plans';
 import { useResort } from '@/contexts/Resort';
 import { useTheme } from '@/contexts/Theme';
 import {
   dateTimeStrings,
   displayTime,
+  parkDate,
   timeToMinutes,
   upcomingTimes,
 } from '@/datetime';
@@ -24,6 +29,7 @@ import RebookingHeader from '../../RebookingHeader';
 import { HomeTabProps } from '../Home';
 import { useSelectedParty } from '../PartySelector';
 import RefreshButton from '../RefreshButton';
+import BookingDateSelect from './BookingDateSelect';
 import GeniePlusButton from './GeniePlusButton';
 import Legend, { Symbol } from './Legend';
 import ParkSelect from './ParkSelect';
@@ -38,18 +44,20 @@ const LIGHTNING_PICK = 'Lightning Pick';
 const UPCOMING_DROP = 'Upcoming Drop';
 const BOOKED = 'Booked';
 
-export interface PlusExperience extends BasePlusExp {
+export interface ExtFlexExp extends FlexExperience {
+  booked: boolean;
   lp: boolean;
   starred: boolean;
 }
 
-const isExperienced = (exp: PlusExperience) => exp.experienced && !exp.starred;
+const isExperienced = (exp: ExtFlexExp) => exp.experienced && !exp.starred;
 
 export default function GeniePlusList({ contentRef }: HomeTabProps) {
   useSelectedParty();
-  const { genie } = useResort();
-  const { experiences, refreshExperiences, park, loaderElem } =
-    useExperiences();
+  const { ll } = useClients();
+  const { park } = usePark();
+  const { experiences, refreshExperiences, loaderElem } = useExperiences();
+  const { bookingDate } = useBookingDate();
   const { sortType, sorter, SortSelect } = useSort();
   const firstUpdate = useRef(true);
 
@@ -61,13 +69,15 @@ export default function GeniePlusList({ contentRef }: HomeTabProps) {
     firstUpdate.current = false;
   }, []);
 
+  const today = parkDate();
   const dropTime = upcomingTimes(park.dropTimes)[0];
 
   return (
     <Tab
-      title="Genie+"
+      title={<abbr title="Lightning Lane">LL</abbr>}
       buttons={
         <>
+          {ll.rules.prebook && <BookingDateSelect />}
           <SortSelect />
           <ParkSelect />
           <RefreshButton name="Experiences" onClick={refreshExperiences} />
@@ -76,7 +86,9 @@ export default function GeniePlusList({ contentRef }: HomeTabProps) {
       subhead={
         <>
           <RebookingHeader />
-          <TimeBanner bookTime={genie.nextBookTime} dropTime={dropTime} />
+          {bookingDate === today && (
+            <TimeBanner bookTime={ll.nextBookTime} dropTime={dropTime} />
+          )}
         </>
       }
       contentRef={contentRef}
@@ -98,11 +110,18 @@ const Experiences = memo(function Experiences({
 }) {
   const { goTo } = useNav();
   const theme = useTheme();
+  const resort = useResort();
+  const { plans } = usePlans();
+  const { bookingDate } = useBookingDate();
   const [starred, setStarred] = useState<Set<string>>(() => {
     const ids = kvdb.get<string[]>(STARRED_KEY) ?? [];
     return new Set(Array.isArray(ids) ? ids : []);
   });
-  const dropTime = upcomingTimes(park.dropTimes)[0];
+  const today = parkDate();
+  const isBookingToday = bookingDate === today;
+  const dropTime = isBookingToday
+    ? upcomingTimes(park.dropTimes)[0]
+    : park.dropTimes[0];
   const nowMinutes = timeToMinutes(dateTimeStrings().time);
 
   function toggleStar({ id }: { id: string }) {
@@ -120,19 +139,29 @@ const Experiences = memo(function Experiences({
 
   const showLightningPickDesc = () => goTo(<LightningPickDesc />);
   const showDropTimeDesc = (exp?: Experience) =>
-    goTo(<DropTimeDesc park={park} experience={exp} />);
+    goTo(
+      <DropTimeDesc
+        park={park}
+        experience={exp}
+        isBookingToday={isBookingToday}
+      />
+    );
   const showBookedDesc = () => goTo(<BookedDesc />);
 
   const ExperienceList = ({
     experiences,
     type,
   }: {
-    experiences: PlusExperience[];
+    experiences: ExtFlexExp[];
     type: string;
   }) => (
     <ul data-testid={type}>
       {experiences.map(exp => {
-        const [nextDropTime] = upcomingTimes(exp.dropTimes ?? []);
+        const nextDropTime = isBookingToday
+          ? upcomingTimes(exp.dropTimes ?? [])[0]
+          : exp.dropTimes
+            ? dropTime
+            : null;
         return (
           <li
             className="pb-3 first:border-0 border-t-4 border-gray-300"
@@ -157,7 +186,7 @@ const Experiences = memo(function Experiences({
                   className={nextDropTime !== dropTime ? 'opacity-50' : ''}
                 />
               ) : null}
-              {exp.flex.preexistingPlan && (
+              {exp.booked && (
                 <InfoButton
                   name={BOOKED}
                   icon={CheckmarkIcon}
@@ -166,7 +195,7 @@ const Experiences = memo(function Experiences({
               )}
             </div>
             <div className="flex flex-wrap gap-1.5 mt-2">
-              <StandbyTime experience={exp} />
+              <StandbyTime experience={exp} average={!isBookingToday} />
               <GeniePlusButton experience={exp} />
             </div>
           </li>
@@ -175,19 +204,29 @@ const Experiences = memo(function Experiences({
     </ul>
   );
 
-  const plusExps = experiences
-    .filter((exp): exp is PlusExperience => !!exp.flex)
+  const bookedIds = new Set(
+    plans
+      .filter(
+        b =>
+          b.type === 'LL' && b.subtype === 'MP' && b.start.date === bookingDate
+      )
+      .map(b => b.id)
+  );
+  const flexExps: ExtFlexExp[] = experiences
+    .filter((exp): exp is FlexExperience => !!exp.flex)
     .map(exp => {
       const standby = exp.standby.waitTime || 0;
-      const returnTime = exp?.flex?.nextAvailableTime;
+      const { nextAvailableTime } = exp.flex ?? {};
       const priorityLevel = Math.trunc(exp.priority || 4);
       return {
         ...exp,
+        booked: bookedIds.has(exp.id),
         lp:
-          !!returnTime &&
+          isBookingToday &&
+          !!nextAvailableTime &&
           standby >= LP_MIN_STANDBY &&
           priorityLevel < 3 &&
-          timeToMinutes(returnTime) - nowMinutes <=
+          timeToMinutes(nextAvailableTime) - nowMinutes <=
             Math.min(LP_MAX_LL_WAIT, ((4 - priorityLevel) / 3) * standby),
         starred: starred.has(exp.id),
       };
@@ -195,8 +234,8 @@ const Experiences = memo(function Experiences({
     .sort(
       (a, b) => +!a.starred - +!b.starred || +!a.lp - +!b.lp || sorter(a, b)
     );
-  const unexperienced = plusExps.filter(exp => !isExperienced(exp));
-  const experienced = plusExps
+  const unexperienced = flexExps.filter(exp => !isExperienced(exp));
+  const experienced = flexExps
     .filter(isExperienced)
     .sort((a, b) => a.name.localeCompare(b.name));
 
@@ -213,26 +252,44 @@ const Experiences = memo(function Experiences({
           <ExperienceList experiences={experienced} type="experienced" />
         </>
       )}
-      {(unexperienced.length > 0 || experienced.length > 0) && (
-        <Legend>
-          <Symbol
-            sym={<LightningIcon className={theme.text} />}
-            def={LIGHTNING_PICK}
-            onInfo={showLightningPickDesc}
-          />
-          {park.dropTimes.length > 0 && (
+      {flexExps.length > 0 && (
+        <>
+          <Legend>
             <Symbol
-              sym={<DropIcon className={theme.text} />}
-              def={UPCOMING_DROP}
-              onInfo={showDropTimeDesc}
+              sym={<LightningIcon className={theme.text} />}
+              def={LIGHTNING_PICK}
+              onInfo={showLightningPickDesc}
             />
+            {park.dropTimes.length > 0 && (
+              <Symbol
+                sym={<DropIcon className={theme.text} />}
+                def={UPCOMING_DROP}
+                onInfo={showDropTimeDesc}
+              />
+            )}
+            <Symbol
+              sym={<CheckmarkIcon className={theme.text} />}
+              def={BOOKED}
+              onInfo={showBookedDesc}
+            />
+          </Legend>
+          {!isBookingToday && (
+            <p className="text-sm">
+              Standby times for future dates are monthly averages (source:{' '}
+              <a
+                href={`https://www.thrill-data.com/waits/park/${resort.id.toLowerCase()}/${park.name.toLowerCase().replaceAll(' ', '-')}/`}
+                target="_blank"
+                rel="noreferrer"
+                className="whitespace-nowrap"
+              >
+                Thrill Data
+              </a>
+              ) meant to assist you in selecting your initial{' '}
+              <abbr title="Lightning Lanes">LLs</abbr>. They are not wait time
+              estimates for this particular day.
+            </p>
           )}
-          <Symbol
-            sym={<CheckmarkIcon className={theme.text} />}
-            def={BOOKED}
-            onInfo={showBookedDesc}
-          />
-        </Legend>
+        </>
       )}
     </>
   );
@@ -265,8 +322,8 @@ function StarButton({
   experience,
   toggleStar,
 }: {
-  experience: PlusExperience;
-  toggleStar: (exp: PlusExperience) => void;
+  experience: ExtFlexExp;
+  toggleStar: (exp: ExtFlexExp) => void;
 }) {
   const theme = useTheme();
   return (
@@ -295,9 +352,11 @@ function LightningPickDesc() {
 function DropTimeDesc({
   park,
   experience,
+  isBookingToday,
 }: {
   park: Park;
   experience?: Experience;
+  isBookingToday?: boolean;
 }) {
   const resort = useResort();
   const dropTime = upcomingTimes(experience?.dropTimes ?? [])[0];
@@ -307,9 +366,11 @@ function DropTimeDesc({
   return (
     <Screen title={UPCOMING_DROP}>
       <p>
-        {experience ? <b>{experience.name}</b> : 'This attraction'} may be part
-        of{' '}
-        {dropTime ? (
+        {experience ? <b>{experience.name}</b> : <>This attraction</>} may be
+        part of{' '}
+        {!isBookingToday ? (
+          <>a day-of</>
+        ) : dropTime ? (
           <>
             the{' '}
             <time dateTime={dropTime} className="font-semibold">
@@ -336,23 +397,19 @@ function DropTimeDesc({
               {park.name}
             </h2>
             <div className="flex flex-col px-2 pb-3 bg-white bg-opacity-90">
-              {resort.dropExperiences(park).map((exp, i) => {
-                const isExp = i === 1 && park.name === 'Hollywood Studios';
+              {resort.dropExperiences(park).map(exp => {
                 const upcoming = new Set(upcomingTimes(exp.dropTimes ?? []));
                 return (
                   <div key={exp.id}>
-                    <h3
-                      className={`mt-3 text-base ${isExp ? `${park.theme.text}font-bold` : ''}`}
-                    >
-                      {exp.name}
-                    </h3>
+                    <h3 className="mt-3">{exp.name}</h3>
                     <ul className="flex flex-wrap gap-y-2 mt-1 leading-tight">
                       {exp.dropTimes?.map(time => {
-                        const isNextDrop = time === nextDropTime;
+                        const isNextDrop =
+                          isBookingToday && time === nextDropTime;
                         return (
                           <li className="min-w-[6em] text-center" key={time}>
                             <div
-                              className={`${isNextDrop ? `${park.theme.text} font-bold` : upcoming.has(time) ? 'font-semibold' : 'text-gray-500'}`}
+                              className={`${isNextDrop ? `${park.theme.text} font-bold` : upcoming.has(time) || !isBookingToday ? 'font-semibold' : 'text-gray-500'}`}
                             >
                               <time dateTime={time}>{displayTime(time)}</time>
                             </div>

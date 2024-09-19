@@ -1,4 +1,4 @@
-import { Booking } from '@/api/genie';
+import { Booking } from '@/api/itinerary';
 import { useTheme } from '@/contexts/Theme';
 
 import ReturnWindow from './ReturnWindow';

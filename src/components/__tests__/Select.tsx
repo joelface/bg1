@@ -39,7 +39,7 @@ function Selector({
 describe('Select', () => {
   it('only shows icon in button', async () => {
     render(<Selector options={parkOptions} defaultValue={hs.id} />);
-    const btn = see(`Park: ${hs.name}`);
+    const btn = see(hs.name);
     expect(btn).toHaveTextContent(hs.icon);
 
     click(btn);
@@ -72,7 +72,7 @@ describe('Select', () => {
     click(ak.name);
     fireEvent.keyDown(shade, { key: 'Enter' });
     expect(shade).not.toBeInTheDocument();
-    see(`Park: ${ak.name}`);
+    see(ak.name);
 
     click(btn);
     shade = screen.getByTestId('shade');

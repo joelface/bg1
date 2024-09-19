@@ -1,16 +1,21 @@
 import { ep, mk, wdw } from '@/__fixtures__/genie';
-import { parkDate } from '@/datetime';
-import kvdb from '@/kvdb';
 import { click, render, see } from '@/testing';
 
-import { PARK_KEY, useParkState } from '../Park';
+import { ParkProvider, usePark } from '../Park';
+import { ResortProvider } from '../Resort';
 
-jest.mock('@/contexts/Resort', () => {
-  return { useResort: () => wdw };
-});
+function Test() {
+  return (
+    <ResortProvider value={wdw}>
+      <ParkProvider>
+        <ParkConsumer />
+      </ParkProvider>
+    </ResortProvider>
+  );
+}
 
-function ParkTest() {
-  const { park, setPark } = useParkState();
+function ParkConsumer() {
+  const { park, setPark } = usePark();
   return (
     <div>
       <h1>{park.name}</h1>
@@ -21,10 +26,13 @@ function ParkTest() {
 
 describe('useParkState()', () => {
   it('saves selected park', async () => {
-    render(<ParkTest />);
-    see(mk.name);
+    const { unmount } = render(<Test />);
+    see(mk.name, 'heading');
     click(`Hop to ${ep.name}`);
-    see(ep.name);
-    expect(kvdb.get(PARK_KEY)).toEqual({ id: ep.id, date: parkDate() });
+    see(ep.name, 'heading');
+
+    unmount();
+    render(<Test />);
+    see(ep.name, 'heading');
   });
 });

@@ -10,6 +10,8 @@ import {
   within,
 } from '@testing-library/react';
 
+import { displayTime } from './datetime';
+
 export * from '@testing-library/react';
 
 export const YESTERDAY = '2021-09-30';
@@ -48,7 +50,7 @@ export const see = Object.assign(
       }
     } else {
       const c = withinActive();
-      for (const q of [c.getByText, c.getByTitle]) {
+      for (const q of [c.getByText, c.getByTitle, c.getByLabelText]) {
         try {
           return q(text);
         } catch {
@@ -59,6 +61,9 @@ export const see = Object.assign(
     throw getTextError(text);
   },
   {
+    time(h24Time: string, role?: ByRoleMatcher, options?: ByRoleOptions) {
+      return see(displayTime(h24Time), role, options);
+    },
     all(text: string) {
       const c = within(getContainerElem());
       try {

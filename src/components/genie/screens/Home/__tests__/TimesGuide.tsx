@@ -1,12 +1,12 @@
 import { party } from '@/__fixtures__/das';
-import { mk, wdw } from '@/__fixtures__/genie';
+import { mk, renderResort, wdw } from '@/__fixtures__/genie';
 import { DasParty } from '@/api/das';
 import { Experience } from '@/api/genie';
 import { Experience as ExpData, ExperienceType } from '@/api/resort';
-import { DasPartiesProvider } from '@/contexts/DasParties';
-import { ExperiencesProvider } from '@/contexts/Experiences';
+import { DasPartiesContext } from '@/contexts/DasParties';
+import { ExperiencesContext } from '@/contexts/Experiences';
 import { Nav } from '@/contexts/Nav';
-import { ParkProvider } from '@/contexts/Park';
+import { ParkContext } from '@/contexts/Park';
 import { displayTime } from '@/datetime';
 import { click, screen, see, within } from '@/testing';
 
@@ -30,7 +30,7 @@ function expectTimes(def: { [key: string]: { [key: string]: Experience[] } }) {
           ),
           exp.name +
             (exp.individual?.available
-              ? 'ILL: ' + exp.individual.displayPrice
+              ? 'LL: ' + exp.individual.displayPrice
               : ''),
         ])
       );
@@ -90,24 +90,18 @@ function renderComponent({
   experiences = [sdmt, dd, fof, potc, tiki, btmr, tiana, uts],
   dasParties = [],
 }: { experiences?: Experience[]; dasParties?: DasParty[] } = {}) {
-  wdw.render(
-    <ParkProvider value={{ park: mk, setPark: () => null }}>
-      <DasPartiesProvider value={dasParties}>
-        <ExperiencesProvider
-          value={{
-            experiences,
-            refreshExperiences,
-            park: mk,
-            setPark: () => null,
-            loaderElem: null,
-          }}
+  renderResort(
+    <ParkContext.Provider value={{ park: mk, setPark: () => null }}>
+      <DasPartiesContext.Provider value={dasParties}>
+        <ExperiencesContext.Provider
+          value={{ experiences, refreshExperiences, loaderElem: null }}
         >
           <Nav>
             <TimesGuide contentRef={{ current: null }} />
           </Nav>
-        </ExperiencesProvider>
-      </DasPartiesProvider>
-    </ParkProvider>
+        </ExperiencesContext.Provider>
+      </DasPartiesContext.Provider>
+    </ParkContext.Provider>
   );
 }
 

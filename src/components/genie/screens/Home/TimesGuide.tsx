@@ -176,9 +176,8 @@ function ExperienceList({
                 <div className="flex items-center gap-x-2">
                   <div
                     className={`flex-1 ${
-                      exp.type === 'ATTRACTION' &&
-                      !exp.virtualQueue &&
-                      (exp.priority ?? 4) < 4
+                      (exp.avgWait ?? 0) >= exp.park.waitThreshold ||
+                      (exp.virtualQueue && exp.standby?.waitTime)
                         ? `font-bold ${land.theme.text}`
                         : ''
                     }`}
@@ -190,7 +189,7 @@ function ExperienceList({
                       className={`${land.theme.text} text-xs leading-tight font-semibold text-center uppercase`}
                     >
                       <div>
-                        <abbr title="Individual Lightning Lane">ILL</abbr>
+                        <abbr title="Lightning Lane">LL</abbr>
                         {': ' + exp.individual.displayPrice}
                       </div>
                       {exp.individual.nextAvailableTime && (

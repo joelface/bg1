@@ -12,9 +12,7 @@ export default function TimeBanner({
 
   if (!bookTime && !dropTime) return null;
   return (
-    <div
-      className={`flex justify-center gap-x-10 ${theme.bg} text-white text-sm font-semibold uppercase text-center`}
-    >
+    <div className={`flex justify-center gap-x-10 ${theme.bg}`}>
       <LabeledTime label="Book" time={bookTime} />
       <LabeledTime label="Drop" time={dropTime} />
     </div>

@@ -7,8 +7,8 @@ export default function NoReservationsAvailable() {
       <p>
         There aren't enough reservation slots available for your entire party.
         If only part of your group wishes to go on this attraction, edit your
-        party to check again. Otherwise, go back to the tip board and select
-        another attraction.
+        party to check again. Otherwise, go back to the attraction list and
+        select another attraction.
       </p>
       <PartyList />
     </>

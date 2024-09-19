@@ -2,6 +2,7 @@ import { Guest, Queue } from '@/api/vq';
 import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
 import TimeBoard from '@/components/TimeBoard';
+import { useClients } from '@/contexts/Clients';
 import { useNav } from '@/contexts/Nav';
 import { useResort } from '@/contexts/Resort';
 import useDataLoader from '@/hooks/useDataLoader';
@@ -19,7 +20,7 @@ export default function JoinQueue({
 }) {
   const { goTo } = useNav();
   const resort = useResort();
-  const { vq } = resort;
+  const { vq } = useClients();
   const { loadData, loaderElem } = useDataLoader();
 
   async function joinQueue() {

@@ -1,4 +1,4 @@
-export interface DateTimeStrings {
+export interface DateTime {
   date: string;
   time: string;
 }
@@ -9,14 +9,38 @@ export function setDefaultTimeZone(timeZone: string): void {
   defaultTimeZone = timeZone;
 }
 
+export function dateObject(dt: Date | number | string): Date {
+  return typeof dt === 'string' && !dt.includes('T')
+    ? new Date(dt + 'T00:00:00')
+    : new Date(dt);
+}
+
+export class DateFormat {
+  protected fmt;
+
+  constructor(options: Intl.DateTimeFormatOptions) {
+    this.fmt = Intl.DateTimeFormat('en-US', options);
+  }
+
+  format(date: Date | number | string) {
+    return this.fmt.format(dateObject(date));
+  }
+
+  parts(date: Date | number | string): {
+    [P in Intl.DateTimeFormatPartTypes]?: string;
+  } {
+    return Object.fromEntries(
+      this.fmt.formatToParts(dateObject(date)).map(p => [p.type, p.value])
+    );
+  }
+}
+
 /**
  * @returns Formatted date (YYYY-MM-DD) and time (HH:MM:SS) strings in the default time zone
  */
-export function dateTimeStrings(date?: Date | number): DateTimeStrings {
-  date = new Date(date || Date.now());
-  const dt: { [P in Intl.DateTimeFormatPartTypes]?: string } = {};
+export function dateTimeStrings(date?: Date | number): DateTime {
   const d2 = '2-digit';
-  Intl.DateTimeFormat('en-US', {
+  const dt = new DateFormat({
     timeZone: defaultTimeZone,
     hourCycle: 'h23',
     year: 'numeric',
@@ -25,29 +49,37 @@ export function dateTimeStrings(date?: Date | number): DateTimeStrings {
     hour: d2,
     minute: d2,
     second: d2,
-  } as Intl.DateTimeFormatOptions)
-    .formatToParts(date)
-    .forEach(p => (dt[p.type] = p.value));
+  }).parts(dateObject(date ?? Date.now()));
   return {
     date: `${dt.year}-${dt.month}-${dt.day}`,
     time: `${dt.hour}:${dt.minute}:${dt.second}`,
   };
 }
 
-export function parkDate(dateTime?: Partial<DateTimeStrings>): string {
-  dateTime ??= dateTimeStrings();
-  if ((dateTime.time ?? '1') > '03:00:00') {
-    return dateTime.date ?? dateTimeStrings().date;
-  }
-  const parkDay = new Date(`${dateTime.date}T00:00:00`);
-  parkDay.setDate(parkDay.getDate() - 1);
-  return dateTimeStrings(parkDay).date;
+export function dateString(date: Date | number | string) {
+  date = dateObject(date);
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+export function modifyDate(date: Date | number | string, days: number) {
+  date = dateObject(date);
+  if (days) date.setDate(date.getDate() + days);
+  return dateString(date);
+}
+
+export function parkDate(dateTime: Partial<DateTime> = {}): string {
+  const now = dateTimeStrings();
+  const { date = now.date, time = now.time } = dateTime;
+  return (time ?? '1') > '03:00:00' ? date : modifyDate(date, -1);
 }
 
 export type DisplayType = 'short';
 
 export function displayDate(date: string, type?: DisplayType) {
-  const dt = new Date(date + 'T00:00:00');
+  const dt = dateObject(date);
   const monthDay = dt.toLocaleString('en-US', {
     month: 'long',
     day: 'numeric',
@@ -55,10 +87,7 @@ export function displayDate(date: string, type?: DisplayType) {
   if (type === 'short') return monthDay;
   const today = parkDate();
   if (date === today) return `Today, ${monthDay}`;
-  const tomorrowDT = new Date(today);
-  tomorrowDT.setDate(tomorrowDT.getDate() + 1);
-  const tomorrow = tomorrowDT.toISOString().split('T')[0];
-  if (date === tomorrow) return `Tomorrow, ${monthDay}`;
+  if (date === modifyDate(today, 1)) return `Tomorrow, ${monthDay}`;
   const weekday = dt.toLocaleString('en-US', { weekday: 'long' });
   return `${weekday}, ${monthDay}`;
 }
@@ -80,7 +109,7 @@ export function displayTime(time: string) {
 /**
  * Splits ISO 8601 date/time string (YYYY-MM-DDTHH:mm:ss) into separate parts
  */
-export function splitDateTime(dateTime: string): DateTimeStrings {
+export function splitDateTime(dateTime: string): DateTime {
   const [date, time] = dateTime.slice(0, 19).split('T');
   return { date, time };
 }

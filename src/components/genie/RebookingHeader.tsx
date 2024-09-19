@@ -1,5 +1,4 @@
 import { useRebooking } from '@/contexts/Rebooking';
-import { useTheme } from '@/contexts/Theme';
 
 import Button from '../Button';
 import BookingListing from './BookingListing';
@@ -7,17 +6,12 @@ import Home from './screens/Home';
 
 export default function RebookingHeader() {
   const rebooking = useRebooking();
-  const theme = useTheme();
   if (!rebooking.current) return null;
   return (
-    <div className={`${theme.bg}`}>
-      <div className="-mx-3 pb-3 bg-white text-black">
-        <div
-          className={`pb-1 ${theme.bg} text-white text-sm font-semibold uppercase text-center`}
-        >
-          Modifying Reservation
-        </div>
-        <div className="mt-2 px-3">
+    <div>
+      <div className="-mx-3">
+        <div className="pb-1">Modifying Reservation</div>
+        <div className="px-3 py-2 bg-white text-black text-base font-normal normal-case text-left">
           <BookingListing
             booking={rebooking.current}
             button={

@@ -1,18 +1,18 @@
 import Button from '@/components/Button';
 import GuestList from '@/components/GuestList';
 import Warning from '@/components/Warning';
+import { useClients } from '@/contexts/Clients';
 import { useNav } from '@/contexts/Nav';
 import { useParty } from '@/contexts/Party';
-import { useResort } from '@/contexts/Resort';
 
 import IneligibleGuestList from '../../IneligibleGuestList';
 import ModifyParty from '../ModifyParty';
 
-export default function PartyList({ button }: { button?: JSX.Element }) {
+export default function PartyList() {
   const { goTo } = useNav();
   const party = useParty();
   const { eligible, selected } = party;
-  const { maxPartySize } = useResort().genie;
+  const { maxPartySize } = useClients().ll.rules;
   return (
     <>
       {eligible.length > maxPartySize && selected.length === maxPartySize && (
@@ -38,7 +38,6 @@ export default function PartyList({ button }: { button?: JSX.Element }) {
           <IneligibleGuestList />
         </>
       )}
-      {button}
     </>
   );
 }

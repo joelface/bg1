@@ -1,22 +1,28 @@
-import { DasPartiesProvider, useDasPartiesState } from '@/contexts/DasParties';
+import { BookingDateProvider } from '@/contexts/BookingDate';
+import { DasPartiesProvider } from '@/contexts/DasParties';
+import { ExperiencesProvider } from '@/contexts/Experiences';
 import { Nav } from '@/contexts/Nav';
-import { ParkProvider, useParkState } from '@/contexts/Park';
-import { PlansProvider, usePlansState } from '@/contexts/Plans';
-import { RebookingProvider, useRebookingState } from '@/contexts/Rebooking';
+import { ParkProvider } from '@/contexts/Park';
+import { PlansProvider } from '@/contexts/Plans';
+import { RebookingProvider } from '@/contexts/Rebooking';
 
 import Home, { getDefaultTab } from './screens/Home';
 
 export default function Merlock() {
   return (
-    <DasPartiesProvider value={useDasPartiesState()}>
-      <PlansProvider value={usePlansState()}>
-        <RebookingProvider value={useRebookingState()}>
-          <ParkProvider value={useParkState()}>
-            <Nav>
-              <Home tabName={getDefaultTab()} />
-            </Nav>
+    <DasPartiesProvider>
+      <PlansProvider>
+        <BookingDateProvider>
+          <ParkProvider>
+            <ExperiencesProvider>
+              <RebookingProvider>
+                <Nav>
+                  <Home tabName={getDefaultTab()} />
+                </Nav>
+              </RebookingProvider>
+            </ExperiencesProvider>
           </ParkProvider>
-        </RebookingProvider>
+        </BookingDateProvider>
       </PlansProvider>
     </DasPartiesProvider>
   );

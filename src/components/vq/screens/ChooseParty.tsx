@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { Guest, Queue } from '@/api/vq';
 import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
+import { useClients } from '@/contexts/Clients';
 import { useNav } from '@/contexts/Nav';
-import { useResort } from '@/contexts/Resort';
 import useDataLoader from '@/hooks/useDataLoader';
 
 import JoinQueue from './JoinQueue';
@@ -12,7 +12,7 @@ import QueueScreen from './QueueScreen';
 
 export default function ChooseParty({ queue }: { queue: Queue }) {
   const { goTo } = useNav();
-  const { vq } = useResort();
+  const { vq } = useClients();
   const { loadData, loaderElem } = useDataLoader();
   const [guests, setGuests] = useState<Guest[]>([]);
   const [party, setParty] = useState<Set<Guest>>(new Set());

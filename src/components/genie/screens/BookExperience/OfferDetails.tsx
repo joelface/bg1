@@ -1,34 +1,51 @@
 import { Offer } from '@/api/genie';
-import FloatingButton from '@/components/FloatingButton';
-import { useRebooking } from '@/contexts/Rebooking';
+import Button from '@/components/Button';
+import { useClients } from '@/contexts/Clients';
+import { useNav } from '@/contexts/Nav';
 
 import ReturnTime from '../../ReturnTime';
+import SelectReturnTime from '../SelectReturnTime';
 import PartyList from './PartyList';
 
 export default function OfferDetails({
   offer,
-  onBook: onBook,
+  onOfferChange,
 }: {
   offer: Offer;
-  onBook: () => void;
+  onOfferChange: (offer: Offer) => void;
 }) {
-  const rebooking = useRebooking();
-
+  const { goTo } = useNav();
+  const { ll } = useClients();
   return (
     <>
-      <ReturnTime {...offer} />
+      <div className="flex items-center">
+        <ReturnTime
+          {...offer}
+          button={
+            ll.rules.timeSelect && (
+              <Button
+                type="small"
+                onClick={() =>
+                  goTo(
+                    <SelectReturnTime
+                      offer={offer}
+                      onOfferChange={onOfferChange}
+                    />
+                  )
+                }
+              >
+                Change
+              </Button>
+            )
+          }
+        />
+      </div>
       {offer.changed && (
         <div className="text-sm">
           <strong>Note:</strong> Return time has been changed
         </div>
       )}
-      <PartyList
-        button={
-          <FloatingButton onClick={onBook}>{`${
-            rebooking.current ? 'Modify' : 'Book'
-          } Lightning Lane`}</FloatingButton>
-        }
-      />
+      <PartyList />
     </>
   );
 }

@@ -6,11 +6,11 @@ import {
   useState,
 } from 'react';
 
-import { Booking } from '@/api/genie';
+import { Booking } from '@/api/itinerary';
 import useDataLoader from '@/hooks/useDataLoader';
 import useThrottleable from '@/hooks/useThrottleable';
 
-import { useResort } from './Resort';
+import { useClients } from './Clients';
 
 interface PlansState {
   plans: Booking[];
@@ -23,23 +23,26 @@ export const PlansContext = createContext<PlansState>({
   refreshPlans: () => undefined,
   loaderElem: null,
 });
-export const PlansProvider = PlansContext.Provider;
 export const usePlans = () => useContext(PlansContext);
 
-export function usePlansState() {
-  const { genie } = useResort();
+export function PlansProvider({ children }: { children: React.ReactNode }) {
+  const { itinerary } = useClients();
   const { loadData, loaderElem } = useDataLoader();
   const [plans, setPlans] = useState<Booking[]>([]);
 
   const refreshPlans = useThrottleable(
     useCallback(() => {
       loadData(async () => {
-        setPlans(await genie.bookings());
+        setPlans(await itinerary.plans());
       });
-    }, [genie, loadData])
+    }, [itinerary, loadData])
   );
 
   useEffect(refreshPlans, [refreshPlans]);
 
-  return { plans, refreshPlans, loaderElem };
+  return (
+    <PlansContext.Provider value={{ plans, refreshPlans, loaderElem }}>
+      {children}
+    </PlansContext.Provider>
+  );
 }

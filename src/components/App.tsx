@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 
 import { ReauthNeeded, authStore } from '@/api/auth';
 import { InvalidOrigin } from '@/api/client';
-import { GenieClient } from '@/api/genie';
+import { LLClient } from '@/api/genie';
 import { Resort, loadResort } from '@/api/resort';
 import { VQClient } from '@/api/vq';
+import { ClientsProvider, createClients } from '@/contexts/Clients';
 import { ResortProvider } from '@/contexts/Resort';
 import { setDefaultTimeZone } from '@/datetime';
 import useDisclaimer from '@/hooks/useDisclaimer';
@@ -44,7 +45,7 @@ export default function App() {
     authStore.onUnauthorized = () => requireLogin(true);
     (async () => {
       for (const [Client, Component] of [
-        [GenieClient, Merlock],
+        [LLClient, Merlock],
         [VQClient, BGClient],
       ] as const) {
         try {
@@ -58,7 +59,9 @@ export default function App() {
           );
           setContent(
             <ResortProvider value={resort}>
-              <Component />
+              <ClientsProvider value={createClients(resort)}>
+                <Component />
+              </ClientsProvider>
             </ResortProvider>
           );
           return;

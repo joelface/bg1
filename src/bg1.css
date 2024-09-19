@@ -54,6 +54,10 @@
   abbr {
     text-decoration: none;
   }
+
+  a {
+    @apply text-blue-500 underline;
+  }
 }
 
 @layer utilities {

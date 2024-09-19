@@ -4,7 +4,7 @@ import { Experience } from '@/api/das';
 import { Park } from '@/api/resort';
 import Button from '@/components/Button';
 import Screen from '@/components/Screen';
-import { useResort } from '@/contexts/Resort';
+import { useClients } from '@/contexts/Clients';
 import { dateTimeStrings } from '@/datetime';
 import useDataLoader from '@/hooks/useDataLoader';
 
@@ -22,7 +22,7 @@ export default function DasExperienceList({
   park: Park;
   onSelect: (experience: Experience) => void;
 }) {
-  const { das } = useResort();
+  const { das } = useClients();
   const { loadData, loaderElem } = useDataLoader();
   const [experiences, setExperiences] = useState<Experience[]>();
 

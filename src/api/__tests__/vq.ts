@@ -1,43 +1,12 @@
+import { expectFetch, respond, response } from '@/__fixtures__/client';
 import { wdw } from '@/__fixtures__/vq';
 import { guests, mtwr, queues, rotr, santa } from '@/__fixtures__/vq';
-import { fetchJson } from '@/fetch';
 
-import { authStore } from '../auth';
 import { RequestError } from '../client';
 import { Guest, VQClient, sortGuests } from '../vq';
 
-jest.mock('@/fetch');
-const accessToken = 'ACCESS_TOKEN';
-const swid = 'SWID';
-jest.spyOn(authStore, 'getData').mockReturnValue({ accessToken, swid });
-
-function response(
-  data: { [key: string]: unknown },
-  responseStatus = 'OK',
-  status = 200
-) {
-  return { ok: status === 200, status, data: { ...data, responseStatus } };
-}
-
-function respond(...responses: ReturnType<typeof response>[]) {
-  for (const res of responses) {
-    jest.mocked(fetchJson).mockResolvedValueOnce(res);
-  }
-}
-
-function expectFetch(resource: string, data?: unknown) {
-  const fetchArgs: unknown[] = [
-    `https://vqguest-svc-wdw.wdprapps.disney.com/application/v1/guest/${resource}`,
-    {
-      method: data ? 'POST' : 'GET',
-      data,
-      headers: expect.objectContaining({
-        Authorization: `BEARER ${accessToken}`,
-      }),
-    },
-  ];
-  expect(jest.mocked(fetchJson).mock.calls[0]).toEqual(fetchArgs);
-}
+expectFetch.baseUrl =
+  'https://vqguest-svc-wdw.wdprapps.disney.com/application/v1/guest/';
 
 describe('VQClient', () => {
   const client = new VQClient(wdw);
@@ -77,6 +46,7 @@ describe('VQClient', () => {
   });
 
   const guestsRes = response({
+    responseStatus: 'OK',
     guests: guests
       .map(({ id, name, primary, preselected, ...rest }) => {
         const [firstName, lastName = ''] = name.split(' ');
@@ -97,14 +67,17 @@ describe('VQClient', () => {
       respond(guestsRes);
       expect(await client.getLinkedGuests(rotr)).toEqual(guests);
       expectFetch('getLinkedGuests', {
-        queueId: rotr.id,
-        requestType: 'REVIEW',
+        data: {
+          queueId: rotr.id,
+          requestType: 'REVIEW',
+        },
       });
     });
   });
 
   const jqSuccessRes = (guests: Guest[]) =>
     response({
+      responseStatus: 'OK',
       positions: [
         {
           queueId: rotr.id,
@@ -119,24 +92,27 @@ describe('VQClient', () => {
       ],
     });
   const jqInvalidRes = (guests: Guest[]) =>
-    response(
-      {
-        conflicts: [
-          {
-            conflictType: 'NO_PARK_PASS',
-            guestIds: guests.map(g => g.id),
-          },
-        ],
-      },
-      'INVALID_GUEST'
-    );
-  const jqClosedRes = response({ conflicts: [] }, 'CLOSED_QUEUE');
+    response({
+      responseStatus: 'INVALID_GUEST',
+      conflicts: [
+        {
+          conflictType: 'NO_PARK_PASS',
+          guestIds: guests.map(g => g.id),
+        },
+      ],
+    });
+  const jqClosedRes = response({
+    responseStatus: 'CLOSED_QUEUE',
+    conflicts: [],
+  });
 
   describe('joinQueue()', () => {
     afterEach(() => {
       expectFetch('joinQueue', {
-        queueId: rotr.id,
-        guestIds: guests.map(g => g.id),
+        data: {
+          queueId: rotr.id,
+          guestIds: guests.map(g => g.id),
+        },
       });
     });
 
@@ -175,14 +151,14 @@ describe('VQClient', () => {
     });
 
     it('throws RequestError on 5xx status code', async () => {
-      respond(response({}, 'OK', 500));
+      respond(response({ responseStatus: 'OK' }, 500));
       await expect(client.joinQueue(rotr, guests)).rejects.toThrow(
         RequestError
       );
     });
 
     it('throws RequestError on unrecognized responseStatus', async () => {
-      respond(response({}, 'UH_OH'));
+      respond(response({ responseStatus: 'UH_OH' }));
       await expect(client.joinQueue(rotr, guests)).rejects.toThrow(
         RequestError
       );

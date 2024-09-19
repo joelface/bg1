@@ -5,54 +5,69 @@ import {
   hm,
   hs,
   jc,
+  ll,
   lttRes,
   mickey,
   minnie,
   mk,
+  modOffer,
   multiExp,
   pluto,
+  renderResort,
   sdd,
   sm,
-  wdw,
 } from '@/__fixtures__/genie';
-import { Booking, DasBooking } from '@/api/genie';
+import { RequestError } from '@/api/client';
+import { Booking, DasBooking } from '@/api/itinerary';
 import { useNav } from '@/contexts/Nav';
-import { ParkProvider } from '@/contexts/Park';
-import { RebookingProvider } from '@/contexts/Rebooking';
+import { ParkContext } from '@/contexts/Park';
+import { RebookingContext } from '@/contexts/Rebooking';
 import { DEFAULT_THEME } from '@/contexts/Theme';
 import { displayTime } from '@/datetime';
-import { act, click, screen, see, setTime, waitFor } from '@/testing';
+import {
+  TODAY,
+  act,
+  click,
+  loading,
+  screen,
+  see,
+  setTime,
+  waitFor,
+} from '@/testing';
 
+import BookNewReturnTime from '../BookNewReturnTime';
 import BookingDetails from '../BookingDetails';
 import CancelGuests from '../CancelGuests';
+import Home from '../Home';
+import SelectReturnTime from '../SelectReturnTime';
 
 jest.mock('@/contexts/Nav');
 setTime('09:00');
 const rebooking = { begin: jest.fn(), end: jest.fn(), current: undefined };
 const setPark = jest.fn();
 
-function renderComponent(b: Booking = booking) {
-  return wdw.render(
-    <ParkProvider value={{ park: mk, setPark }}>
-      <RebookingProvider value={rebooking}>
-        <BookingDetails booking={b} />
-      </RebookingProvider>
-    </ParkProvider>
+function renderComponent(booking: Booking, isNew = false) {
+  return renderResort(
+    <ParkContext.Provider value={{ park: mk, setPark }}>
+      <RebookingContext.Provider value={rebooking}>
+        <BookingDetails booking={booking} isNew={isNew} />
+      </RebookingContext.Provider>
+    </ParkContext.Provider>
   );
 }
 
 describe('BookingDetails', () => {
-  const { goTo, goBack } = useNav();
+  const { goTo, goBack } = jest.mocked(useNav());
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   it('shows LL booking details', async () => {
-    renderComponent();
+    renderComponent(booking);
     expect(see('Your Lightning Lane').tagName).toBe('H1');
-    see(displayTime(booking.start.time as string));
-    see(displayTime(booking.end.time as string));
+    see.time(booking.start.time as string);
+    see.time(booking.end.time as string);
     see(mickey.name);
     see(minnie.name);
     see(pluto.name);
@@ -65,7 +80,7 @@ describe('BookingDetails', () => {
       <CancelGuests booking={booking} onCancel={expect.any(Function)} />
     );
 
-    const onCancel = jest.mocked(goTo).mock.lastCall?.[0]?.props?.onCancel;
+    const onCancel = goTo.mock.lastCall?.[0]?.props?.onCancel;
     act(() => onCancel([mickey, minnie]));
     see(mickey.name);
     see(minnie.name);
@@ -73,6 +88,42 @@ describe('BookingDetails', () => {
 
     act(() => onCancel([]));
     expect(goBack).toHaveBeenCalledTimes(2);
+
+    ll.offer.mockRejectedValueOnce(
+      new RequestError({ ok: false, status: 410, data: {} })
+    );
+    click('Change');
+    await loading();
+    see('No other times available');
+
+    ll.offer.mockResolvedValueOnce(modOffer);
+    click('Change');
+    await loading();
+    expect(ll.offer).toHaveBeenCalledTimes(2);
+    expect(goTo).toHaveBeenLastCalledWith(
+      <SelectReturnTime offer={modOffer} onOfferChange={expect.any(Function)} />
+    );
+    const onOfferChange = goTo.mock.lastCall?.[0]?.props?.onOfferChange;
+    const newOffer = {
+      ...modOffer,
+      start: { date: TODAY, time: '14:00:00' },
+      end: { date: TODAY, time: '15:00:00' },
+    };
+    onOfferChange(newOffer);
+    expect(goTo).toHaveBeenLastCalledWith(
+      <BookNewReturnTime offer={newOffer} />
+    );
+
+    see.no('Show Plans', 'button');
+  });
+
+  it('has Show Plans button if new booking', () => {
+    renderComponent(booking, true);
+    click('Show Plans');
+    expect(goBack).toHaveBeenLastCalledWith({
+      screen: Home,
+      props: { tabName: 'Plans' },
+    });
   });
 
   it('shows Multiple Experiences LL details', async () => {

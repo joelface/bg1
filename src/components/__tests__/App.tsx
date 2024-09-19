@@ -11,7 +11,7 @@ import Screen from '../Screen';
 jest.mock('@/fetch');
 jest.mock('../genie/Merlock', () => {
   return function Merlock() {
-    return <Screen title="Genie+">test</Screen>;
+    return <Screen title="LL">test</Screen>;
   };
 });
 jest.mock('../vq/BGClient', () => {
@@ -63,7 +63,7 @@ describe('App', () => {
 
   it('loads client if auth data valid', async () => {
     renderComponent();
-    await see.screen('Genie+');
+    await see.screen('LL');
   });
 
   it('shows LoginForm if auth data expired', async () => {
@@ -78,12 +78,12 @@ describe('App', () => {
       accessToken: 'm1nn13',
       expires: new Date(2121, 12, 21, 12, 21, 12).getTime(),
     });
-    await see.screen('Genie+');
+    await see.screen('LL');
   });
 
   it('shows LoginForm if client.onAuthorized() called', async () => {
     renderComponent();
-    await see.screen('Genie+');
+    await see.screen('LL');
     act(() => authStore.onUnauthorized());
     see('Log In');
   });

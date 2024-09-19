@@ -3,7 +3,10 @@ import { splitDateTime } from '@/datetime';
 import { authStore } from './auth';
 import { avatarUrl } from './avatar';
 import { ApiClient } from './client';
+import { DasBooking } from './itinerary';
 import { ExperienceType, Park } from './resort';
+
+export type { DasBooking };
 
 export interface Experience {
   id: string;
@@ -67,23 +70,6 @@ interface NewSelectionResponse {
 
 interface EntitledGuest extends Omit<Guest, 'primary'> {
   entitlementId: string;
-}
-
-interface DateTime {
-  date: string;
-  time: string;
-}
-
-export interface DasBooking {
-  type: 'DAS';
-  subtype: 'IN_PARK';
-  id: string;
-  name: string;
-  park: Park;
-  guests: EntitledGuest[];
-  start: DateTime;
-  end: Partial<DateTime>;
-  bookingId: string;
 }
 
 const path = (subpath: string, v: number) => `/das-vas/api/v${v}/${subpath}`;

@@ -1,4 +1,11 @@
-import { fifi, mickey, minnie, pluto, rotr, wdw } from '@/__fixtures__/vq';
+import {
+  fifi,
+  mickey,
+  minnie,
+  pluto,
+  renderResort,
+  rotr,
+} from '@/__fixtures__/vq';
 import { useNav } from '@/contexts/Nav';
 import { click, loading, see } from '@/testing';
 
@@ -12,7 +19,7 @@ describe('ChooseParty', () => {
   const { goTo } = useNav();
 
   it('shows VQ party selection screen', async () => {
-    wdw.render(<ChooseParty queue={rotr} />);
+    renderResort(<ChooseParty queue={rotr} />);
     await loading();
 
     click(pluto.name);

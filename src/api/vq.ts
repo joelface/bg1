@@ -233,7 +233,6 @@ export class VQClient extends ApiClient {
     try {
       return await this.request<T>({
         ...request,
-        method: 'data' in request ? 'POST' : 'GET',
         path: path(request.resource),
       });
     } catch (e) {

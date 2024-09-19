@@ -1,4 +1,4 @@
-import { DasBooking } from '@/api/genie';
+import { DasBooking } from '@/api/itinerary';
 import { usePlans } from '@/contexts/Plans';
 import { useTheme } from '@/contexts/Theme';
 

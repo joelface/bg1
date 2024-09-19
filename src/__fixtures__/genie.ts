@@ -1,51 +1,92 @@
+import { FlexExperience, HourlySlots, Offer } from '@/api/genie';
 import {
   BoardingGroup,
   Booking,
   LightningLane,
-  Offer,
   ParkPass,
-  PlusExperience,
   Reservation,
-} from '@/api/genie';
+} from '@/api/itinerary';
 import { TODAY, TOMORROW } from '@/testing';
 
-import { ak, genie, hs, mk, wdw } from './resort';
+import { ak, hs, itinerary, ll, mk, wdw } from './resort';
 
 export * from './resort';
 
 export const mickey = {
   id: 'mickey',
   name: 'Mickey Mouse',
+  primary: true,
   avatarImageUrl: undefined,
+  orderDetails: {
+    externalIdentifier: {
+      id: 'mickey-id',
+      idType: 'titus-guest-item-externalId',
+    },
+    orderId: 'mickey-orderId',
+    orderItemId: 'mickey-orderItemId',
+  },
 };
 export const minnie = {
   id: 'minnie',
   name: 'Minnie Mouse',
+  primary: false,
   avatarImageUrl: undefined,
+  orderDetails: {
+    externalIdentifier: {
+      id: 'minnie-externalId',
+      idType: 'titus-guest-item-id',
+    },
+    orderId: 'minnie-orderId',
+    orderItemId: 'minnie-orderItemId',
+  },
 };
 export const pluto = {
   id: 'pluto',
   name: 'Pluto',
+  primary: false,
   avatarImageUrl: undefined,
+  orderDetails: {
+    externalIdentifier: {
+      id: 'pluto-externalId',
+      idType: 'titus-guest-item-id',
+    },
+    orderId: 'pluto-orderId',
+    orderItemId: 'pluto-orderItemId',
+  },
 };
 export const donald = {
   id: 'donald',
   name: 'Donald Duck',
+  primary: false,
   ineligibleReason: 'INVALID_PARK_ADMISSION' as const,
   avatarImageUrl: undefined,
+  orderDetails: {
+    externalIdentifier: {
+      id: 'donald-externalId',
+      idType: 'titus-guest-item-id',
+    },
+    orderId: 'donald-orderId',
+    orderItemId: 'donald-orderItemId',
+  },
 };
 
-export const hm: PlusExperience = {
+export function omitOrderDetails<T extends { orderDetails?: unknown }>(
+  guest: T
+): Omit<T, 'orderDetails'> {
+  return { ...guest, orderDetails: undefined };
+}
+
+export const hm: FlexExperience = {
   ...wdw.experience('80010208'),
   park: mk,
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 30 },
-  flex: { available: true, nextAvailableTime: '11:15:00' },
+  flex: { available: true, nextAvailableTime: '11:10:00' },
   priority: 2.3,
-  sort: 1,
 };
+wdw.experience(hm.id).priority = hm.priority;
 
-export const jc: PlusExperience = {
+export const jc: FlexExperience = {
   ...wdw.experience('80010153'),
   park: mk,
   type: 'ATTRACTION',
@@ -53,23 +94,22 @@ export const jc: PlusExperience = {
   flex: {
     available: true,
     nextAvailableTime: '00:00:00',
-    preexistingPlan: true,
   },
   priority: 1.1,
-  sort: 1,
 };
+wdw.experience(jc.id).priority = jc.priority;
 
-export const sm: PlusExperience = {
+export const sm: FlexExperience = {
   ...wdw.experience('80010190'),
   park: mk,
   type: 'ATTRACTION',
   standby: { available: true, waitTime: 60 },
   flex: { available: true, nextAvailableTime: '10:40:00' },
   priority: 2.0,
-  sort: 1,
 };
+wdw.experience(sm.id).priority = sm.priority;
 
-export const sdd: PlusExperience = {
+export const sdd: FlexExperience = {
   ...wdw.experience('18904138'),
   park: hs,
   type: 'ATTRACTION',
@@ -77,35 +117,22 @@ export const sdd: PlusExperience = {
   flex: { available: false },
 };
 
-export const offer: Offer = {
-  id: '123',
-  start: { date: TODAY, time: '11:25:00' },
-  end: { date: TODAY, time: '12:25:00' },
-  active: true,
-  changed: false,
-  guests: {
-    eligible: [mickey, minnie, pluto],
-    ineligible: [],
-  },
-  experience: hm,
-};
-
 export const booking: LightningLane = {
   type: 'LL',
-  subtype: 'G+',
+  subtype: 'MP',
   id: hm.id,
   name: hm.name,
   park: hm.park,
-  start: { date: TODAY, time: '11:25:00' },
-  end: { date: TODAY, time: '12:25:00' },
+  start: { date: TODAY, time: '11:00:00' },
+  end: { date: TODAY, time: '12:00:00' },
   cancellable: true,
   modifiable: true,
   guests: [
-    { ...mickey, entitlementId: 'hm1125_01' },
-    { ...minnie, entitlementId: 'hm1125_02' },
-    { ...pluto, entitlementId: 'hm1125_03' },
-  ],
-  bookingId: 'hm1125_01',
+    { ...mickey, entitlementId: 'hm_01' },
+    { ...minnie, entitlementId: 'hm_02' },
+    { ...pluto, entitlementId: 'hm_03' },
+  ].map(omitOrderDetails),
+  bookingId: 'hm_01',
 };
 
 export const multiExp: LightningLane = {
@@ -122,7 +149,7 @@ export const multiExp: LightningLane = {
     { ...mickey, entitlementId: 're1515_01', redemptions: 1 },
     { ...minnie, entitlementId: 're1515_02', redemptions: 1 },
     { ...pluto, entitlementId: 're1515_03', redemptions: 1 },
-  ],
+  ].map(omitOrderDetails),
   choices: [hm, jc, sdd, sm].map(({ id, name, park }) => ({ id, name, park })),
   bookingId: 're1515_01',
 };
@@ -137,7 +164,9 @@ export const allDayExp: LightningLane = {
   end: { date: undefined, time: undefined },
   cancellable: false,
   modifiable: false,
-  guests: [{ ...pluto, entitlementId: 'sm_01', redemptions: 2 }],
+  guests: [{ ...pluto, entitlementId: 'sm_01', redemptions: 2 }].map(
+    omitOrderDetails
+  ),
   bookingId: 'sm_01',
 };
 
@@ -150,7 +179,7 @@ export const bg: BoardingGroup = {
   park: mk,
   boardingGroup: 42,
   status: 'IN_PROGRESS',
-  guests: [mickey, minnie, pluto],
+  guests: [mickey, minnie, pluto].map(omitOrderDetails),
   start: { date: TODAY, time: '07:00:00' },
   bookingId: 'tron_01',
 };
@@ -163,7 +192,7 @@ export const lttRes: Reservation = {
   park: mk,
   start: { date: TODAY, time: '11:15:00' },
   end: undefined,
-  guests: [mickey, minnie],
+  guests: [mickey, minnie].map(omitOrderDetails),
   bookingId: '38943;type=DINING',
 };
 
@@ -173,13 +202,13 @@ export const akApr: ParkPass = {
   name: ak.name,
   park: ak,
   start: { date: TOMORROW, time: '06:00:00' },
-  guests: [mickey, minnie, pluto],
+  guests: [mickey, minnie, pluto].map(omitOrderDetails),
   bookingId: 'ak20211002',
 };
 
 export const expiredLL: LightningLane = {
   type: 'LL',
-  subtype: 'G+',
+  subtype: 'MP',
   id: jc.id,
   name: jc.name,
   park: jc.park,
@@ -190,7 +219,7 @@ export const expiredLL: LightningLane = {
   guests: [
     { ...mickey, entitlementId: 'jc1400_01' },
     { ...minnie, entitlementId: 'jc1400_02' },
-  ],
+  ].map(omitOrderDetails),
   bookingId: 'jc1400_01',
 };
 
@@ -204,15 +233,45 @@ export const bookings: Booking[] = [
   akApr,
 ];
 
-genie.nextBookTime = '11:00:00';
+export const offer: Offer<undefined> = {
+  id: '123',
+  offerSetId: 'set123',
+  start: { date: TODAY, time: '11:10:00' },
+  end: { date: TODAY, time: '12:10:00' },
+  active: true,
+  changed: false,
+  guests: {
+    eligible: [mickey, minnie, pluto],
+    ineligible: [],
+  },
+  experience: hm,
+  booking: undefined,
+};
 
-jest.spyOn(genie, 'guests').mockResolvedValue({
+export const modOffer: Offer<LightningLane> = { ...offer, booking };
+
+export const times: HourlySlots = [
+  [
+    { startTime: '11:20:00', endTime: '12:20:00' },
+    { startTime: '11:40:00', endTime: '12:40:00' },
+    { startTime: '11:55:00', endTime: '12:55:00' },
+  ],
+  [
+    { startTime: '12:05:00', endTime: '13:05:00' },
+    { startTime: '12:25:00', endTime: '13:25:00' },
+    { startTime: '12:45:00', endTime: '13:45:00' },
+  ],
+];
+
+ll.nextBookTime = '11:00:00';
+
+jest.spyOn(ll, 'guests').mockResolvedValue({
   eligible: [mickey, minnie, pluto],
   ineligible: [donald],
 });
-jest.spyOn(genie, 'offer').mockResolvedValue(offer);
-jest.spyOn(genie, 'book').mockResolvedValue({ ...booking });
-jest.spyOn(genie, 'cancelBooking').mockResolvedValue(undefined);
-jest.spyOn(genie, 'bookings').mockResolvedValue([...bookings]);
-jest.spyOn(genie, 'experiences').mockResolvedValue([hm, sm, jc]);
-jest.spyOn(genie, 'setPartyIds');
+jest.spyOn(ll, 'offer').mockResolvedValue(offer);
+jest.spyOn(ll, 'book').mockResolvedValue({ ...booking });
+jest.spyOn(ll, 'cancelBooking').mockResolvedValue(undefined);
+jest.spyOn(itinerary, 'plans').mockResolvedValue([...bookings]);
+jest.spyOn(ll, 'experiences').mockResolvedValue([hm, sm, jc]);
+jest.spyOn(ll, 'setPartyIds');

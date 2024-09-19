@@ -1,18 +1,19 @@
 import {
   booking,
   donald,
-  genie,
   hm,
+  ll,
   mickey,
   minnie,
   offer,
   pluto,
-  wdw,
+  renderResort,
 } from '@/__fixtures__/genie';
 import { RequestError } from '@/api/client';
+import { BookingDateProvider } from '@/contexts/BookingDate';
 import { Nav } from '@/contexts/Nav';
-import { RebookingProvider } from '@/contexts/Rebooking';
-import { displayTime } from '@/datetime';
+import { RebookingContext } from '@/contexts/Rebooking';
+import { parkDate } from '@/datetime';
 import { ping } from '@/ping';
 import { TODAY, click, loading, screen, see, setTime } from '@/testing';
 
@@ -39,10 +40,7 @@ const mockClickResponse = async (
 };
 
 const mockBook = (status: number) =>
-  mockClickResponse(genie.book, 'Book Lightning Lane', status);
-
-const mockMakeRes = (status: number) =>
-  mockClickResponse(genie.experiences, 'Check Availability', status);
+  mockClickResponse(ll.book, 'Book Lightning Lane', status);
 
 async function clickModify() {
   click('Modify');
@@ -54,16 +52,9 @@ async function clickConfirm() {
   await see.screen('Lightning Lane');
 }
 
-const hmPrebooking = {
-  ...hm,
-  flex: { available: false, enrollmentStartTime: '07:00:00' },
-};
-
 async function renderComponent({
-  available = true,
   modify = false,
 }: {
-  available?: boolean;
   modify?: boolean;
 } = {}) {
   const rebooking = {
@@ -71,12 +62,14 @@ async function renderComponent({
     begin: jest.fn(),
     end: jest.fn(),
   };
-  wdw.render(
-    <RebookingProvider value={rebooking}>
-      <Nav>
-        <BookExperience experience={available ? hm : hmPrebooking} />
-      </Nav>
-    </RebookingProvider>
+  renderResort(
+    <BookingDateProvider>
+      <RebookingContext.Provider value={rebooking}>
+        <Nav>
+          <BookExperience experience={hm} />
+        </Nav>
+      </RebookingContext.Provider>
+    </BookingDateProvider>
   );
   await loading();
 }
@@ -87,11 +80,9 @@ describe('BookExperience', () => {
   });
 
   it('performs successful booking', async () => {
-    await renderComponent({ available: false });
-    click('Check Availability');
-    await loading();
-    see(displayTime(offer.start.time));
-    see(displayTime(offer.end.time));
+    await renderComponent();
+    see.time(offer.start.time);
+    see.time(offer.end.time);
     await clickModify();
     click(mickey.name, 'checkbox');
     await clickConfirm();
@@ -102,15 +93,15 @@ describe('BookExperience', () => {
     see('Your Lightning Lane');
     see(hm.name);
     expect(ping).toHaveBeenCalledTimes(1);
-    expect(genie.guests).toHaveBeenCalledTimes(1);
-    expect(genie.book).toHaveBeenCalledTimes(1);
-    expect(genie.cancelBooking).toHaveBeenLastCalledWith(
+    expect(ll.guests).toHaveBeenCalledTimes(1);
+    expect(ll.book).toHaveBeenCalledTimes(1);
+    expect(ll.cancelBooking).toHaveBeenLastCalledWith(
       booking.guests.filter(g => g.id === mickey.id)
     );
   });
 
   it('removes offer-ineligible guests from selected party', async () => {
-    genie.offer.mockResolvedValueOnce({
+    ll.offer.mockResolvedValueOnce({
       ...offer,
       guests: {
         eligible: [minnie],
@@ -140,22 +131,23 @@ describe('BookExperience', () => {
       ineligible: [],
     },
     experience: hm,
+    booking: undefined,
   };
 
   it('refreshes offer when Refresh button clicked', async () => {
     await renderComponent();
-    see(displayTime(offer.start.time));
-    genie.offer.mockResolvedValueOnce(newOffer);
+    see.time(offer.start.time);
+    ll.offer.mockResolvedValueOnce(newOffer);
     click('Refresh Offer');
     await loading();
-    see(displayTime(newOffer.start.time));
+    see.time(newOffer.start.time);
     see.no('Return time has been changed');
   });
 
   it('refreshes offer when someone added to party', async () => {
     await renderComponent();
-    see(displayTime(offer.start.time));
-    genie.offer.mockResolvedValueOnce(newOffer);
+    see.time(offer.start.time);
+    ll.offer.mockResolvedValueOnce(newOffer);
     await clickModify();
     click(mickey.name, 'checkbox');
     await clickConfirm();
@@ -165,37 +157,11 @@ describe('BookExperience', () => {
     await clickConfirm();
     await loading();
     see(mickey.name);
-    see(displayTime(newOffer.start.time));
-  });
-
-  it("doesn't request offer when party modified before enrollment opens", async () => {
-    genie.offer.mockClear();
-    await renderComponent({ available: false });
-    await clickModify();
-    click(mickey.name);
-    await clickConfirm();
-    expect(genie.offer).not.toHaveBeenCalled();
-  });
-
-  it('shows prebooking screen even if no eligible guests', async () => {
-    genie.guests.mockResolvedValueOnce({
-      eligible: [],
-      ineligible: [
-        { ...mickey, ineligibleReason: 'INVALID_PARK_ADMISSION' },
-        { ...minnie, ineligibleReason: 'INVALID_PARK_ADMISSION' },
-      ],
-    });
-    await renderComponent({ available: false });
-    see('07:00:00');
-    see('Ineligible Guests');
-    see(mickey.name);
-    see(minnie.name);
-    expect(screen.getAllByText('INVALID PARK ADMISSION')).toHaveLength(2);
-    see('Check Availability', 'button');
+    see.time(newOffer.start.time);
   });
 
   it('shows "No Guests Found" when no guests loaded', async () => {
-    genie.guests.mockResolvedValueOnce({ eligible: [], ineligible: [] });
+    ll.guests.mockResolvedValueOnce({ eligible: [], ineligible: [] });
     await renderComponent();
     see('No Guests Found');
 
@@ -205,7 +171,7 @@ describe('BookExperience', () => {
   });
 
   it('shows "No Eligible Guests" when no eligible guests loaded', async () => {
-    genie.guests.mockResolvedValueOnce({
+    ll.guests.mockResolvedValueOnce({
       eligible: [],
       ineligible: [donald],
     });
@@ -217,13 +183,13 @@ describe('BookExperience', () => {
   });
 
   it('shows "No Reservations Available" when no/invalid offer', async () => {
-    genie.offer.mockRejectedValueOnce(
+    ll.offer.mockRejectedValueOnce(
       new RequestError({ ok: false, status: 410, data: {} })
     );
     await renderComponent();
     see('No Reservations Available');
 
-    genie.offer.mockResolvedValueOnce({ ...offer, active: false });
+    ll.offer.mockResolvedValueOnce({ ...offer, active: false });
     click('Refresh Offer');
     await loading();
     see('No Reservations Available');
@@ -239,41 +205,25 @@ describe('BookExperience', () => {
     see('Unknown error occurred');
   });
 
-  it('flashes error message when enrollment not open or enrollment check fails', async () => {
-    genie.experiences.mockResolvedValueOnce([
-      { ...hm, flex: { available: false } },
-    ]);
-    await renderComponent({ available: false });
-    click('Check Availability');
-    await loading();
-    see('Reservations not open yet');
-    await mockMakeRes(0);
-    see('Network request failed');
-    await mockMakeRes(-1);
-    see('Unknown error occurred');
-  });
-
   it('limits offers to maxPartySize', async () => {
-    const { maxPartySize } = genie;
-    (genie as any).maxPartySize = 2;
+    const { maxPartySize } = ll.rules;
+    (ll as any).rules.maxPartySize = 2;
 
     await renderComponent();
-    expect(genie.offer).toHaveBeenLastCalledWith(
-      hm,
-      [mickey, minnie],
-      undefined
-    );
+    expect(ll.offer).toHaveBeenLastCalledWith(hm, [mickey, minnie], {
+      date: parkDate(),
+    });
     see('Party size restricted');
 
     await clickModify();
     click(pluto.name);
     see('Selection limit reached');
 
-    (genie as any).maxPartySize = maxPartySize;
+    (ll as any).rules.maxPartySize = maxPartySize;
   });
 
   it('can modify an existing reservation', async () => {
     await renderComponent({ modify: true });
-    expect(genie.guests).not.toHaveBeenCalled();
+    expect(ll.guests).not.toHaveBeenCalled();
   });
 });

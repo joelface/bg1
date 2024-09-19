@@ -1,8 +1,3 @@
-import { DasClient } from './das';
-import { GenieClient } from './genie';
-import { LiveDataClient } from './livedata';
-import { VQClient } from './vq';
-
 export interface Park {
   id: string;
   name: string;
@@ -10,6 +5,7 @@ export interface Park {
   geo: { n: number; s: number; e: number; w: number };
   theme: { bg: string; text: string };
   dropTimes: string[];
+  waitThreshold: number;
 }
 
 export interface Land {
@@ -32,8 +28,8 @@ export interface Experience {
   park: Park;
   geo?: readonly [number, number];
   type?: ExperienceType;
+  avgWait?: number;
   priority?: number;
-  sort?: number;
   dropTimes?: string[];
 }
 
@@ -59,19 +55,14 @@ export class InvalidId extends Error {
 }
 
 export class Resort {
+  readonly id: 'WDW' | 'DLR';
   readonly parks: Park[];
-  readonly genie: GenieClient;
-  readonly vq: VQClient;
-  readonly das: DasClient;
-  readonly liveData: LiveDataClient;
   protected parksById: { [id: string]: Park | undefined };
   protected expsById: { [id: string]: Experience | null | undefined };
   protected dropExpsByPark: Map<Park, Experience[]>;
 
-  constructor(
-    readonly id: 'WDW' | 'DLR',
-    data: ResortData
-  ) {
+  constructor(id: Resort['id'], data: ResortData) {
+    this.id = id;
     this.parks = data.parks as Park[];
     this.parksById = Object.fromEntries(this.parks.map(p => [p.id, p]));
     this.expsById = data.experiences as Resort['expsById'];
@@ -93,10 +84,6 @@ export class Resort {
         .get(park)
         ?.sort((a, b) => a.name.localeCompare(b.name));
     }
-    this.genie = new GenieClient(this);
-    this.vq = new VQClient(this);
-    this.das = new DasClient(this);
-    this.liveData = new LiveDataClient(this);
   }
 
   experience(id: string) {

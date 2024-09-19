@@ -36,7 +36,7 @@ export default function Screen({
         </HeaderBar>
         <div
           ref={contentRef}
-          className="relative flex-1 overflow-auto px-3 pb-3"
+          className="relative flex-1 overflow-auto px-3 pb-5"
         >
           {children}
         </div>

@@ -1,55 +1,42 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
 import { InvalidId, Park } from '@/api/resort';
-import { parkDate } from '@/datetime';
 import kvdb from '@/kvdb';
 
 import { useResort } from './Resort';
 
-export const PARK_KEY = ['bg1', 'genie', 'park'];
+export const PARK_KEY = ['bg1', 'park'];
 
 interface ParkState {
   park: Park;
-  setPark: (park: Park) => void;
+  setPark: React.Dispatch<React.SetStateAction<Park>>;
 }
 
-interface CurrentPark {
-  id: string;
-  date: string;
-}
-
-const ParkContext = createContext<ParkState>({
+export const ParkContext = createContext<ParkState>({
   park: {} as Park,
   setPark: () => undefined,
 });
-export const ParkProvider = ({
-  value,
-  children,
-}: {
-  value: ParkState;
-  children: React.ReactNode;
-}) => {
-  return <ParkContext.Provider value={value}>{children}</ParkContext.Provider>;
-};
 export const usePark = () => useContext(ParkContext);
 
-export function useParkState() {
+export function ParkProvider({ children }: { children: React.ReactNode }) {
   const resort = useResort();
   const [park, setPark] = useState(() => {
     const firstPark: Park = resort.parks[0]!;
-    const { id = firstPark.id, date = '' } =
-      kvdb.get<CurrentPark>(PARK_KEY) ?? {};
+    const id = kvdb.getDaily<string>(PARK_KEY);
+    if (!id) return firstPark;
     try {
-      return date === parkDate() ? resort.park(id) : firstPark;
+      return resort.park(id);
     } catch (error) {
       if (!(error instanceof InvalidId)) console.error(error);
       return firstPark;
     }
   });
 
-  useEffect(() => {
-    kvdb.set<CurrentPark>(PARK_KEY, { id: park.id, date: parkDate() });
-  }, [park]);
+  useEffect(() => kvdb.setDaily(PARK_KEY, park.id), [park]);
 
-  return { park, setPark };
+  return (
+    <ParkContext.Provider value={{ park, setPark }}>
+      {children}
+    </ParkContext.Provider>
+  );
 }

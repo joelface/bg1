@@ -1,7 +1,6 @@
 import { useLayoutEffect } from 'react';
 
-import { DasParty } from '@/api/das';
-import { DasBooking } from '@/api/genie';
+import { DasBooking, DasParty } from '@/api/das';
 import Button from '@/components/Button';
 import Screen from '@/components/Screen';
 import { Time } from '@/components/Time';

@@ -24,13 +24,13 @@ export default function HeaderBar({
       return Children.map(node.props.children, changeButtonColors);
     }
     return cloneElement(node as ReturnType<typeof Button>, {
-      className: `bg-white bg-opacity-90 ${text} ${node.props.className || ''}`,
+      className: `min-h-[36px] bg-white bg-opacity-90 ${text} ${node.props.className || ''}`,
     });
   }
 
   return (
     <div className={`px-3 ext-lg text-white ${bg}`}>
-      <div className="flex justify-end gap-x-2 gap-y-1 min-h-[36px] py-2">
+      <div className="flex flex-wrap justify-end gap-x-2 gap-y-1 min-h-[36px] py-2">
         {!!prev && (
           <Button back className="-my-2 -ml-3" title="Go Back">
             <BackIcon />
@@ -41,7 +41,13 @@ export default function HeaderBar({
         </h1>
         {changeButtonColors(children)}
       </div>
-      {subhead && <div className="flex flex-col gap-y-1 pb-1">{subhead}</div>}
+      {subhead && (
+        <div
+          className={`flex flex-col gap-y-1 pb-1 ${bg} text-white text-sm font-semibold uppercase text-center`}
+        >
+          {subhead}
+        </div>
+      )}
     </div>
   );
 }

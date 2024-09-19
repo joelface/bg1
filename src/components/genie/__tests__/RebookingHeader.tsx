@@ -1,7 +1,6 @@
 import { booking } from '@/__fixtures__/genie';
 import { useNav } from '@/contexts/Nav';
-import { RebookingProvider } from '@/contexts/Rebooking';
-import { displayTime } from '@/datetime';
+import { RebookingContext } from '@/contexts/Rebooking';
 import { click, render, see, setTime, waitFor } from '@/testing';
 
 import RebookingHeader from '../RebookingHeader';
@@ -18,9 +17,9 @@ const rebooking = {
 
 function Test() {
   return (
-    <RebookingProvider value={rebooking}>
+    <RebookingContext.Provider value={rebooking}>
       <RebookingHeader />
-    </RebookingProvider>
+    </RebookingContext.Provider>
   );
 }
 
@@ -34,8 +33,8 @@ describe('RebookingHeader', () => {
   it('shows LL to be modified', async () => {
     render(<Test />);
     see(booking.name);
-    see(displayTime(booking.start.time as string));
-    see(displayTime(booking.end.time as string));
+    see.time(booking.start.time as string);
+    see.time(booking.end.time as string);
     click('Keep');
     expect(rebooking.end).toHaveBeenCalledTimes(1);
     await waitFor(() => expect(goBack).toHaveBeenCalledTimes(1));

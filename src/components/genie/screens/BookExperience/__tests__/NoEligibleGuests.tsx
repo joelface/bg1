@@ -1,12 +1,12 @@
-import { booking, genie, wdw } from '@/__fixtures__/genie';
-import { RebookingProvider } from '@/contexts/Rebooking';
+import { booking, ll, renderResort } from '@/__fixtures__/genie';
+import IneligibleGuestList from '@/components/genie/IneligibleGuestList';
+import { RebookingContext } from '@/contexts/Rebooking';
 import { displayTime } from '@/datetime';
 import { see, setTime } from '@/testing';
 
-import IneligibleGuestList from '../../../IneligibleGuestList';
 import NoEligibleGuests from '../NoEligibleGuests';
 
-jest.mock('../../../IneligibleGuestList');
+jest.mock('@/components/genie/IneligibleGuestList');
 
 function renderComponent({
   modify = false,
@@ -18,10 +18,10 @@ function renderComponent({
     begin: jest.fn(),
     end: jest.fn(),
   };
-  wdw.render(
-    <RebookingProvider value={rebooking}>
+  renderResort(
+    <RebookingContext.Provider value={rebooking}>
       <NoEligibleGuests />
-    </RebookingProvider>
+    </RebookingContext.Provider>
   );
 }
 
@@ -34,7 +34,7 @@ describe('NoEligibleGuests', () => {
     renderComponent();
     see('No Eligible Guests');
     expect(see('Eligible at')).toHaveTextContent(
-      displayTime(genie.nextBookTime as string)
+      displayTime(ll.nextBookTime as string)
     );
     expect(IneligibleGuestList).toHaveBeenCalled();
   });
@@ -47,7 +47,7 @@ describe('NoEligibleGuests', () => {
   });
 
   it(`doesn't show "Eligible at" time if eligible now`, () => {
-    setTime(genie.nextBookTime as string);
+    setTime(ll.nextBookTime as string);
     renderComponent();
     see.no('Eligible at');
   });

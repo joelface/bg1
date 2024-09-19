@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { Guest, LightningLane, Offer, PlusExperience } from '@/api/genie';
+import { Guest, Offer, OfferExperience } from '@/api/genie';
+import FloatingButton from '@/components/FloatingButton';
 import Screen from '@/components/Screen';
+import { useBookingDate } from '@/contexts/BookingDate';
+import { useClients } from '@/contexts/Clients';
 import { useNav } from '@/contexts/Nav';
 import { Party, PartyProvider } from '@/contexts/Party';
 import { usePlans } from '@/contexts/Plans';
@@ -10,56 +13,48 @@ import { useResort } from '@/contexts/Resort';
 import useDataLoader from '@/hooks/useDataLoader';
 import { ping } from '@/ping';
 
+import BookingDate from '../BookingDate';
 import PlansButton from '../PlansButton';
 import RebookingHeader from '../RebookingHeader';
 import NoEligibleGuests from './BookExperience/NoEligibleGuests';
 import NoGuestsFound from './BookExperience/NoGuestsFound';
 import NoReservationsAvailable from './BookExperience/NoReservationsAvailable';
 import OfferDetails from './BookExperience/OfferDetails';
-import Prebooking from './BookExperience/Prebooking';
 import BookingDetails from './BookingDetails';
 import RefreshButton from './RefreshButton';
 
 export default function BookExperience({
   experience,
 }: {
-  experience: PlusExperience;
+  experience: OfferExperience;
 }) {
   const { goTo } = useNav();
   const resort = useResort();
-  const { genie } = resort;
+  const { ll } = useClients();
   const { refreshPlans } = usePlans();
+  const { bookingDate } = useBookingDate();
   const rebooking = useRebooking();
   const [party, setParty] = useState<Party>();
-  const [prebooking, setPrebooking] = useState(
-    !experience.flex.available &&
-      experience.flex.enrollmentStartTime !== undefined
-  );
-  const [offer, setOffer] = useState<Offer | null | undefined>(
-    prebooking ? null : undefined
-  );
+  const [offer, setOffer] = useState<Offer | null | undefined>();
   const { loadData, loaderElem } = useDataLoader();
 
   async function book() {
     if (!offer || !party) return;
     loadData(
       async () => {
-        let booking: LightningLane | null = null;
-        booking = await genie.book(offer, rebooking.current, party.selected);
+        const booking = await ll.book(offer, party.selected);
         rebooking.end();
         const selectedIds = new Set(party.selected.map(g => g.id));
         const guestsToCancel = booking.guests.filter(
           g => !selectedIds.has(g.id)
         );
         if (guestsToCancel.length > 0) {
-          await genie.cancelBooking(guestsToCancel);
+          await ll.cancelBooking(guestsToCancel);
           booking.guests = booking.guests.filter(g => selectedIds.has(g.id));
         }
-        if (booking) {
-          goTo(<BookingDetails booking={booking} isNew={true} />, {
-            replace: true,
-          });
-        }
+        goTo(<BookingDetails booking={booking} isNew={true} />, {
+          replace: true,
+        });
         refreshPlans();
         ping(resort, 'G');
       },
@@ -69,63 +64,44 @@ export default function BookExperience({
     );
   }
 
-  function checkAvailability() {
-    loadData(async flash => {
-      const exps = await genie.experiences(experience.park);
-      const exp = exps.find(exp => exp.id === experience.id);
-      if (exp?.flex?.available) {
-        setPrebooking(false);
-        setOffer(undefined);
-      } else {
-        flash('Reservations not open yet');
-      }
-    });
-  }
-
   const loadParty = useCallback(() => {
     loadData(async () => {
       const guests = rebooking.current
         ? { eligible: rebooking.current.guests, ineligible: [] }
-        : await genie.guests(experience);
+        : await ll.guests(experience, bookingDate);
       setParty({
         ...guests,
-        selected: guests.eligible.slice(0, genie.maxPartySize),
+        selected: guests.eligible.slice(0, ll.rules.maxPartySize),
         setSelected: (selected: Guest[]) =>
           setParty(party => {
             if (!party) return party;
             const oldSelected = new Set(party.selected);
-            setPrebooking(prebooking => {
-              if (!prebooking) {
-                setOffer(offer =>
-                  offer === null || selected.some(g => !oldSelected.has(g))
-                    ? undefined
-                    : offer
-                );
-              }
-              return prebooking;
-            });
+            setOffer(offer =>
+              offer === null || selected.some(g => !oldSelected.has(g))
+                ? undefined
+                : offer
+            );
             return { ...party, selected };
           }),
         experience,
       });
     });
-  }, [genie, experience, rebooking, loadData]);
+  }, [ll, experience, bookingDate, rebooking, loadData]);
 
   useEffect(() => {
     if (!party) loadParty();
   }, [party, loadParty]);
 
   const refreshOffer = useCallback(
-    (event?: React.MouseEvent<HTMLButtonElement>) => {
+    (first = false) => {
       if (!party || party.selected.length === 0) return;
       loadData(
         async () => {
           try {
-            const newOffer = await genie.offer(
-              experience,
-              party.selected,
-              rebooking.current
-            );
+            const newOffer = await ll.offer(experience, party.selected, {
+              booking: rebooking.current,
+              date: bookingDate,
+            });
             const { ineligible } = newOffer.guests;
             if (ineligible.length > 0) {
               const ineligibleIds = new Set(ineligible.map(g => g.id));
@@ -140,26 +116,26 @@ export default function BookExperience({
             if (newOffer.active) {
               // If the user is intentionally refreshing, we don't need to warn
               // them that the offer has changed
-              if (offer) newOffer.changed = false;
+              if (!first) newOffer.changed = false;
               setOffer(newOffer);
             } else {
               setOffer(offer => offer ?? null);
             }
           } catch (error) {
-            if (!event) setOffer(null);
+            if (first) setOffer(offer => offer ?? null);
             throw error;
           }
         },
         {
-          messages: { 410: offer ? 'No reservations available' : '' },
+          messages: { 410: first ? '' : 'No reservations available' },
         }
       );
     },
-    [genie, experience, party, offer, rebooking, loadData]
+    [ll, experience, party, bookingDate, rebooking, loadData]
   );
 
   useEffect(() => {
-    if (offer === undefined) refreshOffer();
+    if (offer === undefined) refreshOffer(true);
   }, [offer, refreshOffer]);
 
   const noEligible = party?.eligible.length === 0;
@@ -172,32 +148,30 @@ export default function BookExperience({
       buttons={
         <>
           <PlansButton />
-          {!prebooking && (
-            <RefreshButton
-              onClick={() => {
-                if (noEligible) {
-                  loadParty();
-                } else {
-                  refreshOffer();
-                }
-              }}
-              name={noEligible ? 'Party' : 'Offer'}
-            />
-          )}
+          <RefreshButton
+            onClick={() => {
+              if (noEligible) {
+                loadParty();
+              } else {
+                refreshOffer();
+              }
+            }}
+            name={noEligible ? 'Party' : 'Offer'}
+          />
         </>
       }
-      subhead={<RebookingHeader />}
+      subhead={
+        <>
+          <RebookingHeader />
+          <BookingDate booking={offer ?? undefined} />
+        </>
+      }
     >
       <h2>{experience.name}</h2>
       <div>{experience.park.name}</div>
       {party && (
         <PartyProvider value={party}>
-          {prebooking && party ? (
-            <Prebooking
-              startTime={experience.flex.enrollmentStartTime}
-              onRefresh={checkAvailability}
-            />
-          ) : noGuestsFound ? (
+          {noGuestsFound ? (
             <NoGuestsFound onRefresh={loadParty} />
           ) : noEligible ? (
             <NoEligibleGuests />
@@ -206,7 +180,12 @@ export default function BookExperience({
           ) : offer === null ? (
             <NoReservationsAvailable />
           ) : (
-            <OfferDetails offer={offer} onBook={book} />
+            <>
+              <OfferDetails offer={offer} onOfferChange={setOffer} />
+              <FloatingButton onClick={book}>{`${
+                rebooking.current ? 'Modify' : 'Book'
+              } Lightning Lane`}</FloatingButton>
+            </>
           )}
         </PartyProvider>
       )}

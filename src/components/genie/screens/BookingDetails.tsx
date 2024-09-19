@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Booking } from '@/api/genie';
+import { Booking } from '@/api/itinerary';
 import { Park } from '@/api/resort';
 import Button from '@/components/Button';
 import FloatingButton from '@/components/FloatingButton';
@@ -8,6 +8,7 @@ import GuestList from '@/components/GuestList';
 import Notice from '@/components/Notice';
 import Screen from '@/components/Screen';
 import { Time } from '@/components/Time';
+import { useClients } from '@/contexts/Clients';
 import { useDasParties } from '@/contexts/DasParties';
 import { useNav } from '@/contexts/Nav';
 import { usePark } from '@/contexts/Park';
@@ -15,11 +16,14 @@ import { useRebooking } from '@/contexts/Rebooking';
 import { useResort } from '@/contexts/Resort';
 import { DEFAULT_THEME } from '@/contexts/Theme';
 import { parkDate } from '@/datetime';
+import useDataLoader from '@/hooks/useDataLoader';
 
 import { ExperienceList } from '../ExperienceList';
 import ReturnTime from '../ReturnTime';
+import BookNewReturnTime from './BookNewReturnTime';
 import CancelGuests from './CancelGuests';
 import Home from './Home';
+import SelectReturnTime from './SelectReturnTime';
 
 export default function BookingDetails({
   booking,
@@ -29,8 +33,10 @@ export default function BookingDetails({
   isNew?: boolean;
 }) {
   const { goTo, goBack } = useNav();
+  const { loadData, loaderElem } = useDataLoader();
+  const { parks } = useResort();
   const { setPark } = usePark();
-  const resort = useResort();
+  const { ll } = useClients();
   const dasParties = useDasParties();
   const { name, park, choices, type, subtype, start } = booking;
   const dasGuest =
@@ -48,7 +54,7 @@ export default function BookingDetails({
 
   const choicesByPark = new Map([
     [park as Park, []],
-    ...resort.parks.map(
+    ...parks.map(
       park => [park, []] as [Park, Required<typeof booking>['choices']]
     ),
   ]);
@@ -73,26 +79,21 @@ export default function BookingDetails({
       title={'Your ' + titles[type]}
       theme={theme}
       buttons={
-        booking.modifiable && (
+        booking.modifiable &&
+        !isNew && (
           <Button
             onClick={() => {
               rebooking.begin(booking);
               setPark(booking.park);
-              goBack({ screen: Home, props: { tabName: 'Genie+' } });
+              goBack({ screen: Home, props: { tabName: 'LL' } });
             }}
           >
             Modify
           </Button>
         )
       }
+      subhead={<Time date={parkDate(start)} />}
     >
-      {
-        <div
-          className={`-mx-3 px-2 py-1 text-center ${theme.bg} text-white text-sm font-semibold uppercase`}
-        >
-          <Time date={parkDate(start)} />
-        </div>
-      }
       {choices ? (
         <h2>Multiple Experiences</h2>
       ) : (
@@ -116,7 +117,39 @@ export default function BookingDetails({
           </p>
         </>
       ) : (
-        <ReturnTime {...booking} />
+        <ReturnTime
+          {...booking}
+          button={
+            ll.rules.timeSelect &&
+            booking.modifiable && (
+              <Button
+                type="small"
+                onClick={() => {
+                  loadData(
+                    async () => {
+                      rebooking.end();
+                      goTo(
+                        <SelectReturnTime
+                          offer={await ll.offer(
+                            { ...booking, flex: {} },
+                            booking.guests,
+                            { booking }
+                          )}
+                          onOfferChange={offer => {
+                            goTo(<BookNewReturnTime offer={offer} />);
+                          }}
+                        />
+                      );
+                    },
+                    { messages: { 410: 'No other times available' } }
+                  );
+                }}
+              >
+                Change
+              </Button>
+            )
+          }
+        />
       )}
       {choices && (
         <>
@@ -124,7 +157,7 @@ export default function BookingDetails({
             {name && (
               <>
                 <b>{name}</b> was temporarily unavailable during your return
-                time.
+                time.{' '}
               </>
             )}
             You may redeem this Lightning Lane at one of these replacement
@@ -185,6 +218,7 @@ export default function BookingDetails({
           Show Plans
         </FloatingButton>
       )}
+      {loaderElem}
     </Screen>
   );
 }

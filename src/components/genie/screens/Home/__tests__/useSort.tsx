@@ -13,8 +13,6 @@ jest.mocked(usePark).mockReturnValue({ park: mk, setPark: () => null });
 jest.mocked(useExperiences).mockReturnValue({
   experiences,
   refreshExperiences: () => null,
-  park: mk,
-  setPark: () => null,
   loaderElem: null,
 });
 

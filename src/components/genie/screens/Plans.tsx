@@ -1,6 +1,6 @@
 import { memo } from 'react';
 
-import { Booking } from '@/api/genie';
+import { Booking } from '@/api/itinerary';
 import { Park } from '@/api/resort';
 import Tab from '@/components/Tab';
 import { Time } from '@/components/Time';
@@ -34,10 +34,6 @@ export default function Plans({ ...props }: Partial<ScreenProps>) {
 const PlansList = memo(function PlansList({ plans }: { plans: Booking[] }) {
   const { goTo } = useNav();
   const theme = useTheme();
-
-  function showBooking(booking: Booking) {
-    goTo(<BookingDetails booking={booking} />);
-  }
 
   const plansByDate = new Map<string, Booking[]>();
   const parksByDate = new Map<string, Set<Park>>();
@@ -88,14 +84,14 @@ const PlansList = memo(function PlansList({ plans }: { plans: Booking[] }) {
                     <li
                       className="py-2.5 first:border-0 border-t-4 border-gray-300"
                       key={booking.bookingId}
-                      onClick={() => showBooking(booking)}
+                      onClick={() => goTo(<BookingDetails booking={booking} />)}
                     >
                       <BookingListing
                         booking={booking}
                         button={
-                          <button className={theme.text} title="More Info">
+                          <div className={theme.text} title="More Info">
                             <ChevronRightIcon />
-                          </button>
+                          </div>
                         }
                       />
                     </li>

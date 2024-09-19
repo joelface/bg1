@@ -4,8 +4,8 @@ import { authStore } from '@/api/auth';
 import { Queue } from '@/api/vq';
 import Button from '@/components/Button';
 import Screen from '@/components/Screen';
+import { useClients } from '@/contexts/Clients';
 import { useNav } from '@/contexts/Nav';
-import { useResort } from '@/contexts/Resort';
 import { useTheme } from '@/contexts/Theme';
 import { displayTime } from '@/datetime';
 import useDataLoader from '@/hooks/useDataLoader';
@@ -19,7 +19,7 @@ const isActive = (queue: Queue) =>
   queue.isAcceptingPartyCreation || queue.isAcceptingJoins;
 
 export default function SelectQueue() {
-  const { vq } = useResort();
+  const { vq } = useClients();
   const { goTo } = useNav();
   const theme = useTheme();
   const { loadData, loaderElem } = useDataLoader();

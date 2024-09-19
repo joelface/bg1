@@ -12,6 +12,7 @@ import Button from '@/components/Button';
 import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
 import Screen from '@/components/Screen';
+import { useClients } from '@/contexts/Clients';
 import { useNav } from '@/contexts/Nav';
 import { usePlans } from '@/contexts/Plans';
 import { useResort } from '@/contexts/Resort';
@@ -31,7 +32,7 @@ export default function DasSelection({
 }) {
   const { goTo, goBack } = useNav();
   const resort = useResort();
-  const { das } = resort;
+  const { das } = useClients();
   const { refreshPlans } = usePlans();
   const [experience, setExperience] = useState<Experience>();
   const [selected, setSelected] = useState<Set<Guest>>(

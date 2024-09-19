@@ -1,4 +1,4 @@
-import { PlusExperience } from '@/api/genie';
+import { FlexExperience } from '@/api/genie';
 import Button from '@/components/Button';
 import { useNav } from '@/contexts/Nav';
 import { displayTime } from '@/datetime';
@@ -9,13 +9,13 @@ import LabeledItem from './LabeledItem';
 export default function GeniePlusButton({
   experience,
 }: {
-  experience: PlusExperience;
+  experience: FlexExperience;
 }) {
   const { goTo } = useNav();
   const { flex } = experience;
 
   return (
-    <LabeledItem label="Genie+">
+    <LabeledItem label="LL">
       <span>
         <Button
           onClick={() => goTo(<BookExperience experience={experience} />)}

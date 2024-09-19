@@ -1,26 +1,32 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { PlusExperience } from '@/api/genie';
+import { FlexExperience } from '@/api/genie';
 import { Park } from '@/api/resort';
 import Select from '@/components/Select';
+import { useBookingDate } from '@/contexts/BookingDate';
 import { useExperiences } from '@/contexts/Experiences';
-import { timeToMinutes } from '@/datetime';
+import { usePark } from '@/contexts/Park';
+import { parkDate, timeToMinutes } from '@/datetime';
 import useCoords, { Coords } from '@/hooks/useCoords';
 import kvdb from '@/kvdb';
 
 export const SORT_KEY = ['bg1', 'genie', 'sort'];
 
 export type Sorter = (
-  a: PlusExperience,
-  b: PlusExperience,
-  coords?: Coords
+  a: FlexExperience,
+  b: FlexExperience,
+  options?: { coords?: Coords; isToday?: boolean }
 ) => number;
 
 const sortByPriority: Sorter = (a, b) =>
-  (a.priority || Infinity) - (b.priority || Infinity);
+  (a.priority || Infinity) - (b.priority || Infinity) ||
+  (b.avgWait || -1) - (a.avgWait || -1);
 
-const sortByStandby: Sorter = (a, b) =>
-  (b.standby.waitTime || -1) - (a.standby.waitTime || -1);
+const sortByStandby: Sorter = (a, b, { isToday } = {}) =>
+  isToday
+    ? (b.standby.waitTime || -1) - (a.standby.waitTime || -1)
+    : +!a.virtualQueue - +!b.virtualQueue ||
+      (b.avgWait || -1) - (a.avgWait || -1);
 
 const sortBySoonest: Sorter = (a, b) =>
   timeToMinutes(a?.flex?.nextAvailableTime || '00:00') -
@@ -32,7 +38,7 @@ const sortByName: Sorter = (a, b) =>
 const distance = (a: Coords, b: Coords) =>
   Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2));
 
-const sortByNearby: Sorter = (a, b, coords) => {
+const sortByNearby: Sorter = (a, b, { coords } = {}) => {
   if (a.geo === b.geo) return 0;
   if (!a.geo) return 1;
   if (!b.geo) return -1;
@@ -40,25 +46,14 @@ const sortByNearby: Sorter = (a, b, coords) => {
 };
 
 const sorters = {
-  priority: ((a, b) =>
-    sortByPriority(a, b) ||
-    sortByStandby(a, b) ||
-    sortBySoonest(a, b)) as Sorter,
-  standby: ((a, b) => sortByStandby(a, b) || sortBySoonest(a, b)) as Sorter,
-  soonest: ((a, b) => sortBySoonest(a, b) || sortByStandby(a, b)) as Sorter,
-  nearby: ((a, b, coords) => sortByNearby(a, b, coords)) as Sorter,
-  aToZ: (() => 0) as Sorter,
+  priority: sortByPriority,
+  standby: sortByStandby,
+  soonest: sortBySoonest,
+  nearby: sortByNearby,
+  aToZ: sortByName,
 } as const;
 
 type SortType = keyof typeof sorters;
-
-const sortOptions = new Map<SortType, { text: string }>([
-  ['priority', { text: 'Priority' }],
-  ['nearby', { text: 'Nearby' }],
-  ['standby', { text: 'Standby' }],
-  ['soonest', { text: 'Soonest' }],
-  ['aToZ', { text: 'A to Z' }],
-]);
 
 function inPark(park: Park, coords: Coords) {
   const { n, s, e, w } = park.geo;
@@ -67,34 +62,54 @@ function inPark(park: Park, coords: Coords) {
 }
 
 export default function useSort() {
-  const { experiences, park } = useExperiences();
+  const { park } = usePark();
+  const { experiences } = useExperiences();
   const [coords, updateCoords] = useCoords();
+  const { bookingDate } = useBookingDate();
+  const isToday = bookingDate === parkDate();
+  const sortOptions = useMemo(
+    () =>
+      new Map<SortType, { text: string }>([
+        ['priority', { text: 'Priority' }],
+        ...(isToday ? ([['nearby', { text: 'Nearby' }]] as const) : []),
+        ['standby', { text: 'Standby' }],
+        ['soonest', { text: 'Soonest' }],
+        ['aToZ', { text: 'A to Z' }],
+      ]),
+    [isToday]
+  );
   const [sortType, setSortType] = useState(() => {
     const type = kvdb.get<SortType>(SORT_KEY);
     return type && sortOptions.has(type) ? type : 'priority';
   });
 
   useEffect(() => {
+    setSortType(sortType =>
+      sortOptions.has(sortType) ? sortType : 'priority'
+    );
+  }, [sortOptions]);
+
+  useEffect(() => {
     if (sortType === 'nearby') updateCoords();
   }, [experiences, sortType, updateCoords]);
 
   const sorter = useCallback(
-    (a: PlusExperience, b: PlusExperience) =>
+    (a: FlexExperience, b: FlexExperience) =>
       Number(b?.flex?.available) - Number(a?.flex?.available) ||
       sorters[
         sortType === 'nearby' && !(coords && inPark(park, coords))
           ? 'priority'
           : sortType
-      ](a, b, coords) ||
+      ](a, b, { coords, isToday }) ||
       sortByName(a, b),
-    [coords, park, sortType]
+    [coords, park, sortType, isToday]
   );
 
   const SortSelect = (props: { className?: string }) => (
     <Select
       {...props}
       options={sortOptions}
-      selected={sortType}
+      selected={sortType as SortType}
       onChange={type => {
         setSortType(type);
         kvdb.set<SortType>(SORT_KEY, type);
