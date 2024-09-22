@@ -1,5 +1,5 @@
 import { DEFAULT_THEME } from '@/contexts/Theme';
-import { DateTime, dateTimeStrings, parkDate } from '@/datetime';
+import { DateTime, parkDate } from '@/datetime';
 
 import { authStore } from './auth';
 import { avatarUrl } from './avatar';
@@ -180,7 +180,7 @@ export class ItineraryClient extends ApiClient {
 
   async plans(): Promise<Booking[]> {
     const { swid } = authStore.getData();
-    const today = dateTimeStrings().date;
+    const today = new DateTime().date;
     const parkDay = parkDate();
     const itineraryApiName = RESORT_TO_ITINERARY_API_NAME[this.resort.id];
     const {
@@ -224,7 +224,7 @@ export class ItineraryClient extends ApiClient {
         id: idNum(item.asset),
         park,
         name: activityAsset.name,
-        start: dateTimeStrings(start),
+        start: new DateTime(start),
         guests: item.guests
           .map(getGuest)
           .sort(
@@ -351,7 +351,7 @@ export class ItineraryClient extends ApiClient {
         type: 'BG',
         boardingGroup: item.boardingGroup.id,
         status: item.status,
-        start: dateTimeStrings(new Date(item.startDateTime)),
+        start: new DateTime(new Date(item.startDateTime)),
         guests: item.guests.map(getGuest),
         bookingId: item.id,
       };

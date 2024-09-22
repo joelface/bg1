@@ -5,7 +5,7 @@ import { Park } from '@/api/resort';
 import Button from '@/components/Button';
 import Screen from '@/components/Screen';
 import { useClients } from '@/contexts/Clients';
-import { dateTimeStrings } from '@/datetime';
+import { DateTime } from '@/datetime';
 import useDataLoader from '@/hooks/useDataLoader';
 
 function minutes(time: string) {
@@ -77,7 +77,7 @@ function Sublist({
   onSelect: (experience: Experience) => void;
 }) {
   if (experiences.length === 0) return null;
-  const now = minutes(dateTimeStrings().time);
+  const now = minutes(new DateTime().time);
   return (
     <div className={`mt-4 rounded overflow-hidden ${park.theme.bg}`}>
       <h3 className="mt-0 py-1 text-white text-xs font-semibold text-center uppercase">

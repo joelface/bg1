@@ -1,9 +1,4 @@
-import {
-  dateTimeStrings,
-  parkDate,
-  splitDateTime,
-  timeToMinutes,
-} from '@/datetime';
+import { DateTime, parkDate, splitDateTime, timeToMinutes } from '@/datetime';
 
 import { RequestError } from '../client';
 import {
@@ -120,7 +115,7 @@ export class LLClientWDW extends LLClient {
     } = await this.request<GuestsResponse>({
       path: '/ea-vas/planning/api/v1/experiences/guest/guests',
       data: {
-        date: date ?? dateTimeStrings().date,
+        date: date ?? new DateTime().date,
         facilityId: exp.id,
         parkId: exp.park.id,
       },

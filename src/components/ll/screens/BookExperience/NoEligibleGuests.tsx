@@ -5,7 +5,7 @@ import { useBookingDate } from '@/contexts/BookingDate';
 import { useClients } from '@/contexts/Clients';
 import { useNav } from '@/contexts/Nav';
 import { useRebooking } from '@/contexts/Rebooking';
-import { dateTimeStrings, parkDate } from '@/datetime';
+import { DateTime, parkDate } from '@/datetime';
 
 import IneligibleGuestList from '../../IneligibleGuestList';
 
@@ -28,8 +28,7 @@ export default function NoEligibleGuests() {
       ) : (
         <>
           {ll.nextBookTime &&
-            ll.nextBookTime.slice(0, 5) >
-              dateTimeStrings().time.slice(0, 5) && (
+            ll.nextBookTime.slice(0, 5) > new DateTime().time.slice(0, 5) && (
               <Notice>
                 Eligible at <Time time={ll.nextBookTime} />
               </Notice>

@@ -1,4 +1,4 @@
-import { dateTimeStrings, parkDate, splitDateTime } from '@/datetime';
+import { DateTime, parkDate, splitDateTime } from '@/datetime';
 
 import { LightningLane } from '../itinerary';
 import {
@@ -86,7 +86,7 @@ export class LLClientDLR extends LLClient {
         selectedTime: experience.flex?.nextAvailableTime ?? '08:00:00',
         ...(booking
           ? {
-              date: dateTimeStrings().date,
+              date: new DateTime().date,
               modificationType:
                 experience.id === booking.id ? 'TIME' : 'EXPERIENCE',
             }
@@ -135,7 +135,7 @@ export class LLClientDLR extends LLClient {
         ...(await diu(offer.id)),
         ...(offer.booking
           ? {
-              date: dateTimeStrings().date,
+              date: new DateTime().date,
               modificationType:
                 offer.booking.id === offer.experience.id
                   ? 'TIME'

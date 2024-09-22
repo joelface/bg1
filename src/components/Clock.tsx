@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { dateTimeStrings } from '@/datetime';
+import { DateTime } from '@/datetime';
 import { now, syncTime } from '@/timesync';
 
 const CLOCK_UPDATE_MS = 50;
@@ -23,5 +23,5 @@ export default function Clock({
       .catch(() => onSync(false));
   }, [onSync]);
 
-  return <time>{dateTimeStrings(time).time}</time>;
+  return <time>{new DateTime(time).time}</time>;
 }

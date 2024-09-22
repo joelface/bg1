@@ -1,5 +1,5 @@
 import { useTheme } from '@/contexts/Theme';
-import { dateTimeStrings, displayTime } from '@/datetime';
+import { DateTime, displayTime } from '@/datetime';
 
 export default function TimeBanner({
   bookTime,
@@ -22,7 +22,7 @@ export default function TimeBanner({
 function LabeledTime({ label, time }: { label?: string; time?: string }) {
   if (!time) return null;
   time = time.slice(0, 5);
-  const now = dateTimeStrings().time.slice(0, 5);
+  const now = new DateTime().time.slice(0, 5);
   return (
     <div>
       {label}:{' '}

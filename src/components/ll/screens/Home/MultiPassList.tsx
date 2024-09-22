@@ -13,7 +13,7 @@ import { usePlans } from '@/contexts/Plans';
 import { useResort } from '@/contexts/Resort';
 import { useTheme } from '@/contexts/Theme';
 import {
-  dateTimeStrings,
+  DateTime,
   displayTime,
   parkDate,
   timeToMinutes,
@@ -122,7 +122,7 @@ const Experiences = memo(function Experiences({
   const dropTime = isBookingToday
     ? upcomingTimes(park.dropTimes)[0]
     : park.dropTimes[0];
-  const nowMinutes = timeToMinutes(dateTimeStrings().time);
+  const nowMinutes = timeToMinutes(new DateTime().time);
 
   function toggleStar({ id }: { id: string }) {
     setStarred(starred => {

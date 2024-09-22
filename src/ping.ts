@@ -1,5 +1,5 @@
 import { Resort } from '@/api/resort';
-import { dateTimeStrings } from '@/datetime';
+import { DateTime } from '@/datetime';
 import kvdb from '@/kvdb';
 
 const PING_URL = 'https://bg1.joelface.com/ping';
@@ -10,7 +10,7 @@ export async function ping(
   resort: Pick<Resort, 'id'>,
   service: ServiceCode
 ): Promise<void> {
-  const { date } = dateTimeStrings();
+  const { date } = new DateTime();
   const pingDateKey = ['bg1', 'ping', resort.id, service];
   const pingDate = kvdb.get<string>(pingDateKey);
   if (pingDate === date) return;

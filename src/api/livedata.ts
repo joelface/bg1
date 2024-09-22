@@ -1,4 +1,4 @@
-import { dateTimeStrings } from '@/datetime';
+import { DateTime } from '@/datetime';
 import { fetchJson } from '@/fetch';
 
 import { Experience } from './ll';
@@ -18,7 +18,7 @@ export class LiveDataClient {
       this.cachedShowtimes = (await this.request('showtimes')).data;
     }
     const showtimesByExpId = this.cachedShowtimes[park.id] ?? {};
-    const { time: now } = dateTimeStrings();
+    const { time: now } = new DateTime();
     return Object.fromEntries(
       Object.entries(showtimesByExpId).flatMap(([id, showtimes]) => {
         const upcomingTimes = showtimes.filter(t => t >= now);

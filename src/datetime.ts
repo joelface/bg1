@@ -1,8 +1,3 @@
-export interface DateTime {
-  date: string;
-  time: string;
-}
-
 let defaultTimeZone = 'America/New_York';
 
 export function setDefaultTimeZone(timeZone: string): void {
@@ -35,25 +30,25 @@ export class DateFormat {
   }
 }
 
-/**
- * @returns Formatted date (YYYY-MM-DD) and time (HH:MM:SS) strings in the default time zone
- */
-export function dateTimeStrings(date?: Date | number): DateTime {
-  const d2 = '2-digit';
-  const dt = new DateFormat({
-    timeZone: defaultTimeZone,
-    hourCycle: 'h23',
-    year: 'numeric',
-    month: d2,
-    day: d2,
-    hour: d2,
-    minute: d2,
-    second: d2,
-  }).parts(dateObject(date ?? Date.now()));
-  return {
-    date: `${dt.year}-${dt.month}-${dt.day}`,
-    time: `${dt.hour}:${dt.minute}:${dt.second}`,
-  };
+export class DateTime {
+  readonly date;
+  readonly time;
+
+  constructor(date?: Date | number) {
+    const d2 = '2-digit';
+    const dt = new DateFormat({
+      timeZone: defaultTimeZone,
+      hourCycle: 'h23',
+      year: 'numeric',
+      month: d2,
+      day: d2,
+      hour: d2,
+      minute: d2,
+      second: d2,
+    }).parts(dateObject(date ?? Date.now()));
+    this.date = `${dt.year}-${dt.month}-${dt.day}`;
+    this.time = `${dt.hour}:${dt.minute}:${dt.second}`;
+  }
 }
 
 export function dateString(date: Date | number | string) {
@@ -71,7 +66,7 @@ export function modifyDate(date: Date | number | string, days: number) {
 }
 
 export function parkDate(dateTime: Partial<DateTime> = {}): string {
-  const now = dateTimeStrings();
+  const now = new DateTime();
   const { date = now.date, time = now.time } = dateTime;
   return (time ?? '1') > '03:00:00' ? date : modifyDate(date, -1);
 }
@@ -127,7 +122,7 @@ export function timeToMinutes(time: string) {
  */
 export function upcomingTimes(times: string[]) {
   if (!Array.isArray(times)) return [];
-  const now = dateTimeStrings().time.slice(0, 5);
+  const now = new DateTime().time.slice(0, 5);
   const nextIdx = times.findIndex(t => t >= now);
   return nextIdx >= 0 ? times.slice(nextIdx) : [];
 }

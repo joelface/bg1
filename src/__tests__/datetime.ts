@@ -1,7 +1,7 @@
 import { TODAY, TOMORROW, YESTERDAY, setTime } from '@/testing';
 
 import {
-  dateTimeStrings,
+  DateTime,
   displayDate,
   displayTime,
   parkDate,
@@ -14,16 +14,23 @@ beforeEach(() => {
   setTime('08:00');
 });
 
-describe('dateTimeStrings()', () => {
-  it('parses Date object', () => {
-    expect(dateTimeStrings(new Date('1998-04-22T16:35:40-0400'))).toEqual({
+describe('new DateTime()', () => {
+  it('accepts Date object', () => {
+    expect(new DateTime(new Date('1998-04-22T16:35:40-0400'))).toEqual({
       date: '1998-04-22',
       time: '16:35:40',
     });
   });
 
-  it('returns current datetime with no argument', () => {
-    expect(dateTimeStrings()).toEqual({
+  it('accepts timestamp', () => {
+    expect(new DateTime(893277340000)).toEqual({
+      date: '1998-04-22',
+      time: '16:35:40',
+    });
+  });
+
+  it('defaults to current date/time', () => {
+    expect(new DateTime()).toEqual({
       date: '2021-10-01',
       time: '08:00:00',
     });
@@ -78,7 +85,7 @@ describe('setDefaultTimeZone()', () => {
 
   it('sets default time zone', () => {
     setDefaultTimeZone('America/Los_Angeles');
-    expect(dateTimeStrings(new Date(893277340752))).toEqual({
+    expect(new DateTime(new Date(893277340752))).toEqual({
       date: '1998-04-22',
       time: '13:35:40',
     });
