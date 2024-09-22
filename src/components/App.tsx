@@ -7,7 +7,7 @@ import { Resort, loadResort } from '@/api/resort';
 import { VQClient } from '@/api/vq';
 import { ClientsProvider, createClients } from '@/contexts/Clients';
 import { ResortProvider } from '@/contexts/Resort';
-import { setDefaultTimeZone } from '@/datetime';
+import { DateTime } from '@/datetime';
 import useDisclaimer from '@/hooks/useDisclaimer';
 import useNews from '@/hooks/useNews';
 import onVisible from '@/onVisible';
@@ -51,7 +51,7 @@ export default function App() {
         try {
           const resort = await loadResort(Client.originToResortId(origin));
           setResort(resort);
-          setDefaultTimeZone(
+          DateTime.setTimeZone(
             {
               WDW: 'America/New_York',
               DLR: 'America/Los_Angeles',

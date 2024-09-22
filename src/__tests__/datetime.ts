@@ -5,7 +5,6 @@ import {
   displayDate,
   displayTime,
   parkDate,
-  setDefaultTimeZone,
   splitDateTime,
   upcomingTimes,
 } from '../datetime';
@@ -14,7 +13,7 @@ beforeEach(() => {
   setTime('08:00');
 });
 
-describe('new DateTime()', () => {
+describe('DateTime', () => {
   it('accepts Date object', () => {
     expect(new DateTime(new Date('1998-04-22T16:35:40-0400'))).toEqual({
       date: '1998-04-22',
@@ -33,6 +32,20 @@ describe('new DateTime()', () => {
     expect(new DateTime()).toEqual({
       date: '2021-10-01',
       time: '08:00:00',
+    });
+  });
+
+  describe('DateTime.setTimeZone()', () => {
+    const resetTZ = () => DateTime.setTimeZone('America/New_York');
+    beforeEach(resetTZ);
+    afterAll(resetTZ);
+
+    it('sets default time zone', () => {
+      DateTime.setTimeZone('America/Los_Angeles');
+      expect(new DateTime(new Date(893277340752))).toEqual({
+        date: '1998-04-22',
+        time: '13:35:40',
+      });
     });
   });
 });
@@ -74,20 +87,6 @@ describe('splitDateTime()', () => {
     expect(splitDateTime('1998-04-22T16:35:40.123')).toEqual({
       date: '1998-04-22',
       time: '16:35:40',
-    });
-  });
-});
-
-describe('setDefaultTimeZone()', () => {
-  const resetTZ = () => setDefaultTimeZone('America/New_York');
-  beforeEach(resetTZ);
-  afterAll(resetTZ);
-
-  it('sets default time zone', () => {
-    setDefaultTimeZone('America/Los_Angeles');
-    expect(new DateTime(new Date(893277340752))).toEqual({
-      date: '1998-04-22',
-      time: '13:35:40',
     });
   });
 });

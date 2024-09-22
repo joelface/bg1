@@ -1,9 +1,3 @@
-let defaultTimeZone = 'America/New_York';
-
-export function setDefaultTimeZone(timeZone: string): void {
-  defaultTimeZone = timeZone;
-}
-
 export function dateObject(dt: Date | number | string): Date {
   return typeof dt === 'string' && !dt.includes('T')
     ? new Date(dt + 'T00:00:00')
@@ -34,10 +28,12 @@ export class DateTime {
   readonly date;
   readonly time;
 
-  constructor(date?: Date | number) {
+  protected static format: DateFormat;
+
+  static setTimeZone(tz: string) {
     const d2 = '2-digit';
-    const dt = new DateFormat({
-      timeZone: defaultTimeZone,
+    DateTime.format = new DateFormat({
+      timeZone: tz,
       hourCycle: 'h23',
       year: 'numeric',
       month: d2,
@@ -45,11 +41,17 @@ export class DateTime {
       hour: d2,
       minute: d2,
       second: d2,
-    }).parts(dateObject(date ?? Date.now()));
+    });
+  }
+
+  constructor(date?: Date | number) {
+    const dt = DateTime.format.parts(dateObject(date ?? Date.now()));
     this.date = `${dt.year}-${dt.month}-${dt.day}`;
     this.time = `${dt.hour}:${dt.minute}:${dt.second}`;
   }
 }
+
+DateTime.setTimeZone('America/New_York');
 
 export function dateString(date: Date | number | string) {
   date = dateObject(date);
