@@ -5,15 +5,10 @@ import { Park } from '@/api/resort';
 import Button from '@/components/Button';
 import Screen from '@/components/Screen';
 import { useClients } from '@/contexts/Clients';
-import { DateTime } from '@/datetime';
+import { DateTime, timeToMinutes } from '@/datetime';
 import useDataLoader from '@/hooks/useDataLoader';
 
-function minutes(time: string) {
-  const [h, m] = time.split(':').map(Number);
-  return h * 60 + m;
-}
-
-const waitTime = (time: string, now: number) => minutes(time) - now;
+const waitTime = (time: string, now: number) => timeToMinutes(time) - now;
 
 export default function DasExperienceList({
   park,
@@ -77,7 +72,7 @@ function Sublist({
   onSelect: (experience: Experience) => void;
 }) {
   if (experiences.length === 0) return null;
-  const now = minutes(new DateTime().time);
+  const now = timeToMinutes(new DateTime().time);
   return (
     <div className={`mt-4 rounded overflow-hidden ${park.theme.bg}`}>
       <h3 className="mt-0 py-1 text-white text-xs font-semibold text-center uppercase">
