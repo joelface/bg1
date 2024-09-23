@@ -42,7 +42,7 @@ const PlansList = memo(function PlansList({ plans }: { plans: Booking[] }) {
     if (!plansByDate.has(date)) plansByDate.set(date, []);
     if (plan.type !== 'APR') plansByDate.get(date)?.push(plan);
     if (!parksByDate.has(date)) parksByDate.set(date, new Set());
-    if ((plan.type !== 'LL' || plan.subtype !== 'MEP') && plan.park.icon) {
+    if ((plan.type !== 'LL' || !plan.choices) && plan.park.icon) {
       parksByDate.get(date)?.add(plan.park as Park);
     }
   }

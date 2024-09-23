@@ -137,7 +137,7 @@ export const booking: LightningLane = {
 
 export const multiExp: LightningLane = {
   type: 'LL',
-  subtype: 'MEP',
+  subtype: 'OTHER',
   id: sdd.id,
   name: sdd.name,
   park: sdd.park,

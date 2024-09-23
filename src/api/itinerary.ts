@@ -49,7 +49,7 @@ export interface ParkPass extends BaseBooking {
 
 export interface LightningLane extends BaseBooking {
   type: 'LL';
-  subtype: 'MP' | 'SP' | 'MEP' | 'OTHER';
+  subtype: 'MP' | 'SP' | 'OTHER';
   park: Park;
   end: Partial<DateTime>;
   guests: EntitledGuest[];
@@ -281,17 +281,9 @@ export class ItineraryClient extends ApiClient {
     };
 
     const getLightningLane = (item: FastPassItem) => {
-      const kindToSubtype: {
-        [key: string]: LightningLane['subtype'] | undefined;
-      } = {
-        FLEX: 'MP',
-        STANDARD: 'SP',
-        OTHER: 'OTHER',
-      };
-      const subtype = item.multipleExperiences
-        ? 'MEP'
-        : kindToSubtype[item.kind];
-      if (!subtype) return;
+      const subtype =
+        ({ FLEX: 'MP', STANDARD: 'SP', OTHER: 'OTHER' } as const)[item.kind] ??
+        'OTHER';
       const isMP = subtype === 'MP';
       let booking: LightningLane = {
         type: 'LL',
