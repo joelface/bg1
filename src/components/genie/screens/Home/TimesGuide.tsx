@@ -164,7 +164,7 @@ function ExperienceList({
                     displayTime(exp.standby.nextShowTime)
                   )
                 ) : exp.standby.available ? (
-                  exp.standby.waitTime ?? '*'
+                  (exp.standby.waitTime ?? '*')
                 ) : exp.virtualQueue &&
                   exp.standby.unavailableReason === 'NOT_STANDBY_ENABLED' ? (
                   'VQ'
