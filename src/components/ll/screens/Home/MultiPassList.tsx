@@ -245,7 +245,7 @@ const Experiences = memo(function Experiences({
           <h2
             className={`-mx-3 px-3 py-1 text-sm uppercase text-center ${theme.bg} text-white`}
           >
-            Previously Experienced
+            Experienced or Expired
           </h2>
           <ExperienceList experiences={experienced} type="experienced" />
         </>
