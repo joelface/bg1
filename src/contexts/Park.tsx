@@ -6,7 +6,7 @@ import {
   useState,
 } from 'react';
 
-import { Booking } from '@/api/itinerary';
+import { Booking, isType } from '@/api/itinerary';
 import { InvalidId, Park } from '@/api/resort';
 import { parkDate } from '@/datetime';
 import kvdb from '@/kvdb';
@@ -38,7 +38,7 @@ export function useUpdateParkFromPlans() {
       const isToday = date === today;
       const parkIds = new Set(resort.parks.map(p => p.id));
       const isInPark = (b: Booking) => parkIds.has(b.park.id);
-      const isLLMP = (b: Booking) => b.type === 'LL' && b.subtype === 'MP';
+      const isLLMP = (b: Booking) => isType(b, 'LL', 'MP');
       let park: Park | undefined = undefined;
       for (const b of plans) {
         const bookingParkDay = parkDate(b.start);

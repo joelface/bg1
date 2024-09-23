@@ -165,6 +165,14 @@ interface ItineraryResponse {
   profiles: { [id: string]: Profile };
 }
 
+export function isType<T extends Booking['type'], S extends Booking['subtype']>(
+  booking: Booking,
+  type: T,
+  subtype: S
+) {
+  return booking.type === type && booking.subtype === subtype;
+}
+
 export const FALLBACK_EXPS = {
   WDW: { id: '80010110', park: { id: '80007944' } },
   DLR: { id: '353295', park: { id: '330339' } },

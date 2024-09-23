@@ -1,5 +1,6 @@
 import { memo, useEffect, useRef, useState } from 'react';
 
+import { isType } from '@/api/itinerary';
 import { Experience, FlexExperience } from '@/api/ll';
 import { Park } from '@/api/resort';
 import Screen from '@/components/Screen';
@@ -206,10 +207,7 @@ const Experiences = memo(function Experiences({
 
   const bookedIds = new Set(
     plans
-      .filter(
-        b =>
-          b.type === 'LL' && b.subtype === 'MP' && b.start.date === bookingDate
-      )
+      .filter(b => isType(b, 'LL', 'MP') && b.start.date === bookingDate)
       .map(b => b.id)
   );
   const flexExps: ExtFlexExp[] = experiences

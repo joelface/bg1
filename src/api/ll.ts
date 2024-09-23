@@ -4,7 +4,7 @@ import kvdb from '@/kvdb';
 import { authStore } from './auth';
 import { avatarUrl } from './avatar';
 import { ApiClient } from './client';
-import { Booking, LightningLane } from './itinerary';
+import { Booking, LightningLane, isType } from './itinerary';
 import {
   Experience as ExpData,
   ExperienceType,
@@ -343,8 +343,10 @@ export class LLTracker {
     this.load();
     const parkDay = parkDate();
     const cancellableLLs = bookings.filter(
-      (b: Booking): b is LightningLane =>
-        b.type === 'LL' && !!b.cancellable && parkDate(b.start) === parkDay
+      (b: Booking) =>
+        isType(b, 'LL', 'MP') &&
+        !!b.cancellable &&
+        parkDate(b.start) === parkDay
     );
     for (const b of cancellableLLs) {
       this.experiencedIds[b.modifiable ? 'delete' : 'add'](b.id);
