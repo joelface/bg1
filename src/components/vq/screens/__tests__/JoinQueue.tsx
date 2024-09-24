@@ -58,4 +58,11 @@ describe('JoinQueue', () => {
     await clickJoin();
     see('No boarding groups available');
   });
+
+  it('instructs user to join now if queue is open', async () => {
+    renderResort(
+      <JoinQueue queue={{ ...rotr, isAcceptingJoins: true }} guests={guests} />
+    );
+    see('The virtual queue is open. Join now!');
+  });
 });

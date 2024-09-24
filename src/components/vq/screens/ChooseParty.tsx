@@ -32,10 +32,11 @@ export default function ChooseParty({ queue }: { queue: Queue }) {
 
   return (
     <QueueScreen queue={queue} title="Choose Your Party">
-      {queue.howToEnterMessage.split('\n\n').map((graf, i) => (
-        <p key={i}>{graf}</p>
-      ))}
-      <h3>Choose Your Party</h3>
+      <p>
+        Select everyone in your party who would like to experience this
+        attraction, and tap the <b>Confirm Party</b> button.
+      </p>
+      <h3>Your Party</h3>
       {guests.length > 0 ? (
         <GuestList
           guests={guests}

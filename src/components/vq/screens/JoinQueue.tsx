@@ -46,19 +46,21 @@ export default function JoinQueue({
 
   return (
     <QueueScreen queue={queue} title="Virtual Queue">
-      {!queue.isAcceptingJoins && (
-        <TimeBoard
-          time={queue.nextScheduledOpenTime}
-          label="Next queue opening"
-        />
-      )}
-      {!queue.isAcceptingJoins && queue.nextScheduledOpenTime !== null && (
-        <p>
-          Tap the <b>Join Virtual Queue</b> button when the clock reads{' '}
-          <time className="font-semibold">{queue.nextScheduledOpenTime}</time>.
-          The queue can fill up almost instantly, so be quick!
-        </p>
-      )}
+      {queue.isAcceptingJoins ? (
+        <p>The virtual queue is open. Join now!</p>
+      ) : queue.nextScheduledOpenTime ? (
+        <>
+          <TimeBoard
+            time={queue.nextScheduledOpenTime}
+            label="Next queue opening"
+          />
+          <p>
+            Tap the <b>Join Virtual Queue</b> button when the clock reads{' '}
+            <time className="font-semibold">{queue.nextScheduledOpenTime}</time>
+            . The queue can fill up almost instantly, so be quick!
+          </p>
+        </>
+      ) : null}
       <h3>Your Party</h3>
       <GuestList guests={guests} />
       <FloatingButton onClick={joinQueue}>Join Virtual Queue</FloatingButton>

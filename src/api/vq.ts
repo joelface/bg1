@@ -10,7 +10,6 @@ interface BaseQueue {
   nextScheduledOpenTime: string | null;
   nextScheduledPartyCreationOpenTime: string | null;
   maxPartySize: number;
-  howToEnterMessage: string;
   categoryContentId?: 'attraction' | 'character' | 'special-event';
 }
 

@@ -12,7 +12,6 @@ export const rotr: Queue = {
   isAcceptingJoins: false,
   isAcceptingPartyCreation: true,
   maxPartySize: 3,
-  howToEnterMessage: 'lol nm just stand in line',
   categoryContentId: 'attraction',
   park: wdw.park('80007998'),
 };
@@ -24,7 +23,6 @@ export const mtwr: Queue = {
   isAcceptingJoins: false,
   isAcceptingPartyCreation: false,
   maxPartySize: 3,
-  howToEnterMessage: 'Go to Disneyland or reverse the flow of time.',
   categoryContentId: 'attraction',
 };
 export const santa: Queue = {
@@ -35,7 +33,6 @@ export const santa: Queue = {
   isAcceptingJoins: true,
   isAcceptingPartyCreation: true,
   maxPartySize: 10,
-  howToEnterMessage: '',
   categoryContentId: 'character',
 };
 export const queues = [santa, mtwr, rotr];
