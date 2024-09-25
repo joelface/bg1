@@ -172,6 +172,7 @@ describe('ItineraryClient', () => {
     it('returns bookings', async () => {
       respond(bookingsResponse(bookings));
       expect(await client.plans()).toEqual(bookings);
+      expect(client.onRefresh).toHaveBeenCalledTimes(1);
     });
 
     it('includes park data', async () => {
