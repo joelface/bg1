@@ -5,6 +5,7 @@ import FloatingButton from '@/components/FloatingButton';
 import GuestList from '@/components/GuestList';
 import Screen from '@/components/Screen';
 import { useClients } from '@/contexts/Clients';
+import { useNav } from '@/contexts/Nav';
 import { usePlans } from '@/contexts/Plans';
 import useDataLoader from '@/hooks/useDataLoader';
 
@@ -19,6 +20,7 @@ export default function CancelGuests<B extends LightningLane | DasBooking>({
   onCancel: (newGuests: B['guests']) => void;
   dasGuest?: B['guests'][0];
 }) {
+  const { goBack } = useNav();
   const { ll, das } = useClients();
   const client = booking.type === 'DAS' ? das : ll;
   const { refreshPlans } = usePlans();
@@ -37,6 +39,7 @@ export default function CancelGuests<B extends LightningLane | DasBooking>({
       await client.cancelBooking([...guestsToCancel]);
       refreshPlans();
     });
+    await goBack();
     onCancel(guests.filter(g => !guestsToCancel.has(g)));
   }
 
@@ -97,7 +100,7 @@ export default function CancelGuests<B extends LightningLane | DasBooking>({
           />
         </div>
       )}
-      <FloatingButton back disabled={cancelingNone} onClick={cancelBooking}>
+      <FloatingButton disabled={cancelingNone} onClick={cancelBooking}>
         {'Cancel ' + (cancelingAll ? 'Reservation' : 'Guests')}
       </FloatingButton>
 

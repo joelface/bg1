@@ -49,6 +49,15 @@ describe('Home', () => {
     await see.screen('LL');
     expect(see(mk.name)).toBeEnabled();
     expect(Element.prototype.scroll).toHaveBeenCalledTimes(2);
+
+    click('Plans');
+    click(booking.name);
+    await see.screen('Your Lightning Lane');
+    click('Cancel');
+    await see.screen('Cancel Guests');
+    click('Select All');
+    click('Cancel Reservation');
+    await see.screen('Your Plans');
   });
 });
 
