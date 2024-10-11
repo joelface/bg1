@@ -94,13 +94,13 @@
 
     <h2>What is BG1?</h2>
 
-    <p>BG1 is an unofficial, experimental client for obtaining Genie+ Lightning Lane reservations and virtual queue boarding groups at Disney theme parks in the United States.</p>
+    <p>BG1 is an unofficial, experimental client for using Lightning Lane Multi Pass and virtual queues at Disney theme parks in the United States.</p>
 
     <p>The code is open source and <a href="https://github.com/joelface/bg1">available on GitHub</a>.</p>
 
     <h2>Why did you make this?</h2>
 
-    <p>I originally created BG1 to demonstrate how the virtual queue interface in the Walt Disney World app could be tweaked to provide guests with a less frustrating user experience. Many of these improvements were eventually incorporated into the WDW and Disneyland apps. Since then, I've updated BG1 to bring a similarly streamlined experience to the Genie+ service.</p>
+    <p>I originally created BG1 to demonstrate how the virtual queue interface in the Walt Disney World app could be tweaked to provide guests with a less frustrating user experience. Many of these improvements were eventually incorporated into the official park apps. Since then, I updated BG1 to bring a similarly streamlined experience to the Genie+ service. It now supports Lightning Lane Multi Pass.</p>
 
     <h2>How does it work?</h2>
 
@@ -246,11 +246,11 @@
       </dd>
       <dt>How do I get a Lightning Lane for rides like Rise of the Resistance or Seven Dwarfs Mine Train?</dt>
       <dd>
-        <p>Some Lightning Lane attractions are not included in the Genie+ service. To skip the standby line with these attractions, you'll need to purchase an "Individual Lightning Lane" through the official Disney app.</p>
+        <p>Only Lightning Lane Multi Pass attractions can be booked through BG1 (and only after you've purchased Multi Pass through the official Disney park app). Lightning Lane Single Pass attractions cannot be purchased through BG1.</p>
       </dd>
       <dt>Why does BG1 make me sign into my Disney account?</dt>
       <dd>
-        <p>To be able to make the authenticated requests required to communicate with Disney's servers, BG1 needs an access token obtained by signing into your Disney account. This access token, which is only valid for a 24 hour period, is stored locally on your device along with its expiration date and an ID used by the Genie+ API. No other Disney account-related data is stored, and none of it is ever transmitted to any non-Disney server.</p>
+        <p>To be able to make the authenticated requests required to communicate with Disney's servers, BG1 needs an access token obtained by signing into your Disney account. This access token, which is only valid for a 24 hour period, is stored locally on your device along with its expiration date and an ID used by the Lightning Lane API. No other Disney account-related data is stored, and none of it is ever transmitted to any non-Disney server.</p>
         <p>Although BG1 cannot see your password, you may choose to log in using a confirmation code that is texted/emailed to you by tapping the "Need help signing in?" link on the login page.</p>
         <p>You'll receive an automated email from Disney every time you sign in, just like when you log into the Disney app or website on a new device.</p>
       </dd>
