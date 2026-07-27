@@ -43,7 +43,7 @@
   },
   "scripts": {
     "start": "vite",
-    "build": "rm -f src/api/diu.ts && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "checkall": "npm test && npm run lint && npm run typecheck",
     "test": "TZ=UTC jest",
