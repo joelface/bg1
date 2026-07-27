@@ -7,6 +7,7 @@ import NavProvider from '@/providers/NavProvider';
 import ParkProvider from '@/providers/ParkProvider';
 import PlansProvider from '@/providers/PlansProvider';
 import RebookingProvider from '@/providers/RebookingProvider';
+import SchedulerProvider from '@/providers/SchedulerProvider';
 
 import Home from './screens/Home';
 
@@ -19,9 +20,11 @@ export default function Merlock() {
           <ParkProvider>
             <ExperiencesProvider>
               <RebookingProvider>
-                <NavProvider>
-                  <Home tabName={tabName} />
-                </NavProvider>
+                <SchedulerProvider>
+                  <NavProvider>
+                    <Home tabName={tabName} />
+                  </NavProvider>
+                </SchedulerProvider>
               </RebookingProvider>
             </ExperiencesProvider>
           </ParkProvider>

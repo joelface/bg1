@@ -10,11 +10,13 @@ import useScreenState from '@/hooks/useScreenState';
 import CalendarIcon from '@/icons/CalendarIcon';
 import ClockIcon from '@/icons/ClockIcon';
 import LightningIcon from '@/icons/LightningIcon';
+import SettingsIcon from '@/icons/SettingsIcon';
 import kvdb from '@/kvdb';
 import onVisible from '@/onVisible';
 
 import MultiPassList from './Home/MultiPassList';
 import SettingsButton from './Home/SettingsButton';
+import Scheduler from './Scheduler';
 import TimesGuide from './Home/TimesGuide';
 import Plans from './Plans';
 
@@ -40,6 +42,11 @@ const tabs = [
     name: 'Plans' as const,
     icon: <CalendarIcon />,
     component: Plans,
+  },
+  {
+    name: 'Scheduler' as const,
+    icon: <SettingsIcon />,
+    component: Scheduler,
   },
 ];
 
