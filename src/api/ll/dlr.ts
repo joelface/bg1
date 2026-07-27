@@ -98,7 +98,6 @@ export class LLClientDLR extends LLClient {
           : {}),
       },
     });
-    import('../diu'); // preload
     const party = {
       eligible: (eligibleGuests || []).map(this.convertGuest),
       ineligible: (ineligibleGuests || []).map(this.convertGuest),
@@ -130,7 +129,13 @@ export class LLClientDLR extends LLClient {
     offer: Offer,
     guestsToModify?: Pick<Guest, 'id'>[]
   ): Promise<LLMP> {
-    const diu = (await import('../diu')).default;
+    const diu = await (async () => {
+      try {
+        return (await import(/* @vite-ignore */ '../diu')).default;
+      } catch {
+        return async () => ({});
+      }
+    })();
     const guestsById = new Map(offer.guests.eligible.map(g => [g.id, g]));
     const guestIdsToModify = new Set(
       (guestsToModify ?? offer.guests.eligible).map(g => g.id)
